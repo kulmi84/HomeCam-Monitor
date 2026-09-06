@@ -9,8 +9,9 @@ Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es arbeitet unabhän
 3. Das Fenster an die gewünschte Stelle ziehen und passend skalieren.
 
 - Über die Kameraknöpfe am oberen Fensterrand zwischen **Einfahrt**, **Garten** und weiteren Kameras wechseln.
-- Doppelklick ins Bild: Fensterrahmen ein-/ausblenden.
-- Rechtsklick ins Bild: Stream neu laden, Einstellungen oder Beenden.
+- **Snapshot** speichert das aktuelle Kamerabild automatisch unter `Bilder\HomeCam Monitor`.
+- Doppelklick ins Bild: echtes Vollbild; erneuter Doppelklick stellt die vorherige Fenstergröße wieder her.
+- Rechtsklick ins Bild: Snapshot speichern, Stream neu laden, Einstellungen oder Beenden.
 - Fensterposition und Größe werden beim Beenden gespeichert.
 - Kameras können in den Einstellungen jederzeit ergänzt, geändert oder gelöscht werden.
 - Unterstützt werden direkte RTSP-, HTTP- und HTTPS-Streams. `onvif://` ist keine abspielbare Video-Adresse.
