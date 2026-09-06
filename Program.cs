@@ -82,7 +82,9 @@ internal sealed class MonitorForm : Form
         TopMost = settings.AlwaysOnTop;
         Controls.Add(browser);
         Shown += async (_, _) => await InitializeAsync();
+        Resize += (_, _) => ApplyRoundedCorners();
         FormClosing += (_, _) => { closing = true; SaveWindow(); };
+        ApplyRoundedCorners();
     }
 
     private async Task InitializeAsync()
@@ -245,6 +247,22 @@ internal sealed class MonitorForm : Form
             Bounds = Screen.FromControl(this).Bounds;
         }
         else { fullscreen = false; Bounds = windowedBounds; }
+        ApplyRoundedCorners();
+    }
+
+    private void ApplyRoundedCorners()
+    {
+        Region?.Dispose();
+        if (fullscreen)
+        {
+            Region = null;
+            return;
+        }
+
+        var radius = Math.Max(12, DeviceDpi * 14 / 96);
+        var regionHandle = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, radius, radius);
+        Region = Region.FromHrgn(regionHandle);
+        NativeMethods.DeleteObject(regionHandle);
     }
 
     private void SaveWindow()
@@ -266,6 +284,15 @@ internal sealed class MonitorForm : Form
         let lt=-1,lp=Date.now(),sent=false;setInterval(()=>{const v=document.querySelector('video');if(v&&v.readyState>=2&&v.currentTime>lt){lt=v.currentTime;lp=Date.now();sent=false}else if(!sent&&Date.now()-lp>12000){sent=true;chrome.webview.postMessage('stalled')}},2000);
       });
       """;
+}
+
+internal static class NativeMethods
+{
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
+
+    [DllImport("gdi32.dll")]
+    public static extern bool DeleteObject(IntPtr handle);
 }
 
 internal sealed class SettingsForm : Form
