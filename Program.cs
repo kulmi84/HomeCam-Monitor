@@ -63,15 +63,15 @@ internal sealed class MonitorForm : Form
     private readonly VideoView video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
     private readonly FlowLayoutPanel cameraBar = new()
     {
-        Dock = DockStyle.Top, Height = 38, BackColor = Color.FromArgb(28, 28, 28),
-        FlowDirection = FlowDirection.LeftToRight, WrapContents = false, Padding = new Padding(5, 4, 5, 3)
+        AutoSize = true, BackColor = Color.Transparent,
+        FlowDirection = FlowDirection.LeftToRight, WrapContents = false, Padding = new Padding(4)
     };
+    private readonly ToolTip toolTip = new();
     private readonly System.Windows.Forms.Timer watchdog = new() { Interval = 2000 };
     private readonly LibVLC vlc;
     private readonly MediaPlayer player;
     private Settings settings;
-    private long previousTime = -1;
-    private DateTime lastProgress = DateTime.UtcNow;
+    private DateTime lastHealthyPlayback = DateTime.UtcNow;
     private DateTime restartAllowed = DateTime.MinValue;
     private bool restarting;
     private bool closing;
@@ -83,6 +83,7 @@ internal sealed class MonitorForm : Form
         settings = SettingsStore.Load();
         Text = "HomeCam Monitor";
         BackColor = Color.Black;
+        FormBorderStyle = FormBorderStyle.None;
         MinimumSize = new Size(240, 150);
         ClientSize = new Size(Math.Max(240, settings.Width), Math.Max(150, settings.Height));
         if (settings.Left >= 0 && settings.Top >= 0)
@@ -98,6 +99,8 @@ internal sealed class MonitorForm : Form
         Controls.Add(video);
         Controls.Add(cameraBar);
         BuildCameraButtons();
+        PositionCameraBar();
+        cameraBar.BringToFront();
 
         var menu = new ContextMenuStrip();
         menu.Items.Add("Snapshot speichern", null, (_, _) => SaveSnapshot());
@@ -107,9 +110,11 @@ internal sealed class MonitorForm : Form
         menu.Items.Add("Beenden", null, (_, _) => Close());
         video.ContextMenuStrip = menu;
         video.DoubleClick += (_, _) => ToggleFullscreen();
+        Resize += (_, _) => PositionCameraBar();
 
         player.EncounteredError += (_, _) => ScheduleRestart();
         player.Stopped += (_, _) => { if (!restarting && !IsDisposed) ScheduleRestart(); };
+        player.Playing += (_, _) => lastHealthyPlayback = DateTime.UtcNow;
         watchdog.Tick += (_, _) => CheckStream();
         Shown += (_, _) => FirstStart();
         FormClosing += (_, _) => { closing = true; SaveWindow(); };
@@ -128,8 +133,7 @@ internal sealed class MonitorForm : Form
 
     private void StartStream()
     {
-        previousTime = -1;
-        lastProgress = DateTime.UtcNow;
+        lastHealthyPlayback = DateTime.UtcNow;
         var camera = settings.Cameras[settings.SelectedCamera];
         Text = $"HomeCam Monitor – {camera.Name}";
         using var media = new Media(vlc, new Uri(camera.StreamUrl));
@@ -161,16 +165,14 @@ internal sealed class MonitorForm : Form
 
     private void CheckStream()
     {
-        long current = player.Time;
-        if (player.IsPlaying && current > previousTime)
+        if (player.IsPlaying)
         {
-            previousTime = current;
-            lastProgress = DateTime.UtcNow;
+            lastHealthyPlayback = DateTime.UtcNow;
             return;
         }
-        if (DateTime.UtcNow - lastProgress >= TimeSpan.FromSeconds(10))
+        if (DateTime.UtcNow - lastHealthyPlayback >= TimeSpan.FromSeconds(10))
         {
-            lastProgress = DateTime.UtcNow;
+            lastHealthyPlayback = DateTime.UtcNow;
             RestartStream();
         }
     }
@@ -204,36 +206,64 @@ internal sealed class MonitorForm : Form
     private void BuildCameraButtons()
     {
         cameraBar.Controls.Clear();
-        for (var index = 0; index < settings.Cameras.Count; index++)
-        {
-            var cameraIndex = index;
-            var button = new Button
-            {
-                Text = settings.Cameras[index].Name,
-                AutoSize = true,
-                Height = 29,
-                FlatStyle = FlatStyle.Flat,
-                ForeColor = Color.White,
-                BackColor = index == settings.SelectedCamera ? Color.FromArgb(0, 100, 170) : Color.FromArgb(52, 52, 52),
-                Tag = index
-            };
-            button.FlatAppearance.BorderSize = 0;
-            button.Click += (_, _) => SelectCamera(cameraIndex);
-            cameraBar.Controls.Add(button);
-        }
+        var previous = CreateOverlayButton("\uE76B", "Vorherige Kamera");
+        previous.Click += (_, _) => SelectRelativeCamera(-1);
+        cameraBar.Controls.Add(previous);
 
-        var snapshotButton = new Button
+        var cameraName = new Label
         {
-            Text = "Snapshot",
-            AutoSize = true,
-            Height = 29,
-            FlatStyle = FlatStyle.Flat,
-            ForeColor = Color.White,
-            BackColor = Color.FromArgb(52, 52, 52)
+            Text = settings.Cameras.Count > 0 && settings.SelectedCamera < settings.Cameras.Count
+                ? settings.Cameras[settings.SelectedCamera].Name : "Kamera",
+            AutoSize = true, Height = 32, Padding = new Padding(6, 8, 6, 0),
+            ForeColor = Color.White, BackColor = Color.FromArgb(35, 35, 35)
         };
-        snapshotButton.FlatAppearance.BorderSize = 0;
-        snapshotButton.Click += (_, _) => SaveSnapshot();
-        cameraBar.Controls.Add(snapshotButton);
+        cameraBar.Controls.Add(cameraName);
+
+        var next = CreateOverlayButton("\uE76C", "Nächste Kamera");
+        next.Click += (_, _) => SelectRelativeCamera(1);
+        cameraBar.Controls.Add(next);
+
+        var snapshot = CreateOverlayButton("\uE722", "Snapshot speichern");
+        snapshot.Click += (_, _) => SaveSnapshot();
+        cameraBar.Controls.Add(snapshot);
+
+        var options = CreateOverlayButton("\uE713", "Einstellungen");
+        options.Click += (_, _) => OpenSettings();
+        cameraBar.Controls.Add(options);
+
+        var close = CreateOverlayButton("\uE711", "Schließen");
+        close.Click += (_, _) => Close();
+        cameraBar.Controls.Add(close);
+        PositionCameraBar();
+    }
+
+    private Button CreateOverlayButton(string symbol, string hint)
+    {
+        var button = new Button
+        {
+            Text = symbol, Font = new Font("Segoe MDL2 Assets", 12),
+            Size = new Size(34, 32), Margin = new Padding(1),
+            FlatStyle = FlatStyle.Flat, ForeColor = Color.White,
+            BackColor = Color.FromArgb(35, 35, 35), TabStop = false
+        };
+        button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(75, 75, 75);
+        button.FlatAppearance.MouseDownBackColor = Color.FromArgb(0, 100, 170);
+        toolTip.SetToolTip(button, hint);
+        return button;
+    }
+
+    private void PositionCameraBar()
+    {
+        cameraBar.Location = new Point(Math.Max(8, (ClientSize.Width - cameraBar.Width) / 2), 8);
+        cameraBar.BringToFront();
+    }
+
+    private void SelectRelativeCamera(int direction)
+    {
+        if (settings.Cameras.Count < 2) return;
+        var index = (settings.SelectedCamera + direction + settings.Cameras.Count) % settings.Cameras.Count;
+        SelectCamera(index);
     }
 
     private void SelectCamera(int index)
@@ -302,16 +332,15 @@ internal sealed class MonitorForm : Form
             windowedBounds = Bounds;
             fullscreen = true;
             cameraBar.Visible = false;
-            FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Normal;
             Bounds = Screen.FromControl(this).Bounds;
         }
         else
         {
             fullscreen = false;
-            FormBorderStyle = FormBorderStyle.Sizable;
             Bounds = windowedBounds;
             cameraBar.Visible = true;
+            PositionCameraBar();
         }
         ResumeLayout(true);
     }
@@ -337,6 +366,41 @@ internal sealed class MonitorForm : Form
         player.Stop();
         player.Dispose();
         vlc.Dispose();
+    }
+
+    protected override void WndProc(ref Message message)
+    {
+        const int wmNcHitTest = 0x0084;
+        const int htClient = 1;
+        const int htCaption = 2;
+        const int htLeft = 10;
+        const int htRight = 11;
+        const int htTop = 12;
+        const int htTopLeft = 13;
+        const int htTopRight = 14;
+        const int htBottom = 15;
+        const int htBottomLeft = 16;
+        const int htBottomRight = 17;
+
+        base.WndProc(ref message);
+        if (message.Msg != wmNcHitTest || fullscreen || message.Result.ToInt32() != htClient) return;
+
+        var cursor = PointToClient(Cursor.Position);
+        const int grip = 7;
+        var left = cursor.X <= grip;
+        var right = cursor.X >= ClientSize.Width - grip;
+        var topEdge = cursor.Y <= grip;
+        var bottom = cursor.Y >= ClientSize.Height - grip;
+
+        if (left && topEdge) message.Result = (IntPtr)htTopLeft;
+        else if (right && topEdge) message.Result = (IntPtr)htTopRight;
+        else if (left && bottom) message.Result = (IntPtr)htBottomLeft;
+        else if (right && bottom) message.Result = (IntPtr)htBottomRight;
+        else if (left) message.Result = (IntPtr)htLeft;
+        else if (right) message.Result = (IntPtr)htRight;
+        else if (topEdge) message.Result = (IntPtr)htTop;
+        else if (bottom) message.Result = (IntPtr)htBottom;
+        else if (cursor.Y <= 46 && !cameraBar.Bounds.Contains(cursor)) message.Result = (IntPtr)htCaption;
     }
 }
 
