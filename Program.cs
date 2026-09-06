@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
@@ -63,6 +62,8 @@ internal sealed class MonitorForm : Form
     private bool fullscreen;
     private bool closing;
     private Rectangle windowedBounds;
+    private Rectangle pointerStartBounds;
+    private Point pointerStart;
     private DateTime reloadAllowed = DateTime.MinValue;
 
     public MonitorForm()
@@ -121,7 +122,7 @@ internal sealed class MonitorForm : Form
             return camera.StreamUrl;
         var streamName = Uri.UnescapeDataString(source.AbsolutePath.Trim('/'));
         if (streamName.Length == 0) throw new InvalidOperationException("In der Streamadresse fehlt der go2rtc-Streamname.");
-        return $"http://{source.Host}:1984/stream.html?src={Uri.EscapeDataString(streamName)}&mode=webrtc&background=true&title={Uri.EscapeDataString(camera.Name)}";
+        return $"http://{source.Host}:1984/stream.html?src={Uri.EscapeDataString(streamName)}&mode=mse&background=true&title={Uri.EscapeDataString(camera.Name)}";
     }
 
     private void BrowserMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs eventArgs)
@@ -133,6 +134,7 @@ internal sealed class MonitorForm : Form
     private void HandleAction(string action)
     {
         if (closing) return;
+        if (HandlePointerAction(action)) return;
         switch (action)
         {
             case "previous": SelectRelativeCamera(-1); break;
@@ -141,9 +143,37 @@ internal sealed class MonitorForm : Form
             case "settings": OpenSettings(); break;
             case "close": Close(); break;
             case "fullscreen": ToggleFullscreen(); break;
-            case "move": BeginWindowOperation(NativeMethods.HtCaption); break;
-            case "resize": BeginWindowOperation(NativeMethods.HtBottomRight); break;
             case "stalled": ReloadStream(); break;
+        }
+    }
+
+    private bool HandlePointerAction(string action)
+    {
+        var parts = action.Split('|');
+        if (parts.Length != 3 || !int.TryParse(parts[1], out var screenX) || !int.TryParse(parts[2], out var screenY))
+            return false;
+
+        switch (parts[0])
+        {
+            case "moveStart":
+            case "resizeStart":
+                pointerStart = new Point(screenX, screenY);
+                pointerStartBounds = Bounds;
+                return true;
+            case "moveTo" when !fullscreen:
+                Location = new Point(pointerStartBounds.Left + screenX - pointerStart.X,
+                    pointerStartBounds.Top + screenY - pointerStart.Y);
+                return true;
+            case "resizeTo" when !fullscreen:
+                Size = new Size(
+                    Math.Max(MinimumSize.Width, pointerStartBounds.Width + screenX - pointerStart.X),
+                    Math.Max(MinimumSize.Height, pointerStartBounds.Height + screenY - pointerStart.Y));
+                return true;
+            case "moveEnd":
+            case "resizeEnd":
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -217,13 +247,6 @@ internal sealed class MonitorForm : Form
         else { fullscreen = false; Bounds = windowedBounds; }
     }
 
-    private void BeginWindowOperation(int hitTest)
-    {
-        if (fullscreen) return;
-        NativeMethods.ReleaseCapture();
-        NativeMethods.SendMessage(Handle, NativeMethods.WmNcLeftButtonDown, (IntPtr)hitTest, IntPtr.Zero);
-    }
-
     private void SaveWindow()
     {
         var value = fullscreen ? windowedBounds : Bounds;
@@ -235,17 +258,14 @@ internal sealed class MonitorForm : Form
       document.addEventListener('DOMContentLoaded',()=>{
         const s=document.createElement('style');s.textContent=`html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000}video-stream,video{width:100%!important;height:100%!important;max-width:none!important;object-fit:contain!important}video::-webkit-media-controls{display:none!important}#hcm-controls{position:fixed;z-index:2147483647;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:4px 7px;border-radius:12px;background:rgba(0,0,0,.34);backdrop-filter:blur(4px);color:#fff;font:13px 'Segoe UI';user-select:none}#hcm-controls button{width:32px;height:30px;padding:0;border:0;border-radius:8px;background:transparent;color:#fff;font:18px 'Segoe Fluent Icons','Segoe MDL2 Assets';cursor:pointer}#hcm-controls button:hover{background:rgba(255,255,255,.18)}#hcm-name{min-width:58px;text-align:center;white-space:nowrap;padding:0 4px}#hcm-note{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);padding:5px 10px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;font:13px 'Segoe UI';display:none}`;document.head.appendChild(s);
         const p=new URLSearchParams(location.search),bar=document.createElement('div');bar.id='hcm-controls';bar.innerHTML=`<button data-a="move" title="Verschieben">&#xE7C2;</button><button data-a="previous" title="Vorherige Kamera">&#xE76B;</button><span id="hcm-name"></span><button data-a="next" title="Nächste Kamera">&#xE76C;</button><button data-a="snapshot" title="Snapshot">&#xE722;</button><button data-a="settings" title="Einstellungen">&#xE713;</button><button data-a="resize" title="Größe ändern">&#xE740;</button><button data-a="close" title="Schließen">&#xE711;</button>`;bar.querySelector('#hcm-name').textContent=p.get('title')||p.get('src')||'Kamera';document.body.appendChild(bar);
-        const note=document.createElement('div');note.id='hcm-note';document.body.appendChild(note);bar.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(b){e.preventDefault();chrome.webview.postMessage(b.dataset.a)}});document.addEventListener('dblclick',e=>{if(!e.target.closest('#hcm-controls'))chrome.webview.postMessage('fullscreen')});window.hcmFlash=t=>{note.textContent=t;note.style.display='block';setTimeout(()=>note.style.display='none',1800)};
+        const note=document.createElement('div');note.id='hcm-note';document.body.appendChild(note);let operation=null,pointerId=0;
+        bar.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();const a=b.dataset.a;if(a==='move'||a==='resize'){operation=a;pointerId=e.pointerId;b.setPointerCapture(e.pointerId);chrome.webview.postMessage(`${a}Start|${Math.round(e.screenX)}|${Math.round(e.screenY)}`)}else chrome.webview.postMessage(a)});
+        bar.addEventListener('pointermove',e=>{if(operation&&e.pointerId===pointerId)chrome.webview.postMessage(`${operation}To|${Math.round(e.screenX)}|${Math.round(e.screenY)}`)});
+        const end=e=>{if(operation&&e.pointerId===pointerId){chrome.webview.postMessage(`${operation}End|${Math.round(e.screenX)}|${Math.round(e.screenY)}`);operation=null}};bar.addEventListener('pointerup',end);bar.addEventListener('pointercancel',end);
+        document.addEventListener('dblclick',e=>{if(!e.target.closest('#hcm-controls'))chrome.webview.postMessage('fullscreen')});window.hcmFlash=t=>{note.textContent=t;note.style.display='block';setTimeout(()=>note.style.display='none',1800)};
         let lt=-1,lp=Date.now(),sent=false;setInterval(()=>{const v=document.querySelector('video');if(v&&v.readyState>=2&&v.currentTime>lt){lt=v.currentTime;lp=Date.now();sent=false}else if(!sent&&Date.now()-lp>12000){sent=true;chrome.webview.postMessage('stalled')}},2000);
       });
       """;
-}
-
-internal static class NativeMethods
-{
-    public const int WmNcLeftButtonDown = 0x00A1, HtCaption = 2, HtBottomRight = 17;
-    [DllImport("user32.dll")] public static extern bool ReleaseCapture();
-    [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr window, int message, IntPtr parameter, IntPtr data);
 }
 
 internal sealed class SettingsForm : Form

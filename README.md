@@ -1,6 +1,6 @@
 # HomeCam Monitor
 
-Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es verwendet den WebRTC-Player von go2rtc, arbeitet unabhängig vom Home-Assistant-Dashboard und verbindet den ausgewählten Stream bei einem Abbruch automatisch neu.
+Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es verwendet den MSE-Player von go2rtc wie die bisherige Home-Assistant-Karte, arbeitet unabhängig vom Dashboard und verbindet den ausgewählten Stream bei einem Abbruch automatisch neu.
 
 ## Bedienung
 
