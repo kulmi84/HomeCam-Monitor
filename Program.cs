@@ -75,6 +75,8 @@ internal sealed class MonitorForm : Form
     private DateTime restartAllowed = DateTime.MinValue;
     private bool restarting;
     private bool closing;
+    private bool fullscreen;
+    private Rectangle windowedBounds;
 
     public MonitorForm()
     {
@@ -98,12 +100,13 @@ internal sealed class MonitorForm : Form
         BuildCameraButtons();
 
         var menu = new ContextMenuStrip();
+        menu.Items.Add("Snapshot speichern", null, (_, _) => SaveSnapshot());
         menu.Items.Add("Stream neu laden", null, (_, _) => RestartStream());
         menu.Items.Add("Einstellungen …", null, (_, _) => OpenSettings());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Beenden", null, (_, _) => Close());
         video.ContextMenuStrip = menu;
-        video.DoubleClick += (_, _) => ToggleCompactMode();
+        video.DoubleClick += (_, _) => ToggleFullscreen();
 
         player.EncounteredError += (_, _) => ScheduleRestart();
         player.Stopped += (_, _) => { if (!restarting && !IsDisposed) ScheduleRestart(); };
@@ -218,6 +221,19 @@ internal sealed class MonitorForm : Form
             button.Click += (_, _) => SelectCamera(cameraIndex);
             cameraBar.Controls.Add(button);
         }
+
+        var snapshotButton = new Button
+        {
+            Text = "Snapshot",
+            AutoSize = true,
+            Height = 29,
+            FlatStyle = FlatStyle.Flat,
+            ForeColor = Color.White,
+            BackColor = Color.FromArgb(52, 52, 52)
+        };
+        snapshotButton.FlatAppearance.BorderSize = 0;
+        snapshotButton.Click += (_, _) => SaveSnapshot();
+        cameraBar.Controls.Add(snapshotButton);
     }
 
     private void SelectCamera(int index)
@@ -238,15 +254,79 @@ internal sealed class MonitorForm : Form
             key?.DeleteValue("HomeCamMonitor", false);
     }
 
-    private void ToggleCompactMode()
+    private void SaveSnapshot()
     {
-        FormBorderStyle = FormBorderStyle == FormBorderStyle.None ? FormBorderStyle.Sizable : FormBorderStyle.None;
+        if (!HasUsableCamera() || !player.IsPlaying)
+        {
+            MessageBox.Show(this, "Der Kamerastream läuft noch nicht.", "Snapshot nicht möglich",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        try
+        {
+            var pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            var folder = Path.Combine(pictures, "HomeCam Monitor");
+            Directory.CreateDirectory(folder);
+
+            var cameraName = string.Concat(settings.Cameras[settings.SelectedCamera].Name
+                .Select(character => Path.GetInvalidFileNameChars().Contains(character) ? '_' : character));
+            var fileName = $"{cameraName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png";
+            var filePath = Path.Combine(folder, fileName);
+
+            if (!player.TakeSnapshot(0, filePath, 0, 0))
+                throw new InvalidOperationException("LibVLC konnte kein Bild speichern.");
+
+            ShowSnapshotFeedback(fileName);
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(this, $"Der Snapshot konnte nicht gespeichert werden.\n\n{exception.Message}",
+                "Snapshot fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+
+    private async void ShowSnapshotFeedback(string fileName)
+    {
+        Text = $"HomeCam Monitor – Snapshot gespeichert: {fileName}";
+        await Task.Delay(2500);
+        if (!IsDisposed && HasUsableCamera())
+            Text = $"HomeCam Monitor – {settings.Cameras[settings.SelectedCamera].Name}";
+    }
+
+    private void ToggleFullscreen()
+    {
+        SuspendLayout();
+        if (!fullscreen)
+        {
+            windowedBounds = Bounds;
+            fullscreen = true;
+            cameraBar.Visible = false;
+            FormBorderStyle = FormBorderStyle.None;
+            WindowState = FormWindowState.Normal;
+            Bounds = Screen.FromControl(this).Bounds;
+        }
+        else
+        {
+            fullscreen = false;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            Bounds = windowedBounds;
+            cameraBar.Visible = true;
+        }
+        ResumeLayout(true);
     }
 
     private void SaveWindow()
     {
         watchdog.Stop();
-        if (WindowState == FormWindowState.Normal)
+        if (fullscreen)
+        {
+            settings.Left = windowedBounds.Left;
+            settings.Top = windowedBounds.Top;
+            settings.Width = windowedBounds.Width;
+            settings.Height = windowedBounds.Height;
+        }
+        else if (WindowState == FormWindowState.Normal)
         {
             settings.Left = Left;
             settings.Top = Top;
