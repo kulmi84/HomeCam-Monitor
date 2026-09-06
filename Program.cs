@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Runtime.InteropServices;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
 using Microsoft.Win32;
@@ -110,6 +111,8 @@ internal sealed class MonitorForm : Form
         menu.Items.Add("Beenden", null, (_, _) => Close());
         video.ContextMenuStrip = menu;
         video.DoubleClick += (_, _) => ToggleFullscreen();
+        video.MouseDown += VideoMouseDown;
+        video.MouseMove += VideoMouseMove;
         Resize += (_, _) => PositionCameraBar();
 
         player.EncounteredError += (_, _) => ScheduleRestart();
@@ -215,7 +218,7 @@ internal sealed class MonitorForm : Form
             Text = settings.Cameras.Count > 0 && settings.SelectedCamera < settings.Cameras.Count
                 ? settings.Cameras[settings.SelectedCamera].Name : "Kamera",
             AutoSize = true, Height = 32, Padding = new Padding(6, 8, 6, 0),
-            ForeColor = Color.White, BackColor = Color.FromArgb(35, 35, 35)
+            ForeColor = Color.White, BackColor = Color.Transparent
         };
         cameraBar.Controls.Add(cameraName);
 
@@ -244,7 +247,7 @@ internal sealed class MonitorForm : Form
             Text = symbol, Font = new Font("Segoe MDL2 Assets", 12),
             Size = new Size(34, 32), Margin = new Padding(1),
             FlatStyle = FlatStyle.Flat, ForeColor = Color.White,
-            BackColor = Color.FromArgb(35, 35, 35), TabStop = false
+            BackColor = Color.Transparent, TabStop = false, UseVisualStyleBackColor = false
         };
         button.FlatAppearance.BorderSize = 0;
         button.FlatAppearance.MouseOverBackColor = Color.FromArgb(75, 75, 75);
@@ -255,8 +258,54 @@ internal sealed class MonitorForm : Form
 
     private void PositionCameraBar()
     {
-        cameraBar.Location = new Point(Math.Max(8, (ClientSize.Width - cameraBar.Width) / 2), 8);
+        cameraBar.Location = new Point(
+            Math.Max(8, (ClientSize.Width - cameraBar.Width) / 2),
+            Math.Max(8, ClientSize.Height - cameraBar.Height - 8));
         cameraBar.BringToFront();
+    }
+
+    private void VideoMouseDown(object? sender, MouseEventArgs eventArgs)
+    {
+        if (eventArgs.Button != MouseButtons.Left || fullscreen) return;
+        var hitTest = GetEdgeHitTest(eventArgs.Location);
+        if (hitTest == NativeMethods.HtClient && eventArgs.Y <= 28)
+            hitTest = NativeMethods.HtCaption;
+        if (hitTest == NativeMethods.HtClient) return;
+
+        NativeMethods.ReleaseCapture();
+        NativeMethods.SendMessage(Handle, NativeMethods.WmNcLeftButtonDown, (IntPtr)hitTest, IntPtr.Zero);
+    }
+
+    private void VideoMouseMove(object? sender, MouseEventArgs eventArgs)
+    {
+        if (fullscreen) { video.Cursor = Cursors.Default; return; }
+        video.Cursor = GetEdgeHitTest(eventArgs.Location) switch
+        {
+            NativeMethods.HtLeft or NativeMethods.HtRight => Cursors.SizeWE,
+            NativeMethods.HtTop or NativeMethods.HtBottom => Cursors.SizeNS,
+            NativeMethods.HtTopLeft or NativeMethods.HtBottomRight => Cursors.SizeNWSE,
+            NativeMethods.HtTopRight or NativeMethods.HtBottomLeft => Cursors.SizeNESW,
+            _ => Cursors.Default
+        };
+    }
+
+    private int GetEdgeHitTest(Point cursor)
+    {
+        const int grip = 8;
+        var left = cursor.X <= grip;
+        var right = cursor.X >= video.ClientSize.Width - grip;
+        var topEdge = cursor.Y <= grip;
+        var bottom = cursor.Y >= video.ClientSize.Height - grip;
+
+        if (left && topEdge) return NativeMethods.HtTopLeft;
+        if (right && topEdge) return NativeMethods.HtTopRight;
+        if (left && bottom) return NativeMethods.HtBottomLeft;
+        if (right && bottom) return NativeMethods.HtBottomRight;
+        if (left) return NativeMethods.HtLeft;
+        if (right) return NativeMethods.HtRight;
+        if (topEdge) return NativeMethods.HtTop;
+        if (bottom) return NativeMethods.HtBottom;
+        return NativeMethods.HtClient;
     }
 
     private void SelectRelativeCamera(int direction)
@@ -371,19 +420,8 @@ internal sealed class MonitorForm : Form
     protected override void WndProc(ref Message message)
     {
         const int wmNcHitTest = 0x0084;
-        const int htClient = 1;
-        const int htCaption = 2;
-        const int htLeft = 10;
-        const int htRight = 11;
-        const int htTop = 12;
-        const int htTopLeft = 13;
-        const int htTopRight = 14;
-        const int htBottom = 15;
-        const int htBottomLeft = 16;
-        const int htBottomRight = 17;
-
         base.WndProc(ref message);
-        if (message.Msg != wmNcHitTest || fullscreen || message.Result.ToInt32() != htClient) return;
+        if (message.Msg != wmNcHitTest || fullscreen || message.Result.ToInt32() != NativeMethods.HtClient) return;
 
         var cursor = PointToClient(Cursor.Position);
         const int grip = 7;
@@ -392,16 +430,37 @@ internal sealed class MonitorForm : Form
         var topEdge = cursor.Y <= grip;
         var bottom = cursor.Y >= ClientSize.Height - grip;
 
-        if (left && topEdge) message.Result = (IntPtr)htTopLeft;
-        else if (right && topEdge) message.Result = (IntPtr)htTopRight;
-        else if (left && bottom) message.Result = (IntPtr)htBottomLeft;
-        else if (right && bottom) message.Result = (IntPtr)htBottomRight;
-        else if (left) message.Result = (IntPtr)htLeft;
-        else if (right) message.Result = (IntPtr)htRight;
-        else if (topEdge) message.Result = (IntPtr)htTop;
-        else if (bottom) message.Result = (IntPtr)htBottom;
-        else if (cursor.Y <= 46 && !cameraBar.Bounds.Contains(cursor)) message.Result = (IntPtr)htCaption;
+        if (left && topEdge) message.Result = (IntPtr)NativeMethods.HtTopLeft;
+        else if (right && topEdge) message.Result = (IntPtr)NativeMethods.HtTopRight;
+        else if (left && bottom) message.Result = (IntPtr)NativeMethods.HtBottomLeft;
+        else if (right && bottom) message.Result = (IntPtr)NativeMethods.HtBottomRight;
+        else if (left) message.Result = (IntPtr)NativeMethods.HtLeft;
+        else if (right) message.Result = (IntPtr)NativeMethods.HtRight;
+        else if (topEdge) message.Result = (IntPtr)NativeMethods.HtTop;
+        else if (bottom) message.Result = (IntPtr)NativeMethods.HtBottom;
+        else if (cursor.Y <= 28) message.Result = (IntPtr)NativeMethods.HtCaption;
     }
+}
+
+internal static class NativeMethods
+{
+    public const int WmNcLeftButtonDown = 0x00A1;
+    public const int HtClient = 1;
+    public const int HtCaption = 2;
+    public const int HtLeft = 10;
+    public const int HtRight = 11;
+    public const int HtTop = 12;
+    public const int HtTopLeft = 13;
+    public const int HtTopRight = 14;
+    public const int HtBottom = 15;
+    public const int HtBottomLeft = 16;
+    public const int HtBottomRight = 17;
+
+    [DllImport("user32.dll")]
+    public static extern bool ReleaseCapture();
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr SendMessage(IntPtr window, int message, IntPtr parameter, IntPtr data);
 }
 
 internal sealed class SettingsForm : Form
