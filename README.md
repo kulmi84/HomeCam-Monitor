@@ -10,9 +10,10 @@ Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es verwendet den MSE
 
 - Das Kamerabild wird rahmenlos ohne Windows-Titelleiste angezeigt.
 - Das normale Kamerafenster besitzt abgerundete Ecken wie die Home-Assistant-Karte.
-- Die transparenten Web-Symbole unten im Bild wechseln die Kamera, verschieben oder skalieren das Fenster, speichern einen Snapshot, öffnen die Einstellungen oder schließen das Programm.
+- Die transparenten Web-Symbole unten im Bild wechseln die Kamera, verschieben das Fenster, speichern einen Snapshot, starten Bild-im-Bild, öffnen die Einstellungen oder schließen das Programm.
+- **Bild im Bild** verwendet die native Windows-Videodarstellung für die beste Bildqualität. Das Hauptfenster wird dabei ausgeblendet und erscheint wieder, sobald Bild-im-Bild geschlossen wird.
 - **Snapshot** speichert das aktuelle Kamerabild automatisch unter `Bilder\HomeCam Monitor`.
-- Zum Verschieben das Bild am oberen Rand ziehen; die Fensterkanten und -ecken bleiben skalierbar.
+- Das normale Fenster lässt sich wie ein Browserfenster direkt an allen Kanten und Ecken skalieren.
 - Doppelklick ins Bild: echtes Vollbild; erneuter Doppelklick stellt die vorherige Fenstergröße wieder her.
 - Rechtsklick ins Bild: Snapshot speichern, Stream neu laden, Einstellungen oder Beenden.
 - Fensterposition und Größe werden beim Beenden gespeichert.

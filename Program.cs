@@ -64,6 +64,7 @@ internal sealed class MonitorForm : Form
     private bool closing;
     private Rectangle windowedBounds;
     private DateTime reloadAllowed = DateTime.MinValue;
+    private bool pictureInPicture;
 
     public MonitorForm()
     {
@@ -144,8 +145,27 @@ internal sealed class MonitorForm : Form
             case "settings": OpenSettings(); break;
             case "close": Close(); break;
             case "fullscreen": ToggleFullscreen(); break;
+            case "pipEntered": EnterPictureInPicture(); break;
+            case "pipLeft": LeavePictureInPicture(); break;
             case "stalled": ReloadStream(); break;
         }
+    }
+
+    private void EnterPictureInPicture()
+    {
+        pictureInPicture = true;
+        SaveWindow();
+        ShowInTaskbar = false;
+        Hide();
+    }
+
+    private void LeavePictureInPicture()
+    {
+        if (closing || !pictureInPicture) return;
+        pictureInPicture = false;
+        ShowInTaskbar = true;
+        Show();
+        Activate();
     }
 
     private bool HandlePointerAction(string action)
@@ -272,15 +292,39 @@ internal sealed class MonitorForm : Form
         SettingsStore.Save(settings);
     }
 
+    protected override void WndProc(ref Message message)
+    {
+        base.WndProc(ref message);
+        if (message.Msg != NativeMethods.WmNcHitTest || fullscreen || WindowState != FormWindowState.Normal) return;
+
+        var cursor = PointToClient(Cursor.Position);
+        var grip = Math.Max(8, DeviceDpi * 8 / 96);
+        var left = cursor.X < grip;
+        var right = cursor.X >= ClientSize.Width - grip;
+        var top = cursor.Y < grip;
+        var bottom = cursor.Y >= ClientSize.Height - grip;
+
+        if (left && top) message.Result = (IntPtr)NativeMethods.HtTopLeft;
+        else if (right && top) message.Result = (IntPtr)NativeMethods.HtTopRight;
+        else if (left && bottom) message.Result = (IntPtr)NativeMethods.HtBottomLeft;
+        else if (right && bottom) message.Result = (IntPtr)NativeMethods.HtBottomRight;
+        else if (left) message.Result = (IntPtr)NativeMethods.HtLeft;
+        else if (right) message.Result = (IntPtr)NativeMethods.HtRight;
+        else if (top) message.Result = (IntPtr)NativeMethods.HtTop;
+        else if (bottom) message.Result = (IntPtr)NativeMethods.HtBottom;
+    }
+
     private const string PlayerScript = """
       document.addEventListener('DOMContentLoaded',()=>{
         const s=document.createElement('style');s.textContent=`html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000}video-stream,video{width:100%!important;height:100%!important;max-width:none!important;object-fit:contain!important}video::-webkit-media-controls{display:none!important}#hcm-controls{position:fixed;z-index:2147483647;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:4px 7px;border-radius:12px;background:rgba(0,0,0,.34);backdrop-filter:blur(4px);color:#fff;font:13px 'Segoe UI';user-select:none}#hcm-controls button{width:32px;height:30px;padding:0;border:0;border-radius:8px;background:transparent;color:#fff;font:18px 'Segoe Fluent Icons','Segoe MDL2 Assets';cursor:pointer}#hcm-controls button:hover{background:rgba(255,255,255,.18)}#hcm-name{min-width:58px;text-align:center;white-space:nowrap;padding:0 4px}#hcm-note{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);padding:5px 10px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;font:13px 'Segoe UI';display:none}`;document.head.appendChild(s);
-        const p=new URLSearchParams(location.search),bar=document.createElement('div');bar.id='hcm-controls';bar.innerHTML=`<button data-a="move" title="Verschieben">&#xE7C2;</button><button data-a="previous" title="Vorherige Kamera">&#xE76B;</button><span id="hcm-name"></span><button data-a="next" title="Nächste Kamera">&#xE76C;</button><button data-a="snapshot" title="Snapshot">&#xE722;</button><button data-a="settings" title="Einstellungen">&#xE713;</button><button data-a="resize" title="Größe ändern">&#xE740;</button><button data-a="close" title="Schließen">&#xE711;</button>`;bar.querySelector('#hcm-name').textContent=p.get('title')||p.get('src')||'Kamera';document.body.appendChild(bar);
+        const p=new URLSearchParams(location.search),bar=document.createElement('div');bar.id='hcm-controls';bar.innerHTML=`<button data-a="move" title="Verschieben">&#xE7C2;</button><button data-a="previous" title="Vorherige Kamera">&#xE76B;</button><span id="hcm-name"></span><button data-a="next" title="Nächste Kamera">&#xE76C;</button><button data-a="snapshot" title="Snapshot">&#xE722;</button><button data-a="settings" title="Einstellungen">&#xE713;</button><button data-a="pip" title="Bild im Bild">&#xE91B;</button><button data-a="close" title="Schließen">&#xE711;</button>`;bar.querySelector('#hcm-name').textContent=p.get('title')||p.get('src')||'Kamera';document.body.appendChild(bar);
         const note=document.createElement('div');note.id='hcm-note';document.body.appendChild(note);let operation=null,pointerId=0;
-        bar.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();const a=b.dataset.a;if(a==='move'||a==='resize'){operation=a;pointerId=e.pointerId;b.setPointerCapture(e.pointerId);chrome.webview.postMessage(`${a}Start|${Math.round(e.screenX)}|${Math.round(e.screenY)}`)}else chrome.webview.postMessage(a)});
+        bar.addEventListener('pointerdown',async e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();const a=b.dataset.a;if(a==='pip'){const v=document.querySelector('video');if(v&&document.pictureInPictureEnabled)await v.requestPictureInPicture();return}if(a==='move'){operation=a;pointerId=e.pointerId;b.setPointerCapture(e.pointerId);chrome.webview.postMessage(`${a}Start|${Math.round(e.screenX)}|${Math.round(e.screenY)}`)}else chrome.webview.postMessage(a)});
         bar.addEventListener('pointermove',e=>{if(operation&&e.pointerId===pointerId)chrome.webview.postMessage(`${operation}To|${Math.round(e.screenX)}|${Math.round(e.screenY)}`)});
         const end=e=>{if(operation&&e.pointerId===pointerId){chrome.webview.postMessage(`${operation}End|${Math.round(e.screenX)}|${Math.round(e.screenY)}`);operation=null}};bar.addEventListener('pointerup',end);bar.addEventListener('pointercancel',end);
         document.addEventListener('dblclick',e=>{if(!e.target.closest('#hcm-controls'))chrome.webview.postMessage('fullscreen')});window.hcmFlash=t=>{note.textContent=t;note.style.display='block';setTimeout(()=>note.style.display='none',1800)};
+        document.addEventListener('enterpictureinpicture',()=>chrome.webview.postMessage('pipEntered'));
+        document.addEventListener('leavepictureinpicture',()=>chrome.webview.postMessage('pipLeft'));
         let lt=-1,lp=Date.now(),sent=false;setInterval(()=>{const v=document.querySelector('video');if(v&&v.readyState>=2&&v.currentTime>lt){lt=v.currentTime;lp=Date.now();sent=false}else if(!sent&&Date.now()-lp>12000){sent=true;chrome.webview.postMessage('stalled')}},2000);
       });
       """;
@@ -288,11 +332,20 @@ internal sealed class MonitorForm : Form
 
 internal static class NativeMethods
 {
+    public const int WmNcHitTest = 0x0084;
     public const int WmSysCommand = 0x0112;
     public const int ScMove = 0xF010;
     public const int ScSize = 0xF000;
     public const int HtCaption = 2;
     public const int WmszBottomRight = 8;
+    public const int HtLeft = 10;
+    public const int HtRight = 11;
+    public const int HtTop = 12;
+    public const int HtTopLeft = 13;
+    public const int HtTopRight = 14;
+    public const int HtBottom = 15;
+    public const int HtBottomLeft = 16;
+    public const int HtBottomRight = 17;
 
     [DllImport("user32.dll")]
     public static extern bool ReleaseCapture();
