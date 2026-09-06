@@ -1,6 +1,6 @@
 # HomeCam Monitor
 
-Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es arbeitet unabhängig vom Home-Assistant-Dashboard und verbindet den ausgewählten Stream bei einem Abbruch automatisch neu.
+Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es verwendet den WebRTC-Player von go2rtc, arbeitet unabhängig vom Home-Assistant-Dashboard und verbindet den ausgewählten Stream bei einem Abbruch automatisch neu.
 
 ## Bedienung
 
@@ -9,7 +9,7 @@ Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es arbeitet unabhän
 3. Das Fenster an die gewünschte Stelle ziehen und passend skalieren.
 
 - Das Kamerabild wird rahmenlos ohne Windows-Titelleiste angezeigt.
-- Die dezenten Symbole unten im Bild wechseln die Kamera, speichern einen Snapshot, öffnen die Einstellungen oder schließen das Programm.
+- Die transparenten Web-Symbole unten im Bild wechseln die Kamera, verschieben oder skalieren das Fenster, speichern einen Snapshot, öffnen die Einstellungen oder schließen das Programm.
 - **Snapshot** speichert das aktuelle Kamerabild automatisch unter `Bilder\HomeCam Monitor`.
 - Zum Verschieben das Bild am oberen Rand ziehen; die Fensterkanten und -ecken bleiben skalierbar.
 - Doppelklick ins Bild: echtes Vollbild; erneuter Doppelklick stellt die vorherige Fenstergröße wieder her.

@@ -1,7 +1,7 @@
-using System.Text.Json;
 using System.Runtime.InteropServices;
-using LibVLCSharp.Shared;
-using LibVLCSharp.WinForms;
+using System.Text.Json;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Win32;
 
 namespace HomeCamMonitor;
@@ -12,7 +12,6 @@ internal static class Program
     private static void Main()
     {
         ApplicationConfiguration.Initialize();
-        Core.Initialize();
         Application.Run(new MonitorForm());
     }
 }
@@ -21,8 +20,8 @@ internal sealed class Settings
 {
     public List<CameraEntry> Cameras { get; set; } =
     [
-        new() { Name = "Einfahrt", StreamUrl = "rtsp://ha:PASSWORT@192.168.189.206:554/h264Preview_01_sub" },
-        new() { Name = "Garten", StreamUrl = "rtsp://ha:PASSWORT@192.168.189.207:554/h264Preview_01_sub" }
+        new() { Name = "Einfahrt", StreamUrl = "rtsp://192.168.9.8:8554/Einfahrt" },
+        new() { Name = "Garten", StreamUrl = "rtsp://192.168.9.8:8554/Garten" }
     ];
     public int SelectedCamera { get; set; }
     public bool AlwaysOnTop { get; set; } = true;
@@ -31,7 +30,6 @@ internal sealed class Settings
     public int Top { get; set; } = -1;
     public int Width { get; set; } = 480;
     public int Height { get; set; } = 300;
-
 }
 
 internal sealed class CameraEntry
@@ -45,39 +43,27 @@ internal static class SettingsStore
     private static readonly string Folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor");
     private static readonly string FileName = Path.Combine(Folder, "settings.json");
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
-
     public static Settings Load()
     {
         try { return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FileName)) ?? new Settings(); }
         catch { return new Settings(); }
     }
-
-    public static void Save(Settings settings)
+    public static void Save(Settings value)
     {
         Directory.CreateDirectory(Folder);
-        File.WriteAllText(FileName, JsonSerializer.Serialize(settings, JsonOptions));
+        File.WriteAllText(FileName, JsonSerializer.Serialize(value, JsonOptions));
     }
 }
 
 internal sealed class MonitorForm : Form
 {
-    private readonly VideoView video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
-    private readonly FlowLayoutPanel cameraBar = new()
-    {
-        AutoSize = true, BackColor = Color.Transparent,
-        FlowDirection = FlowDirection.LeftToRight, WrapContents = false, Padding = new Padding(4)
-    };
-    private readonly ToolTip toolTip = new();
-    private readonly System.Windows.Forms.Timer watchdog = new() { Interval = 2000 };
-    private readonly LibVLC vlc;
-    private readonly MediaPlayer player;
+    private readonly WebView2 browser = new() { Dock = DockStyle.Fill, DefaultBackgroundColor = Color.Black };
     private Settings settings;
-    private DateTime lastHealthyPlayback = DateTime.UtcNow;
-    private DateTime restartAllowed = DateTime.MinValue;
-    private bool restarting;
-    private bool closing;
+    private bool browserReady;
     private bool fullscreen;
+    private bool closing;
     private Rectangle windowedBounds;
+    private DateTime reloadAllowed = DateTime.MinValue;
 
     public MonitorForm()
     {
@@ -93,270 +79,103 @@ internal sealed class MonitorForm : Form
             Location = new Point(settings.Left, settings.Top);
         }
         TopMost = settings.AlwaysOnTop;
-
-        vlc = new LibVLC("--no-audio", "--rtsp-tcp", "--network-caching=350", "--clock-jitter=0", "--clock-synchro=0");
-        player = new MediaPlayer(vlc) { EnableHardwareDecoding = true };
-        video.MediaPlayer = player;
-        Controls.Add(video);
-        Controls.Add(cameraBar);
-        BuildCameraButtons();
-        PositionCameraBar();
-        cameraBar.BringToFront();
-
-        var menu = new ContextMenuStrip();
-        menu.Items.Add("Snapshot speichern", null, (_, _) => SaveSnapshot());
-        menu.Items.Add("Stream neu laden", null, (_, _) => RestartStream());
-        menu.Items.Add("Einstellungen …", null, (_, _) => OpenSettings());
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Beenden", null, (_, _) => Close());
-        video.ContextMenuStrip = menu;
-        video.DoubleClick += (_, _) => ToggleFullscreen();
-        video.MouseDown += VideoMouseDown;
-        video.MouseMove += VideoMouseMove;
-        Resize += (_, _) => PositionCameraBar();
-
-        player.EncounteredError += (_, _) => ScheduleRestart();
-        player.Stopped += (_, _) => { if (!restarting && !IsDisposed) ScheduleRestart(); };
-        player.Playing += (_, _) => lastHealthyPlayback = DateTime.UtcNow;
-        watchdog.Tick += (_, _) => CheckStream();
-        Shown += (_, _) => FirstStart();
+        Controls.Add(browser);
+        Shown += async (_, _) => await InitializeAsync();
         FormClosing += (_, _) => { closing = true; SaveWindow(); };
     }
 
-    private void FirstStart()
+    private async Task InitializeAsync()
     {
-        if (!HasUsableCamera())
-            OpenSettings();
-        if (HasUsableCamera())
-        {
-            StartStream();
-            watchdog.Start();
-        }
-    }
-
-    private void StartStream()
-    {
-        lastHealthyPlayback = DateTime.UtcNow;
-        var camera = settings.Cameras[settings.SelectedCamera];
-        Text = $"HomeCam Monitor – {camera.Name}";
-        using var media = new Media(vlc, new Uri(camera.StreamUrl));
-        media.AddOption(":rtsp-tcp");
-        media.AddOption(":network-caching=350");
-        media.AddOption(":no-audio");
-        player.Play(media);
-    }
-
-    private async void RestartStream()
-    {
-        if (restarting || closing || IsDisposed || DateTime.UtcNow < restartAllowed) return;
-        restarting = true;
-        restartAllowed = DateTime.UtcNow.AddSeconds(3);
         try
         {
-            player.Stop();
-            await Task.Delay(500);
-            if (!IsDisposed) StartStream();
+            await browser.EnsureCoreWebView2Async();
+            browser.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+            browser.CoreWebView2.Settings.AreDevToolsEnabled = false;
+            browser.CoreWebView2.Settings.IsZoomControlEnabled = false;
+            browser.CoreWebView2.Settings.IsStatusBarEnabled = false;
+            browser.CoreWebView2.WebMessageReceived += BrowserMessageReceived;
+            await browser.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(PlayerScript);
+            browserReady = true;
+            if (!HasUsableCamera()) OpenSettings();
+            if (HasUsableCamera()) NavigateToSelectedCamera();
         }
-        finally { restarting = false; }
-    }
-
-    private void ScheduleRestart()
-    {
-        if (closing || IsDisposed || !IsHandleCreated) return;
-        BeginInvoke(new Action(RestartStream));
-    }
-
-    private void CheckStream()
-    {
-        if (player.IsPlaying)
+        catch (Exception exception)
         {
-            lastHealthyPlayback = DateTime.UtcNow;
-            return;
-        }
-        if (DateTime.UtcNow - lastHealthyPlayback >= TimeSpan.FromSeconds(10))
-        {
-            lastHealthyPlayback = DateTime.UtcNow;
-            RestartStream();
+            MessageBox.Show(this, $"Der WebRTC-Player konnte nicht gestartet werden.\n\n{exception.Message}",
+                "HomeCam Monitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
-    private void OpenSettings()
+    private void NavigateToSelectedCamera()
     {
-        using var dialog = new SettingsForm(settings);
-        if (dialog.ShowDialog(this) != DialogResult.OK) return;
-        settings = dialog.Result;
-        if (settings.SelectedCamera < 0 || settings.SelectedCamera >= settings.Cameras.Count)
-            settings.SelectedCamera = 0;
-        TopMost = settings.AlwaysOnTop;
-        BuildCameraButtons();
-        SettingsStore.Save(settings);
-        ConfigureAutostart(settings.StartWithWindows);
-        if (HasUsableCamera()) RestartStream();
+        if (!browserReady || !HasUsableCamera()) return;
+        var camera = settings.Cameras[settings.SelectedCamera];
+        Text = $"HomeCam Monitor – {camera.Name}";
+        browser.CoreWebView2.Navigate(CreateViewerUrl(camera));
     }
 
-    private bool HasUsableCamera() => settings.Cameras.Count > 0
-        && settings.SelectedCamera >= 0
-        && settings.SelectedCamera < settings.Cameras.Count
-        && IsUsableStreamUrl(settings.Cameras[settings.SelectedCamera].StreamUrl);
-
-    private static bool IsUsableStreamUrl(string value) =>
-        Uri.TryCreate(value, UriKind.Absolute, out var uri)
-        && (uri.Scheme.Equals("rtsp", StringComparison.OrdinalIgnoreCase)
-            || uri.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase)
-            || uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
-        && !value.Contains("PASSWORT", StringComparison.OrdinalIgnoreCase);
-
-    private void BuildCameraButtons()
+    private static string CreateViewerUrl(CameraEntry camera)
     {
-        cameraBar.Controls.Clear();
-        var previous = CreateOverlayButton("\uE76B", "Vorherige Kamera");
-        previous.Click += (_, _) => SelectRelativeCamera(-1);
-        cameraBar.Controls.Add(previous);
+        var source = new Uri(camera.StreamUrl);
+        if (source.Scheme is "http" or "https" && source.AbsolutePath.EndsWith("stream.html", StringComparison.OrdinalIgnoreCase))
+            return camera.StreamUrl;
+        var streamName = Uri.UnescapeDataString(source.AbsolutePath.Trim('/'));
+        if (streamName.Length == 0) throw new InvalidOperationException("In der Streamadresse fehlt der go2rtc-Streamname.");
+        return $"http://{source.Host}:1984/stream.html?src={Uri.EscapeDataString(streamName)}&mode=webrtc&background=true&title={Uri.EscapeDataString(camera.Name)}";
+    }
 
-        var cameraName = new Label
+    private void BrowserMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs eventArgs)
+    {
+        var action = eventArgs.TryGetWebMessageAsString();
+        BeginInvoke(new Action(() => HandleAction(action)));
+    }
+
+    private void HandleAction(string action)
+    {
+        if (closing) return;
+        switch (action)
         {
-            Text = settings.Cameras.Count > 0 && settings.SelectedCamera < settings.Cameras.Count
-                ? settings.Cameras[settings.SelectedCamera].Name : "Kamera",
-            AutoSize = true, Height = 32, Padding = new Padding(6, 8, 6, 0),
-            ForeColor = Color.White, BackColor = Color.Transparent
-        };
-        cameraBar.Controls.Add(cameraName);
-
-        var next = CreateOverlayButton("\uE76C", "Nächste Kamera");
-        next.Click += (_, _) => SelectRelativeCamera(1);
-        cameraBar.Controls.Add(next);
-
-        var snapshot = CreateOverlayButton("\uE722", "Snapshot speichern");
-        snapshot.Click += (_, _) => SaveSnapshot();
-        cameraBar.Controls.Add(snapshot);
-
-        var options = CreateOverlayButton("\uE713", "Einstellungen");
-        options.Click += (_, _) => OpenSettings();
-        cameraBar.Controls.Add(options);
-
-        var close = CreateOverlayButton("\uE711", "Schließen");
-        close.Click += (_, _) => Close();
-        cameraBar.Controls.Add(close);
-        PositionCameraBar();
-    }
-
-    private Button CreateOverlayButton(string symbol, string hint)
-    {
-        var button = new Button
-        {
-            Text = symbol, Font = new Font("Segoe MDL2 Assets", 12),
-            Size = new Size(34, 32), Margin = new Padding(1),
-            FlatStyle = FlatStyle.Flat, ForeColor = Color.White,
-            BackColor = Color.Transparent, TabStop = false, UseVisualStyleBackColor = false
-        };
-        button.FlatAppearance.BorderSize = 0;
-        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(75, 75, 75);
-        button.FlatAppearance.MouseDownBackColor = Color.FromArgb(0, 100, 170);
-        toolTip.SetToolTip(button, hint);
-        return button;
-    }
-
-    private void PositionCameraBar()
-    {
-        cameraBar.Location = new Point(
-            Math.Max(8, (ClientSize.Width - cameraBar.Width) / 2),
-            Math.Max(8, ClientSize.Height - cameraBar.Height - 8));
-        cameraBar.BringToFront();
-    }
-
-    private void VideoMouseDown(object? sender, MouseEventArgs eventArgs)
-    {
-        if (eventArgs.Button != MouseButtons.Left || fullscreen) return;
-        var hitTest = GetEdgeHitTest(eventArgs.Location);
-        if (hitTest == NativeMethods.HtClient && eventArgs.Y <= 28)
-            hitTest = NativeMethods.HtCaption;
-        if (hitTest == NativeMethods.HtClient) return;
-
-        NativeMethods.ReleaseCapture();
-        NativeMethods.SendMessage(Handle, NativeMethods.WmNcLeftButtonDown, (IntPtr)hitTest, IntPtr.Zero);
-    }
-
-    private void VideoMouseMove(object? sender, MouseEventArgs eventArgs)
-    {
-        if (fullscreen) { video.Cursor = Cursors.Default; return; }
-        video.Cursor = GetEdgeHitTest(eventArgs.Location) switch
-        {
-            NativeMethods.HtLeft or NativeMethods.HtRight => Cursors.SizeWE,
-            NativeMethods.HtTop or NativeMethods.HtBottom => Cursors.SizeNS,
-            NativeMethods.HtTopLeft or NativeMethods.HtBottomRight => Cursors.SizeNWSE,
-            NativeMethods.HtTopRight or NativeMethods.HtBottomLeft => Cursors.SizeNESW,
-            _ => Cursors.Default
-        };
-    }
-
-    private int GetEdgeHitTest(Point cursor)
-    {
-        const int grip = 8;
-        var left = cursor.X <= grip;
-        var right = cursor.X >= video.ClientSize.Width - grip;
-        var topEdge = cursor.Y <= grip;
-        var bottom = cursor.Y >= video.ClientSize.Height - grip;
-
-        if (left && topEdge) return NativeMethods.HtTopLeft;
-        if (right && topEdge) return NativeMethods.HtTopRight;
-        if (left && bottom) return NativeMethods.HtBottomLeft;
-        if (right && bottom) return NativeMethods.HtBottomRight;
-        if (left) return NativeMethods.HtLeft;
-        if (right) return NativeMethods.HtRight;
-        if (topEdge) return NativeMethods.HtTop;
-        if (bottom) return NativeMethods.HtBottom;
-        return NativeMethods.HtClient;
+            case "previous": SelectRelativeCamera(-1); break;
+            case "next": SelectRelativeCamera(1); break;
+            case "snapshot": _ = SaveSnapshotAsync(); break;
+            case "settings": OpenSettings(); break;
+            case "close": Close(); break;
+            case "fullscreen": ToggleFullscreen(); break;
+            case "move": BeginWindowOperation(NativeMethods.HtCaption); break;
+            case "resize": BeginWindowOperation(NativeMethods.HtBottomRight); break;
+            case "stalled": ReloadStream(); break;
+        }
     }
 
     private void SelectRelativeCamera(int direction)
     {
         if (settings.Cameras.Count < 2) return;
-        var index = (settings.SelectedCamera + direction + settings.Cameras.Count) % settings.Cameras.Count;
-        SelectCamera(index);
-    }
-
-    private void SelectCamera(int index)
-    {
-        if (index < 0 || index >= settings.Cameras.Count || index == settings.SelectedCamera) return;
-        settings.SelectedCamera = index;
+        settings.SelectedCamera = (settings.SelectedCamera + direction + settings.Cameras.Count) % settings.Cameras.Count;
         SettingsStore.Save(settings);
-        BuildCameraButtons();
-        RestartStream();
+        NavigateToSelectedCamera();
     }
 
-    private static void ConfigureAutostart(bool enabled)
+    private void ReloadStream()
     {
-        using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
-        if (enabled)
-            key?.SetValue("HomeCamMonitor", $"\"{Application.ExecutablePath}\"");
-        else
-            key?.DeleteValue("HomeCamMonitor", false);
+        if (!browserReady || DateTime.UtcNow < reloadAllowed) return;
+        reloadAllowed = DateTime.UtcNow.AddSeconds(8);
+        browser.CoreWebView2.Reload();
     }
 
-    private void SaveSnapshot()
+    private async Task SaveSnapshotAsync()
     {
-        if (!HasUsableCamera() || !player.IsPlaying)
-        {
-            MessageBox.Show(this, "Der Kamerastream läuft noch nicht.", "Snapshot nicht möglich",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
         try
         {
-            var pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            var folder = Path.Combine(pictures, "HomeCam Monitor");
+            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "HomeCam Monitor");
             Directory.CreateDirectory(folder);
-
             var cameraName = string.Concat(settings.Cameras[settings.SelectedCamera].Name
-                .Select(character => Path.GetInvalidFileNameChars().Contains(character) ? '_' : character));
+                .Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
             var fileName = $"{cameraName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png";
-            var filePath = Path.Combine(folder, fileName);
-
-            if (!player.TakeSnapshot(0, filePath, 0, 0))
-                throw new InvalidOperationException("LibVLC konnte kein Bild speichern.");
-
-            ShowSnapshotFeedback(fileName);
+            await browser.ExecuteScriptAsync("document.getElementById('hcm-controls').style.visibility='hidden'");
+            await Task.Delay(80);
+            await using (var stream = File.Create(Path.Combine(folder, fileName)))
+                await browser.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, stream);
+            await browser.ExecuteScriptAsync("document.getElementById('hcm-controls').style.visibility='visible';window.hcmFlash('Gespeichert')");
         }
         catch (Exception exception)
         {
@@ -365,192 +184,98 @@ internal sealed class MonitorForm : Form
         }
     }
 
-    private async void ShowSnapshotFeedback(string fileName)
+    private void OpenSettings()
     {
-        Text = $"HomeCam Monitor – Snapshot gespeichert: {fileName}";
-        await Task.Delay(2500);
-        if (!IsDisposed && HasUsableCamera())
-            Text = $"HomeCam Monitor – {settings.Cameras[settings.SelectedCamera].Name}";
+        using var dialog = new SettingsForm(settings);
+        if (dialog.ShowDialog(this) != DialogResult.OK) return;
+        settings = dialog.Result;
+        settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
+        TopMost = settings.AlwaysOnTop;
+        SettingsStore.Save(settings);
+        ConfigureAutostart(settings.StartWithWindows);
+        NavigateToSelectedCamera();
+    }
+
+    private bool HasUsableCamera() => settings.Cameras.Count > 0 && settings.SelectedCamera >= 0
+        && settings.SelectedCamera < settings.Cameras.Count
+        && Uri.TryCreate(settings.Cameras[settings.SelectedCamera].StreamUrl, UriKind.Absolute, out _);
+
+    private static void ConfigureAutostart(bool enabled)
+    {
+        using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+        if (enabled) key?.SetValue("HomeCamMonitor", $"\"{Application.ExecutablePath}\"");
+        else key?.DeleteValue("HomeCamMonitor", false);
     }
 
     private void ToggleFullscreen()
     {
-        SuspendLayout();
         if (!fullscreen)
         {
-            windowedBounds = Bounds;
-            fullscreen = true;
-            cameraBar.Visible = false;
-            WindowState = FormWindowState.Normal;
+            windowedBounds = Bounds; fullscreen = true; WindowState = FormWindowState.Normal;
             Bounds = Screen.FromControl(this).Bounds;
         }
-        else
-        {
-            fullscreen = false;
-            Bounds = windowedBounds;
-            cameraBar.Visible = true;
-            PositionCameraBar();
-        }
-        ResumeLayout(true);
+        else { fullscreen = false; Bounds = windowedBounds; }
+    }
+
+    private void BeginWindowOperation(int hitTest)
+    {
+        if (fullscreen) return;
+        NativeMethods.ReleaseCapture();
+        NativeMethods.SendMessage(Handle, NativeMethods.WmNcLeftButtonDown, (IntPtr)hitTest, IntPtr.Zero);
     }
 
     private void SaveWindow()
     {
-        watchdog.Stop();
-        if (fullscreen)
-        {
-            settings.Left = windowedBounds.Left;
-            settings.Top = windowedBounds.Top;
-            settings.Width = windowedBounds.Width;
-            settings.Height = windowedBounds.Height;
-        }
-        else if (WindowState == FormWindowState.Normal)
-        {
-            settings.Left = Left;
-            settings.Top = Top;
-            settings.Width = ClientSize.Width;
-            settings.Height = ClientSize.Height;
-        }
+        var value = fullscreen ? windowedBounds : Bounds;
+        settings.Left = value.Left; settings.Top = value.Top; settings.Width = value.Width; settings.Height = value.Height;
         SettingsStore.Save(settings);
-        player.Stop();
-        player.Dispose();
-        vlc.Dispose();
     }
 
-    protected override void WndProc(ref Message message)
-    {
-        const int wmNcHitTest = 0x0084;
-        base.WndProc(ref message);
-        if (message.Msg != wmNcHitTest || fullscreen || message.Result.ToInt32() != NativeMethods.HtClient) return;
-
-        var cursor = PointToClient(Cursor.Position);
-        const int grip = 7;
-        var left = cursor.X <= grip;
-        var right = cursor.X >= ClientSize.Width - grip;
-        var topEdge = cursor.Y <= grip;
-        var bottom = cursor.Y >= ClientSize.Height - grip;
-
-        if (left && topEdge) message.Result = (IntPtr)NativeMethods.HtTopLeft;
-        else if (right && topEdge) message.Result = (IntPtr)NativeMethods.HtTopRight;
-        else if (left && bottom) message.Result = (IntPtr)NativeMethods.HtBottomLeft;
-        else if (right && bottom) message.Result = (IntPtr)NativeMethods.HtBottomRight;
-        else if (left) message.Result = (IntPtr)NativeMethods.HtLeft;
-        else if (right) message.Result = (IntPtr)NativeMethods.HtRight;
-        else if (topEdge) message.Result = (IntPtr)NativeMethods.HtTop;
-        else if (bottom) message.Result = (IntPtr)NativeMethods.HtBottom;
-        else if (cursor.Y <= 28) message.Result = (IntPtr)NativeMethods.HtCaption;
-    }
+    private const string PlayerScript = """
+      document.addEventListener('DOMContentLoaded',()=>{
+        const s=document.createElement('style');s.textContent=`html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000}video-stream,video{width:100%!important;height:100%!important;max-width:none!important;object-fit:contain!important}video::-webkit-media-controls{display:none!important}#hcm-controls{position:fixed;z-index:2147483647;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:4px 7px;border-radius:12px;background:rgba(0,0,0,.34);backdrop-filter:blur(4px);color:#fff;font:13px 'Segoe UI';user-select:none}#hcm-controls button{width:32px;height:30px;padding:0;border:0;border-radius:8px;background:transparent;color:#fff;font:18px 'Segoe Fluent Icons','Segoe MDL2 Assets';cursor:pointer}#hcm-controls button:hover{background:rgba(255,255,255,.18)}#hcm-name{min-width:58px;text-align:center;white-space:nowrap;padding:0 4px}#hcm-note{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);padding:5px 10px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;font:13px 'Segoe UI';display:none}`;document.head.appendChild(s);
+        const p=new URLSearchParams(location.search),bar=document.createElement('div');bar.id='hcm-controls';bar.innerHTML=`<button data-a="move" title="Verschieben">&#xE7C2;</button><button data-a="previous" title="Vorherige Kamera">&#xE76B;</button><span id="hcm-name"></span><button data-a="next" title="Nächste Kamera">&#xE76C;</button><button data-a="snapshot" title="Snapshot">&#xE722;</button><button data-a="settings" title="Einstellungen">&#xE713;</button><button data-a="resize" title="Größe ändern">&#xE740;</button><button data-a="close" title="Schließen">&#xE711;</button>`;bar.querySelector('#hcm-name').textContent=p.get('title')||p.get('src')||'Kamera';document.body.appendChild(bar);
+        const note=document.createElement('div');note.id='hcm-note';document.body.appendChild(note);bar.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(b){e.preventDefault();chrome.webview.postMessage(b.dataset.a)}});document.addEventListener('dblclick',e=>{if(!e.target.closest('#hcm-controls'))chrome.webview.postMessage('fullscreen')});window.hcmFlash=t=>{note.textContent=t;note.style.display='block';setTimeout(()=>note.style.display='none',1800)};
+        let lt=-1,lp=Date.now(),sent=false;setInterval(()=>{const v=document.querySelector('video');if(v&&v.readyState>=2&&v.currentTime>lt){lt=v.currentTime;lp=Date.now();sent=false}else if(!sent&&Date.now()-lp>12000){sent=true;chrome.webview.postMessage('stalled')}},2000);
+      });
+      """;
 }
 
 internal static class NativeMethods
 {
-    public const int WmNcLeftButtonDown = 0x00A1;
-    public const int HtClient = 1;
-    public const int HtCaption = 2;
-    public const int HtLeft = 10;
-    public const int HtRight = 11;
-    public const int HtTop = 12;
-    public const int HtTopLeft = 13;
-    public const int HtTopRight = 14;
-    public const int HtBottom = 15;
-    public const int HtBottomLeft = 16;
-    public const int HtBottomRight = 17;
-
-    [DllImport("user32.dll")]
-    public static extern bool ReleaseCapture();
-
-    [DllImport("user32.dll")]
-    public static extern IntPtr SendMessage(IntPtr window, int message, IntPtr parameter, IntPtr data);
+    public const int WmNcLeftButtonDown = 0x00A1, HtCaption = 2, HtBottomRight = 17;
+    [DllImport("user32.dll")] public static extern bool ReleaseCapture();
+    [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr window, int message, IntPtr parameter, IntPtr data);
 }
 
 internal sealed class SettingsForm : Form
 {
-    private readonly DataGridView cameras = new()
-    {
-        Dock = DockStyle.Fill, AllowUserToAddRows = true, AllowUserToDeleteRows = true,
-        AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-        RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect
-    };
+    private readonly DataGridView cameras = new() { Dock = DockStyle.Fill, AllowUserToAddRows = true, AllowUserToDeleteRows = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
     public Settings Result { get; private set; }
 
     public SettingsForm(Settings current)
     {
-        Result = current;
-        Text = "HomeCam Monitor – Einstellungen";
-        FormBorderStyle = FormBorderStyle.FixedDialog;
-        StartPosition = FormStartPosition.CenterParent;
-        MaximizeBox = false;
-        MinimizeBox = false;
-        ClientSize = new Size(760, 390);
-
+        Result = current; Text = "HomeCam Monitor – Einstellungen"; FormBorderStyle = FormBorderStyle.FixedDialog;
+        StartPosition = FormStartPosition.CenterParent; MaximizeBox = false; MinimizeBox = false; ClientSize = new Size(760, 390);
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "CameraName", HeaderText = "Name", FillWeight = 25 });
-        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 75 });
-        foreach (var camera in current.Cameras)
-            cameras.Rows.Add(camera.Name, camera.StreamUrl);
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "go2rtc-Streamadresse", FillWeight = 75 });
+        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl);
         top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
-
         var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 };
-        table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        table.Controls.Add(cameras, 0, 0);
-        var hint = new Label
-        {
-            Text = "Pro Kamera einen Namen und die vollständige RTSP-, HTTP- oder HTTPS-Adresse eintragen.",
-            AutoSize = true,
-            ForeColor = SystemColors.GrayText
-        };
-        table.Controls.Add(hint, 0, 1);
-        var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
-        options.Controls.Add(top); options.Controls.Add(autostart);
-        table.Controls.Add(options, 0, 2);
+        table.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); table.Controls.Add(cameras, 0, 0);
+        table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.9.8:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
+        var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart); table.Controls.Add(options, 0, 2);
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft };
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
-        var cancel = new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true };
-        buttons.Controls.Add(ok); buttons.Controls.Add(cancel);
-        table.Controls.Add(buttons, 0, 4);
-        Controls.Add(table);
-        AcceptButton = ok; CancelButton = cancel;
-        ok.Click += (_, e) =>
-        {
-            var entries = ReadCameras();
-            if (entries.Count == 0 || entries.Any(c => !IsSupportedUrl(c.StreamUrl)))
-            {
-                MessageBox.Show(this, "Bitte für jede Kamera einen Namen und eine vollständige RTSP-, HTTP- oder HTTPS-Streamadresse eintragen.", "Ungültige Kamera", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                DialogResult = DialogResult.None;
-                return;
-            }
-            SaveResult(current, entries);
-        };
+        buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true }); table.Controls.Add(buttons, 0, 4);
+        Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
+        ok.Click += (_, _) => { var entries = ReadCameras(); if (entries.Count == 0 || entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _))) { MessageBox.Show(this, "Bitte gültige go2rtc-Streamadressen eintragen.", "Ungültige Kamera", MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; } Result = new Settings { Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, entries.Count - 1), AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked, Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height }; };
     }
 
     private List<CameraEntry> ReadCameras()
     {
-        var result = new List<CameraEntry>();
-        foreach (DataGridViewRow row in cameras.Rows)
-        {
-            if (row.IsNewRow) continue;
-            var name = Convert.ToString(row.Cells[0].Value)?.Trim() ?? "";
-            var url = Convert.ToString(row.Cells[1].Value)?.Trim() ?? "";
-            if (name.Length > 0 || url.Length > 0) result.Add(new CameraEntry { Name = name, StreamUrl = url });
-        }
-        return result;
-    }
-
-    private static bool IsSupportedUrl(string value) =>
-        Uri.TryCreate(value, UriKind.Absolute, out var uri)
-        && (uri.Scheme.Equals("rtsp", StringComparison.OrdinalIgnoreCase)
-            || uri.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase)
-            || uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
-        && !value.Contains("PASSWORT", StringComparison.OrdinalIgnoreCase);
-
-    private void SaveResult(Settings old, List<CameraEntry> entries)
-    {
-        Result = new Settings
-        {
-            Cameras = entries, SelectedCamera = Math.Clamp(old.SelectedCamera, 0, entries.Count - 1), AlwaysOnTop = top.Checked,
-            StartWithWindows = autostart.Checked, Left = old.Left, Top = old.Top,
-            Width = old.Width, Height = old.Height
-        };
+        var result = new List<CameraEntry>(); foreach (DataGridViewRow row in cameras.Rows) { if (row.IsNewRow) continue; var name = Convert.ToString(row.Cells[0].Value)?.Trim() ?? ""; var url = Convert.ToString(row.Cells[1].Value)?.Trim() ?? ""; if (name.Length > 0 || url.Length > 0) result.Add(new CameraEntry { Name = name, StreamUrl = url }); } return result;
     }
 }
