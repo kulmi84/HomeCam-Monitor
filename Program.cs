@@ -63,8 +63,6 @@ internal sealed class MonitorForm : Form
     private bool fullscreen;
     private bool closing;
     private Rectangle windowedBounds;
-    private Rectangle pointerStartBounds;
-    private Point pointerStart;
     private DateTime reloadAllowed = DateTime.MinValue;
 
     public MonitorForm()
@@ -159,25 +157,26 @@ internal sealed class MonitorForm : Form
         switch (parts[0])
         {
             case "moveStart":
+                BeginNativeWindowOperation(NativeMethods.ScMove + NativeMethods.HtCaption);
+                return true;
             case "resizeStart":
-                pointerStart = new Point(screenX, screenY);
-                pointerStartBounds = Bounds;
+                BeginNativeWindowOperation(NativeMethods.ScSize + NativeMethods.WmszBottomRight);
                 return true;
-            case "moveTo" when !fullscreen:
-                Location = new Point(pointerStartBounds.Left + screenX - pointerStart.X,
-                    pointerStartBounds.Top + screenY - pointerStart.Y);
-                return true;
-            case "resizeTo" when !fullscreen:
-                Size = new Size(
-                    Math.Max(MinimumSize.Width, pointerStartBounds.Width + screenX - pointerStart.X),
-                    Math.Max(MinimumSize.Height, pointerStartBounds.Height + screenY - pointerStart.Y));
-                return true;
+            case "moveTo":
+            case "resizeTo":
             case "moveEnd":
             case "resizeEnd":
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void BeginNativeWindowOperation(int command)
+    {
+        if (fullscreen) return;
+        NativeMethods.ReleaseCapture();
+        NativeMethods.SendMessage(Handle, NativeMethods.WmSysCommand, (IntPtr)command, IntPtr.Zero);
     }
 
     private void SelectRelativeCamera(int direction)
@@ -289,6 +288,18 @@ internal sealed class MonitorForm : Form
 
 internal static class NativeMethods
 {
+    public const int WmSysCommand = 0x0112;
+    public const int ScMove = 0xF010;
+    public const int ScSize = 0xF000;
+    public const int HtCaption = 2;
+    public const int WmszBottomRight = 8;
+
+    [DllImport("user32.dll")]
+    public static extern bool ReleaseCapture();
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr SendMessage(IntPtr window, int message, IntPtr parameter, IntPtr data);
+
     [DllImport("gdi32.dll")]
     public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
 
