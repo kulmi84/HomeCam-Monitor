@@ -1,6 +1,6 @@
 # HomeCam Monitor
 
-Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es arbeitet unabhängig vom Home-Assistant-Dashboard und startet den ausgewählten Stream automatisch neu, wenn zehn Sekunden lang kein Bildfortschritt erkannt wird.
+Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es arbeitet unabhängig vom Home-Assistant-Dashboard und verbindet den ausgewählten Stream bei einem Abbruch automatisch neu.
 
 ## Bedienung
 
@@ -8,8 +8,10 @@ Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es arbeitet unabhän
 2. Beim ersten Start für jede gewünschte Kamera einen Namen und die vollständige Streamadresse eintragen.
 3. Das Fenster an die gewünschte Stelle ziehen und passend skalieren.
 
-- Über die Kameraknöpfe am oberen Fensterrand zwischen **Einfahrt**, **Garten** und weiteren Kameras wechseln.
+- Das Kamerabild wird rahmenlos ohne Windows-Titelleiste angezeigt.
+- Die dezenten Symbole im Bild wechseln die Kamera, speichern einen Snapshot, öffnen die Einstellungen oder schließen das Programm.
 - **Snapshot** speichert das aktuelle Kamerabild automatisch unter `Bilder\HomeCam Monitor`.
+- Zum Verschieben das Bild am oberen Rand neben den Symbolen ziehen; die Fensterkanten bleiben skalierbar.
 - Doppelklick ins Bild: echtes Vollbild; erneuter Doppelklick stellt die vorherige Fenstergröße wieder her.
 - Rechtsklick ins Bild: Snapshot speichern, Stream neu laden, Einstellungen oder Beenden.
 - Fensterposition und Größe werden beim Beenden gespeichert.
