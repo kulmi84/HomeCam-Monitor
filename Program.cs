@@ -65,6 +65,7 @@ internal sealed class MonitorForm : Form
     private Rectangle windowedBounds;
     private DateTime reloadAllowed = DateTime.MinValue;
     private bool pictureInPicture;
+    private bool restoringPictureInPicture;
 
     public MonitorForm()
     {
@@ -97,6 +98,7 @@ internal sealed class MonitorForm : Form
             browser.CoreWebView2.Settings.IsZoomControlEnabled = false;
             browser.CoreWebView2.Settings.IsStatusBarEnabled = false;
             browser.CoreWebView2.WebMessageReceived += BrowserMessageReceived;
+            browser.CoreWebView2.NavigationCompleted += async (_, _) => await RestorePictureInPictureAsync();
             await browser.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(PlayerScript);
             browserReady = true;
             if (!HasUsableCamera()) OpenSettings();
@@ -154,6 +156,7 @@ internal sealed class MonitorForm : Form
     private void EnterPictureInPicture()
     {
         pictureInPicture = true;
+        restoringPictureInPicture = false;
         SaveWindow();
         ShowInTaskbar = false;
         Hide();
@@ -161,7 +164,7 @@ internal sealed class MonitorForm : Form
 
     private void LeavePictureInPicture()
     {
-        if (closing || !pictureInPicture) return;
+        if (closing || !pictureInPicture || restoringPictureInPicture) return;
         pictureInPicture = false;
         ShowInTaskbar = true;
         Show();
@@ -211,7 +214,39 @@ internal sealed class MonitorForm : Form
     {
         if (!browserReady || DateTime.UtcNow < reloadAllowed) return;
         reloadAllowed = DateTime.UtcNow.AddSeconds(8);
+        restoringPictureInPicture = pictureInPicture;
         browser.CoreWebView2.Reload();
+    }
+
+    private async Task RestorePictureInPictureAsync()
+    {
+        if (!restoringPictureInPicture || closing) return;
+
+        try
+        {
+            for (var attempt = 0; attempt < 40; attempt++)
+            {
+                var ready = await browser.ExecuteScriptAsync("Boolean(document.querySelector('video')?.readyState >= 1)");
+                if (string.Equals(ready, "true", StringComparison.OrdinalIgnoreCase)) break;
+                await Task.Delay(250);
+            }
+
+            var parameters = JsonSerializer.Serialize(new
+            {
+                expression = "document.querySelector('video').requestPictureInPicture()",
+                userGesture = true,
+                awaitPromise = true
+            });
+            await browser.CoreWebView2.CallDevToolsProtocolMethodAsync("Runtime.evaluate", parameters);
+        }
+        catch
+        {
+            restoringPictureInPicture = false;
+            pictureInPicture = false;
+            ShowInTaskbar = true;
+            Show();
+            Activate();
+        }
     }
 
     private async Task SaveSnapshotAsync()
