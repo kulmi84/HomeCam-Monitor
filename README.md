@@ -1,5 +1,9 @@
 # HomeCam Monitor
 
+<p align="center">
+  <img src="assets/homecam-monitor-logo.png" alt="HomeCam Monitor Logo" width="128">
+</p>
+
 Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Die mpv-Video-Engine rendert RTSP-Streams hochwertig per Direct3D 11, arbeitet unabhängig vom Dashboard und verbindet den ausgewählten Stream bei einem Abbruch automatisch neu.
 
 ## Bedienung

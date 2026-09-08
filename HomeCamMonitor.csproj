@@ -8,5 +8,6 @@
     <AssemblyName>HomeCamMonitor</AssemblyName>
     <RootNamespace>HomeCamMonitor</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>assets\HomeCamMonitor.ico</ApplicationIcon>
   </PropertyGroup>
 </Project>
