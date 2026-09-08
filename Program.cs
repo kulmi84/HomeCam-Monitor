@@ -56,6 +56,7 @@ internal sealed class MonitorForm : Form
     private bool closing;
     private bool intentionalStop;
     private bool fullscreen;
+    private bool adjustingAspectRatio;
     private Rectangle windowedBounds;
 
     protected override CreateParams CreateParams
@@ -76,13 +77,14 @@ internal sealed class MonitorForm : Form
         BackColor = Color.Black;
         FormBorderStyle = FormBorderStyle.None;
         MinimumSize = new Size(240, 150);
-        ClientSize = new Size(Math.Max(240, settings.Width), Math.Max(150, settings.Height));
+        var initialWidth = Math.Max(240, settings.Width);
+        ClientSize = new Size(initialWidth, Math.Max(150, (int)Math.Round(initialWidth * 9d / 16d)));
         if (settings.Left >= 0 && settings.Top >= 0) { StartPosition = FormStartPosition.Manual; Location = new Point(settings.Left, settings.Top); }
         TopMost = true;
         Controls.Add(video);
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => PositionToolbar();
-        Resize += (_, _) => { ApplyRoundedCorners(); PositionToolbar(); };
+        Resize += (_, _) => { KeepCameraAspectRatio(); ApplyRoundedCorners(); PositionToolbar(); };
         video.DoubleClick += (_, _) => ToggleFullscreen();
         latencyTimer.Tick += (_, _) => RestartPlayer();
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
@@ -113,7 +115,7 @@ internal sealed class MonitorForm : Form
             $"--wid={video.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
             "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
             "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
-            "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no", "--keep-open=no",
+            "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no", "--window-dragging=yes", "--keep-open=no",
             $"--input-ipc-server=\\\\.\\pipe\\{pipeName}", camera.StreamUrl
         }) start.ArgumentList.Add(argument);
         try
@@ -218,6 +220,16 @@ internal sealed class MonitorForm : Form
         ApplyRoundedCorners(); PositionToolbar();
     }
 
+    private void KeepCameraAspectRatio()
+    {
+        if (fullscreen || adjustingAspectRatio || WindowState != FormWindowState.Normal) return;
+        var targetHeight = Math.Max(MinimumSize.Height, (int)Math.Round(ClientSize.Width * 9d / 16d));
+        if (Math.Abs(ClientSize.Height - targetHeight) <= 1) return;
+        adjustingAspectRatio = true;
+        ClientSize = new Size(ClientSize.Width, targetHeight);
+        adjustingAspectRatio = false;
+    }
+
     private void UpdateToolbar() { if (toolbar is not null && HasUsableCamera()) toolbar.CameraName = settings.Cameras[settings.SelectedCamera].Name; }
     private void PositionToolbar()
     {
@@ -269,13 +281,12 @@ internal sealed class ToolbarForm : Form
     public ToolbarForm(MonitorForm monitor)
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; BackColor = Color.FromArgb(20, 20, 20); Opacity = 0.78;
-        ClientSize = new Size(288, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
-        var move = Item("↔", 0, null); move.MouseDown += (_, e) => { if (e.Button == MouseButtons.Left) monitor.BeginMove(); };
-        var previous = Item("‹", 32, (_, _) => monitor.SelectRelativeCamera(-1));
-        name = Item("Kamera", 64, null, 64); var next = Item("›", 128, (_, _) => monitor.SelectRelativeCamera(1));
-        var snapshot = Item("▣", 160, async (_, _) => await monitor.SaveSnapshotAsync()); var settings = Item("⚙", 192, (_, _) => monitor.OpenSettings());
-        var full = Item("⛶", 224, (_, _) => monitor.ToggleFullscreen()); var close = Item("×", 256, (_, _) => monitor.Close());
-        Controls.AddRange([move, previous, name, next, snapshot, settings, full, close]);
+        ClientSize = new Size(256, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
+        var previous = Item("‹", 0, (_, _) => monitor.SelectRelativeCamera(-1));
+        name = Item("Kamera", 32, null, 64); var next = Item("›", 96, (_, _) => monitor.SelectRelativeCamera(1));
+        var snapshot = Item("▣", 128, async (_, _) => await monitor.SaveSnapshotAsync()); var settings = Item("⚙", 160, (_, _) => monitor.OpenSettings());
+        var full = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen()); var close = Item("×", 224, (_, _) => monitor.Close());
+        Controls.AddRange([previous, name, next, snapshot, settings, full, close]);
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
         var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
     }
