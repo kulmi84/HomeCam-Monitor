@@ -297,6 +297,11 @@ internal sealed class MonitorForm : Form
     private void UpdateToolbarVisibility()
     {
         if (toolbar is null || toolbar.IsDisposed || suppressToolbar) return;
+        if (nativeMoveOrResize)
+        {
+            if (toolbar.Visible) toolbar.Hide();
+            return;
+        }
         var cursor = Cursor.Position;
         var overWindow = Bounds.Contains(cursor);
         var overToolbar = toolbar.Visible && toolbar.Bounds.Contains(cursor);
