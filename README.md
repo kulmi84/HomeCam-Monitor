@@ -1,6 +1,6 @@
 # HomeCam Monitor
 
-Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es verwendet den MSE-Player von go2rtc wie die bisherige Home-Assistant-Karte, arbeitet unabhängig vom Dashboard und verbindet den ausgewählten Stream bei einem Abbruch automatisch neu.
+Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Die mpv-Video-Engine rendert RTSP-Streams hochwertig per Direct3D 11, arbeitet unabhängig vom Dashboard und verbindet den ausgewählten Stream bei einem Abbruch automatisch neu.
 
 ## Bedienung
 
@@ -10,23 +10,21 @@ Kleines Windows-Fenster für dauerhafte Kamera-Livestreams. Es verwendet den MSE
 
 - Das Kamerabild wird rahmenlos ohne Windows-Titelleiste angezeigt.
 - Das normale Kamerafenster besitzt abgerundete Ecken wie die Home-Assistant-Karte.
-- Die transparenten Web-Symbole unten im Bild wechseln die Kamera, verschieben das Fenster, speichern einen Snapshot, starten Bild-im-Bild, öffnen die Einstellungen oder schließen das Programm.
-- **Bild im Bild** verwendet die native Windows-Videodarstellung für die beste Bildqualität. Das Hauptfenster wird dabei ausgeblendet und erscheint wieder, sobald Bild-im-Bild geschlossen wird.
-- Erkennt der Watchdog einen stehenden Stream, wird er neu verbunden und das Bild-im-Bild-Fenster automatisch wiederhergestellt.
+- Die frei im Bild liegenden Symbole wechseln die Kamera, verschieben das Fenster, speichern einen Snapshot, öffnen die Einstellungen oder schalten auf Vollbild.
+- Der Stream wird spätestens alle fünf Minuten kurz neu verbunden, damit keine zunehmende Zeitverzögerung entsteht. Bei einem mpv-Abbruch erfolgt die Wiederverbindung automatisch.
 - **Snapshot** speichert das aktuelle Kamerabild automatisch unter `Bilder\HomeCam Monitor`.
 - Das normale Fenster lässt sich wie ein Browserfenster direkt an allen Kanten und Ecken skalieren.
 - Doppelklick ins Bild: echtes Vollbild; erneuter Doppelklick stellt die vorherige Fenstergröße wieder her.
-- Rechtsklick ins Bild: Snapshot speichern, Stream neu laden, Einstellungen oder Beenden.
 - Fensterposition und Größe werden beim Beenden gespeichert.
 - Kameras können in den Einstellungen jederzeit ergänzt, geändert oder gelöscht werden.
 - Unterstützt werden direkte RTSP-, HTTP- und HTTPS-Streams. `onvif://` ist keine abspielbare Video-Adresse.
-- Vorbelegte Beispiele: Einfahrt `192.168.189.206`, Garten `192.168.189.207`.
+- Vorbelegte Beispiele: Einfahrt und Garten über go2rtc auf `192.168.9.8:8554`.
 
 Die lokale Konfiguration liegt unter `%LOCALAPPDATA%\HomeCamMonitor\settings.json`.
 
 ## Automatischer Windows-Build
 
-Unter **Actions → Windows-Build → Run workflow** lässt sich jederzeit eine portable Windows-Version erstellen. Anschließend steht im abgeschlossenen Lauf das ZIP-Artefakt `HomeCamMonitor-win-x64` zum Download bereit. Es enthält die Anwendung einschließlich .NET- und VLC-Laufzeit.
+Unter **Actions → Windows-Build → Run workflow** lässt sich jederzeit eine portable Windows-Version erstellen. Anschließend steht im abgeschlossenen Lauf das ZIP-Artefakt `HomeCamMonitor-win-x64` zum Download bereit. Es enthält die Anwendung einschließlich .NET-Laufzeit und `mpv.exe`.
 
 ## Lokaler Build
 

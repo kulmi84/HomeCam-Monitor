@@ -16,6 +16,17 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Portable Windows-Version erstellen
         run: dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
+      - name: mpv Video-Engine laden
+        shell: pwsh
+        run: |
+          $release = Invoke-RestMethod https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/latest
+          $asset = $release.assets | Where-Object { $_.name -match '^mpv-x86_64-.*\.7z$' -and $_.name -notmatch 'dev' } | Select-Object -First 1
+          if (-not $asset) { throw 'Kein passendes mpv-Windows-Paket gefunden.' }
+          Invoke-WebRequest $asset.browser_download_url -OutFile mpv.7z
+          7z x mpv.7z -ompv -y
+          $exe = Get-ChildItem mpv -Filter mpv.exe -Recurse | Select-Object -First 1
+          if (-not $exe) { throw 'mpv.exe wurde im Paket nicht gefunden.' }
+          Copy-Item $exe.FullName publish/mpv.exe
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCamMonitor-win-x64
