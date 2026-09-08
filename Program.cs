@@ -66,6 +66,17 @@ internal sealed class MonitorForm : Form
     private DateTime lastCursorMovement = DateTime.UtcNow;
     private Rectangle windowedBounds;
 
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            parameters.Style |= NativeMethods.WsThickFrame;
+            parameters.Style &= ~NativeMethods.WsCaption;
+            return parameters;
+        }
+    }
+
     public MonitorForm()
     {
         settings = SettingsStore.Load();
@@ -420,6 +431,7 @@ internal static class NativeMethods
 {
     public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
     public const int WmEnterSizeMove = 0x0231, WmExitSizeMove = 0x0232;
+    public const int WsThickFrame = 0x00040000, WsCaption = 0x00C00000;
     public static readonly IntPtr HwndTopMost = new(-1);
     public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
     public const int HtLeft = 10, HtRight = 11, HtTop = 12, HtTopLeft = 13, HtTopRight = 14, HtBottom = 15, HtBottomLeft = 16, HtBottomRight = 17;
