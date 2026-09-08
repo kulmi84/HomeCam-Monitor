@@ -58,6 +58,17 @@ internal sealed class MonitorForm : Form
     private bool fullscreen;
     private Rectangle windowedBounds;
 
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            parameters.Style |= NativeMethods.WsThickFrame;
+            parameters.Style &= ~NativeMethods.WsCaption;
+            return parameters;
+        }
+    }
+
     public MonitorForm()
     {
         settings = SettingsStore.Load();
@@ -67,7 +78,7 @@ internal sealed class MonitorForm : Form
         MinimumSize = new Size(240, 150);
         ClientSize = new Size(Math.Max(240, settings.Width), Math.Max(150, settings.Height));
         if (settings.Left >= 0 && settings.Top >= 0) { StartPosition = FormStartPosition.Manual; Location = new Point(settings.Left, settings.Top); }
-        TopMost = settings.AlwaysOnTop;
+        TopMost = true;
         Controls.Add(video);
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => PositionToolbar();
@@ -109,6 +120,8 @@ internal sealed class MonitorForm : Form
         {
             player = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
             player.EnableRaisingEvents = true; player.Exited += PlayerExited;
+            NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
+                NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
         }
         catch (Exception exception)
         {
@@ -164,13 +177,13 @@ internal sealed class MonitorForm : Form
     {
         using var dialog = new SettingsForm(settings); if (dialog.ShowDialog(this) != DialogResult.OK) return;
         settings = dialog.Result; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
-        TopMost = settings.AlwaysOnTop; SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
+        TopMost = true; SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
     }
 
     internal void BeginMove()
     {
         if (fullscreen) return;
-        NativeMethods.ReleaseCapture(); NativeMethods.SendMessage(Handle, NativeMethods.WmSysCommand, (IntPtr)(NativeMethods.ScMove + NativeMethods.HtCaption), IntPtr.Zero);
+        NativeMethods.ReleaseCapture(); NativeMethods.SendMessage(Handle, NativeMethods.WmNcLButtonDown, (IntPtr)NativeMethods.HtCaption, IntPtr.Zero);
     }
 
     internal void ToggleFullscreen()
@@ -184,7 +197,7 @@ internal sealed class MonitorForm : Form
     private void PositionToolbar()
     {
         if (toolbar is null || toolbar.IsDisposed) return;
-        toolbar.Location = new Point(Left + Math.Max(0, (Width - toolbar.Width) / 2), Top + Height - toolbar.Height - 10); toolbar.TopMost = TopMost;
+        toolbar.Location = new Point(Left + Math.Max(0, (Width - toolbar.Width) / 2), Top + Height - toolbar.Height - 10); toolbar.TopMost = true;
     }
     private bool HasUsableCamera() => settings.Cameras.Count > 0 && settings.SelectedCamera >= 0 && settings.SelectedCamera < settings.Cameras.Count && Uri.TryCreate(settings.Cameras[settings.SelectedCamera].StreamUrl, UriKind.Absolute, out _);
     private static void ConfigureAutostart(bool enabled)
@@ -197,6 +210,9 @@ internal sealed class MonitorForm : Form
         Region?.Dispose(); if (fullscreen) { Region = null; return; }
         var radius = Math.Max(12, DeviceDpi * 14 / 96); var handle = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, radius, radius);
         Region = Region.FromHrgn(handle); NativeMethods.DeleteObject(handle);
+        var preference = fullscreen ? NativeMethods.DwmWindowCornerPreference.DoNotRound : NativeMethods.DwmWindowCornerPreference.Round;
+        NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.WindowCornerPreference,
+            ref preference, Marshal.SizeOf<NativeMethods.DwmWindowCornerPreference>());
     }
     private void SaveWindow()
     {
@@ -221,17 +237,20 @@ internal sealed class ToolbarForm : Form
     public string CameraName { set => name.Text = value; }
     public ToolbarForm(MonitorForm monitor)
     {
-        FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; BackColor = Color.Magenta; TransparencyKey = Color.Magenta;
-        ClientSize = new Size(310, 38); StartPosition = FormStartPosition.Manual;
-        var move = Item("↔", 0, (_, _) => monitor.BeginMove()); var previous = Item("‹", 38, (_, _) => monitor.SelectRelativeCamera(-1));
+        FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; BackColor = Color.FromArgb(20, 20, 20); Opacity = 0.78;
+        ClientSize = new Size(348, 42); StartPosition = FormStartPosition.Manual; TopMost = true;
+        var move = Item("↔", 0, null); move.MouseDown += (_, e) => { if (e.Button == MouseButtons.Left) monitor.BeginMove(); };
+        var previous = Item("‹", 38, (_, _) => monitor.SelectRelativeCamera(-1));
         name = Item("Kamera", 76, null, 82); var next = Item("›", 158, (_, _) => monitor.SelectRelativeCamera(1));
         var snapshot = Item("▣", 196, async (_, _) => await monitor.SaveSnapshotAsync()); var settings = Item("⚙", 234, (_, _) => monitor.OpenSettings());
-        var full = Item("⛶", 272, (_, _) => monitor.ToggleFullscreen()); Controls.AddRange([move, previous, name, next, snapshot, settings, full]);
-        note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(35, 35, 35), Visible = false }; Controls.Add(note);
+        var full = Item("⛶", 272, (_, _) => monitor.ToggleFullscreen()); var close = Item("×", 310, (_, _) => monitor.Close());
+        Controls.AddRange([move, previous, name, next, snapshot, settings, full, close]);
+        note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
+        var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 18, 18); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
     }
     private static Label Item(string text, int x, EventHandler? click, int width = 38)
     {
-        var item = new Label { Text = text, Left = x, Top = 1, Width = width, Height = 36, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.Magenta, Font = new Font("Segoe UI Symbol", text == "Kamera" ? 10 : 18), Cursor = Cursors.Hand };
+        var item = new Label { Text = text, Left = x, Top = 2, Width = width, Height = 38, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 10 : 18), Cursor = Cursors.Hand };
         if (click is not null) item.Click += click; return item;
     }
     public async void Flash(string text)
@@ -242,12 +261,19 @@ internal sealed class ToolbarForm : Form
 
 internal static class NativeMethods
 {
-    public const int WmNcHitTest = 0x0084, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
+    public const int WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
+    public const int WsThickFrame = 0x00040000, WsCaption = 0x00C00000;
+    public static readonly IntPtr HwndTopMost = new(-1);
+    public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
     public const int HtLeft = 10, HtRight = 11, HtTop = 12, HtTopLeft = 13, HtTopRight = 14, HtBottom = 15, HtBottomLeft = 16, HtBottomRight = 17;
     [DllImport("user32.dll")] public static extern bool ReleaseCapture();
     [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr window, int message, IntPtr parameter, IntPtr data);
+    [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr window, IntPtr insertAfter, int x, int y, int width, int height, uint flags);
     [DllImport("gdi32.dll")] public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr handle);
+    public enum DwmWindowAttribute { WindowCornerPreference = 33 }
+    public enum DwmWindowCornerPreference { Default = 0, DoNotRound = 1, Round = 2, RoundSmall = 3 }
+    [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, DwmWindowAttribute attribute, ref DwmWindowCornerPreference value, int size);
 }
 
 internal sealed class SettingsForm : Form
