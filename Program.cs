@@ -49,26 +49,20 @@ internal sealed class MonitorForm : Form
     private readonly Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
     private readonly System.Windows.Forms.Timer latencyTimer = new() { Interval = 5 * 60 * 1000 };
     private readonly System.Windows.Forms.Timer restartTimer = new() { Interval = 2000 };
+    private readonly System.Windows.Forms.Timer controlsTimer = new() { Interval = 150 };
     private readonly string pipeName = $"HomeCamMonitor-{Environment.ProcessId}";
     private Settings settings;
     private ToolbarForm? toolbar;
+    private readonly List<ResizeGripForm> resizeGrips = [];
     private Process? player;
     private bool closing;
     private bool intentionalStop;
     private bool fullscreen;
     private bool adjustingAspectRatio;
+    private bool suppressToolbar;
+    private Point lastCursorPosition;
+    private DateTime lastCursorMovement = DateTime.UtcNow;
     private Rectangle windowedBounds;
-
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var parameters = base.CreateParams;
-            parameters.Style |= NativeMethods.WsThickFrame;
-            parameters.Style &= ~NativeMethods.WsCaption;
-            return parameters;
-        }
-    }
 
     public MonitorForm()
     {
@@ -83,12 +77,13 @@ internal sealed class MonitorForm : Form
         TopMost = true;
         Controls.Add(video);
         Shown += (_, _) => InitializeMonitor();
-        Move += (_, _) => PositionToolbar();
-        Resize += (_, _) => { KeepCameraAspectRatio(); ApplyRoundedCorners(); PositionToolbar(); };
+        Move += (_, _) => PositionOverlays();
+        Resize += (_, _) => { KeepCameraAspectRatio(); ApplyRoundedCorners(); PositionOverlays(); };
         video.DoubleClick += (_, _) => ToggleFullscreen();
         latencyTimer.Tick += (_, _) => RestartPlayer();
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
-        FormClosing += (_, _) => { closing = true; latencyTimer.Stop(); restartTimer.Stop(); SaveWindow(); StopPlayer(); toolbar?.Close(); };
+        controlsTimer.Tick += (_, _) => UpdateToolbarVisibility();
+        FormClosing += (_, _) => { closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop(); SaveWindow(); StopPlayer(); toolbar?.Close(); foreach (var grip in resizeGrips) grip.Close(); };
         ApplyRoundedCorners();
     }
 
@@ -99,9 +94,9 @@ internal sealed class MonitorForm : Form
             MessageBox.Show(this, "mpv.exe fehlt. Bitte den vollständigen Ordner aus dem GitHub-Artefakt entpacken.", "HomeCam Monitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Close(); return;
         }
-        toolbar = new ToolbarForm(this); toolbar.Show(this);
+        toolbar = new ToolbarForm(this); toolbar.Show(this); CreateResizeGrips();
         if (!HasUsableCamera()) OpenSettings();
-        UpdateToolbar(); PositionToolbar(); StartPlayer(); latencyTimer.Start();
+        UpdateToolbar(); PositionOverlays(); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
     }
 
     private void StartPlayer()
@@ -174,21 +169,22 @@ internal sealed class MonitorForm : Form
 
             if (!File.Exists(path))
             {
-                toolbar?.Hide();
+                suppressToolbar = true; toolbar?.Hide();
                 await Task.Delay(80);
                 using var bitmap = new Bitmap(video.ClientSize.Width, video.ClientSize.Height);
                 using (var graphics = Graphics.FromImage(bitmap))
                     graphics.CopyFromScreen(video.PointToScreen(Point.Empty), Point.Empty, video.ClientSize);
                 bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Png);
-                toolbar?.Show(this);
-                PositionToolbar();
+                suppressToolbar = false; toolbar?.Show(this);
+                PositionOverlays();
             }
 
             toolbar?.Flash("Gespeichert");
         }
         catch (Exception exception)
         {
-            if (toolbar is { Visible: false }) { toolbar.Show(this); PositionToolbar(); }
+            suppressToolbar = false;
+            if (toolbar is { Visible: false }) { toolbar.Show(this); PositionOverlays(); }
             MessageBox.Show(this, $"Der Snapshot konnte nicht gespeichert werden.\n\nZiel: {path}\n\n{exception.Message}", "Snapshot fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
@@ -213,11 +209,17 @@ internal sealed class MonitorForm : Form
         NativeMethods.ReleaseCapture(); NativeMethods.SendMessage(Handle, NativeMethods.WmNcLButtonDown, (IntPtr)NativeMethods.HtCaption, IntPtr.Zero);
     }
 
+    internal void BeginResize(int hitTest)
+    {
+        if (fullscreen) return;
+        NativeMethods.ReleaseCapture(); NativeMethods.SendMessage(Handle, NativeMethods.WmNcLButtonDown, (IntPtr)hitTest, IntPtr.Zero);
+    }
+
     internal void ToggleFullscreen()
     {
         if (!fullscreen) { windowedBounds = Bounds; fullscreen = true; Bounds = Screen.FromControl(this).Bounds; }
         else { fullscreen = false; Bounds = windowedBounds; }
-        ApplyRoundedCorners(); PositionToolbar();
+        ApplyRoundedCorners(); PositionOverlays();
     }
 
     private void KeepCameraAspectRatio()
@@ -231,10 +233,55 @@ internal sealed class MonitorForm : Form
     }
 
     private void UpdateToolbar() { if (toolbar is not null && HasUsableCamera()) toolbar.CameraName = settings.Cameras[settings.SelectedCamera].Name; }
-    private void PositionToolbar()
+    private void UpdateToolbarVisibility()
+    {
+        if (toolbar is null || toolbar.IsDisposed || suppressToolbar) return;
+        var cursor = Cursor.Position;
+        var overWindow = Bounds.Contains(cursor);
+        var overToolbar = toolbar.Visible && toolbar.Bounds.Contains(cursor);
+        if (cursor != lastCursorPosition)
+        {
+            lastCursorPosition = cursor;
+            if (overWindow || overToolbar) lastCursorMovement = DateTime.UtcNow;
+        }
+
+        var shouldShow = overToolbar || (overWindow && DateTime.UtcNow - lastCursorMovement < TimeSpan.FromSeconds(2));
+        if (shouldShow && !toolbar.Visible) { toolbar.Show(this); PositionOverlays(); }
+        else if (!shouldShow && toolbar.Visible) toolbar.Hide();
+    }
+    private void CreateResizeGrips()
+    {
+        var definitions = new (int Hit, Cursor Cursor)[]
+        {
+            (NativeMethods.HtTop, Cursors.SizeNS), (NativeMethods.HtBottom, Cursors.SizeNS),
+            (NativeMethods.HtLeft, Cursors.SizeWE), (NativeMethods.HtRight, Cursors.SizeWE),
+            (NativeMethods.HtTopLeft, Cursors.SizeNWSE), (NativeMethods.HtTopRight, Cursors.SizeNESW),
+            (NativeMethods.HtBottomLeft, Cursors.SizeNESW), (NativeMethods.HtBottomRight, Cursors.SizeNWSE)
+        };
+        foreach (var definition in definitions)
+        {
+            var grip = new ResizeGripForm(this, definition.Hit, definition.Cursor); resizeGrips.Add(grip); grip.Show(this);
+        }
+    }
+
+    private void PositionOverlays()
     {
         if (toolbar is null || toolbar.IsDisposed) return;
         toolbar.Location = new Point(Left + Math.Max(0, (Width - toolbar.Width) / 2), Top + Height - toolbar.Height - 10); toolbar.TopMost = true;
+        const int edge = 7, corner = 16;
+        var bounds = new[]
+        {
+            new Rectangle(Left + corner, Top, Math.Max(1, Width - 2 * corner), edge),
+            new Rectangle(Left + corner, Bottom - edge, Math.Max(1, Width - 2 * corner), edge),
+            new Rectangle(Left, Top + corner, edge, Math.Max(1, Height - 2 * corner)),
+            new Rectangle(Right - edge, Top + corner, edge, Math.Max(1, Height - 2 * corner)),
+            new Rectangle(Left, Top, corner, corner), new Rectangle(Right - corner, Top, corner, corner),
+            new Rectangle(Left, Bottom - corner, corner, corner), new Rectangle(Right - corner, Bottom - corner, corner, corner)
+        };
+        for (var index = 0; index < resizeGrips.Count; index++)
+        {
+            resizeGrips[index].Bounds = bounds[index]; resizeGrips[index].Visible = !fullscreen;
+        }
     }
     private bool HasUsableCamera() => settings.Cameras.Count > 0 && settings.SelectedCamera >= 0 && settings.SelectedCamera < settings.Cameras.Count && Uri.TryCreate(settings.Cameras[settings.SelectedCamera].StreamUrl, UriKind.Absolute, out _);
     private static void ConfigureAutostart(bool enabled)
@@ -272,6 +319,17 @@ internal sealed class MonitorForm : Form
     }
 }
 
+internal sealed class ResizeGripForm : Form
+{
+    protected override bool ShowWithoutActivation => true;
+    public ResizeGripForm(MonitorForm monitor, int hitTest, Cursor cursor)
+    {
+        FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
+        BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = cursor;
+        MouseDown += (_, eventArgs) => { if (eventArgs.Button == MouseButtons.Left) monitor.BeginResize(hitTest); };
+    }
+}
+
 internal sealed class ToolbarForm : Form
 {
     private readonly Label name;
@@ -304,7 +362,6 @@ internal sealed class ToolbarForm : Form
 internal static class NativeMethods
 {
     public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
-    public const int WsThickFrame = 0x00040000, WsCaption = 0x00C00000;
     public static readonly IntPtr HwndTopMost = new(-1);
     public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
     public const int HtLeft = 10, HtRight = 11, HtTop = 12, HtTopLeft = 13, HtTopRight = 14, HtBottom = 15, HtBottomLeft = 16, HtBottomRight = 17;
