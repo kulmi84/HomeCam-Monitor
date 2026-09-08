@@ -61,6 +61,7 @@ internal sealed class MonitorForm : Form
     private bool fullscreen;
     private bool adjustingAspectRatio;
     private bool suppressToolbar;
+    private bool nativeMoveOrResize;
     private Point lastCursorPosition;
     private DateTime lastCursorMovement = DateTime.UtcNow;
     private Rectangle windowedBounds;
@@ -78,8 +79,8 @@ internal sealed class MonitorForm : Form
         TopMost = true;
         Controls.Add(video);
         Shown += (_, _) => InitializeMonitor();
-        Move += (_, _) => PositionOverlays();
-        Resize += (_, _) => { KeepCameraAspectRatio(); ApplyRoundedCorners(); PositionOverlays(); };
+        Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
+        Resize += (_, _) => { KeepCameraAspectRatio(); ApplyRoundedCorners(); if (!nativeMoveOrResize) PositionOverlays(); };
         video.DoubleClick += (_, _) => ToggleFullscreen();
         latencyTimer.Tick += (_, _) => RestartPlayer();
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
@@ -273,6 +274,7 @@ internal sealed class MonitorForm : Form
         {
             dragSurface.Bounds = Bounds;
             dragSurface.TopMost = true;
+            dragSurface.Visible = true;
         }
         toolbar.Location = new Point(Left + Math.Max(0, (Width - toolbar.Width) / 2), Top + Height - toolbar.Height - 10); toolbar.TopMost = true;
         const int edge = 7, corner = 16;
@@ -319,7 +321,22 @@ internal sealed class MonitorForm : Form
             return;
         }
 
-        base.WndProc(ref message); if (message.Msg != NativeMethods.WmNcHitTest || fullscreen || WindowState != FormWindowState.Normal) return;
+        if (message.Msg == NativeMethods.WmEnterSizeMove)
+        {
+            nativeMoveOrResize = true;
+            toolbar?.Hide(); dragSurface?.Hide();
+            foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
+        }
+
+        base.WndProc(ref message);
+        if (message.Msg == NativeMethods.WmExitSizeMove)
+        {
+            nativeMoveOrResize = false;
+            PositionOverlays();
+            lastCursorMovement = DateTime.UtcNow;
+            return;
+        }
+        if (message.Msg != NativeMethods.WmNcHitTest || fullscreen || WindowState != FormWindowState.Normal) return;
         var p = PointToClient(Cursor.Position); var grip = Math.Max(8, DeviceDpi * 8 / 96); var left = p.X < grip; var right = p.X >= ClientSize.Width - grip; var top = p.Y < grip; var bottom = p.Y >= ClientSize.Height - grip;
         if (left && top) message.Result = (IntPtr)NativeMethods.HtTopLeft; else if (right && top) message.Result = (IntPtr)NativeMethods.HtTopRight;
         else if (left && bottom) message.Result = (IntPtr)NativeMethods.HtBottomLeft; else if (right && bottom) message.Result = (IntPtr)NativeMethods.HtBottomRight;
@@ -402,6 +419,7 @@ internal sealed class ToolbarForm : Form
 internal static class NativeMethods
 {
     public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
+    public const int WmEnterSizeMove = 0x0231, WmExitSizeMove = 0x0232;
     public static readonly IntPtr HwndTopMost = new(-1);
     public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
     public const int HtLeft = 10, HtRight = 11, HtTop = 12, HtTopLeft = 13, HtTopRight = 14, HtBottom = 15, HtBottomLeft = 16, HtBottomRight = 17;
