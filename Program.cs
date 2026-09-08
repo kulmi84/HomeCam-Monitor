@@ -156,14 +156,39 @@ internal sealed class MonitorForm : Form
 
     internal async Task SaveSnapshotAsync()
     {
+        string? path = null;
         try
         {
             var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "HomeCam Monitor"); Directory.CreateDirectory(folder);
             var cameraName = string.Concat(settings.Cameras[settings.SelectedCamera].Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
-            var path = Path.Combine(folder, $"{cameraName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
-            await SendCommandAsync(new object[] { "screenshot-to-file", path, "video" }); toolbar?.Flash("Gespeichert");
+            path = Path.Combine(folder, $"{cameraName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
+
+            try
+            {
+                await SendCommandAsync(new object[] { "screenshot-to-file", path, "video" });
+                for (var attempt = 0; attempt < 10 && !File.Exists(path); attempt++) await Task.Delay(100);
+            }
+            catch { }
+
+            if (!File.Exists(path))
+            {
+                toolbar?.Hide();
+                await Task.Delay(80);
+                using var bitmap = new Bitmap(video.ClientSize.Width, video.ClientSize.Height);
+                using (var graphics = Graphics.FromImage(bitmap))
+                    graphics.CopyFromScreen(video.PointToScreen(Point.Empty), Point.Empty, video.ClientSize);
+                bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                toolbar?.Show(this);
+                PositionToolbar();
+            }
+
+            toolbar?.Flash("Gespeichert");
         }
-        catch (Exception exception) { MessageBox.Show(this, $"Der Snapshot konnte nicht gespeichert werden.\n\n{exception.Message}", "Snapshot fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+        catch (Exception exception)
+        {
+            if (toolbar is { Visible: false }) { toolbar.Show(this); PositionToolbar(); }
+            MessageBox.Show(this, $"Der Snapshot konnte nicht gespeichert werden.\n\nZiel: {path}\n\n{exception.Message}", "Snapshot fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
     }
 
     private async Task SendCommandAsync(object[] command)
@@ -220,6 +245,12 @@ internal sealed class MonitorForm : Form
     }
     protected override void WndProc(ref Message message)
     {
+        if (message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
+        {
+            message.Result = IntPtr.Zero;
+            return;
+        }
+
         base.WndProc(ref message); if (message.Msg != NativeMethods.WmNcHitTest || fullscreen || WindowState != FormWindowState.Normal) return;
         var p = PointToClient(Cursor.Position); var grip = Math.Max(8, DeviceDpi * 8 / 96); var left = p.X < grip; var right = p.X >= ClientSize.Width - grip; var top = p.Y < grip; var bottom = p.Y >= ClientSize.Height - grip;
         if (left && top) message.Result = (IntPtr)NativeMethods.HtTopLeft; else if (right && top) message.Result = (IntPtr)NativeMethods.HtTopRight;
@@ -261,7 +292,7 @@ internal sealed class ToolbarForm : Form
 
 internal static class NativeMethods
 {
-    public const int WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
+    public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
     public const int WsThickFrame = 0x00040000, WsCaption = 0x00C00000;
     public static readonly IntPtr HwndTopMost = new(-1);
     public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
