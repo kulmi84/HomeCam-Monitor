@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-monitor-controls.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-monitor-clean.png" alt="HomeCam Monitor mit ausgeblendeter Bedienleiste" width="390">
 </p>
 
 HomeCam Monitor verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
@@ -45,9 +45,9 @@ Beim ersten Start öffnet sich die Kameraliste. Für jede Kamera werden ein frei
 
 | Name | Beispieladresse |
 |---|---|
-| Einfahrt | `rtsp://192.168.9.8:8554/Einfahrt` |
-| Garten | `rtsp://192.168.9.8:8554/Garten` |
-| Garage | `rtsp://192.168.9.8:8554/Garage2` |
+| Einfahrt | `rtsp://192.168.x.x:8554/Einfahrt` |
+| Garten | `rtsp://192.168.x.x:8554/Garten` |
+| Garage | `rtsp://192.168.x.x:8554/Garage2` |
 
 Die Beispiele verwenden den RTSP-Ausgang von go2rtc auf Port `8554`. Eine `onvif://`-Adresse gehört in die go2rtc-Konfiguration und ist keine direkt abspielbare Adresse für HomeCam Monitor.
 

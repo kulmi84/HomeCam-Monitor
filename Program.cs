@@ -15,11 +15,7 @@ internal static class Program
 
 internal sealed class Settings
 {
-    public List<CameraEntry> Cameras { get; set; } =
-    [
-        new() { Name = "Einfahrt", StreamUrl = "rtsp://192.168.9.8:8554/Einfahrt" },
-        new() { Name = "Garten", StreamUrl = "rtsp://192.168.9.8:8554/Garten" }
-    ];
+    public List<CameraEntry> Cameras { get; set; } = [];
     public int SelectedCamera { get; set; }
     public bool AlwaysOnTop { get; set; } = true;
     public bool StartWithWindows { get; set; }
@@ -538,7 +534,7 @@ internal sealed class SettingsForm : Form
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "CameraName", HeaderText = "Name", FillWeight = 25 }); cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 75 });
         foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl); top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
         var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 }; table.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); table.Controls.Add(cameras, 0, 0);
-        table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.9.8:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
+        table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart); table.Controls.Add(options, 0, 2);
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft }; var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true }); table.Controls.Add(buttons, 0, 4); Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
