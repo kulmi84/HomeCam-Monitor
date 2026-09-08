@@ -210,9 +210,9 @@ internal sealed class MonitorForm : Form
         Region?.Dispose(); if (fullscreen) { Region = null; return; }
         var radius = Math.Max(12, DeviceDpi * 14 / 96); var handle = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, radius, radius);
         Region = Region.FromHrgn(handle); NativeMethods.DeleteObject(handle);
-        var preference = fullscreen ? NativeMethods.DwmWindowCornerPreference.DoNotRound : NativeMethods.DwmWindowCornerPreference.Round;
+        var preference = fullscreen ? (int)NativeMethods.DwmWindowCornerPreference.DoNotRound : (int)NativeMethods.DwmWindowCornerPreference.Round;
         NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.WindowCornerPreference,
-            ref preference, Marshal.SizeOf<NativeMethods.DwmWindowCornerPreference>());
+            ref preference, sizeof(int));
     }
     private void SaveWindow()
     {
@@ -238,19 +238,19 @@ internal sealed class ToolbarForm : Form
     public ToolbarForm(MonitorForm monitor)
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; BackColor = Color.FromArgb(20, 20, 20); Opacity = 0.78;
-        ClientSize = new Size(348, 42); StartPosition = FormStartPosition.Manual; TopMost = true;
+        ClientSize = new Size(288, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
         var move = Item("↔", 0, null); move.MouseDown += (_, e) => { if (e.Button == MouseButtons.Left) monitor.BeginMove(); };
-        var previous = Item("‹", 38, (_, _) => monitor.SelectRelativeCamera(-1));
-        name = Item("Kamera", 76, null, 82); var next = Item("›", 158, (_, _) => monitor.SelectRelativeCamera(1));
-        var snapshot = Item("▣", 196, async (_, _) => await monitor.SaveSnapshotAsync()); var settings = Item("⚙", 234, (_, _) => monitor.OpenSettings());
-        var full = Item("⛶", 272, (_, _) => monitor.ToggleFullscreen()); var close = Item("×", 310, (_, _) => monitor.Close());
+        var previous = Item("‹", 32, (_, _) => monitor.SelectRelativeCamera(-1));
+        name = Item("Kamera", 64, null, 64); var next = Item("›", 128, (_, _) => monitor.SelectRelativeCamera(1));
+        var snapshot = Item("▣", 160, async (_, _) => await monitor.SaveSnapshotAsync()); var settings = Item("⚙", 192, (_, _) => monitor.OpenSettings());
+        var full = Item("⛶", 224, (_, _) => monitor.ToggleFullscreen()); var close = Item("×", 256, (_, _) => monitor.Close());
         Controls.AddRange([move, previous, name, next, snapshot, settings, full, close]);
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
-        var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 18, 18); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
+        var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
     }
-    private static Label Item(string text, int x, EventHandler? click, int width = 38)
+    private static Label Item(string text, int x, EventHandler? click, int width = 32)
     {
-        var item = new Label { Text = text, Left = x, Top = 2, Width = width, Height = 38, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 10 : 18), Cursor = Cursors.Hand };
+        var item = new Label { Text = text, Left = x, Top = 1, Width = width, Height = 32, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 9 : 15), Cursor = Cursors.Hand };
         if (click is not null) item.Click += click; return item;
     }
     public async void Flash(string text)
@@ -273,7 +273,7 @@ internal static class NativeMethods
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr handle);
     public enum DwmWindowAttribute { WindowCornerPreference = 33 }
     public enum DwmWindowCornerPreference { Default = 0, DoNotRound = 1, Round = 2, RoundSmall = 3 }
-    [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, DwmWindowAttribute attribute, ref DwmWindowCornerPreference value, int size);
+    [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, DwmWindowAttribute attribute, ref int value, int size);
 }
 
 internal sealed class SettingsForm : Form
