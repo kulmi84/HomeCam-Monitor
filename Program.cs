@@ -330,12 +330,29 @@ internal sealed class MonitorForm : Form
 
 internal sealed class DragSurfaceForm : Form
 {
+    private Point mouseDownPosition;
+    private bool dragPending;
     protected override bool ShowWithoutActivation => true;
     public DragSurfaceForm(MonitorForm monitor)
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
-        BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = Cursors.SizeAll;
-        MouseDown += (_, eventArgs) => { if (eventArgs.Button == MouseButtons.Left) monitor.BeginMove(); };
+        BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = Cursors.Default;
+        MouseDown += (_, eventArgs) =>
+        {
+            if (eventArgs.Button != MouseButtons.Left) return;
+            mouseDownPosition = eventArgs.Location;
+            dragPending = true;
+        };
+        MouseMove += (_, eventArgs) =>
+        {
+            if (!dragPending || eventArgs.Button != MouseButtons.Left) return;
+            var dragSize = SystemInformation.DragSize;
+            if (Math.Abs(eventArgs.X - mouseDownPosition.X) < dragSize.Width / 2 &&
+                Math.Abs(eventArgs.Y - mouseDownPosition.Y) < dragSize.Height / 2) return;
+            dragPending = false;
+            monitor.BeginMove();
+        };
+        MouseUp += (_, _) => dragPending = false;
         DoubleClick += (_, _) => monitor.ToggleFullscreen();
     }
 }
