@@ -209,7 +209,23 @@ internal sealed class MonitorForm : Form
     internal void BeginMove()
     {
         if (fullscreen) return;
-        NativeMethods.ReleaseCapture(); NativeMethods.SendMessage(Handle, NativeMethods.WmNcLButtonDown, (IntPtr)NativeMethods.HtCaption, IntPtr.Zero);
+        nativeMoveOrResize = true;
+        toolbar?.Hide();
+        dragSurface?.Hide();
+        foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
+
+        NativeMethods.ReleaseCapture();
+        NativeMethods.SendMessage(Handle, NativeMethods.WmNcLButtonDown, (IntPtr)NativeMethods.HtCaption, IntPtr.Zero);
+
+        // SendMessage kehrt erst zurück, wenn das Verschieben beendet wurde.
+        // Der Fallback stellt die Overlays auch dann wieder her, wenn Windows
+        // ausnahmsweise keine WM_EXITSIZEMOVE-Nachricht liefert.
+        if (nativeMoveOrResize)
+        {
+            nativeMoveOrResize = false;
+            PositionOverlays();
+            lastCursorMovement = DateTime.UtcNow;
+        }
     }
 
     internal void BeginManualResize()
@@ -522,9 +538,3 @@ internal sealed class SettingsForm : Form
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft }; var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true }); table.Controls.Add(buttons, 0, 4); Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
         ok.Click += (_, _) => { var entries = ReadCameras(); if (entries.Count == 0 || entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _))) { MessageBox.Show(this, "Bitte gültige Streamadressen eintragen.", "Ungültige Kamera", MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; } Result = new Settings { Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, entries.Count - 1), AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked, Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height }; };
-    }
-    private List<CameraEntry> ReadCameras()
-    {
-        var result = new List<CameraEntry>(); foreach (DataGridViewRow row in cameras.Rows) { if (row.IsNewRow) continue; var name = Convert.ToString(row.Cells[0].Value)?.Trim() ?? ""; var url = Convert.ToString(row.Cells[1].Value)?.Trim() ?? ""; if (name.Length > 0 || url.Length > 0) result.Add(new CameraEntry { Name = name, StreamUrl = url }); } return result;
-    }
-}
