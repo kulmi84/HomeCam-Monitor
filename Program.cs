@@ -53,6 +53,7 @@ internal sealed class MonitorForm : Form
     private readonly string pipeName = $"HomeCamMonitor-{Environment.ProcessId}";
     private Settings settings;
     private ToolbarForm? toolbar;
+    private DragSurfaceForm? dragSurface;
     private readonly List<ResizeGripForm> resizeGrips = [];
     private Process? player;
     private bool closing;
@@ -83,7 +84,7 @@ internal sealed class MonitorForm : Form
         latencyTimer.Tick += (_, _) => RestartPlayer();
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
         controlsTimer.Tick += (_, _) => UpdateToolbarVisibility();
-        FormClosing += (_, _) => { closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop(); SaveWindow(); StopPlayer(); toolbar?.Close(); foreach (var grip in resizeGrips) grip.Close(); };
+        FormClosing += (_, _) => { closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop(); SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close(); };
         ApplyRoundedCorners();
     }
 
@@ -94,6 +95,7 @@ internal sealed class MonitorForm : Form
             MessageBox.Show(this, "mpv.exe fehlt. Bitte den vollständigen Ordner aus dem GitHub-Artefakt entpacken.", "HomeCam Monitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Close(); return;
         }
+        dragSurface = new DragSurfaceForm(this); dragSurface.Show(this);
         toolbar = new ToolbarForm(this); toolbar.Show(this); CreateResizeGrips();
         if (!HasUsableCamera()) OpenSettings();
         UpdateToolbar(); PositionOverlays(); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
@@ -267,6 +269,11 @@ internal sealed class MonitorForm : Form
     private void PositionOverlays()
     {
         if (toolbar is null || toolbar.IsDisposed) return;
+        if (dragSurface is not null && !dragSurface.IsDisposed)
+        {
+            dragSurface.Bounds = Bounds;
+            dragSurface.TopMost = true;
+        }
         toolbar.Location = new Point(Left + Math.Max(0, (Width - toolbar.Width) / 2), Top + Height - toolbar.Height - 10); toolbar.TopMost = true;
         const int edge = 7, corner = 16;
         var bounds = new[]
@@ -281,7 +288,9 @@ internal sealed class MonitorForm : Form
         for (var index = 0; index < resizeGrips.Count; index++)
         {
             resizeGrips[index].Bounds = bounds[index]; resizeGrips[index].Visible = !fullscreen;
+            if (!fullscreen) resizeGrips[index].BringToFront();
         }
+        if (toolbar.Visible) toolbar.BringToFront();
     }
     private bool HasUsableCamera() => settings.Cameras.Count > 0 && settings.SelectedCamera >= 0 && settings.SelectedCamera < settings.Cameras.Count && Uri.TryCreate(settings.Cameras[settings.SelectedCamera].StreamUrl, UriKind.Absolute, out _);
     private static void ConfigureAutostart(bool enabled)
@@ -319,6 +328,18 @@ internal sealed class MonitorForm : Form
     }
 }
 
+internal sealed class DragSurfaceForm : Form
+{
+    protected override bool ShowWithoutActivation => true;
+    public DragSurfaceForm(MonitorForm monitor)
+    {
+        FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
+        BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = Cursors.SizeAll;
+        MouseDown += (_, eventArgs) => { if (eventArgs.Button == MouseButtons.Left) monitor.BeginMove(); };
+        DoubleClick += (_, _) => monitor.ToggleFullscreen();
+    }
+}
+
 internal sealed class ResizeGripForm : Form
 {
     protected override bool ShowWithoutActivation => true;
@@ -342,7 +363,9 @@ internal sealed class ToolbarForm : Form
         ClientSize = new Size(256, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
         var previous = Item("‹", 0, (_, _) => monitor.SelectRelativeCamera(-1));
         name = Item("Kamera", 32, null, 64); var next = Item("›", 96, (_, _) => monitor.SelectRelativeCamera(1));
-        var snapshot = Item("▣", 128, async (_, _) => await monitor.SaveSnapshotAsync()); var settings = Item("⚙", 160, (_, _) => monitor.OpenSettings());
+        var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
+        snapshot.Font = new Font("Segoe MDL2 Assets", 15);
+        var settings = Item("⚙", 160, (_, _) => monitor.OpenSettings());
         var full = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen()); var close = Item("×", 224, (_, _) => monitor.Close());
         Controls.AddRange([previous, name, next, snapshot, settings, full, close]);
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
