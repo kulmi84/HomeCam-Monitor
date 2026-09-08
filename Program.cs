@@ -26,7 +26,7 @@ internal sealed class Settings
     public int Left { get; set; } = -1;
     public int Top { get; set; } = -1;
     public int Width { get; set; } = 480;
-    public int Height { get; set; } = 270;
+    public int Height { get; set; } = 300;
 }
 
 internal sealed class CameraEntry
@@ -66,17 +66,6 @@ internal sealed class MonitorForm : Form
     private DateTime lastCursorMovement = DateTime.UtcNow;
     private Rectangle windowedBounds;
 
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var parameters = base.CreateParams;
-            parameters.Style |= NativeMethods.WsThickFrame;
-            parameters.Style &= ~NativeMethods.WsCaption;
-            return parameters;
-        }
-    }
-
     public MonitorForm()
     {
         settings = SettingsStore.Load();
@@ -84,11 +73,10 @@ internal sealed class MonitorForm : Form
         BackColor = Color.Black;
         FormBorderStyle = FormBorderStyle.None;
         MinimumSize = new Size(240, 150);
-        var workingArea = GetStartupWorkingArea();
-        var initialWidth = GetSafeStartupWidth(workingArea);
+        var initialWidth = Math.Max(240, settings.Width);
         ClientSize = new Size(initialWidth, Math.Max(150, (int)Math.Round(initialWidth * 9d / 16d)));
-        PositionInitialWindow(workingArea);
-        TopMost = settings.AlwaysOnTop;
+        if (settings.Left >= 0 && settings.Top >= 0) { StartPosition = FormStartPosition.Manual; Location = new Point(settings.Left, settings.Top); }
+        TopMost = true;
         Controls.Add(video);
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
@@ -215,7 +203,7 @@ internal sealed class MonitorForm : Form
     {
         using var dialog = new SettingsForm(settings); if (dialog.ShowDialog(this) != DialogResult.OK) return;
         settings = dialog.Result; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
-        TopMost = settings.AlwaysOnTop; SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
+        TopMost = true; SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
     }
 
     internal void BeginMove()
@@ -224,10 +212,52 @@ internal sealed class MonitorForm : Form
         NativeMethods.ReleaseCapture(); NativeMethods.SendMessage(Handle, NativeMethods.WmNcLButtonDown, (IntPtr)NativeMethods.HtCaption, IntPtr.Zero);
     }
 
-    internal void BeginResize(int hitTest)
+    internal void BeginManualResize()
     {
         if (fullscreen) return;
-        NativeMethods.ReleaseCapture(); NativeMethods.SendMessage(Handle, NativeMethods.WmNcLButtonDown, (IntPtr)hitTest, IntPtr.Zero);
+        nativeMoveOrResize = true;
+        toolbar?.Hide();
+        dragSurface?.Hide();
+    }
+
+    internal void ResizeFromGrip(int hitTest, Rectangle startBounds, Point startCursor, Point currentCursor)
+    {
+        if (fullscreen) return;
+
+        var deltaX = currentCursor.X - startCursor.X;
+        var deltaY = currentCursor.Y - startCursor.Y;
+        var horizontalWidth = hitTest is NativeMethods.HtLeft or NativeMethods.HtTopLeft or NativeMethods.HtBottomLeft
+            ? startBounds.Width - deltaX
+            : startBounds.Width + deltaX;
+        var verticalHeight = hitTest is NativeMethods.HtTop or NativeMethods.HtTopLeft or NativeMethods.HtTopRight
+            ? startBounds.Height - deltaY
+            : startBounds.Height + deltaY;
+        var verticalWidth = (int)Math.Round(verticalHeight * 16d / 9d);
+
+        var usesHorizontal = hitTest is NativeMethods.HtLeft or NativeMethods.HtRight;
+        var usesVertical = hitTest is NativeMethods.HtTop or NativeMethods.HtBottom;
+        var desiredWidth = usesHorizontal ? horizontalWidth :
+            usesVertical ? verticalWidth :
+            Math.Abs(horizontalWidth - startBounds.Width) >= Math.Abs(verticalWidth - startBounds.Width)
+                ? horizontalWidth : verticalWidth;
+
+        var minimumWidth = Math.Max(MinimumSize.Width, (int)Math.Ceiling(MinimumSize.Height * 16d / 9d));
+        var width = Math.Max(minimumWidth, desiredWidth);
+        var height = (int)Math.Round(width * 9d / 16d);
+        var left = hitTest is NativeMethods.HtLeft or NativeMethods.HtTopLeft or NativeMethods.HtBottomLeft
+            ? startBounds.Right - width : startBounds.Left;
+        var top = hitTest is NativeMethods.HtTop or NativeMethods.HtTopLeft or NativeMethods.HtTopRight
+            ? startBounds.Bottom - height : startBounds.Top;
+
+        Bounds = new Rectangle(left, top, width, height);
+    }
+
+    internal void EndManualResize()
+    {
+        if (!nativeMoveOrResize) return;
+        nativeMoveOrResize = false;
+        PositionOverlays();
+        lastCursorMovement = DateTime.UtcNow;
     }
 
     internal void ToggleFullscreen()
@@ -307,32 +337,6 @@ internal sealed class MonitorForm : Form
         if (toolbar.Visible) toolbar.BringToFront();
     }
     private bool HasUsableCamera() => settings.Cameras.Count > 0 && settings.SelectedCamera >= 0 && settings.SelectedCamera < settings.Cameras.Count && Uri.TryCreate(settings.Cameras[settings.SelectedCamera].StreamUrl, UriKind.Absolute, out _);
-    private Rectangle GetStartupWorkingArea()
-    {
-        var savedPoint = new Point(Math.Max(0, settings.Left), Math.Max(0, settings.Top));
-        return Screen.FromPoint(savedPoint).WorkingArea;
-    }
-    private int GetSafeStartupWidth(Rectangle workingArea)
-    {
-        const int defaultWidth = 480;
-        var savedLooksFullscreen = settings.Width >= workingArea.Width - 32 || settings.Height >= workingArea.Height - 32;
-        var savedSizeInvalid = settings.Width < MinimumSize.Width || settings.Height < MinimumSize.Height;
-        if (savedLooksFullscreen || savedSizeInvalid) return Math.Min(defaultWidth, workingArea.Width);
-        return Math.Clamp(settings.Width, MinimumSize.Width, workingArea.Width);
-    }
-    private void PositionInitialWindow(Rectangle workingArea)
-    {
-        StartPosition = FormStartPosition.Manual;
-        if (settings.Left < 0 || settings.Top < 0)
-        {
-            Location = new Point(workingArea.Right - Width - 24, workingArea.Bottom - Height - 24);
-            return;
-        }
-
-        var left = Math.Clamp(settings.Left, workingArea.Left, Math.Max(workingArea.Left, workingArea.Right - Width));
-        var top = Math.Clamp(settings.Top, workingArea.Top, Math.Max(workingArea.Top, workingArea.Bottom - Height));
-        Location = new Point(left, top);
-    }
     private static void ConfigureAutostart(bool enabled)
     {
         using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
@@ -414,12 +418,42 @@ internal sealed class DragSurfaceForm : Form
 
 internal sealed class ResizeGripForm : Form
 {
+    private bool resizing;
+    private Rectangle startBounds;
+    private Point startCursor;
+
     protected override bool ShowWithoutActivation => true;
     public ResizeGripForm(MonitorForm monitor, int hitTest, Cursor cursor)
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
         BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = cursor;
-        MouseDown += (_, eventArgs) => { if (eventArgs.Button == MouseButtons.Left) monitor.BeginResize(hitTest); };
+        MouseDown += (_, eventArgs) =>
+        {
+            if (eventArgs.Button != MouseButtons.Left) return;
+            resizing = true;
+            startBounds = monitor.Bounds;
+            startCursor = System.Windows.Forms.Cursor.Position;
+            Capture = true;
+            monitor.BeginManualResize();
+        };
+        MouseMove += (_, eventArgs) =>
+        {
+            if (!resizing || eventArgs.Button != MouseButtons.Left) return;
+            monitor.ResizeFromGrip(hitTest, startBounds, startCursor, System.Windows.Forms.Cursor.Position);
+        };
+        MouseUp += (_, eventArgs) =>
+        {
+            if (eventArgs.Button != MouseButtons.Left || !resizing) return;
+            resizing = false;
+            Capture = false;
+            monitor.EndManualResize();
+        };
+        MouseCaptureChanged += (_, _) =>
+        {
+            if (!resizing) return;
+            resizing = false;
+            monitor.EndManualResize();
+        };
     }
 }
 
@@ -458,7 +492,6 @@ internal static class NativeMethods
 {
     public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
     public const int WmEnterSizeMove = 0x0231, WmExitSizeMove = 0x0232;
-    public const int WsThickFrame = 0x00040000, WsCaption = 0x00C00000;
     public static readonly IntPtr HwndTopMost = new(-1);
     public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
     public const int HtLeft = 10, HtRight = 11, HtTop = 12, HtTopLeft = 13, HtTopRight = 14, HtBottom = 15, HtBottomLeft = 16, HtBottomRight = 17;
