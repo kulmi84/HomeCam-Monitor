@@ -26,7 +26,7 @@ internal sealed class Settings
     public int Left { get; set; } = -1;
     public int Top { get; set; } = -1;
     public int Width { get; set; } = 480;
-    public int Height { get; set; } = 300;
+    public int Height { get; set; } = 270;
 }
 
 internal sealed class CameraEntry
@@ -84,10 +84,11 @@ internal sealed class MonitorForm : Form
         BackColor = Color.Black;
         FormBorderStyle = FormBorderStyle.None;
         MinimumSize = new Size(240, 150);
-        var initialWidth = Math.Max(240, settings.Width);
+        var workingArea = GetStartupWorkingArea();
+        var initialWidth = GetSafeStartupWidth(workingArea);
         ClientSize = new Size(initialWidth, Math.Max(150, (int)Math.Round(initialWidth * 9d / 16d)));
-        if (settings.Left >= 0 && settings.Top >= 0) { StartPosition = FormStartPosition.Manual; Location = new Point(settings.Left, settings.Top); }
-        TopMost = true;
+        PositionInitialWindow(workingArea);
+        TopMost = settings.AlwaysOnTop;
         Controls.Add(video);
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
@@ -214,7 +215,7 @@ internal sealed class MonitorForm : Form
     {
         using var dialog = new SettingsForm(settings); if (dialog.ShowDialog(this) != DialogResult.OK) return;
         settings = dialog.Result; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
-        TopMost = true; SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
+        TopMost = settings.AlwaysOnTop; SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
     }
 
     internal void BeginMove()
@@ -306,6 +307,32 @@ internal sealed class MonitorForm : Form
         if (toolbar.Visible) toolbar.BringToFront();
     }
     private bool HasUsableCamera() => settings.Cameras.Count > 0 && settings.SelectedCamera >= 0 && settings.SelectedCamera < settings.Cameras.Count && Uri.TryCreate(settings.Cameras[settings.SelectedCamera].StreamUrl, UriKind.Absolute, out _);
+    private Rectangle GetStartupWorkingArea()
+    {
+        var savedPoint = new Point(Math.Max(0, settings.Left), Math.Max(0, settings.Top));
+        return Screen.FromPoint(savedPoint).WorkingArea;
+    }
+    private int GetSafeStartupWidth(Rectangle workingArea)
+    {
+        const int defaultWidth = 480;
+        var savedLooksFullscreen = settings.Width >= workingArea.Width - 32 || settings.Height >= workingArea.Height - 32;
+        var savedSizeInvalid = settings.Width < MinimumSize.Width || settings.Height < MinimumSize.Height;
+        if (savedLooksFullscreen || savedSizeInvalid) return Math.Min(defaultWidth, workingArea.Width);
+        return Math.Clamp(settings.Width, MinimumSize.Width, workingArea.Width);
+    }
+    private void PositionInitialWindow(Rectangle workingArea)
+    {
+        StartPosition = FormStartPosition.Manual;
+        if (settings.Left < 0 || settings.Top < 0)
+        {
+            Location = new Point(workingArea.Right - Width - 24, workingArea.Bottom - Height - 24);
+            return;
+        }
+
+        var left = Math.Clamp(settings.Left, workingArea.Left, Math.Max(workingArea.Left, workingArea.Right - Width));
+        var top = Math.Clamp(settings.Top, workingArea.Top, Math.Max(workingArea.Top, workingArea.Bottom - Height));
+        Location = new Point(left, top);
+    }
     private static void ConfigureAutostart(bool enabled)
     {
         using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
