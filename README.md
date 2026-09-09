@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-monitor-clean.png" alt="HomeCam Monitor mit ausgeblendeter Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-monitor-v0.1.1.png" alt="HomeCam Monitor v0.1.1 mit Bedienleiste" width="390">
 </p>
 
 HomeCam Monitor verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
@@ -56,7 +56,7 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
 ## Bedienung
 
 <p align="center">
-  <img src="docs/screenshots/homecam-monitor-controls.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-monitor-v0.1.1.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
 </p>
 
 Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder.
