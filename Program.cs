@@ -197,9 +197,29 @@ internal sealed class MonitorForm : Form
 
     internal void OpenSettings()
     {
-        using var dialog = new SettingsForm(settings); if (dialog.ShowDialog(this) != DialogResult.OK) return;
-        settings = dialog.Result; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
-        TopMost = true; SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
+        Settings? changedSettings = null;
+        suppressToolbar = true;
+        toolbar?.Hide();
+        dragSurface?.Hide();
+        foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
+        TopMost = false;
+
+        try
+        {
+            using var dialog = new SettingsForm(settings) { TopMost = true };
+            if (dialog.ShowDialog(this) == DialogResult.OK) changedSettings = dialog.Result;
+        }
+        finally
+        {
+            suppressToolbar = false;
+            TopMost = changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop;
+            PositionOverlays();
+            lastCursorMovement = DateTime.UtcNow;
+        }
+
+        if (changedSettings is null) return;
+        settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
+        SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
     }
 
     internal void BeginMove()
@@ -536,7 +556,7 @@ internal sealed class SettingsForm : Form
         var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 }; table.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); table.Controls.Add(cameras, 0, 0);
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart); table.Controls.Add(options, 0, 2);
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft }; var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true }); table.Controls.Add(buttons, 0, 4); Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
         ok.Click += (_, _) => { var entries = ReadCameras(); if (entries.Count == 0 || entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _))) { MessageBox.Show(this, "Bitte gültige Streamadressen eintragen.", "Ungültige Kamera", MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; } Result = new Settings { Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, entries.Count - 1), AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked, Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height }; };
