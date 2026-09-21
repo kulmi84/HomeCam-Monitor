@@ -1,5 +1,9 @@
 using System.Diagnostics;
 using System.IO.Pipes;
+#if BETA
+using System.Net;
+using System.Net.Sockets;
+#endif
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -33,10 +37,26 @@ internal sealed class CameraEntry
 
 internal static class SettingsStore
 {
+#if BETA
+    private static readonly string Folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta");
+    private static readonly string StableFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor", "settings.json");
+#else
     private static readonly string Folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor");
+#endif
     private static readonly string FileName = Path.Combine(Folder, "settings.json");
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
-    public static Settings Load() { try { return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FileName)) ?? new Settings(); } catch { return new Settings(); } }
+    public static Settings Load()
+    {
+        try
+        {
+            if (File.Exists(FileName)) return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FileName)) ?? new Settings();
+#if BETA
+            if (File.Exists(StableFileName)) return JsonSerializer.Deserialize<Settings>(File.ReadAllText(StableFileName)) ?? new Settings();
+#endif
+        }
+        catch { }
+        return new Settings();
+    }
     public static void Save(Settings value) { Directory.CreateDirectory(Folder); File.WriteAllText(FileName, JsonSerializer.Serialize(value, JsonOptions)); }
 }
 
@@ -61,11 +81,21 @@ internal sealed class MonitorForm : Form
     private Point lastCursorPosition;
     private DateTime lastCursorMovement = DateTime.UtcNow;
     private Rectangle windowedBounds;
+#if BETA
+    private readonly CancellationTokenSource motionCancellation = new();
+    private readonly System.Windows.Forms.Timer motionRestoreTimer = new() { Interval = 30_000 };
+    private TcpListener? motionListener;
+    private IntPtr previousForegroundWindow;
+#endif
 
     public MonitorForm()
     {
         settings = SettingsStore.Load();
+#if BETA
+        Text = "HomeCam Monitor Beta";
+#else
         Text = "HomeCam Monitor";
+#endif
         BackColor = Color.Black;
         FormBorderStyle = FormBorderStyle.None;
         MinimumSize = new Size(240, 150);
@@ -81,7 +111,10 @@ internal sealed class MonitorForm : Form
         latencyTimer.Tick += (_, _) => RestartPlayer();
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
         controlsTimer.Tick += (_, _) => UpdateToolbarVisibility();
-        FormClosing += (_, _) => { closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop(); SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close(); };
+#if BETA
+        motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
+#endif
+        FormClosing += (_, _) => CloseMonitor();
         ApplyRoundedCorners();
     }
 
@@ -96,13 +129,30 @@ internal sealed class MonitorForm : Form
         toolbar = new ToolbarForm(this); toolbar.Show(this); CreateResizeGrips();
         if (!HasUsableCamera()) OpenSettings();
         UpdateToolbar(); PositionOverlays(); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
+#if BETA
+        StartMotionListener();
+#endif
+    }
+
+    private void CloseMonitor()
+    {
+        closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
+#if BETA
+        motionRestoreTimer.Stop(); motionCancellation.Cancel(); motionListener?.Stop();
+#endif
+        SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
 
     private void StartPlayer()
     {
         if (closing || !HasUsableCamera() || player is { HasExited: false }) return;
         var camera = settings.Cameras[settings.SelectedCamera];
-        Text = $"HomeCam Monitor – {camera.Name}"; intentionalStop = false;
+#if BETA
+        Text = $"HomeCam Monitor Beta – {camera.Name}";
+#else
+        Text = $"HomeCam Monitor – {camera.Name}";
+#endif
+        intentionalStop = false;
         var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe")) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
         foreach (var argument in new[]
         {
@@ -377,8 +427,89 @@ internal sealed class MonitorForm : Form
     private static void ConfigureAutostart(bool enabled)
     {
         using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
-        if (enabled) key?.SetValue("HomeCamMonitor", $"\"{Application.ExecutablePath}\""); else key?.DeleteValue("HomeCamMonitor", false);
+#if BETA
+        const string name = "HomeCamMonitor-Beta";
+#else
+        const string name = "HomeCamMonitor";
+#endif
+        if (enabled) key?.SetValue(name, $"\"{Application.ExecutablePath}\""); else key?.DeleteValue(name, false);
     }
+
+#if BETA
+    private void StartMotionListener()
+    {
+        try
+        {
+            motionListener = new TcpListener(IPAddress.Any, 8765);
+            motionListener.Start();
+            _ = Task.Run(() => ListenForMotionAsync(motionCancellation.Token));
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(this, $"Die Bewegungserkennung konnte Port 8765 nicht öffnen.\n\n{exception.Message}", "HomeCam Monitor Beta", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+
+    private async Task ListenForMotionAsync(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested && motionListener is not null)
+        {
+            try
+            {
+                using var client = await motionListener.AcceptTcpClientAsync(cancellationToken);
+                using var stream = client.GetStream();
+                using var reader = new StreamReader(stream, Encoding.ASCII, false, 1024, true);
+                var requestLine = await reader.ReadLineAsync(cancellationToken) ?? "";
+                var parts = requestLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var camera = parts.Length >= 2 ? ReadCameraParameter(parts[1]) : null;
+                var accepted = string.Equals(camera, "Einfahrt", StringComparison.OrdinalIgnoreCase);
+                if (accepted && !closing) BeginInvoke(new Action(() => HandleMotion("Einfahrt")));
+                var response = accepted ? "HTTP/1.1 204 No Content\r\nConnection: close\r\n\r\n" : "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+                await stream.WriteAsync(Encoding.ASCII.GetBytes(response), cancellationToken);
+            }
+            catch (OperationCanceledException) { break; }
+            catch (ObjectDisposedException) { break; }
+            catch { if (!cancellationToken.IsCancellationRequested) await Task.Delay(500, cancellationToken); }
+        }
+    }
+
+    private static string? ReadCameraParameter(string target)
+    {
+        if (!target.StartsWith("/motion", StringComparison.OrdinalIgnoreCase)) return null;
+        var query = target.IndexOf('?');
+        if (query < 0) return null;
+        foreach (var item in target[(query + 1)..].Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var pair = item.Split('=', 2);
+            if (pair.Length == 2 && string.Equals(pair[0], "camera", StringComparison.OrdinalIgnoreCase))
+                return Uri.UnescapeDataString(pair[1].Replace('+', ' '));
+        }
+        return null;
+    }
+
+    private void HandleMotion(string cameraName)
+    {
+        var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
+        if (cameraIndex < 0) { toolbar?.Flash("Einfahrt fehlt"); return; }
+        if (!motionRestoreTimer.Enabled) previousForegroundWindow = NativeMethods.GetForegroundWindow();
+        if (settings.SelectedCamera != cameraIndex)
+        {
+            settings.SelectedCamera = cameraIndex; SettingsStore.Save(settings); UpdateToolbar(); RestartPlayer();
+        }
+        motionRestoreTimer.Stop();
+        TopMost = true;
+        if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
+        Show(); BringToFront(); Activate(); NativeMethods.SetForegroundWindow(Handle);
+        motionRestoreTimer.Start();
+    }
+
+    private void RestoreAfterMotion()
+    {
+        motionRestoreTimer.Stop(); TopMost = settings.AlwaysOnTop;
+        var previous = previousForegroundWindow; previousForegroundWindow = IntPtr.Zero;
+        if (previous != IntPtr.Zero && previous != Handle) NativeMethods.SetForegroundWindow(previous);
+    }
+#endif
     private void ApplyRoundedCorners()
     {
         Region?.Dispose(); if (fullscreen) { Region = null; return; }
@@ -535,6 +666,10 @@ internal static class NativeMethods
     [DllImport("user32.dll")] public static extern bool ReleaseCapture();
     [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr window, int message, IntPtr parameter, IntPtr data);
     [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr window, IntPtr insertAfter, int x, int y, int width, int height, uint flags);
+#if BETA
+    [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr window);
+#endif
     [DllImport("gdi32.dll")] public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr handle);
     public enum DwmWindowAttribute { WindowCornerPreference = 33 }
