@@ -84,3 +84,43 @@ dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true
 ```
 
 Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird benötigt.
+
+## Beta: Bewegungserkennung über Home Assistant
+
+Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die Kamera **Einfahrt** auswählen und das Kamerafenster für 30 Sekunden nach vorne holen. Eine weitere Erkennung startet die 30 Sekunden erneut. Danach wird das zuvor aktive Fenster wieder aktiviert.
+
+Beim ersten Start übernimmt die Beta einmalig die Kameraliste der stabilen Version. Anschließend speichert sie ihre Einstellungen getrennt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
+
+In Home Assistant wird ein REST-Befehl angelegt. Die Platzhalter-IP wird nur in der privaten HA-Konfiguration durch die lokale IP des Windows-PCs ersetzt:
+
+```yaml
+rest_command:
+  homecam_bewegung:
+    url: "http://IP-DES-WINDOWS-PC:8765/motion?camera={{ kamera }}"
+    method: POST
+```
+
+Die bestehende Snapshot-Automation bleibt unverändert. Für HomeCam Monitor wird eine eigene Automation mit dem **Person**-Binärsensor der Einfahrt angelegt:
+
+```yaml
+alias: HomeCam Monitor – Person Einfahrt
+description: Holt HomeCam Monitor bei einer Person für 30 Sekunden nach vorne
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.PERSON_EINFAHRT
+    to: "on"
+conditions: []
+actions:
+  - action: rest_command.homecam_bewegung
+    data:
+      kamera: Einfahrt
+mode: restart
+```
+
+`binary_sensor.PERSON_EINFAHRT` wird dabei durch die tatsächliche Entity-ID des Einfahrt-Sensors **Person** ersetzt. `mode: restart` passt zum Verhalten der App: Jede neue Erkennung setzt die 30 Sekunden erneut zurück.
+
+Falls Windows beim ersten Test keine Verbindung zulässt, Port `8765` einmalig in einer PowerShell mit Administratorrechten für das private Netzwerk freigeben:
+
+```powershell
+New-NetFirewallRule -DisplayName "HomeCam Monitor Beta" -Direction Inbound -Protocol TCP -LocalPort 8765 -Action Allow -Profile Private
+```
