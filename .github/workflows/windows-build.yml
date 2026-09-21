@@ -16,6 +16,8 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Portable Windows-Version erstellen
         run: dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
+      - name: Beta mit Bewegungserkennung erstellen
+        run: dotnet publish HomeCamMonitor.Beta.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-beta
       - name: mpv Video-Engine laden
         shell: pwsh
         run: |
@@ -27,7 +29,12 @@ jobs:
           $exe = Get-ChildItem mpv -Filter mpv.exe -Recurse | Select-Object -First 1
           if (-not $exe) { throw 'mpv.exe wurde im Paket nicht gefunden.' }
           Copy-Item $exe.FullName publish/mpv.exe
+          Copy-Item $exe.FullName publish-beta/mpv.exe
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCamMonitor-v0.1.2-win-x64
           path: publish/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-Beta-v0.2.0-beta.1-win-x64
+          path: publish-beta/
