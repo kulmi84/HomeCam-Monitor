@@ -102,7 +102,11 @@ internal sealed class MonitorForm : Form
         var initialWidth = Math.Max(240, settings.Width);
         ClientSize = new Size(initialWidth, Math.Max(150, (int)Math.Round(initialWidth * 9d / 16d)));
         if (settings.Left >= 0 && settings.Top >= 0) { StartPosition = FormStartPosition.Manual; Location = new Point(settings.Left, settings.Top); }
+#if BETA
+        TopMost = settings.AlwaysOnTop;
+#else
         TopMost = true;
+#endif
         Controls.Add(video);
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
@@ -497,10 +501,18 @@ internal sealed class MonitorForm : Form
             settings.SelectedCamera = cameraIndex; SettingsStore.Save(settings); UpdateToolbar(); RestartPlayer();
         }
         motionRestoreTimer.Stop();
-        TopMost = true;
-        if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
-        Show(); BringToFront(); Activate(); NativeMethods.SetForegroundWindow(Handle);
+        ForceToForeground();
         motionRestoreTimer.Start();
+    }
+
+    private void ForceToForeground()
+    {
+        if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
+        TopMost = true;
+        NativeMethods.ShowWindowAsync(Handle, NativeMethods.SwShowNoActivate);
+        NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
+            NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate | NativeMethods.SwpShowWindow);
+        PositionOverlays();
     }
 
     private void RestoreAfterMotion()
@@ -662,6 +674,8 @@ internal static class NativeMethods
     public const int WmEnterSizeMove = 0x0231, WmExitSizeMove = 0x0232;
     public static readonly IntPtr HwndTopMost = new(-1);
     public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
+    public const uint SwpShowWindow = 0x0040;
+    public const int SwShowNoActivate = 4;
     public const int HtLeft = 10, HtRight = 11, HtTop = 12, HtTopLeft = 13, HtTopRight = 14, HtBottom = 15, HtBottomLeft = 16, HtBottomRight = 17;
     [DllImport("user32.dll")] public static extern bool ReleaseCapture();
     [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr window, int message, IntPtr parameter, IntPtr data);
@@ -669,6 +683,7 @@ internal static class NativeMethods
 #if BETA
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr window);
+    [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr window, int command);
 #endif
     [DllImport("gdi32.dll")] public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr handle);
