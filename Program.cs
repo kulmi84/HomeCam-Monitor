@@ -81,6 +81,7 @@ internal sealed class MonitorForm : Form
     private bool adjustingAspectRatio;
     private bool suppressToolbar;
     private bool nativeMoveOrResize;
+    private bool sentToBackground;
     private Point lastCursorPosition;
     private DateTime lastCursorMovement = DateTime.UtcNow;
     private Rectangle windowedBounds;
@@ -114,6 +115,7 @@ internal sealed class MonitorForm : Form
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
         Resize += (_, _) => { KeepCameraAspectRatio(); ApplyRoundedCorners(); if (!nativeMoveOrResize) PositionOverlays(); };
+        Activated += (_, _) => RestoreFromBackground();
         video.DoubleClick += (_, _) => ToggleFullscreen();
         latencyTimer.Tick += (_, _) => RestartPlayer();
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
@@ -357,6 +359,26 @@ internal sealed class MonitorForm : Form
         ApplyRoundedCorners(); PositionOverlays();
     }
 
+    internal void SendToBackground()
+    {
+        sentToBackground = true;
+#if BETA
+        motionRestoreTimer.Stop(); previousForegroundWindow = IntPtr.Zero;
+#endif
+        toolbar?.Hide(); dragSurface?.Hide();
+        foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
+        TopMost = false;
+        NativeMethods.SetWindowPos(Handle, NativeMethods.HwndBottom, 0, 0, 0, 0,
+            NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
+    }
+
+    private void RestoreFromBackground()
+    {
+        if (!sentToBackground) return;
+        sentToBackground = false; TopMost = settings.AlwaysOnTop;
+        lastCursorMovement = DateTime.UtcNow; PositionOverlays();
+    }
+
     private void KeepCameraAspectRatio()
     {
         if (fullscreen || adjustingAspectRatio || WindowState != FormWindowState.Normal) return;
@@ -370,7 +392,7 @@ internal sealed class MonitorForm : Form
     private void UpdateToolbar() { if (toolbar is not null && HasUsableCamera()) toolbar.CameraName = settings.Cameras[settings.SelectedCamera].Name; }
     private void UpdateToolbarVisibility()
     {
-        if (toolbar is null || toolbar.IsDisposed || suppressToolbar) return;
+        if (toolbar is null || toolbar.IsDisposed || suppressToolbar || sentToBackground) return;
         if (nativeMoveOrResize)
         {
             if (toolbar.Visible) toolbar.Hide();
@@ -407,6 +429,12 @@ internal sealed class MonitorForm : Form
     private void PositionOverlays()
     {
         if (toolbar is null || toolbar.IsDisposed) return;
+        if (sentToBackground)
+        {
+            toolbar.Hide(); dragSurface?.Hide();
+            foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
+            return;
+        }
         if (dragSurface is not null && !dragSurface.IsDisposed)
         {
             dragSurface.Bounds = Bounds;
@@ -512,6 +540,7 @@ internal sealed class MonitorForm : Form
 
     private void ForceToForeground()
     {
+        sentToBackground = false;
         if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
         TopMost = true;
         NativeMethods.ShowWindowAsync(Handle, NativeMethods.SwShowNoActivate);
@@ -657,8 +686,8 @@ internal sealed class ToolbarForm : Form
         var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
         snapshot.Font = new Font("Segoe MDL2 Assets", 15);
         var settings = Item("⚙", 160, (_, _) => monitor.OpenSettings());
-        var full = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen()); var close = Item("×", 224, (_, _) => monitor.Close());
-        Controls.AddRange([previous, name, next, snapshot, settings, full, close]);
+        var background = Item("↓", 192, (_, _) => monitor.SendToBackground()); var close = Item("×", 224, (_, _) => monitor.Close());
+        Controls.AddRange([previous, name, next, snapshot, settings, background, close]);
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
         var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
     }
@@ -678,6 +707,7 @@ internal static class NativeMethods
     public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
     public const int WmEnterSizeMove = 0x0231, WmExitSizeMove = 0x0232;
     public static readonly IntPtr HwndTopMost = new(-1);
+    public static readonly IntPtr HwndBottom = new(1);
     public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
     public const uint SwpShowWindow = 0x0040;
     public const int SwShowNoActivate = 4;
