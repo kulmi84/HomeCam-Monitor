@@ -69,7 +69,7 @@ Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Z
 | `‹` / `›` | vorherige/nächste Kamera |
 | Bildsymbol | Snapshot speichern |
 | Zahnrad | Einstellungen öffnen |
-| Vollbildsymbol | Vollbild ein/aus |
+| `↓` | Fenster in den Hintergrund schicken |
 | `×` | Anwendung beenden |
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
