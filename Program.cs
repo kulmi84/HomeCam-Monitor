@@ -83,6 +83,7 @@ internal sealed class MonitorForm : Form
     private bool nativeMoveOrResize;
 #if BETA
     private bool sentToBackground;
+    private DateTime sentToBackgroundAt = DateTime.MinValue;
 #endif
     private Point lastCursorPosition;
     private DateTime lastCursorMovement = DateTime.UtcNow;
@@ -367,19 +368,31 @@ internal sealed class MonitorForm : Form
     internal void SendToBackground()
     {
         sentToBackground = true;
-#if BETA
-        motionRestoreTimer.Stop(); previousForegroundWindow = IntPtr.Zero;
-#endif
+        sentToBackgroundAt = DateTime.UtcNow;
+        motionRestoreTimer.Stop();
+        var previous = previousForegroundWindow;
+        previousForegroundWindow = IntPtr.Zero;
         toolbar?.Hide(); dragSurface?.Hide();
         foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
         TopMost = false;
         NativeMethods.SetWindowPos(Handle, NativeMethods.HwndBottom, 0, 0, 0, 0,
             NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
+        if (previous != IntPtr.Zero && previous != Handle) NativeMethods.SetForegroundWindow(previous);
     }
 
     private void RestoreFromBackground()
     {
         if (!sentToBackground) return;
+        // Das Herabstufen eines TopMost-Fensters kann selbst kurz Activated
+        // ausloesen. Nur eine spaetere echte Benutzeraktivierung darf es
+        // wiederherstellen.
+        if (DateTime.UtcNow - sentToBackgroundAt < TimeSpan.FromSeconds(1))
+        {
+            TopMost = false;
+            NativeMethods.SetWindowPos(Handle, NativeMethods.HwndBottom, 0, 0, 0, 0,
+                NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
+            return;
+        }
         sentToBackground = false; TopMost = settings.AlwaysOnTop;
         lastCursorMovement = DateTime.UtcNow; PositionOverlays();
     }
