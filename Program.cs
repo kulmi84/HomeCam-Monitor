@@ -563,9 +563,8 @@ internal sealed class MonitorForm : Form
 
     private void RestoreAfterMotion()
     {
-        motionRestoreTimer.Stop(); TopMost = settings.AlwaysOnTop;
-        var previous = previousForegroundWindow; previousForegroundWindow = IntPtr.Zero;
-        if (previous != IntPtr.Zero && previous != Handle) NativeMethods.SetForegroundWindow(previous);
+        motionRestoreTimer.Stop();
+        SendToBackground();
     }
 #endif
     private void ApplyRoundedCorners()
