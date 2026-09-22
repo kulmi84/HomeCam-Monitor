@@ -87,7 +87,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die Kamera **Einfahrt** auswählen und das Kamerafenster für 30 Sekunden nach vorne holen. Eine weitere Erkennung startet die 30 Sekunden erneut. Danach wird das zuvor aktive Fenster wieder aktiviert.
+Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die Kamera **Einfahrt** auswählen und das Kamerafenster nach vorne holen. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird das zuvor aktive Fenster wieder aktiviert.
 
 Beim ersten Start übernimmt die Beta einmalig die Kameraliste der stabilen Version. Anschließend speichert sie ihre Einstellungen getrennt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
 
@@ -104,7 +104,7 @@ Die bestehende Snapshot-Automation bleibt unverändert. Für HomeCam Monitor wir
 
 ```yaml
 alias: HomeCam Monitor – Person Einfahrt
-description: Holt HomeCam Monitor bei einer Person für 30 Sekunden nach vorne
+description: Holt HomeCam Monitor bei einer Person nach vorne
 triggers:
   - trigger: state
     entity_id: binary_sensor.PERSON_EINFAHRT
@@ -117,7 +117,7 @@ actions:
 mode: restart
 ```
 
-`binary_sensor.PERSON_EINFAHRT` wird dabei durch die tatsächliche Entity-ID des Einfahrt-Sensors **Person** ersetzt. `mode: restart` passt zum Verhalten der App: Jede neue Erkennung setzt die 30 Sekunden erneut zurück.
+`binary_sensor.PERSON_EINFAHRT` wird dabei durch die tatsächliche Entity-ID des Einfahrt-Sensors **Person** ersetzt. Jede neue Erkennung startet die in HomeCam Monitor eingestellte Vordergrunddauer erneut.
 
 Falls Windows beim ersten Test keine Verbindung zulässt, Port `8765` einmalig in einer PowerShell mit Administratorrechten für das private Netzwerk freigeben:
 
