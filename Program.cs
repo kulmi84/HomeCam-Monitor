@@ -27,6 +27,9 @@ internal sealed class Settings
     public int Top { get; set; } = -1;
     public int Width { get; set; } = 480;
     public int Height { get; set; } = 300;
+#if BETA
+    public int MotionForegroundSeconds { get; set; } = 10;
+#endif
 }
 
 internal sealed class CameraEntry
@@ -83,7 +86,7 @@ internal sealed class MonitorForm : Form
     private Rectangle windowedBounds;
 #if BETA
     private readonly CancellationTokenSource motionCancellation = new();
-    private readonly System.Windows.Forms.Timer motionRestoreTimer = new() { Interval = 30_000 };
+    private readonly System.Windows.Forms.Timer motionRestoreTimer = new();
     private TcpListener? motionListener;
     private IntPtr previousForegroundWindow;
 #endif
@@ -116,6 +119,7 @@ internal sealed class MonitorForm : Form
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
         controlsTimer.Tick += (_, _) => UpdateToolbarVisibility();
 #if BETA
+        motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
 #endif
         FormClosing += (_, _) => CloseMonitor();
@@ -501,6 +505,7 @@ internal sealed class MonitorForm : Form
             settings.SelectedCamera = cameraIndex; SettingsStore.Save(settings); UpdateToolbar(); RestartPlayer();
         }
         motionRestoreTimer.Stop();
+        motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         ForceToForeground();
         motionRestoreTimer.Start();
     }
@@ -697,19 +702,48 @@ internal sealed class SettingsForm : Form
     private readonly DataGridView cameras = new() { Dock = DockStyle.Fill, AllowUserToAddRows = true, AllowUserToDeleteRows = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
+#if BETA
+    private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
+#endif
     public Settings Result { get; private set; }
     public SettingsForm(Settings current)
     {
         Result = current; Text = "HomeCam Monitor – Einstellungen"; FormBorderStyle = FormBorderStyle.FixedDialog; StartPosition = FormStartPosition.CenterParent; MaximizeBox = false; MinimizeBox = false; ClientSize = new Size(760, 390);
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "CameraName", HeaderText = "Name", FillWeight = 25 }); cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 75 });
         foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl); top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
+#if BETA
+        motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
+#endif
         var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 }; table.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); table.Controls.Add(cameras, 0, 0);
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
-        var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart); table.Controls.Add(options, 0, 2);
+        var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart);
+#if BETA
+        options.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
+        options.Controls.Add(motionSeconds);
+        options.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+#endif
+        table.Controls.Add(options, 0, 2);
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft }; var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true }); table.Controls.Add(buttons, 0, 4); Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
-        ok.Click += (_, _) => { var entries = ReadCameras(); if (entries.Count == 0 || entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _))) { MessageBox.Show(this, "Bitte gültige Streamadressen eintragen.", "Ungültige Kamera", MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; } Result = new Settings { Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, entries.Count - 1), AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked, Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height }; };
+        ok.Click += (_, _) =>
+        {
+            var entries = ReadCameras();
+            if (entries.Count == 0 || entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _)))
+            {
+                MessageBox.Show(this, "Bitte gültige Streamadressen eintragen.", "Ungültige Kamera", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None; return;
+            }
+            Result = new Settings
+            {
+                Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, entries.Count - 1),
+                AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked,
+                Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
+#if BETA
+                MotionForegroundSeconds = (int)motionSeconds.Value
+#endif
+            };
+        };
     }
     private List<CameraEntry> ReadCameras()
     {
