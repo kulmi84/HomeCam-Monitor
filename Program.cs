@@ -28,6 +28,7 @@ internal sealed class Settings
     public int Width { get; set; } = 480;
     public int Height { get; set; } = 300;
 #if BETA
+    public bool MotionDetectionEnabled { get; set; } = true;
     public int MotionForegroundSeconds { get; set; } = 10;
 #endif
 }
@@ -365,6 +366,50 @@ internal sealed class MonitorForm : Form
     }
 
 #if BETA
+    internal ContextMenuStrip CreateCameraContextMenu()
+    {
+        var menu = new ContextMenuStrip();
+        var alwaysOnTop = new ToolStripMenuItem("Immer im Vordergrund")
+        {
+            Checked = settings.AlwaysOnTop,
+            CheckOnClick = true
+        };
+        alwaysOnTop.Click += (_, _) => SetAlwaysOnTop(alwaysOnTop.Checked);
+        menu.Items.Add(alwaysOnTop);
+
+        var duration = new ToolStripMenuItem($"Vordergrunddauer: {settings.MotionForegroundSeconds} Sekunden")
+        {
+            Enabled = !settings.AlwaysOnTop
+        };
+        var values = new[] { 3, 5, 10, 15, 30, 60 };
+        foreach (var seconds in values.Append(settings.MotionForegroundSeconds).Distinct().OrderBy(value => value))
+        {
+            var item = new ToolStripMenuItem($"{seconds} Sekunden")
+            {
+                Checked = seconds == settings.MotionForegroundSeconds
+            };
+            item.Click += (_, _) =>
+            {
+                settings.MotionForegroundSeconds = seconds;
+                motionRestoreTimer.Interval = seconds * 1000;
+                SettingsStore.Save(settings);
+            };
+            duration.DropDownItems.Add(item);
+        }
+        menu.Items.Add(duration);
+        return menu;
+    }
+
+    private void SetAlwaysOnTop(bool enabled)
+    {
+        settings.AlwaysOnTop = enabled;
+        motionRestoreTimer.Stop();
+        sentToBackground = false;
+        TopMost = enabled;
+        SettingsStore.Save(settings);
+        PositionOverlays();
+    }
+
     internal void SendToBackground()
     {
         sentToBackground = true;
@@ -550,6 +595,7 @@ internal sealed class MonitorForm : Form
 
     private void HandleMotion(string cameraName)
     {
+        if (!settings.MotionDetectionEnabled || settings.AlwaysOnTop) return;
         var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (cameraIndex < 0) { toolbar?.Flash("Einfahrt fehlt"); return; }
         if (!motionRestoreTimer.Enabled) previousForegroundWindow = NativeMethods.GetForegroundWindow();
@@ -560,7 +606,7 @@ internal sealed class MonitorForm : Form
         motionRestoreTimer.Stop();
         motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         ForceToForeground();
-        motionRestoreTimer.Start();
+        if (!settings.AlwaysOnTop) motionRestoreTimer.Start();
     }
 
     private void ForceToForeground()
@@ -634,6 +680,15 @@ internal sealed class DragSurfaceForm : Form
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
         BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = Cursors.Default;
+#if BETA
+        MouseUp += (_, eventArgs) =>
+        {
+            if (eventArgs.Button != MouseButtons.Right) return;
+            var menu = monitor.CreateCameraContextMenu();
+            menu.Closed += (_, _) => menu.Dispose();
+            menu.Show(Cursor.Position);
+        };
+#endif
         MouseDown += (_, eventArgs) =>
         {
             if (eventArgs.Button != MouseButtons.Left) return;
@@ -764,6 +819,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
 #if BETA
+    private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
 #endif
     public Settings Result { get; private set; }
@@ -773,12 +829,18 @@ internal sealed class SettingsForm : Form
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "CameraName", HeaderText = "Name", FillWeight = 25 }); cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 75 });
         foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl); top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
 #if BETA
+        motionDetection.Checked = current.MotionDetectionEnabled;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
+        void UpdateMotionOptions() => motionSeconds.Enabled = motionDetection.Checked && !top.Checked;
+        UpdateMotionOptions();
+        top.CheckedChanged += (_, _) => UpdateMotionOptions();
+        motionDetection.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
         var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 }; table.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); table.Controls.Add(cameras, 0, 0);
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart);
 #if BETA
+        options.Controls.Add(motionDetection);
         options.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
         options.Controls.Add(motionSeconds);
         options.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
@@ -801,6 +863,7 @@ internal sealed class SettingsForm : Form
                 AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked,
                 Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
 #if BETA
+                MotionDetectionEnabled = motionDetection.Checked,
                 MotionForegroundSeconds = (int)motionSeconds.Value
 #endif
             };
