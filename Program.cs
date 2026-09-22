@@ -81,7 +81,9 @@ internal sealed class MonitorForm : Form
     private bool adjustingAspectRatio;
     private bool suppressToolbar;
     private bool nativeMoveOrResize;
+#if BETA
     private bool sentToBackground;
+#endif
     private Point lastCursorPosition;
     private DateTime lastCursorMovement = DateTime.UtcNow;
     private Rectangle windowedBounds;
@@ -115,7 +117,9 @@ internal sealed class MonitorForm : Form
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
         Resize += (_, _) => { KeepCameraAspectRatio(); ApplyRoundedCorners(); if (!nativeMoveOrResize) PositionOverlays(); };
+#if BETA
         Activated += (_, _) => RestoreFromBackground();
+#endif
         video.DoubleClick += (_, _) => ToggleFullscreen();
         latencyTimer.Tick += (_, _) => RestartPlayer();
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
@@ -359,6 +363,7 @@ internal sealed class MonitorForm : Form
         ApplyRoundedCorners(); PositionOverlays();
     }
 
+#if BETA
     internal void SendToBackground()
     {
         sentToBackground = true;
@@ -378,6 +383,7 @@ internal sealed class MonitorForm : Form
         sentToBackground = false; TopMost = settings.AlwaysOnTop;
         lastCursorMovement = DateTime.UtcNow; PositionOverlays();
     }
+#endif
 
     private void KeepCameraAspectRatio()
     {
@@ -392,7 +398,11 @@ internal sealed class MonitorForm : Form
     private void UpdateToolbar() { if (toolbar is not null && HasUsableCamera()) toolbar.CameraName = settings.Cameras[settings.SelectedCamera].Name; }
     private void UpdateToolbarVisibility()
     {
+#if BETA
         if (toolbar is null || toolbar.IsDisposed || suppressToolbar || sentToBackground) return;
+#else
+        if (toolbar is null || toolbar.IsDisposed || suppressToolbar) return;
+#endif
         if (nativeMoveOrResize)
         {
             if (toolbar.Visible) toolbar.Hide();
@@ -429,12 +439,14 @@ internal sealed class MonitorForm : Form
     private void PositionOverlays()
     {
         if (toolbar is null || toolbar.IsDisposed) return;
+#if BETA
         if (sentToBackground)
         {
             toolbar.Hide(); dragSurface?.Hide();
             foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
             return;
         }
+#endif
         if (dragSurface is not null && !dragSurface.IsDisposed)
         {
             dragSurface.Bounds = Bounds;
@@ -686,8 +698,13 @@ internal sealed class ToolbarForm : Form
         var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
         snapshot.Font = new Font("Segoe MDL2 Assets", 15);
         var settings = Item("⚙", 160, (_, _) => monitor.OpenSettings());
-        var background = Item("↓", 192, (_, _) => monitor.SendToBackground()); var close = Item("×", 224, (_, _) => monitor.Close());
-        Controls.AddRange([previous, name, next, snapshot, settings, background, close]);
+#if BETA
+        var lastAction = Item("↓", 192, (_, _) => monitor.SendToBackground());
+#else
+        var lastAction = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen());
+#endif
+        var close = Item("×", 224, (_, _) => monitor.Close());
+        Controls.AddRange([previous, name, next, snapshot, settings, lastAction, close]);
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
         var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
     }
@@ -707,7 +724,9 @@ internal static class NativeMethods
     public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
     public const int WmEnterSizeMove = 0x0231, WmExitSizeMove = 0x0232;
     public static readonly IntPtr HwndTopMost = new(-1);
+#if BETA
     public static readonly IntPtr HwndBottom = new(1);
+#endif
     public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
     public const uint SwpShowWindow = 0x0040;
     public const int SwShowNoActivate = 4;
