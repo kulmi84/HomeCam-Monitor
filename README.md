@@ -87,7 +87,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die Kamera **Einfahrt** auswählen und das Kamerafenster nach vorne holen. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird das zuvor aktive Fenster wieder aktiviert.
+Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die Kamera **Einfahrt** auswählen und das Kamerafenster nach vorne holen. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
 
 Nur in der Beta ersetzt der Button `↓` den Vollbild-Button und schickt das Fenster vollständig in den Hintergrund. Vollbild bleibt per Doppelklick ins Kamerabild verfügbar.
 
