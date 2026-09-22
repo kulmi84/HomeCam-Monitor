@@ -69,7 +69,7 @@ Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Z
 | `‹` / `›` | vorherige/nächste Kamera |
 | Bildsymbol | Snapshot speichern |
 | Zahnrad | Einstellungen öffnen |
-| `↓` | Fenster in den Hintergrund schicken |
+| Vollbildsymbol | Vollbild ein/aus |
 | `×` | Anwendung beenden |
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
@@ -88,6 +88,8 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 ## Beta: Bewegungserkennung über Home Assistant
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die Kamera **Einfahrt** auswählen und das Kamerafenster nach vorne holen. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird das zuvor aktive Fenster wieder aktiviert.
+
+Nur in der Beta ersetzt der Button `↓` den Vollbild-Button und schickt das Fenster vollständig in den Hintergrund. Vollbild bleibt per Doppelklick ins Kamerabild verfügbar.
 
 Beim ersten Start übernimmt die Beta einmalig die Kameraliste der stabilen Version. Anschließend speichert sie ihre Einstellungen getrennt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
 
