@@ -776,7 +776,7 @@ internal sealed class MotionIndicatorForm : Form
         FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.Manual;
-        ClientSize = new Size(24, 26);
+        ClientSize = new Size(34, 34);
         BackColor = Color.Black;
         TransparencyKey = Color.Black;
         TopMost = true;
@@ -786,19 +786,33 @@ internal sealed class MotionIndicatorForm : Form
     {
         base.OnPaint(eventArgs);
         eventArgs.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        using var brush = new SolidBrush(Color.White);
-        using var pen = new Pen(Color.White, 3.2f)
+        using var whiteBrush = new SolidBrush(Color.White);
+        using var blackPen = new Pen(Color.Black, 6.2f)
         {
             StartCap = System.Drawing.Drawing2D.LineCap.Round,
-            EndCap = System.Drawing.Drawing2D.LineCap.Round
+            EndCap = System.Drawing.Drawing2D.LineCap.Round,
+            LineJoin = System.Drawing.Drawing2D.LineJoin.Round
         };
-        pen.Width = 2.5f;
-        eventArgs.Graphics.FillEllipse(brush, 9, 3, 6, 6);
-        eventArgs.Graphics.DrawLine(pen, 12, 10, 12, 17);
-        eventArgs.Graphics.DrawLine(pen, 11, 12, 6, 15);
-        eventArgs.Graphics.DrawLine(pen, 13, 12, 19, 14);
-        eventArgs.Graphics.DrawLine(pen, 11, 17, 7, 23);
-        eventArgs.Graphics.DrawLine(pen, 13, 17, 19, 22);
+        using var whitePen = new Pen(Color.White, 3.4f)
+        {
+            StartCap = System.Drawing.Drawing2D.LineCap.Round,
+            EndCap = System.Drawing.Drawing2D.LineCap.Round,
+            LineJoin = System.Drawing.Drawing2D.LineJoin.Round
+        };
+
+        // Kräftige, laufende Silhouette: weiß mit schwarzer Kontur, damit das
+        // Symbol sowohl auf hellen als auch auf dunklen Kamerabildern sichtbar ist.
+        eventArgs.Graphics.FillEllipse(Brushes.Black, 17, 2, 11, 11);
+        eventArgs.Graphics.FillEllipse(whiteBrush, 19, 4, 7, 7);
+        var limbs = new[]
+        {
+            new[] { new PointF(19, 13), new PointF(15, 21), new PointF(8, 29) },
+            new[] { new PointF(16, 20), new PointF(23, 24), new PointF(27, 31) },
+            new[] { new PointF(18, 15), new PointF(11, 14), new PointF(6, 19) },
+            new[] { new PointF(20, 14), new PointF(25, 17), new PointF(31, 13) }
+        };
+        foreach (var limb in limbs) eventArgs.Graphics.DrawLines(blackPen, limb);
+        foreach (var limb in limbs) eventArgs.Graphics.DrawLines(whitePen, limb);
     }
 }
 #endif
