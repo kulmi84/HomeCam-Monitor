@@ -91,6 +91,8 @@ Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennun
 
 Bei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unverändert. Bei ausgeschalteter Bewegungserkennung werden Meldungen von Home Assistant ignoriert.
 
+Eine erkannte Bewegung wird oben rechts im Kamerabild durch ein kleines weißes Ampelmännchen mit transparentem Hintergrund angezeigt. Die Anzeige bleibt für die eingestellte Vordergrunddauer sichtbar; eine weitere Bewegung startet die Zeit erneut. Das Symbol erscheint auch bei aktivem **Immer im Vordergrund**, ohne dabei die ausgewählte Kamera zu wechseln.
+
 Per Rechtsklick ins Kamerabild lässt sich **Immer im Vordergrund** direkt umschalten. Ist die Option aktiv, bleibt das Fenster dauerhaft vorne und die Vordergrunddauer wird nicht verwendet. Ist sie inaktiv, kann die Dauer ebenfalls direkt im Kontextmenü gewählt werden.
 
 Wird das Fenster während der zeitgesteuerten Vordergrundanzeige mit Maus oder Bedienleiste verwendet, wird das automatische Zurückstellen abgebrochen. So verschwindet das Fenster nicht während einer manuellen Bedienung.
