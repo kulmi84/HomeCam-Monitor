@@ -91,7 +91,7 @@ Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennun
 
 Bei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unverändert. Bei ausgeschalteter Bewegungserkennung werden Meldungen von Home Assistant ignoriert.
 
-Eine erkannte Bewegung wird oben rechts im Kamerabild durch ein kleines weißes Ampelmännchen mit transparentem Hintergrund angezeigt. Die Anzeige bleibt für die eingestellte Vordergrunddauer sichtbar; eine weitere Bewegung startet die Zeit erneut. Das Symbol erscheint auch bei aktivem **Immer im Vordergrund**, ohne dabei die ausgewählte Kamera zu wechseln.
+Eine erkannte Bewegung wird oben rechts im Kamerabild durch ein kleines laufendes Männchen mit transparentem Hintergrund angezeigt. Das schwarz-weiß konturierte Symbol bleibt auf hellen und dunklen Bildbereichen sichtbar. Die Anzeige bleibt für die eingestellte Vordergrunddauer sichtbar; eine weitere Bewegung startet die Zeit erneut. Das Symbol erscheint auch bei aktivem **Immer im Vordergrund**, ohne dabei die ausgewählte Kamera zu wechseln.
 
 Per Rechtsklick ins Kamerabild lässt sich **Immer im Vordergrund** direkt umschalten. Ist die Option aktiv, bleibt das Fenster dauerhaft vorne und die Vordergrunddauer wird nicht verwendet. Ist sie inaktiv, kann die Dauer ebenfalls direkt im Kontextmenü gewählt werden.
 
@@ -100,6 +100,14 @@ Wird das Fenster während der zeitgesteuerten Vordergrundanzeige mit Maus oder B
 Nur in der Beta ersetzt der Button `↓` den Vollbild-Button und schickt das Fenster vollständig in den Hintergrund. Vollbild bleibt per Doppelklick ins Kamerabild verfügbar.
 
 Beim ersten Start übernimmt die Beta einmalig die Kameraliste der stabilen Version. Anschließend speichert sie ihre Einstellungen getrennt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
+
+Der Beta-Build enthält drei Downloadmöglichkeiten:
+
+- `HomeCamMonitor-Beta-Setup.exe`: selbstextrahierende Datei; installiert bzw. aktualisiert immer `C:\github_mk\HomeCamMonitor-Beta` und startet die Beta. Die persönlichen Einstellungen unter `%LOCALAPPDATA%\HomeCamMonitor-Beta` bleiben dabei erhalten.
+- `HomeCamMonitor-Beta-v...-win-x64.zip`: portable Version zum manuellen Entpacken.
+- `SHA256SUMS.txt`: SHA-256-Prüfsummen zur Kontrolle der Downloads.
+
+Die Downloads werden im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da die Dateien nicht digital signiert sind, können Browser oder Windows trotzdem eine Reputationswarnung anzeigen.
 
 In Home Assistant wird ein REST-Befehl angelegt. Die Platzhalter-IP wird nur in der privaten HA-Konfiguration durch die lokale IP des Windows-PCs ersetzt:
 
