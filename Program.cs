@@ -86,6 +86,8 @@ internal sealed class MonitorForm : Form
     private bool sentToBackground;
     private DateTime sentToBackgroundAt = DateTime.MinValue;
     private ContextMenuStrip? cameraContextMenu;
+    private MotionIndicatorForm? motionIndicator;
+    private bool motionIndicatorVisible;
 #endif
     private Point lastCursorPosition;
     private DateTime lastCursorMovement = DateTime.UtcNow;
@@ -93,6 +95,7 @@ internal sealed class MonitorForm : Form
 #if BETA
     private readonly CancellationTokenSource motionCancellation = new();
     private readonly System.Windows.Forms.Timer motionRestoreTimer = new();
+    private readonly System.Windows.Forms.Timer motionIndicatorTimer = new();
     private TcpListener? motionListener;
     private IntPtr previousForegroundWindow;
 #endif
@@ -130,6 +133,8 @@ internal sealed class MonitorForm : Form
 #if BETA
         motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
+        motionIndicatorTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
+        motionIndicatorTimer.Tick += (_, _) => HideMotionIndicator();
 #endif
         FormClosing += (_, _) => CloseMonitor();
         ApplyRoundedCorners();
@@ -150,6 +155,9 @@ internal sealed class MonitorForm : Form
         dragSurface.ContextMenuStrip = cameraContextMenu;
         toolbar.ContextMenuStrip = cameraContextMenu;
         foreach (var resizeGrip in resizeGrips) resizeGrip.ContextMenuStrip = cameraContextMenu;
+        motionIndicator = new MotionIndicatorForm();
+        motionIndicator.Show(this);
+        motionIndicator.Hide();
 #endif
         if (!HasUsableCamera()) OpenSettings();
         UpdateToolbar(); PositionOverlays(); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
@@ -162,7 +170,7 @@ internal sealed class MonitorForm : Form
     {
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
-        motionRestoreTimer.Stop(); motionCancellation.Cancel(); motionListener?.Stop(); cameraContextMenu?.Dispose();
+        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionCancellation.Cancel(); motionListener?.Stop(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
@@ -433,6 +441,7 @@ internal sealed class MonitorForm : Form
             {
                 settings.MotionForegroundSeconds = seconds;
                 motionRestoreTimer.Interval = seconds * 1000;
+                motionIndicatorTimer.Interval = seconds * 1000;
                 SettingsStore.Save(settings);
             };
             duration.DropDownItems.Add(item);
@@ -467,6 +476,7 @@ internal sealed class MonitorForm : Form
         var previous = previousForegroundWindow;
         previousForegroundWindow = IntPtr.Zero;
         toolbar?.Hide(); dragSurface?.Hide();
+        HideMotionIndicator();
         foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
         TopMost = false;
         NativeMethods.SetWindowPos(Handle, NativeMethods.HwndBottom, 0, 0, 0, 0,
@@ -561,6 +571,15 @@ internal sealed class MonitorForm : Form
             dragSurface.Visible = true;
         }
         toolbar.Location = new Point(Left + Math.Max(0, (Width - toolbar.Width) / 2), Top + Height - toolbar.Height - 10); toolbar.TopMost = TopMost;
+#if BETA
+        if (motionIndicator is not null && !motionIndicator.IsDisposed)
+        {
+            motionIndicator.Location = new Point(Right - motionIndicator.Width - 12, Top + 12);
+            motionIndicator.TopMost = TopMost;
+            motionIndicator.Visible = motionIndicatorVisible;
+            if (motionIndicatorVisible) motionIndicator.BringToFront();
+        }
+#endif
         const int edge = 7, corner = 16;
         var bounds = new[]
         {
@@ -644,7 +663,9 @@ internal sealed class MonitorForm : Form
 
     private void HandleMotion(string cameraName)
     {
-        if (!settings.MotionDetectionEnabled || settings.AlwaysOnTop) return;
+        if (!settings.MotionDetectionEnabled) return;
+        ShowMotionIndicator();
+        if (settings.AlwaysOnTop) return;
         var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (cameraIndex < 0) { toolbar?.Flash("Einfahrt fehlt"); return; }
         if (!motionRestoreTimer.Enabled) previousForegroundWindow = NativeMethods.GetForegroundWindow();
@@ -656,6 +677,22 @@ internal sealed class MonitorForm : Form
         motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         ForceToForeground();
         if (!settings.AlwaysOnTop) motionRestoreTimer.Start();
+    }
+
+    private void ShowMotionIndicator()
+    {
+        motionIndicatorVisible = true;
+        motionIndicatorTimer.Stop();
+        motionIndicatorTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
+        motionIndicatorTimer.Start();
+        PositionOverlays();
+    }
+
+    private void HideMotionIndicator()
+    {
+        motionIndicatorTimer.Stop();
+        motionIndicatorVisible = false;
+        motionIndicator?.Hide();
     }
 
     private void ForceToForeground()
@@ -719,6 +756,52 @@ internal sealed class MonitorForm : Form
         else if (top) message.Result = (IntPtr)NativeMethods.HtTop; else if (bottom) message.Result = (IntPtr)NativeMethods.HtBottom;
     }
 }
+
+#if BETA
+internal sealed class MotionIndicatorForm : Form
+{
+    protected override bool ShowWithoutActivation => true;
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            parameters.ExStyle |= 0x00000020 | 0x08000000 | 0x00000080;
+            return parameters;
+        }
+    }
+
+    public MotionIndicatorForm()
+    {
+        FormBorderStyle = FormBorderStyle.None;
+        ShowInTaskbar = false;
+        StartPosition = FormStartPosition.Manual;
+        ClientSize = new Size(24, 26);
+        BackColor = Color.Black;
+        TransparencyKey = Color.Black;
+        TopMost = true;
+    }
+
+    protected override void OnPaint(PaintEventArgs eventArgs)
+    {
+        base.OnPaint(eventArgs);
+        eventArgs.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        using var brush = new SolidBrush(Color.White);
+        using var pen = new Pen(Color.White, 3.2f)
+        {
+            StartCap = System.Drawing.Drawing2D.LineCap.Round,
+            EndCap = System.Drawing.Drawing2D.LineCap.Round
+        };
+        pen.Width = 2.5f;
+        eventArgs.Graphics.FillEllipse(brush, 9, 3, 6, 6);
+        eventArgs.Graphics.DrawLine(pen, 12, 10, 12, 17);
+        eventArgs.Graphics.DrawLine(pen, 11, 12, 6, 15);
+        eventArgs.Graphics.DrawLine(pen, 13, 12, 19, 14);
+        eventArgs.Graphics.DrawLine(pen, 11, 17, 7, 23);
+        eventArgs.Graphics.DrawLine(pen, 13, 17, 19, 22);
+    }
+}
+#endif
 
 internal sealed class DragSurfaceForm : Form
 {
