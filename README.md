@@ -93,6 +93,8 @@ Bei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unve
 
 Per Rechtsklick ins Kamerabild lässt sich **Immer im Vordergrund** direkt umschalten. Ist die Option aktiv, bleibt das Fenster dauerhaft vorne und die Vordergrunddauer wird nicht verwendet. Ist sie inaktiv, kann die Dauer ebenfalls direkt im Kontextmenü gewählt werden.
 
+Wird das Fenster während der zeitgesteuerten Vordergrundanzeige mit Maus oder Bedienleiste verwendet, wird das automatische Zurückstellen abgebrochen. So verschwindet das Fenster nicht während einer manuellen Bedienung.
+
 Nur in der Beta ersetzt der Button `↓` den Vollbild-Button und schickt das Fenster vollständig in den Hintergrund. Vollbild bleibt per Doppelklick ins Kamerabild verfügbar.
 
 Beim ersten Start übernimmt die Beta einmalig die Kameraliste der stabilen Version. Anschließend speichert sie ihre Einstellungen getrennt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
