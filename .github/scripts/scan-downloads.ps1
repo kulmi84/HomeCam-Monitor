@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $downloads = Join-Path $root 'beta-downloads'
-$report = Join-Path $downloads 'DEFENDER-SCAN.txt'
+$report = Join-Path $env:RUNNER_TEMP 'HomeCamMonitor-Beta-DEFENDER-SCAN.txt'
 $defender = Get-ChildItem (Join-Path $env:ProgramData 'Microsoft\Windows Defender\Platform') -Directory -ErrorAction SilentlyContinue |
     Sort-Object Name -Descending |
     ForEach-Object { Join-Path $_.FullName 'MpCmdRun.exe' } |

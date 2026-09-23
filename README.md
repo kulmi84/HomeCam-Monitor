@@ -101,13 +101,9 @@ Nur in der Beta ersetzt der Button `↓` den Vollbild-Button und schickt das Fen
 
 Beim ersten Start übernimmt die Beta einmalig die Kameraliste der stabilen Version. Anschließend speichert sie ihre Einstellungen getrennt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
 
-Der Beta-Build enthält drei Downloadmöglichkeiten:
+Der Beta-Build enthält nur `HomeCamMonitor-Beta-Setup.exe`. Die selbstextrahierende Datei installiert bzw. aktualisiert immer `C:\github_mk\HomeCamMonitor-Beta` und startet die Beta. Die persönlichen Einstellungen unter `%LOCALAPPDATA%\HomeCamMonitor-Beta` bleiben dabei erhalten.
 
-- `HomeCamMonitor-Beta-Setup.exe`: selbstextrahierende Datei; installiert bzw. aktualisiert immer `C:\github_mk\HomeCamMonitor-Beta` und startet die Beta. Die persönlichen Einstellungen unter `%LOCALAPPDATA%\HomeCamMonitor-Beta` bleiben dabei erhalten.
-- `HomeCamMonitor-Beta-v...-win-x64.zip`: portable Version zum manuellen Entpacken.
-- `SHA256SUMS.txt`: SHA-256-Prüfsummen zur Kontrolle der Downloads.
-
-Die Downloads werden im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da die Dateien nicht digital signiert sind, können Browser oder Windows trotzdem eine Reputationswarnung anzeigen.
+Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie nicht digital signiert ist, können Browser oder Windows trotzdem eine Reputationswarnung anzeigen. GitHub verpackt Actions-Artefakte beim Herunterladen grundsätzlich in ein ZIP; darin befindet sich nur die Setup-EXE.
 
 In Home Assistant wird ein REST-Befehl angelegt. Die Platzhalter-IP wird nur in der privaten HA-Konfiguration durch die lokale IP des Windows-PCs ersetzt:
 

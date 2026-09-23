@@ -776,7 +776,8 @@ internal sealed class MotionIndicatorForm : Form
         FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.Manual;
-        ClientSize = new Size(24, 24);
+        AutoScaleMode = AutoScaleMode.None;
+        ClientSize = new Size(18, 18);
         BackColor = Color.Black;
         TransparencyKey = Color.Black;
         TopMost = true;
@@ -786,7 +787,7 @@ internal sealed class MotionIndicatorForm : Form
     {
         base.OnPaint(eventArgs);
         eventArgs.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        eventArgs.Graphics.ScaleTransform(0.68f, 0.68f);
+        eventArgs.Graphics.ScaleTransform(0.50f, 0.50f);
         using var whiteBrush = new SolidBrush(Color.White);
         using var blackPen = new Pen(Color.Black, 6.2f)
         {

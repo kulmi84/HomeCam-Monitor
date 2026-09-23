@@ -7,8 +7,7 @@ $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $publish = Join-Path $root 'publish-beta'
 $downloads = Join-Path $root 'beta-downloads'
-$zipName = "HomeCamMonitor-Beta-v$Version-win-x64.zip"
-$zipPath = Join-Path $downloads $zipName
+$zipPath = Join-Path $env:RUNNER_TEMP "HomeCamMonitor-Beta-v$Version-win-x64.zip"
 $setupPath = Join-Path $downloads 'HomeCamMonitor-Beta-Setup.exe'
 
 if (-not (Test-Path $publish)) { throw "Beta-Ausgabe fehlt: $publish" }
@@ -23,6 +22,4 @@ if (-not (Test-Path $compiler)) { throw "C#-Compiler fehlt: $compiler" }
     /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll `
     "/win32icon:$icon" "/resource:$zipPath,HomeCamMonitor.Beta.zip" "/out:$setupPath" $installerSource
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path $setupPath)) { throw 'Die selbstextrahierende Beta konnte nicht erstellt werden.' }
-$hashes = Get-FileHash $setupPath, $zipPath -Algorithm SHA256
-$hashes | ForEach-Object { "{0}  {1}" -f $_.Hash.ToLowerInvariant(), (Split-Path $_.Path -Leaf) } |
-    Set-Content (Join-Path $downloads 'SHA256SUMS.txt') -Encoding ASCII
+Remove-Item $zipPath -Force
