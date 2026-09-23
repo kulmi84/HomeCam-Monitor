@@ -85,6 +85,7 @@ internal sealed class MonitorForm : Form
 #if BETA
     private bool sentToBackground;
     private DateTime sentToBackgroundAt = DateTime.MinValue;
+    private ContextMenuStrip? cameraContextMenu;
 #endif
     private Point lastCursorPosition;
     private DateTime lastCursorMovement = DateTime.UtcNow;
@@ -143,6 +144,13 @@ internal sealed class MonitorForm : Form
         }
         dragSurface = new DragSurfaceForm(this); dragSurface.Show(this);
         toolbar = new ToolbarForm(this); toolbar.Show(this); CreateResizeGrips();
+#if BETA
+        cameraContextMenu = CreateCameraContextMenu();
+        video.ContextMenuStrip = cameraContextMenu;
+        dragSurface.ContextMenuStrip = cameraContextMenu;
+        toolbar.ContextMenuStrip = cameraContextMenu;
+        foreach (var resizeGrip in resizeGrips) resizeGrip.ContextMenuStrip = cameraContextMenu;
+#endif
         if (!HasUsableCamera()) OpenSettings();
         UpdateToolbar(); PositionOverlays(); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
 #if BETA
@@ -154,7 +162,7 @@ internal sealed class MonitorForm : Form
     {
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
-        motionRestoreTimer.Stop(); motionCancellation.Cancel(); motionListener?.Stop();
+        motionRestoreTimer.Stop(); motionCancellation.Cancel(); motionListener?.Stop(); cameraContextMenu?.Dispose();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
@@ -182,8 +190,11 @@ internal sealed class MonitorForm : Form
         {
             player = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
             player.EnableRaisingEvents = true; player.Exited += PlayerExited;
-            NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
-                NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
+#if BETA
+            if (TopMost && !sentToBackground)
+#endif
+                NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
+                    NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
         }
         catch (Exception exception)
         {
@@ -193,7 +204,8 @@ internal sealed class MonitorForm : Form
 
     private void PlayerExited(object? sender, EventArgs eventArgs)
     {
-        if (!closing && !intentionalStop) BeginInvoke(new Action(() => restartTimer.Start()));
+        if (closing || intentionalStop) return;
+        try { BeginInvoke(new Action(() => { if (!closing) restartTimer.Start(); })); } catch { }
     }
 
     private void StopPlayer()
@@ -211,6 +223,9 @@ internal sealed class MonitorForm : Form
 
     internal void SelectRelativeCamera(int direction)
     {
+#if BETA
+        RegisterUserInteraction();
+#endif
         if (settings.Cameras.Count < 2) return;
         settings.SelectedCamera = (settings.SelectedCamera + direction + settings.Cameras.Count) % settings.Cameras.Count;
         SettingsStore.Save(settings); UpdateToolbar(); RestartPlayer();
@@ -218,6 +233,9 @@ internal sealed class MonitorForm : Form
 
     internal async Task SaveSnapshotAsync()
     {
+#if BETA
+        RegisterUserInteraction();
+#endif
         string? path = null;
         try
         {
@@ -263,6 +281,9 @@ internal sealed class MonitorForm : Form
 
     internal void OpenSettings()
     {
+#if BETA
+        RegisterUserInteraction();
+#endif
         Settings? changedSettings = null;
         suppressToolbar = true;
         toolbar?.Hide();
@@ -290,6 +311,9 @@ internal sealed class MonitorForm : Form
 
     internal void BeginMove()
     {
+#if BETA
+        RegisterUserInteraction();
+#endif
         if (fullscreen) return;
         nativeMoveOrResize = true;
         toolbar?.Hide();
@@ -312,6 +336,9 @@ internal sealed class MonitorForm : Form
 
     internal void BeginManualResize()
     {
+#if BETA
+        RegisterUserInteraction();
+#endif
         if (fullscreen) return;
         nativeMoveOrResize = true;
         toolbar?.Hide();
@@ -360,15 +387,29 @@ internal sealed class MonitorForm : Form
 
     internal void ToggleFullscreen()
     {
+#if BETA
+        RegisterUserInteraction();
+#endif
         if (!fullscreen) { windowedBounds = Bounds; fullscreen = true; Bounds = Screen.FromControl(this).Bounds; }
         else { fullscreen = false; Bounds = windowedBounds; }
         ApplyRoundedCorners(); PositionOverlays();
     }
 
 #if BETA
-    internal ContextMenuStrip CreateCameraContextMenu()
+    private ContextMenuStrip CreateCameraContextMenu()
     {
         var menu = new ContextMenuStrip();
+        menu.Opening += (_, _) =>
+        {
+            RegisterUserInteraction();
+            PopulateCameraContextMenu(menu);
+        };
+        return menu;
+    }
+
+    private void PopulateCameraContextMenu(ContextMenuStrip menu)
+    {
+        menu.Items.Clear();
         var alwaysOnTop = new ToolStripMenuItem("Immer im Vordergrund")
         {
             Checked = settings.AlwaysOnTop,
@@ -397,7 +438,15 @@ internal sealed class MonitorForm : Form
             duration.DropDownItems.Add(item);
         }
         menu.Items.Add(duration);
-        return menu;
+    }
+
+    internal void RegisterUserInteraction()
+    {
+        if (!motionRestoreTimer.Enabled) return;
+        motionRestoreTimer.Stop();
+        previousForegroundWindow = IntPtr.Zero;
+        TopMost = settings.AlwaysOnTop;
+        PositionOverlays();
     }
 
     private void SetAlwaysOnTop(bool enabled)
@@ -508,10 +557,10 @@ internal sealed class MonitorForm : Form
         if (dragSurface is not null && !dragSurface.IsDisposed)
         {
             dragSurface.Bounds = Bounds;
-            dragSurface.TopMost = true;
+            dragSurface.TopMost = TopMost;
             dragSurface.Visible = true;
         }
-        toolbar.Location = new Point(Left + Math.Max(0, (Width - toolbar.Width) / 2), Top + Height - toolbar.Height - 10); toolbar.TopMost = true;
+        toolbar.Location = new Point(Left + Math.Max(0, (Width - toolbar.Width) / 2), Top + Height - toolbar.Height - 10); toolbar.TopMost = TopMost;
         const int edge = 7, corner = 16;
         var bounds = new[]
         {
@@ -524,7 +573,7 @@ internal sealed class MonitorForm : Form
         };
         for (var index = 0; index < resizeGrips.Count; index++)
         {
-            resizeGrips[index].Bounds = bounds[index]; resizeGrips[index].Visible = !fullscreen;
+            resizeGrips[index].Bounds = bounds[index]; resizeGrips[index].TopMost = TopMost; resizeGrips[index].Visible = !fullscreen;
             if (!fullscreen) resizeGrips[index].BringToFront();
         }
         if (toolbar.Visible) toolbar.BringToFront();
@@ -681,12 +730,9 @@ internal sealed class DragSurfaceForm : Form
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
         BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = Cursors.Default;
 #if BETA
-        MouseUp += (_, eventArgs) =>
+        MouseDown += (_, eventArgs) =>
         {
-            if (eventArgs.Button != MouseButtons.Right) return;
-            var menu = monitor.CreateCameraContextMenu();
-            menu.Closed += (_, _) => menu.Dispose();
-            menu.Show(Cursor.Position);
+            if (eventArgs.Button == MouseButtons.Left) monitor.RegisterUserInteraction();
         };
 #endif
         MouseDown += (_, eventArgs) =>
