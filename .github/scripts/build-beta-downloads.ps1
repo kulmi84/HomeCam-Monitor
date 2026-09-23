@@ -67,8 +67,8 @@ FILE1=Install-Beta.ps1
 FILE2=Install-Beta.cmd
 "@
 Set-Content -Path $sedPath -Value $sed -Encoding ASCII
-& "$env:WINDIR\System32\iexpress.exe" /N $sedPath
-if ($LASTEXITCODE -ne 0 -or -not (Test-Path $setupPath)) { throw 'Die selbstextrahierende Beta konnte nicht erstellt werden.' }
+$iexpress = Start-Process -FilePath "$env:WINDIR\System32\iexpress.exe" -ArgumentList '/N', '/Q', "`"$sedPath`"" -Wait -PassThru
+if ($iexpress.ExitCode -ne 0 -or -not (Test-Path $setupPath)) { throw 'Die selbstextrahierende Beta konnte nicht erstellt werden.' }
 
 Remove-Item $installerFiles -Recurse -Force
 Remove-Item $sedPath -Force
