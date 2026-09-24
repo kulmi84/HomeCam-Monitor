@@ -313,7 +313,7 @@ internal sealed class MonitorForm : Form
 
         try
         {
-            using var dialog = new SettingsForm(settings) { TopMost = true };
+            using var dialog = new SettingsForm(settings);
             if (dialog.ShowDialog(this) == DialogResult.OK) changedSettings = dialog.Result;
         }
         finally
@@ -1187,7 +1187,7 @@ internal sealed class SettingsForm : Form
         var workingArea = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1024, 768);
         ClientSize = new Size(Math.Min(840, workingArea.Width - 40), Math.Min(680, workingArea.Height - 60));
         cameras.MinimumSize = new Size(0, 170);
-        TopMost = true;
+        Shown += (_, _) => { Activate(); BringToFront(); };
 #else
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;

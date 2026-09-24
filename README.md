@@ -89,7 +89,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 > **Empfohlener Beta-Stand:** `0.2.0-beta.14` – getesteter, als gut bekannter Stand.
 
-> **Neue Testversion:** `0.2.0-beta.18` – direkte Verbindung zu Home Assistant inklusive Verbindungstest sowie größerem, skalierbarem Einstellungsfenster.
+> **Neue Testversion:** `0.2.0-beta.19` – direkte Verbindung zu Home Assistant sowie größerem, skalierbarem Einstellungsfenster ohne systemweites „Immer im Vordergrund“.
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
 
