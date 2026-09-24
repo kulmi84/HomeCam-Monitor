@@ -3,6 +3,7 @@ using System.IO.Pipes;
 #if BETA
 using System.Net;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 #endif
 using System.Runtime.InteropServices;
 using System.Text;
@@ -31,6 +32,11 @@ internal sealed class Settings
     public bool MotionDetectionEnabled { get; set; } = true;
     public int MotionForegroundSeconds { get; set; } = 10;
     public bool MinimizeWhenInactive { get; set; }
+    public bool DirectHomeAssistantEnabled { get; set; }
+    public string HomeAssistantUrl { get; set; } = "http://192.168.9.8:8123";
+    public string HomeAssistantToken { get; set; } = "";
+    public string MotionEntityId { get; set; } = "binary_sensor.camera_einfahrt_bewegung";
+    public string MotionCameraName { get; set; } = "Einfahrt";
 #endif
 }
 
@@ -97,10 +103,11 @@ internal sealed class MonitorForm : Form
     private DateTime lastCursorMovement = DateTime.UtcNow;
     private Rectangle windowedBounds;
 #if BETA
-    private readonly CancellationTokenSource motionCancellation = new();
+    private CancellationTokenSource motionCancellation = new();
     private readonly System.Windows.Forms.Timer motionRestoreTimer = new();
     private readonly System.Windows.Forms.Timer motionIndicatorTimer = new();
     private TcpListener? motionListener;
+    private ClientWebSocket? homeAssistantSocket;
     private IntPtr previousForegroundWindow;
 #endif
 
@@ -166,7 +173,7 @@ internal sealed class MonitorForm : Form
         if (!HasUsableCamera()) OpenSettings();
         UpdateToolbar(); PositionOverlays(); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
 #if BETA
-        StartMotionListener();
+        RestartMotionIntegration();
 #endif
     }
 
@@ -174,7 +181,7 @@ internal sealed class MonitorForm : Form
     {
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
-        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionCancellation.Cancel(); motionListener?.Stop(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
+        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
@@ -319,6 +326,9 @@ internal sealed class MonitorForm : Form
         if (changedSettings is null) return;
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
         SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
+#if BETA
+        RestartMotionIntegration();
+#endif
     }
 
     internal void BeginMove()
@@ -613,6 +623,32 @@ internal sealed class MonitorForm : Form
     }
 
 #if BETA
+    private void RestartMotionIntegration()
+    {
+        StopMotionIntegration();
+        if (closing || !settings.MotionDetectionEnabled) return;
+        motionCancellation = new CancellationTokenSource();
+        if (settings.DirectHomeAssistantEnabled &&
+            !string.IsNullOrWhiteSpace(settings.HomeAssistantUrl) &&
+            !string.IsNullOrWhiteSpace(settings.HomeAssistantToken) &&
+            !string.IsNullOrWhiteSpace(settings.MotionEntityId))
+        {
+            _ = Task.Run(() => ListenToHomeAssistantAsync(motionCancellation.Token));
+            return;
+        }
+        StartMotionListener();
+    }
+
+    private void StopMotionIntegration()
+    {
+        try { motionCancellation.Cancel(); } catch { }
+        try { motionListener?.Stop(); } catch { }
+        motionListener = null;
+        try { homeAssistantSocket?.Abort(); homeAssistantSocket?.Dispose(); } catch { }
+        homeAssistantSocket = null;
+        motionCancellation.Dispose();
+    }
+
     private void StartMotionListener()
     {
         try
@@ -625,6 +661,99 @@ internal sealed class MonitorForm : Form
         {
             MessageBox.Show(this, $"Die Bewegungserkennung konnte Port 8765 nicht öffnen.\n\n{exception.Message}", "HomeCam Monitor Beta", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
+    }
+
+    private async Task ListenToHomeAssistantAsync(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await ConnectAndMonitorHomeAssistantAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) { break; }
+            catch (ObjectDisposedException) { break; }
+            catch
+            {
+                if (cancellationToken.IsCancellationRequested) break;
+                try { await Task.Delay(5000, cancellationToken); } catch (OperationCanceledException) { break; }
+            }
+        }
+    }
+
+    private async Task ConnectAndMonitorHomeAssistantAsync(CancellationToken cancellationToken)
+    {
+        using var socket = new ClientWebSocket();
+        homeAssistantSocket = socket;
+        await socket.ConnectAsync(BuildHomeAssistantWebSocketUri(settings.HomeAssistantUrl), cancellationToken);
+
+        using (var authRequired = await ReceiveHomeAssistantMessageAsync(socket, cancellationToken))
+        {
+            if (!authRequired.RootElement.TryGetProperty("type", out var type) || type.GetString() != "auth_required")
+                throw new InvalidDataException("Home Assistant erwartet keine Anmeldung.");
+        }
+
+        await SendHomeAssistantMessageAsync(socket, new { type = "auth", access_token = settings.HomeAssistantToken }, cancellationToken);
+        using (var authResult = await ReceiveHomeAssistantMessageAsync(socket, cancellationToken))
+        {
+            if (!authResult.RootElement.TryGetProperty("type", out var type) || type.GetString() != "auth_ok")
+                throw new UnauthorizedAccessException("Home-Assistant-Anmeldung fehlgeschlagen.");
+        }
+
+        await SendHomeAssistantMessageAsync(socket, new { id = 1, type = "subscribe_events", event_type = "state_changed" }, cancellationToken);
+        while (socket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+        {
+            using var message = await ReceiveHomeAssistantMessageAsync(socket, cancellationToken);
+            if (!IsConfiguredMotionEvent(message.RootElement)) continue;
+            var cameraName = string.IsNullOrWhiteSpace(settings.MotionCameraName) ? "Einfahrt" : settings.MotionCameraName.Trim();
+            if (!closing) BeginInvoke(new Action(() => HandleMotion(cameraName)));
+        }
+    }
+
+    private static Uri BuildHomeAssistantWebSocketUri(string address)
+    {
+        var source = new Uri(address.Trim().TrimEnd('/'), UriKind.Absolute);
+        var builder = new UriBuilder(source)
+        {
+            Scheme = source.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase) ? "wss" : "ws",
+            Path = source.AbsolutePath.TrimEnd('/') + "/api/websocket"
+        };
+        return builder.Uri;
+    }
+
+    private static async Task SendHomeAssistantMessageAsync(ClientWebSocket socket, object message, CancellationToken cancellationToken)
+    {
+        var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+        await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken);
+    }
+
+    private static async Task<JsonDocument> ReceiveHomeAssistantMessageAsync(ClientWebSocket socket, CancellationToken cancellationToken)
+    {
+        using var content = new MemoryStream();
+        var buffer = new byte[4096];
+        WebSocketReceiveResult result;
+        do
+        {
+            result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+            if (result.MessageType == WebSocketMessageType.Close) throw new IOException("Home Assistant hat die Verbindung beendet.");
+            content.Write(buffer, 0, result.Count);
+        } while (!result.EndOfMessage);
+        content.Position = 0;
+        return await JsonDocument.ParseAsync(content, cancellationToken: cancellationToken);
+    }
+
+    private bool IsConfiguredMotionEvent(JsonElement root)
+    {
+        if (!root.TryGetProperty("type", out var type) || type.GetString() != "event" ||
+            !root.TryGetProperty("event", out var eventElement) ||
+            !eventElement.TryGetProperty("data", out var data) ||
+            !data.TryGetProperty("entity_id", out var entity) ||
+            !string.Equals(entity.GetString(), settings.MotionEntityId.Trim(), StringComparison.OrdinalIgnoreCase) ||
+            !data.TryGetProperty("new_state", out var newState) || newState.ValueKind == JsonValueKind.Null ||
+            !newState.TryGetProperty("state", out var newValue) || newValue.GetString() != "on") return false;
+
+        if (!data.TryGetProperty("old_state", out var oldState) || oldState.ValueKind == JsonValueKind.Null) return true;
+        return !oldState.TryGetProperty("state", out var oldValue) || oldValue.GetString() != "on";
     }
 
     private async Task ListenForMotionAsync(CancellationToken cancellationToken)
@@ -988,28 +1117,55 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
+    private readonly CheckBox directHomeAssistant = new() { Text = "Direkt mit Home Assistant verbinden (empfohlen)", AutoSize = true };
+    private readonly TextBox homeAssistantUrl = new() { Width = 300 };
+    private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
+    private readonly TextBox motionEntityId = new() { Width = 300 };
+    private readonly TextBox motionCameraName = new() { Width = 180 };
 #endif
     public Settings Result { get; private set; }
     public SettingsForm(Settings current)
     {
-        Result = current; Text = "HomeCam Monitor – Einstellungen"; FormBorderStyle = FormBorderStyle.FixedDialog; StartPosition = FormStartPosition.CenterParent; MaximizeBox = false; MinimizeBox = false; ClientSize = new Size(760, 390);
+        Result = current; Text = "HomeCam Monitor – Einstellungen"; FormBorderStyle = FormBorderStyle.FixedDialog; StartPosition = FormStartPosition.CenterParent; MaximizeBox = false; MinimizeBox = false;
+#if BETA
+        ClientSize = new Size(760, 570);
+#else
+        ClientSize = new Size(760, 390);
+#endif
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "CameraName", HeaderText = "Name", FillWeight = 25 }); cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 75 });
         foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl); top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
 #if BETA
         motionDetection.Checked = current.MotionDetectionEnabled;
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
+        directHomeAssistant.Checked = current.DirectHomeAssistantEnabled;
+        homeAssistantUrl.Text = current.HomeAssistantUrl;
+        homeAssistantToken.Text = current.HomeAssistantToken;
+        motionEntityId.Text = current.MotionEntityId;
+        motionCameraName.Text = current.MotionCameraName;
         void UpdateMotionOptions()
         {
             var enabled = motionDetection.Checked && !top.Checked;
             motionSeconds.Enabled = enabled;
             minimizeWhenInactive.Enabled = enabled;
+            directHomeAssistant.Enabled = motionDetection.Checked;
+            var directEnabled = motionDetection.Checked && directHomeAssistant.Checked;
+            homeAssistantUrl.Enabled = directEnabled;
+            homeAssistantToken.Enabled = directEnabled;
+            motionEntityId.Enabled = directEnabled;
+            motionCameraName.Enabled = directEnabled;
         }
         UpdateMotionOptions();
         top.CheckedChanged += (_, _) => UpdateMotionOptions();
         motionDetection.CheckedChanged += (_, _) => UpdateMotionOptions();
+        directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 }; table.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); table.Controls.Add(cameras, 0, 0);
+#if BETA
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 6 };
+#else
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 };
+#endif
+        table.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); table.Controls.Add(cameras, 0, 0);
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart);
 #if BETA
@@ -1020,9 +1176,37 @@ internal sealed class SettingsForm : Form
         options.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
 #endif
         table.Controls.Add(options, 0, 2);
+#if BETA
+        var homeAssistantGroup = new GroupBox { Text = "Bewegung direkt aus Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
+        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 5 };
+        homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        homeAssistantFields.Controls.Add(directHomeAssistant, 0, 0);
+        homeAssistantFields.SetColumnSpan(directHomeAssistant, 2);
+        homeAssistantFields.Controls.Add(new Label { Text = "HA-Adresse:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 1);
+        homeAssistantFields.Controls.Add(homeAssistantUrl, 1, 1);
+        homeAssistantFields.Controls.Add(new Label { Text = "Langzeit-Token:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 2);
+        homeAssistantFields.Controls.Add(homeAssistantToken, 1, 2);
+        homeAssistantFields.Controls.Add(new Label { Text = "Bewegungs-Entität:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 3);
+        homeAssistantFields.Controls.Add(motionEntityId, 1, 3);
+        homeAssistantFields.Controls.Add(new Label { Text = "Kameraname:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
+        homeAssistantFields.Controls.Add(motionCameraName, 1, 4);
+        homeAssistantGroup.Controls.Add(homeAssistantFields);
+        table.Controls.Add(homeAssistantGroup, 0, 3);
+#endif
+#if BETA
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 4);
+#else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
+#endif
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft }; var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
-        buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true }); table.Controls.Add(buttons, 0, 4); Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
+        buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
+#if BETA
+        table.Controls.Add(buttons, 0, 5);
+#else
+        table.Controls.Add(buttons, 0, 4);
+#endif
+        Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
         ok.Click += (_, _) =>
         {
             var entries = ReadCameras();
@@ -1031,6 +1215,18 @@ internal sealed class SettingsForm : Form
                 MessageBox.Show(this, "Bitte gültige Streamadressen eintragen.", "Ungültige Kamera", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 DialogResult = DialogResult.None; return;
             }
+#if BETA
+            if (directHomeAssistant.Checked &&
+                (!Uri.TryCreate(homeAssistantUrl.Text.Trim(), UriKind.Absolute, out var haUri) ||
+                 (haUri.Scheme != Uri.UriSchemeHttp && haUri.Scheme != Uri.UriSchemeHttps) ||
+                 string.IsNullOrWhiteSpace(homeAssistantToken.Text) ||
+                 string.IsNullOrWhiteSpace(motionEntityId.Text) ||
+                 string.IsNullOrWhiteSpace(motionCameraName.Text)))
+            {
+                MessageBox.Show(this, "Bitte HA-Adresse, Langzeit-Token, Bewegungs-Entität und Kameraname vollständig eintragen.", "Home Assistant unvollständig", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None; return;
+            }
+#endif
             Result = new Settings
             {
                 Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, entries.Count - 1),
@@ -1039,7 +1235,12 @@ internal sealed class SettingsForm : Form
 #if BETA
                 MotionDetectionEnabled = motionDetection.Checked,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
-                MinimizeWhenInactive = minimizeWhenInactive.Checked
+                MinimizeWhenInactive = minimizeWhenInactive.Checked,
+                DirectHomeAssistantEnabled = directHomeAssistant.Checked,
+                HomeAssistantUrl = homeAssistantUrl.Text.Trim(),
+                HomeAssistantToken = homeAssistantToken.Text.Trim(),
+                MotionEntityId = motionEntityId.Text.Trim(),
+                MotionCameraName = motionCameraName.Text.Trim()
 #endif
             };
         };
