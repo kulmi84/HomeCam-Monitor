@@ -20,8 +20,11 @@ jobs:
         run: dotnet publish HomeCamMonitor.Beta.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-beta
       - name: mpv Video-Engine laden
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          $release = Invoke-RestMethod https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/latest
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; 'X-GitHub-Api-Version' = '2022-11-28' }
+          $release = Invoke-RestMethod https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/latest -Headers $headers
           $asset = $release.assets | Where-Object { $_.name -match '^mpv-x86_64-.*\.7z$' -and $_.name -notmatch 'dev' } | Select-Object -First 1
           if (-not $asset) { throw 'Kein passendes mpv-Windows-Paket gefunden.' }
           Invoke-WebRequest $asset.browser_download_url -OutFile mpv.7z
