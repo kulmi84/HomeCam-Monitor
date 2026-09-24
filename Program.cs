@@ -37,6 +37,7 @@ internal sealed class Settings
     public string HomeAssistantToken { get; set; } = "";
     public string MotionEntityId { get; set; } = "binary_sensor.camera_einfahrt_bewegung";
     public string MotionCameraName { get; set; } = "Einfahrt";
+    public bool IgnoreHomeAssistantCertificateErrors { get; set; }
 #endif
 }
 
@@ -684,6 +685,7 @@ internal sealed class MonitorForm : Form
     private async Task ConnectAndMonitorHomeAssistantAsync(CancellationToken cancellationToken)
     {
         using var socket = new ClientWebSocket();
+        ConfigureHomeAssistantSocket(socket, settings.IgnoreHomeAssistantCertificateErrors);
         homeAssistantSocket = socket;
         await socket.ConnectAsync(BuildHomeAssistantWebSocketUri(settings.HomeAssistantUrl), cancellationToken);
 
@@ -710,7 +712,7 @@ internal sealed class MonitorForm : Form
         }
     }
 
-    private static Uri BuildHomeAssistantWebSocketUri(string address)
+    internal static Uri BuildHomeAssistantWebSocketUri(string address)
     {
         var source = new Uri(address.Trim().TrimEnd('/'), UriKind.Absolute);
         var builder = new UriBuilder(source)
@@ -721,13 +723,19 @@ internal sealed class MonitorForm : Form
         return builder.Uri;
     }
 
-    private static async Task SendHomeAssistantMessageAsync(ClientWebSocket socket, object message, CancellationToken cancellationToken)
+    private static void ConfigureHomeAssistantSocket(ClientWebSocket socket, bool ignoreCertificateErrors)
+    {
+        if (ignoreCertificateErrors)
+            socket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+    }
+
+    internal static async Task SendHomeAssistantMessageAsync(ClientWebSocket socket, object message, CancellationToken cancellationToken)
     {
         var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
         await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken);
     }
 
-    private static async Task<JsonDocument> ReceiveHomeAssistantMessageAsync(ClientWebSocket socket, CancellationToken cancellationToken)
+    internal static async Task<JsonDocument> ReceiveHomeAssistantMessageAsync(ClientWebSocket socket, CancellationToken cancellationToken)
     {
         using var content = new MemoryStream();
         var buffer = new byte[4096];
@@ -740,6 +748,48 @@ internal sealed class MonitorForm : Form
         } while (!result.EndOfMessage);
         content.Position = 0;
         return await JsonDocument.ParseAsync(content, cancellationToken: cancellationToken);
+    }
+
+    internal static async Task<string?> TestHomeAssistantConnectionAsync(string address, string token, string entityId, bool ignoreCertificateErrors)
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(12));
+        try
+        {
+            using var socket = new ClientWebSocket();
+            ConfigureHomeAssistantSocket(socket, ignoreCertificateErrors);
+            await socket.ConnectAsync(BuildHomeAssistantWebSocketUri(address), timeout.Token);
+
+            using (var authRequired = await ReceiveHomeAssistantMessageAsync(socket, timeout.Token))
+            {
+                if (!authRequired.RootElement.TryGetProperty("type", out var type) || type.GetString() != "auth_required")
+                    return "Unerwartete Antwort von Home Assistant.";
+            }
+
+            await SendHomeAssistantMessageAsync(socket, new { type = "auth", access_token = token }, timeout.Token);
+            using (var authResult = await ReceiveHomeAssistantMessageAsync(socket, timeout.Token))
+            {
+                if (!authResult.RootElement.TryGetProperty("type", out var type) || type.GetString() != "auth_ok")
+                    return "Anmeldung fehlgeschlagen – bitte Langzeit-Token prüfen.";
+            }
+
+            await SendHomeAssistantMessageAsync(socket, new { id = 1, type = "get_states" }, timeout.Token);
+            using var states = await ReceiveHomeAssistantMessageAsync(socket, timeout.Token);
+            if (!states.RootElement.TryGetProperty("success", out var success) || !success.GetBoolean())
+                return "Home Assistant konnte die Entitäten nicht liefern.";
+            if (!states.RootElement.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Array ||
+                !result.EnumerateArray().Any(state => state.TryGetProperty("entity_id", out var id) &&
+                    string.Equals(id.GetString(), entityId.Trim(), StringComparison.OrdinalIgnoreCase)))
+                return $"Entität nicht gefunden: {entityId.Trim()}";
+            return null;
+        }
+        catch (OperationCanceledException) { return "Zeitüberschreitung – HA-Adresse oder Netzwerk prüfen."; }
+        catch (Exception exception)
+        {
+            var detail = exception.InnerException?.Message ?? exception.Message;
+            return detail.Contains("certificate", StringComparison.OrdinalIgnoreCase) || detail.Contains("Zertifikat", StringComparison.OrdinalIgnoreCase)
+                ? "Zertifikatsfehler – gültigen HA-Namen verwenden oder die lokale Zertifikatsausnahme aktivieren."
+                : detail;
+        }
     }
 
     private bool IsConfiguredMotionEvent(JsonElement root)
@@ -1122,6 +1172,9 @@ internal sealed class SettingsForm : Form
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
     private readonly TextBox motionEntityId = new() { Width = 300 };
     private readonly TextBox motionCameraName = new() { Width = 180 };
+    private readonly CheckBox ignoreHomeAssistantCertificateErrors = new() { Text = "Ungültiges HA-Zertifikat erlauben (nur lokales Netzwerk)", AutoSize = true };
+    private readonly Button testHomeAssistant = new() { Text = "Verbindung testen", AutoSize = true };
+    private readonly Label homeAssistantStatus = new() { AutoSize = true, MaximumSize = new Size(600, 0), Margin = new Padding(10, 6, 3, 0) };
 #endif
     public Settings Result { get; private set; }
     public SettingsForm(Settings current)
@@ -1143,6 +1196,7 @@ internal sealed class SettingsForm : Form
         homeAssistantToken.Text = current.HomeAssistantToken;
         motionEntityId.Text = current.MotionEntityId;
         motionCameraName.Text = current.MotionCameraName;
+        ignoreHomeAssistantCertificateErrors.Checked = current.IgnoreHomeAssistantCertificateErrors;
         void UpdateMotionOptions()
         {
             var enabled = motionDetection.Checked && !top.Checked;
@@ -1154,6 +1208,8 @@ internal sealed class SettingsForm : Form
             homeAssistantToken.Enabled = directEnabled;
             motionEntityId.Enabled = directEnabled;
             motionCameraName.Enabled = directEnabled;
+            ignoreHomeAssistantCertificateErrors.Enabled = directEnabled;
+            testHomeAssistant.Enabled = directEnabled;
         }
         UpdateMotionOptions();
         top.CheckedChanged += (_, _) => UpdateMotionOptions();
@@ -1178,7 +1234,7 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(options, 0, 2);
 #if BETA
         var homeAssistantGroup = new GroupBox { Text = "Bewegung direkt aus Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
-        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 5 };
+        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 7 };
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         homeAssistantFields.Controls.Add(directHomeAssistant, 0, 0);
@@ -1191,6 +1247,13 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(motionEntityId, 1, 3);
         homeAssistantFields.Controls.Add(new Label { Text = "Kameraname:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
         homeAssistantFields.Controls.Add(motionCameraName, 1, 4);
+        homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 5);
+        homeAssistantFields.SetColumnSpan(ignoreHomeAssistantCertificateErrors, 2);
+        var testRow = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
+        testRow.Controls.Add(testHomeAssistant);
+        testRow.Controls.Add(homeAssistantStatus);
+        homeAssistantFields.Controls.Add(testRow, 0, 6);
+        homeAssistantFields.SetColumnSpan(testRow, 2);
         homeAssistantGroup.Controls.Add(homeAssistantFields);
         table.Controls.Add(homeAssistantGroup, 0, 3);
 #endif
@@ -1207,6 +1270,30 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(buttons, 0, 4);
 #endif
         Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
+#if BETA
+        testHomeAssistant.Click += async (_, _) =>
+        {
+            homeAssistantStatus.ForeColor = SystemColors.GrayText;
+            homeAssistantStatus.Text = "Verbindung wird geprüft …";
+            testHomeAssistant.Enabled = false;
+            try
+            {
+                if (!Uri.TryCreate(homeAssistantUrl.Text.Trim(), UriKind.Absolute, out var testUri) ||
+                    (testUri.Scheme != Uri.UriSchemeHttp && testUri.Scheme != Uri.UriSchemeHttps) ||
+                    string.IsNullOrWhiteSpace(homeAssistantToken.Text) || string.IsNullOrWhiteSpace(motionEntityId.Text))
+                {
+                    homeAssistantStatus.ForeColor = Color.Firebrick;
+                    homeAssistantStatus.Text = "Adresse, Token und Entität vollständig eintragen.";
+                    return;
+                }
+                var error = await MonitorForm.TestHomeAssistantConnectionAsync(homeAssistantUrl.Text.Trim(), homeAssistantToken.Text.Trim(),
+                    motionEntityId.Text.Trim(), ignoreHomeAssistantCertificateErrors.Checked);
+                homeAssistantStatus.ForeColor = error is null ? Color.ForestGreen : Color.Firebrick;
+                homeAssistantStatus.Text = error is null ? "Verbunden – Bewegungssensor gefunden." : error;
+            }
+            finally { testHomeAssistant.Enabled = directHomeAssistant.Checked && motionDetection.Checked; }
+        };
+#endif
         ok.Click += (_, _) =>
         {
             var entries = ReadCameras();
@@ -1240,7 +1327,8 @@ internal sealed class SettingsForm : Form
                 HomeAssistantUrl = homeAssistantUrl.Text.Trim(),
                 HomeAssistantToken = homeAssistantToken.Text.Trim(),
                 MotionEntityId = motionEntityId.Text.Trim(),
-                MotionCameraName = motionCameraName.Text.Trim()
+                MotionCameraName = motionCameraName.Text.Trim(),
+                IgnoreHomeAssistantCertificateErrors = ignoreHomeAssistantCertificateErrors.Checked
 #endif
             };
         };
