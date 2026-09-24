@@ -30,6 +30,7 @@ internal sealed class Settings
 #if BETA
     public bool MotionDetectionEnabled { get; set; } = true;
     public int MotionForegroundSeconds { get; set; } = 10;
+    public bool MinimizeWhenInactive { get; set; }
 #endif
 }
 
@@ -133,7 +134,7 @@ internal sealed class MonitorForm : Form
 #if BETA
         motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
-        motionIndicatorTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
+        motionIndicatorTimer.Interval = 1000;
         motionIndicatorTimer.Tick += (_, _) => HideMotionIndicator();
 #endif
         FormClosing += (_, _) => CloseMonitor();
@@ -441,7 +442,6 @@ internal sealed class MonitorForm : Form
             {
                 settings.MotionForegroundSeconds = seconds;
                 motionRestoreTimer.Interval = seconds * 1000;
-                motionIndicatorTimer.Interval = seconds * 1000;
                 SettingsStore.Save(settings);
             };
             duration.DropDownItems.Add(item);
@@ -683,7 +683,7 @@ internal sealed class MonitorForm : Form
     {
         motionIndicatorVisible = true;
         motionIndicatorTimer.Stop();
-        motionIndicatorTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
+        motionIndicatorTimer.Interval = 1000;
         motionIndicatorTimer.Start();
         PositionOverlays();
     }
@@ -709,7 +709,20 @@ internal sealed class MonitorForm : Form
     private void RestoreAfterMotion()
     {
         motionRestoreTimer.Stop();
-        SendToBackground();
+        if (settings.MinimizeWhenInactive) MinimizeAfterMotion();
+        else SendToBackground();
+    }
+
+    private void MinimizeAfterMotion()
+    {
+        sentToBackground = true;
+        sentToBackgroundAt = DateTime.UtcNow;
+        previousForegroundWindow = IntPtr.Zero;
+        toolbar?.Hide(); dragSurface?.Hide();
+        HideMotionIndicator();
+        foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
+        TopMost = false;
+        WindowState = FormWindowState.Minimized;
     }
 #endif
     private void ApplyRoundedCorners()
@@ -965,6 +978,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
 #if BETA
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
+    private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
 #endif
     public Settings Result { get; private set; }
@@ -975,8 +989,14 @@ internal sealed class SettingsForm : Form
         foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl); top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
 #if BETA
         motionDetection.Checked = current.MotionDetectionEnabled;
+        minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
-        void UpdateMotionOptions() => motionSeconds.Enabled = motionDetection.Checked && !top.Checked;
+        void UpdateMotionOptions()
+        {
+            var enabled = motionDetection.Checked && !top.Checked;
+            motionSeconds.Enabled = enabled;
+            minimizeWhenInactive.Enabled = enabled;
+        }
         UpdateMotionOptions();
         top.CheckedChanged += (_, _) => UpdateMotionOptions();
         motionDetection.CheckedChanged += (_, _) => UpdateMotionOptions();
@@ -986,6 +1006,7 @@ internal sealed class SettingsForm : Form
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart);
 #if BETA
         options.Controls.Add(motionDetection);
+        options.Controls.Add(minimizeWhenInactive);
         options.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
         options.Controls.Add(motionSeconds);
         options.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
@@ -1009,7 +1030,8 @@ internal sealed class SettingsForm : Form
                 Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
 #if BETA
                 MotionDetectionEnabled = motionDetection.Checked,
-                MotionForegroundSeconds = (int)motionSeconds.Value
+                MotionForegroundSeconds = (int)motionSeconds.Value,
+                MinimizeWhenInactive = minimizeWhenInactive.Checked
 #endif
             };
         };
