@@ -67,6 +67,9 @@ internal static class SettingsStore
 
 internal sealed class MonitorForm : Form
 {
+#if BETA
+    protected override bool ShowWithoutActivation => true;
+#endif
     private readonly Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
     private readonly System.Windows.Forms.Timer latencyTimer = new() { Interval = 5 * 60 * 1000 };
     private readonly System.Windows.Forms.Timer restartTimer = new() { Interval = 2000 };
@@ -697,13 +700,18 @@ internal sealed class MonitorForm : Form
 
     private void ForceToForeground()
     {
+        var activeBeforeShow = NativeMethods.GetForegroundWindow();
         sentToBackground = false;
-        if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
-        TopMost = true;
         NativeMethods.ShowWindowAsync(Handle, NativeMethods.SwShowNoActivate);
+        TopMost = true;
         NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
             NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate | NativeMethods.SwpShowWindow);
         PositionOverlays();
+        BeginInvoke(new Action(() =>
+        {
+            if (activeBeforeShow != IntPtr.Zero && activeBeforeShow != Handle && NativeMethods.GetForegroundWindow() == Handle)
+                NativeMethods.SetForegroundWindow(activeBeforeShow);
+        }));
     }
 
     private void RestoreAfterMotion()

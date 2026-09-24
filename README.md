@@ -89,6 +89,8 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
 
+Das Einblenden bei Bewegung erfolgt ohne Aktivierung des Kamerafensters. Der Tastaturfokus bleibt daher beispielsweise beim Schreiben in Word oder Outlook erhalten.
+
 Bei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unverändert. Bei ausgeschalteter Bewegungserkennung werden Meldungen von Home Assistant ignoriert.
 
 Eine erkannte Bewegung wird oben rechts im Kamerabild für genau eine Sekunde durch ein kleines laufendes Männchen mit transparentem Hintergrund angezeigt. Das schwarz-weiß konturierte Symbol bleibt auf hellen und dunklen Bildbereichen sichtbar. Bei jeder neuen Bewegung wird die einsekündige Anzeige erneut ausgelöst. Das Symbol erscheint auch bei aktivem **Immer im Vordergrund**, ohne dabei die ausgewählte Kamera zu wechseln.
