@@ -1179,10 +1179,18 @@ internal sealed class SettingsForm : Form
     public Settings Result { get; private set; }
     public SettingsForm(Settings current)
     {
-        Result = current; Text = "HomeCam Monitor – Einstellungen"; FormBorderStyle = FormBorderStyle.FixedDialog; StartPosition = FormStartPosition.CenterParent; MaximizeBox = false; MinimizeBox = false;
+        Result = current; Text = "HomeCam Monitor – Einstellungen"; StartPosition = FormStartPosition.CenterParent; MinimizeBox = false;
 #if BETA
-        ClientSize = new Size(760, 570);
+        FormBorderStyle = FormBorderStyle.Sizable;
+        MaximizeBox = true;
+        MinimumSize = new Size(780, 650);
+        var workingArea = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1024, 768);
+        ClientSize = new Size(Math.Min(840, workingArea.Width - 40), Math.Min(680, workingArea.Height - 60));
+        cameras.MinimumSize = new Size(0, 170);
+        TopMost = true;
 #else
+        FormBorderStyle = FormBorderStyle.FixedDialog;
+        MaximizeBox = false;
         ClientSize = new Size(760, 390);
 #endif
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "CameraName", HeaderText = "Name", FillWeight = 25 }); cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 75 });
