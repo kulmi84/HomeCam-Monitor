@@ -87,6 +87,8 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
+> **Empfohlener Beta-Stand:** `0.2.0-beta.14` – getesteter, als gut bekannter Stand.
+
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
 
 Das Einblenden bei Bewegung erfolgt ohne Aktivierung des Kamerafensters. Der Tastaturfokus bleibt daher beispielsweise beim Schreiben in Word oder Outlook erhalten.
@@ -109,13 +111,21 @@ Der Beta-Build enthält nur `HomeCamMonitor-Beta-Setup.exe`. Die selbstextrahier
 
 Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie nicht digital signiert ist, können Browser oder Windows trotzdem eine Reputationswarnung anzeigen. GitHub verpackt Actions-Artefakte beim Herunterladen grundsätzlich in ein ZIP; darin befindet sich nur die Setup-EXE.
 
-In Home Assistant wird ein REST-Befehl angelegt. Die Platzhalter-IP wird nur in der privaten HA-Konfiguration durch die lokale IP des Windows-PCs ersetzt:
+HomeCam Monitor lauscht auf allen Netzwerkadressen des Windows-PCs. Damit ein Wechsel der vom Router vergebenen Notebook-IP keine Änderung in Home Assistant erfordert, sollte der Router dem Notebook per **DHCP-Reservierung** dauerhaft dieselbe IPv4-Adresse zuweisen. Das ist die zuverlässigste Variante.
+
+Alternativ kann ein im Heimnetz auflösbarer Rechnername verwendet werden. Den Windows-Rechnernamen zeigt der Befehl `hostname` an. Wenn beispielsweise `HOMECAM-NOTEBOOK.local` von Home Assistant erreichbar ist, lautet der REST-Befehl:
 
 ```yaml
 rest_command:
   homecam_bewegung:
-    url: "http://IP-DES-WINDOWS-PC:8765/motion?camera={{ kamera }}"
+    url: "http://HOMECAM-NOTEBOOK.local:8765/motion?camera={{ kamera }}"
     method: POST
+```
+
+Falls der Name aus Home Assistant nicht erreichbar ist, wird stattdessen die im Router reservierte Adresse verwendet:
+
+```yaml
+    url: "http://192.168.x.x:8765/motion?camera={{ kamera }}"
 ```
 
 Die bestehende Snapshot-Automation bleibt unverändert. Für HomeCam Monitor wird eine eigene Automation mit dem **Person**-Binärsensor der Einfahrt angelegt:
