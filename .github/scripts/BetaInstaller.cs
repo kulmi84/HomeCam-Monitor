@@ -7,8 +7,8 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("HomeCam Monitor Beta Setup")]
 [assembly: AssemblyProduct("HomeCam Monitor Beta")]
-[assembly: AssemblyVersion("0.2.0.23")]
-[assembly: AssemblyFileVersion("0.2.0.23")]
+[assembly: AssemblyVersion("0.2.0.24")]
+[assembly: AssemblyFileVersion("0.2.0.24")]
 
 internal static class BetaInstaller
 {

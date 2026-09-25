@@ -473,11 +473,26 @@ internal sealed class MonitorForm : Form
 #if BETA
     private ContextMenuStrip CreateCameraContextMenu()
     {
-        var menu = new ContextMenuStrip();
+        var menu = new ContextMenuStrip
+        {
+            BackColor = Color.FromArgb(28, 28, 31),
+            ForeColor = Color.White,
+            Opacity = 0.94,
+            Renderer = new HomeCamDarkMenuRenderer(),
+            ShowImageMargin = true,
+            Padding = new Padding(4)
+        };
         menu.Opening += (_, _) =>
         {
             RegisterUserInteraction();
             PopulateCameraContextMenu(menu);
+        };
+        menu.Opened += (_, _) =>
+        {
+            menu.Region?.Dispose();
+            var shape = NativeMethods.CreateRoundRectRgn(0, 0, menu.Width + 1, menu.Height + 1, 12, 12);
+            menu.Region = Region.FromHrgn(shape);
+            NativeMethods.DeleteObject(shape);
         };
         return menu;
     }
@@ -493,9 +508,18 @@ internal sealed class MonitorForm : Form
         alwaysOnTop.Click += (_, _) => SetAlwaysOnTop(alwaysOnTop.Checked);
         menu.Items.Add(alwaysOnTop);
 
+        var motionEnabled = new ToolStripMenuItem("Bewegungserkennung aktiv")
+        {
+            Checked = settings.MotionDetectionEnabled,
+            CheckOnClick = true
+        };
+        motionEnabled.Click += (_, _) => SetMotionDetectionEnabled(motionEnabled.Checked);
+        menu.Items.Add(motionEnabled);
+        menu.Items.Add(new ToolStripSeparator());
+
         var duration = new ToolStripMenuItem($"Vordergrunddauer: {settings.MotionForegroundSeconds} Sekunden")
         {
-            Enabled = !settings.AlwaysOnTop
+            Enabled = settings.MotionDetectionEnabled && !settings.AlwaysOnTop
         };
         var values = new[] { 3, 5, 10, 15, 30, 60 };
         foreach (var seconds in values.Append(settings.MotionForegroundSeconds).Distinct().OrderBy(value => value))
@@ -532,6 +556,15 @@ internal sealed class MonitorForm : Form
         TopMost = enabled;
         SettingsStore.Save(settings);
         PositionOverlays();
+    }
+
+    private void SetMotionDetectionEnabled(bool enabled)
+    {
+        settings.MotionDetectionEnabled = enabled;
+        motionRestoreTimer.Stop();
+        previousForegroundWindow = IntPtr.Zero;
+        SettingsStore.Save(settings);
+        RestartMotionIntegration();
     }
 
     internal void SendToBackground()
@@ -1102,6 +1135,61 @@ internal sealed class MotionIndicatorForm : Form
         foreach (var limb in limbs) eventArgs.Graphics.DrawLines(whitePen, limb);
     }
 }
+
+internal sealed class HomeCamDarkMenuRenderer : ToolStripProfessionalRenderer
+{
+    public HomeCamDarkMenuRenderer() : base(new HomeCamDarkColorTable()) { RoundedEdges = true; }
+
+    protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs eventArgs)
+    {
+        eventArgs.TextColor = eventArgs.Item.Enabled ? Color.White : Color.FromArgb(125, 125, 130);
+        base.OnRenderItemText(eventArgs);
+    }
+
+    protected override void OnRenderArrow(ToolStripArrowRenderEventArgs eventArgs)
+    {
+        eventArgs.ArrowColor = eventArgs.Item.Enabled ? Color.White : Color.FromArgb(125, 125, 130);
+        base.OnRenderArrow(eventArgs);
+    }
+
+    protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs eventArgs)
+    {
+        var rectangle = eventArgs.ImageRectangle;
+        using var pen = new Pen(Color.White, 2f)
+        {
+            StartCap = System.Drawing.Drawing2D.LineCap.Round,
+            EndCap = System.Drawing.Drawing2D.LineCap.Round
+        };
+        eventArgs.Graphics.DrawLines(pen,
+        [
+            new Point(rectangle.Left + 3, rectangle.Top + rectangle.Height / 2),
+            new Point(rectangle.Left + 7, rectangle.Bottom - 4),
+            new Point(rectangle.Right - 2, rectangle.Top + 3)
+        ]);
+    }
+}
+
+internal sealed class HomeCamDarkColorTable : ProfessionalColorTable
+{
+    private static readonly Color Background = Color.FromArgb(28, 28, 31);
+    private static readonly Color Hover = Color.FromArgb(58, 58, 64);
+    public override Color ToolStripDropDownBackground => Background;
+    public override Color MenuBorder => Color.FromArgb(78, 78, 84);
+    public override Color MenuItemBorder => Color.FromArgb(82, 82, 90);
+    public override Color MenuItemSelected => Hover;
+    public override Color MenuItemSelectedGradientBegin => Hover;
+    public override Color MenuItemSelectedGradientEnd => Hover;
+    public override Color MenuItemPressedGradientBegin => Hover;
+    public override Color MenuItemPressedGradientEnd => Hover;
+    public override Color ImageMarginGradientBegin => Background;
+    public override Color ImageMarginGradientMiddle => Background;
+    public override Color ImageMarginGradientEnd => Background;
+    public override Color SeparatorDark => Color.FromArgb(72, 72, 78);
+    public override Color SeparatorLight => Color.FromArgb(72, 72, 78);
+    public override Color CheckBackground => Hover;
+    public override Color CheckSelectedBackground => Hover;
+    public override Color CheckPressedBackground => Hover;
+}
 #endif
 
 internal sealed class DragSurfaceForm : Form
@@ -1201,15 +1289,21 @@ internal sealed class ToolbarForm : Form
         name = Item("Kamera", 32, null, 64); var next = Item("›", 96, (_, _) => monitor.SelectRelativeCamera(1));
         var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
         snapshot.Font = new Font("Segoe MDL2 Assets", 15);
-        var settings = Item("⚙", 160, (_, _) => monitor.OpenSettings());
+        var settings = Item("\uE713", 160, (_, _) => monitor.OpenSettings());
+        settings.Font = new Font("Segoe MDL2 Assets", 14);
 #if BETA
         var lastAction = Item("↓", 192, (_, _) => monitor.MinimizeWindow());
 #else
         var lastAction = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen());
 #endif
-        var close = Item("✕", 224, (_, _) => monitor.Close());
-        close.Font = new Font("Segoe UI Symbol", 13, FontStyle.Regular);
-        close.TextAlign = ContentAlignment.MiddleCenter;
+        var close = Item("\uE8BB", 224, (_, _) => monitor.Close());
+        close.Font = new Font("Segoe MDL2 Assets", 13);
+        foreach (var icon in new[] { snapshot, settings, lastAction, close })
+        {
+            icon.Top = 0;
+            icon.Height = 34;
+            icon.TextAlign = ContentAlignment.MiddleCenter;
+        }
         Controls.AddRange([previous, name, next, snapshot, settings, lastAction, close]);
         toolTips.SetToolTip(previous, "Vorherige Kamera");
         toolTips.SetToolTip(name, "Aktuelle Kamera");
@@ -1258,7 +1352,7 @@ internal static class NativeMethods
 #endif
     [DllImport("gdi32.dll")] public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr handle);
-    public enum DwmWindowAttribute { WindowCornerPreference = 33 }
+    public enum DwmWindowAttribute { UseImmersiveDarkMode = 20, WindowCornerPreference = 33 }
     public enum DwmWindowCornerPreference { Default = 0, DoNotRound = 1, Round = 2, RoundSmall = 3 }
     [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, DwmWindowAttribute attribute, ref int value, int size);
 }
@@ -1292,7 +1386,17 @@ internal sealed class SettingsForm : Form
         var workingArea = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1024, 768);
         ClientSize = new Size(Math.Min(840, workingArea.Width - 40), Math.Min(680, workingArea.Height - 60));
         cameras.MinimumSize = new Size(0, 170);
-        Shown += (_, _) => { Activate(); BringToFront(); };
+        BackColor = Color.FromArgb(24, 24, 27);
+        ForeColor = Color.FromArgb(242, 242, 244);
+        Opacity = 0.97;
+        Shown += (_, _) =>
+        {
+            var darkTitleBar = 1;
+            NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.UseImmersiveDarkMode,
+                ref darkTitleBar, sizeof(int));
+            Activate();
+            BringToFront();
+        };
 #else
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -1419,6 +1523,9 @@ internal sealed class SettingsForm : Form
 #endif
         Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
 #if BETA
+        ApplyDarkTheme(this);
+#endif
+#if BETA
         testHomeAssistant.Click += async (_, _) =>
         {
             homeAssistantStatus.ForeColor = SystemColors.GrayText;
@@ -1500,4 +1607,74 @@ internal sealed class SettingsForm : Form
         }
         return result;
     }
+#if BETA
+    private static void ApplyDarkTheme(Control root)
+    {
+        var background = Color.FromArgb(24, 24, 27);
+        var surface = Color.FromArgb(35, 35, 39);
+        var field = Color.FromArgb(43, 43, 48);
+        var border = Color.FromArgb(72, 72, 78);
+        var text = Color.FromArgb(242, 242, 244);
+        var muted = Color.FromArgb(164, 164, 170);
+
+        root.BackColor = background;
+        root.ForeColor = text;
+        foreach (Control control in root.Controls)
+        {
+            switch (control)
+            {
+                case DataGridView grid:
+                    grid.EnableHeadersVisualStyles = false;
+                    grid.BackgroundColor = surface;
+                    grid.BorderStyle = BorderStyle.FixedSingle;
+                    grid.GridColor = border;
+                    grid.DefaultCellStyle.BackColor = field;
+                    grid.DefaultCellStyle.ForeColor = text;
+                    grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(70, 70, 78);
+                    grid.DefaultCellStyle.SelectionForeColor = Color.White;
+                    grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(31, 31, 35);
+                    grid.ColumnHeadersDefaultCellStyle.ForeColor = text;
+                    grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(31, 31, 35);
+                    grid.RowHeadersDefaultCellStyle.BackColor = Color.FromArgb(31, 31, 35);
+                    break;
+                case TextBox textBox:
+                    textBox.BackColor = field;
+                    textBox.ForeColor = text;
+                    textBox.BorderStyle = BorderStyle.FixedSingle;
+                    break;
+                case NumericUpDown numeric:
+                    numeric.BackColor = field;
+                    numeric.ForeColor = text;
+                    numeric.BorderStyle = BorderStyle.FixedSingle;
+                    break;
+                case Button button:
+                    button.FlatStyle = FlatStyle.Flat;
+                    button.BackColor = Color.FromArgb(48, 48, 54);
+                    button.ForeColor = text;
+                    button.FlatAppearance.BorderColor = border;
+                    button.FlatAppearance.MouseOverBackColor = Color.FromArgb(62, 62, 69);
+                    button.FlatAppearance.MouseDownBackColor = Color.FromArgb(72, 72, 80);
+                    break;
+                case CheckBox checkBox:
+                    checkBox.FlatStyle = FlatStyle.Flat;
+                    checkBox.BackColor = background;
+                    checkBox.ForeColor = text;
+                    break;
+                case GroupBox groupBox:
+                    groupBox.BackColor = background;
+                    groupBox.ForeColor = text;
+                    break;
+                case Label label:
+                    label.BackColor = Color.Transparent;
+                    label.ForeColor = label.ForeColor == SystemColors.GrayText ? muted : text;
+                    break;
+                default:
+                    control.BackColor = background;
+                    control.ForeColor = text;
+                    break;
+            }
+            if (control.HasChildren) ApplyDarkTheme(control);
+        }
+    }
+#endif
 }
