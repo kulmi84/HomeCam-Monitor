@@ -24,6 +24,7 @@ HomeCam Monitor verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster blei
 - Doppelklick zum Wechsel zwischen Fenster und Vollbild
 - mehrere RTSP-, HTTP- oder HTTPS-Kameras
 - Snapshot direkt im Windows-Bilderordner
+- Videoaufnahme direkt im Windows-Videosordner (Beta)
 - automatische Wiederverbindung nach einem Stream- oder Playerabbruch
 - vorsorglicher Stream-Neustart nach fünf Minuten gegen zunehmende Verzögerung
 - gespeicherte Fensterposition, Fenstergröße und Kameraauswahl
@@ -68,11 +69,14 @@ Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Z
 | Doppelklick ins Bild | Vollbild ein/aus |
 | `‹` / `›` | vorherige/nächste Kamera |
 | Bildsymbol | Snapshot speichern |
+| Videosymbol (Beta) | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
 | Zahnrad | Einstellungen öffnen |
 | Vollbildsymbol | Vollbild ein/aus |
 | `×` | Anwendung beenden |
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
+
+Videoaufnahmen der Beta werden als MKV-Dateien unter `%USERPROFILE%\Videos\HomeCam Monitor` gespeichert. Während einer Aufnahme zeigt der Videobutton ein Stoppsymbol.
 
 ## Lokaler Build
 
@@ -89,7 +93,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 > **Empfohlener Beta-Stand:** `0.2.0-beta.14` – getesteter, als gut bekannter Stand.
 
-> **Neue Testversion:** `0.2.0-beta.25` – dunkles HomeCam-Design, globaler Bewegungsschalter im Kontextmenü und sauber ausgerichtete Bedien-Symbole.
+> **Neue Testversion:** `0.2.0-beta.26` – Videoaufnahme sowie kein automatisches Minimieren, solange der Mauszeiger im Kamerafenster steht.
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
 
@@ -104,6 +108,8 @@ Per Rechtsklick ins Kamerabild lässt sich **Immer im Vordergrund** direkt umsch
 Wird das Fenster während der zeitgesteuerten Vordergrundanzeige mit Maus oder Bedienleiste verwendet, wird das automatische Zurückstellen abgebrochen. So verschwindet das Fenster nicht während einer manuellen Bedienung.
 
 Mit der Einstellung **Bei Inaktivität minimieren** wird das Fenster nach Ablauf der Vordergrunddauer minimiert, statt nur hinter andere Fenster gelegt zu werden. Stream und Bewegungserkennung laufen weiter. Bei der nächsten Bewegung wird das Fenster automatisch wiederhergestellt und nach vorne geholt. Die Option wirkt nur bei aktiver Bewegungserkennung und ausgeschaltetem **Immer im Vordergrund**.
+
+Solange sich der Mauszeiger im Kamerafenster befindet, wird der Inaktivitäts-Countdown verlängert. Das Fenster minimiert sich dann nicht während der Betrachtung.
 
 Nur in der Beta ersetzt der Button `↓` den Vollbild-Button und minimiert das Fenster. Beim Wiederherstellen werden Bedienleiste, Verschiebefläche und Größenänderung sofort wieder aktiviert. Vollbild bleibt per Doppelklick ins Kamerabild verfügbar.
 

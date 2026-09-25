@@ -126,6 +126,8 @@ internal sealed class MonitorForm : Form
     private bool suppressToolbar;
     private bool nativeMoveOrResize;
 #if BETA
+    private bool recording;
+    private string? recordingPath;
     private bool wasMinimized;
     private bool sentToBackground;
     private DateTime sentToBackgroundAt = DateTime.MinValue;
@@ -284,6 +286,21 @@ internal sealed class MonitorForm : Form
     {
         intentionalStop = true; var current = player; player = null;
         if (current is null) return;
+#if BETA
+        if (recording)
+        {
+            try
+            {
+                SendCommandAsync(new object[] { "set_property", "stream-record", "" }).GetAwaiter().GetResult();
+                Thread.Sleep(200);
+            }
+            catch { }
+            recording = false;
+            recordingPath = null;
+            toolbar?.SetRecording(false);
+            if (!closing) latencyTimer.Start();
+        }
+#endif
         try { current.Exited -= PlayerExited; if (!current.HasExited) { current.Kill(true); current.WaitForExit(2000); } current.Dispose(); } catch { }
     }
 
@@ -343,6 +360,44 @@ internal sealed class MonitorForm : Form
             MessageBox.Show(this, $"Der Snapshot konnte nicht gespeichert werden.\n\nZiel: {path}\n\n{exception.Message}", "Snapshot fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
+
+#if BETA
+    internal async Task ToggleRecordingAsync()
+    {
+        RegisterUserInteraction();
+        try
+        {
+            if (recording)
+            {
+                await SendCommandAsync(new object[] { "set_property", "stream-record", "" });
+                recording = false;
+                toolbar?.SetRecording(false);
+                latencyTimer.Start();
+                toolbar?.Flash("Aufnahme gespeichert");
+                recordingPath = null;
+                return;
+            }
+
+            if (!HasUsableCamera()) return;
+            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor");
+            Directory.CreateDirectory(folder);
+            var cameraName = string.Concat(settings.Cameras[settings.SelectedCamera].Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+            recordingPath = Path.Combine(folder, $"{cameraName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.mkv");
+            await SendCommandAsync(new object[] { "set_property", "stream-record", recordingPath });
+            recording = true;
+            latencyTimer.Stop();
+            toolbar?.SetRecording(true);
+            toolbar?.Flash("Aufnahme läuft");
+        }
+        catch (Exception exception)
+        {
+            recording = false;
+            toolbar?.SetRecording(false);
+            latencyTimer.Start();
+            MessageBox.Show(this, $"Die Aufnahme konnte nicht gestartet oder beendet werden.\n\nZiel: {recordingPath}\n\n{exception.Message}", "Aufnahme fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+#endif
 
     private async Task SendCommandAsync(object[] command)
     {
@@ -1014,6 +1069,12 @@ internal sealed class MonitorForm : Form
     private void RestoreAfterMotion()
     {
         motionRestoreTimer.Stop();
+        if (Bounds.Contains(Cursor.Position))
+        {
+            motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
+            motionRestoreTimer.Start();
+            return;
+        }
         if (settings.MinimizeWhenInactive) MinimizeAfterMotion();
         else SendToBackground();
     }
@@ -1272,6 +1333,9 @@ internal sealed class ResizeGripForm : Form
 internal sealed class ToolbarForm : Form
 {
     private readonly Label name;
+#if BETA
+    private readonly Label recording;
+#endif
     private readonly Label note;
     private readonly ToolTip toolTips = new()
     {
@@ -1285,31 +1349,53 @@ internal sealed class ToolbarForm : Form
     public ToolbarForm(MonitorForm monitor)
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; BackColor = Color.FromArgb(20, 20, 20); Opacity = 0.78;
+#if BETA
+        ClientSize = new Size(288, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
+#else
         ClientSize = new Size(256, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
+#endif
         var previous = Item("‹", 0, (_, _) => monitor.SelectRelativeCamera(-1));
         name = Item("Kamera", 32, null, 64); var next = Item("›", 96, (_, _) => monitor.SelectRelativeCamera(1));
         var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
         snapshot.Font = new Font("Segoe MDL2 Assets", 15);
+#if BETA
+        recording = Item("\uE714", 160, async (_, _) => await monitor.ToggleRecordingAsync());
+        recording.Font = new Font("Segoe MDL2 Assets", 14);
+        var settings = Item("\uE713", 192, (_, _) => monitor.OpenSettings());
+#else
         var settings = Item("\uE713", 160, (_, _) => monitor.OpenSettings());
+#endif
         settings.Font = new Font("Segoe MDL2 Assets", 14);
 #if BETA
-        var lastAction = Item("↓", 192, (_, _) => monitor.MinimizeWindow());
+        var lastAction = Item("↓", 224, (_, _) => monitor.MinimizeWindow());
+        var close = Item("\uE8BB", 256, (_, _) => monitor.Close());
 #else
         var lastAction = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen());
-#endif
         var close = Item("\uE8BB", 224, (_, _) => monitor.Close());
+#endif
         close.Font = new Font("Segoe MDL2 Assets", 13);
+#if BETA
+        foreach (var icon in new[] { snapshot, recording, settings, lastAction, close })
+#else
         foreach (var icon in new[] { snapshot, settings, lastAction, close })
+#endif
         {
             icon.Top = 0;
             icon.Height = 34;
             icon.TextAlign = ContentAlignment.MiddleCenter;
         }
+#if BETA
+        Controls.AddRange([previous, name, next, snapshot, recording, settings, lastAction, close]);
+#else
         Controls.AddRange([previous, name, next, snapshot, settings, lastAction, close]);
+#endif
         toolTips.SetToolTip(previous, "Vorherige Kamera");
         toolTips.SetToolTip(name, "Aktuelle Kamera");
         toolTips.SetToolTip(next, "Nächste Kamera");
         toolTips.SetToolTip(snapshot, "Snapshot speichern");
+#if BETA
+        toolTips.SetToolTip(recording, "Aufnahme starten");
+#endif
         toolTips.SetToolTip(settings, "Einstellungen öffnen");
 #if BETA
         toolTips.SetToolTip(lastAction, "Minimieren");
@@ -1329,6 +1415,13 @@ internal sealed class ToolbarForm : Form
     {
         note.Text = text; note.Left = (Width - note.PreferredWidth) / 2; note.Top = 0; note.Visible = true; await Task.Delay(1600); if (!IsDisposed) note.Visible = false;
     }
+#if BETA
+    public void SetRecording(bool active)
+    {
+        recording.Text = active ? "\uE71A" : "\uE714";
+        toolTips.SetToolTip(recording, active ? "Aufnahme beenden und speichern" : "Aufnahme starten");
+    }
+#endif
 }
 
 internal static class NativeMethods
