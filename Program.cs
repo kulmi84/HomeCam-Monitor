@@ -137,6 +137,7 @@ internal sealed class MonitorForm : Form
     private DateTime sentToBackgroundAt = DateTime.MinValue;
     private ContextMenuStrip? cameraContextMenu;
     private MotionIndicatorForm? motionIndicator;
+    private SettingsForm? activeSettingsDialog;
     private bool motionIndicatorVisible;
 #endif
     private Point lastCursorPosition;
@@ -477,10 +478,16 @@ internal sealed class MonitorForm : Form
         try
         {
             using var dialog = new SettingsForm(settings);
+#if BETA
+            activeSettingsDialog = dialog;
+#endif
             if (dialog.ShowDialog(this) == DialogResult.OK) changedSettings = dialog.Result;
         }
         finally
         {
+#if BETA
+            activeSettingsDialog = null;
+#endif
             suppressToolbar = false;
             TopMost = changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop;
             PositionOverlays();
@@ -1125,7 +1132,7 @@ internal sealed class MonitorForm : Form
     private void RestoreAfterMotion()
     {
         motionRestoreTimer.Stop();
-        if (Bounds.Contains(Cursor.Position))
+        if (activeSettingsDialog is { IsDisposed: false, Visible: true } || Bounds.Contains(Cursor.Position))
         {
             motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
             motionRestoreTimer.Start();

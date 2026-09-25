@@ -93,7 +93,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 > **Empfohlener Beta-Stand:** `0.2.0-beta.14` – getesteter, als gut bekannter Stand.
 
-> **Neue Testversion:** `0.2.0-beta.29` – passendes Windows-Minimieren-Symbol statt des Pfeils nach unten.
+> **Neue Testversion:** `0.2.0-beta.30` – keine automatische Minimierung oder Hintergrundschaltung bei geöffneten Einstellungen.
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
 
@@ -110,6 +110,8 @@ Wird das Fenster während der zeitgesteuerten Vordergrundanzeige mit Maus oder B
 Mit der Einstellung **Bei Inaktivität minimieren** wird das Fenster nach Ablauf der Vordergrunddauer minimiert, statt nur hinter andere Fenster gelegt zu werden. Stream und Bewegungserkennung laufen weiter. Bei der nächsten Bewegung wird das Fenster automatisch wiederhergestellt und nach vorne geholt. Die Option wirkt nur bei aktiver Bewegungserkennung und ausgeschaltetem **Immer im Vordergrund**.
 
 Solange sich der Mauszeiger im Kamerafenster befindet, wird der Inaktivitäts-Countdown verlängert. Das Fenster minimiert sich dann nicht während der Betrachtung.
+
+Solange das Einstellungsfenster geöffnet ist, wird die Inaktivitätsautomatik ebenfalls ausgesetzt. HomeCam Monitor und die Einstellungen bleiben während der Bearbeitung sichtbar.
 
 Nur in der Beta ersetzt ein schlichtes Windows-Minimieren-Symbol den Vollbild-Button und minimiert das Fenster. Beim Wiederherstellen werden Bedienleiste, Verschiebefläche und Größenänderung sofort wieder aktiviert. Vollbild bleibt per Doppelklick ins Kamerabild verfügbar.
 
