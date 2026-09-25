@@ -572,7 +572,6 @@ internal sealed class MonitorForm : Form
         TopMost = settings.AlwaysOnTop;
         lastCursorPosition = Cursor.Position;
         lastCursorMovement = DateTime.UtcNow;
-        dragSurface?.Show(this);
         if (toolbar is not null && !toolbar.IsDisposed && Bounds.Contains(Cursor.Position)) toolbar.Show(this);
         PositionOverlays();
     }
@@ -1208,7 +1207,9 @@ internal sealed class ToolbarForm : Form
 #else
         var lastAction = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen());
 #endif
-        var close = Item("×", 224, (_, _) => monitor.Close());
+        var close = Item("✕", 224, (_, _) => monitor.Close());
+        close.Font = new Font("Segoe UI Symbol", 13, FontStyle.Regular);
+        close.TextAlign = ContentAlignment.MiddleCenter;
         Controls.AddRange([previous, name, next, snapshot, settings, lastAction, close]);
         toolTips.SetToolTip(previous, "Vorherige Kamera");
         toolTips.SetToolTip(name, "Aktuelle Kamera");
