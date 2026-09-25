@@ -126,6 +126,7 @@ internal sealed class MonitorForm : Form
     private bool suppressToolbar;
     private bool nativeMoveOrResize;
 #if BETA
+    private bool wasMinimized;
     private bool sentToBackground;
     private DateTime sentToBackgroundAt = DateTime.MinValue;
     private ContextMenuStrip? cameraContextMenu;
@@ -166,7 +167,26 @@ internal sealed class MonitorForm : Form
         Controls.Add(video);
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
-        Resize += (_, _) => { KeepCameraAspectRatio(); ApplyRoundedCorners(); if (!nativeMoveOrResize) PositionOverlays(); };
+        Resize += (_, _) =>
+        {
+#if BETA
+            if (WindowState == FormWindowState.Minimized)
+            {
+                wasMinimized = true;
+                return;
+            }
+#endif
+            KeepCameraAspectRatio();
+            ApplyRoundedCorners();
+            if (!nativeMoveOrResize) PositionOverlays();
+#if BETA
+            if (wasMinimized && WindowState == FormWindowState.Normal)
+            {
+                wasMinimized = false;
+                BeginInvoke(new Action(RestoreWindowAfterMinimize));
+            }
+#endif
+        };
 #if BETA
         Activated += (_, _) => RestoreFromBackground();
 #endif
@@ -528,6 +548,33 @@ internal sealed class MonitorForm : Form
         NativeMethods.SetWindowPos(Handle, NativeMethods.HwndBottom, 0, 0, 0, 0,
             NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
         if (previous != IntPtr.Zero && previous != Handle) NativeMethods.SetForegroundWindow(previous);
+    }
+
+    internal void MinimizeWindow()
+    {
+        RegisterUserInteraction();
+        sentToBackground = false;
+        previousForegroundWindow = IntPtr.Zero;
+        toolbar?.Hide();
+        dragSurface?.Hide();
+        HideMotionIndicator();
+        foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
+        TopMost = false;
+        wasMinimized = true;
+        WindowState = FormWindowState.Minimized;
+    }
+
+    private void RestoreWindowAfterMinimize()
+    {
+        if (closing || WindowState != FormWindowState.Normal) return;
+        sentToBackground = false;
+        nativeMoveOrResize = false;
+        TopMost = settings.AlwaysOnTop;
+        lastCursorPosition = Cursor.Position;
+        lastCursorMovement = DateTime.UtcNow;
+        dragSurface?.Show(this);
+        if (toolbar is not null && !toolbar.IsDisposed && Bounds.Contains(Cursor.Position)) toolbar.Show(this);
+        PositionOverlays();
     }
 
     private void RestoreFromBackground()
@@ -1150,7 +1197,7 @@ internal sealed class ToolbarForm : Form
         snapshot.Font = new Font("Segoe MDL2 Assets", 15);
         var settings = Item("⚙", 160, (_, _) => monitor.OpenSettings());
 #if BETA
-        var lastAction = Item("↓", 192, (_, _) => monitor.SendToBackground());
+        var lastAction = Item("↓", 192, (_, _) => monitor.MinimizeWindow());
 #else
         var lastAction = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen());
 #endif
