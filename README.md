@@ -93,7 +93,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 > **Empfohlener Beta-Stand:** `0.2.0-beta.14` – getesteter, als gut bekannter Stand.
 
-> **Neue Testversion:** `0.2.0-beta.28` – Aufnahmezustand über weißen/roten Punkt erkennbar und kleineres Schließen-Symbol.
+> **Neue Testversion:** `0.2.0-beta.29` – passendes Windows-Minimieren-Symbol statt des Pfeils nach unten.
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
 
@@ -111,7 +111,7 @@ Mit der Einstellung **Bei Inaktivität minimieren** wird das Fenster nach Ablauf
 
 Solange sich der Mauszeiger im Kamerafenster befindet, wird der Inaktivitäts-Countdown verlängert. Das Fenster minimiert sich dann nicht während der Betrachtung.
 
-Nur in der Beta ersetzt der Button `↓` den Vollbild-Button und minimiert das Fenster. Beim Wiederherstellen werden Bedienleiste, Verschiebefläche und Größenänderung sofort wieder aktiviert. Vollbild bleibt per Doppelklick ins Kamerabild verfügbar.
+Nur in der Beta ersetzt ein schlichtes Windows-Minimieren-Symbol den Vollbild-Button und minimiert das Fenster. Beim Wiederherstellen werden Bedienleiste, Verschiebefläche und Größenänderung sofort wieder aktiviert. Vollbild bleibt per Doppelklick ins Kamerabild verfügbar.
 
 Beim ersten Start übernimmt die Beta einmalig die Kameraliste der stabilen Version. Anschließend speichert sie ihre Einstellungen getrennt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
 

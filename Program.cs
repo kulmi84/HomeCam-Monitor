@@ -1424,13 +1424,17 @@ internal sealed class ToolbarForm : Form
 #endif
         settings.Font = new Font("Segoe MDL2 Assets", 12);
 #if BETA
-        var lastAction = Item("↓", 224, (_, _) => monitor.MinimizeWindow());
+        var lastAction = Item("\uE921", 224, (_, _) => monitor.MinimizeWindow());
         var close = Item("\uE8BB", 256, (_, _) => monitor.Close());
 #else
         var lastAction = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen());
         var close = Item("\uE8BB", 224, (_, _) => monitor.Close());
 #endif
+#if BETA
+        lastAction.Font = new Font("Segoe MDL2 Assets", 10);
+#else
         lastAction.Font = new Font("Segoe UI Symbol", 12);
+#endif
         close.Font = new Font("Segoe MDL2 Assets", 9);
 #if BETA
         foreach (var icon in new[] { snapshot, recording, settings, lastAction, close })
