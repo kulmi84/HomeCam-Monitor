@@ -1417,7 +1417,7 @@ internal sealed class ToolbarForm : Form
 #if BETA
         recording = Item("●", 160, async (_, _) => await monitor.ToggleRecordingAsync());
         recording.Font = new Font("Segoe UI Symbol", 9);
-        recording.ForeColor = Color.FromArgb(215, 55, 55);
+        recording.ForeColor = Color.White;
         var settings = Item("\uE713", 192, (_, _) => monitor.OpenSettings());
 #else
         var settings = Item("\uE713", 160, (_, _) => monitor.OpenSettings());
@@ -1431,7 +1431,7 @@ internal sealed class ToolbarForm : Form
         var close = Item("\uE8BB", 224, (_, _) => monitor.Close());
 #endif
         lastAction.Font = new Font("Segoe UI Symbol", 12);
-        close.Font = new Font("Segoe MDL2 Assets", 11);
+        close.Font = new Font("Segoe MDL2 Assets", 9);
 #if BETA
         foreach (var icon in new[] { snapshot, recording, settings, lastAction, close })
 #else
@@ -1477,7 +1477,7 @@ internal sealed class ToolbarForm : Form
     public void SetRecording(bool active)
     {
         recording.Text = "●";
-        recording.ForeColor = active ? Color.Red : Color.FromArgb(215, 55, 55);
+        recording.ForeColor = active ? Color.Red : Color.White;
         toolTips.SetToolTip(recording, active ? "Aufnahme beenden und speichern" : "Aufnahme starten");
     }
 #endif
