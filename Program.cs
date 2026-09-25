@@ -1185,6 +1185,13 @@ internal sealed class ToolbarForm : Form
 {
     private readonly Label name;
     private readonly Label note;
+    private readonly ToolTip toolTips = new()
+    {
+        InitialDelay = 450,
+        ReshowDelay = 100,
+        AutoPopDelay = 5000,
+        ShowAlways = true
+    };
     protected override bool ShowWithoutActivation => true;
     public string CameraName { set => name.Text = value; }
     public ToolbarForm(MonitorForm monitor)
@@ -1203,6 +1210,17 @@ internal sealed class ToolbarForm : Form
 #endif
         var close = Item("×", 224, (_, _) => monitor.Close());
         Controls.AddRange([previous, name, next, snapshot, settings, lastAction, close]);
+        toolTips.SetToolTip(previous, "Vorherige Kamera");
+        toolTips.SetToolTip(name, "Aktuelle Kamera");
+        toolTips.SetToolTip(next, "Nächste Kamera");
+        toolTips.SetToolTip(snapshot, "Snapshot speichern");
+        toolTips.SetToolTip(settings, "Einstellungen öffnen");
+#if BETA
+        toolTips.SetToolTip(lastAction, "Minimieren");
+#else
+        toolTips.SetToolTip(lastAction, "Vollbild ein/aus");
+#endif
+        toolTips.SetToolTip(close, "HomeCam Monitor beenden");
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
         var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
     }
