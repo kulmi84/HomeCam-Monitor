@@ -1142,13 +1142,13 @@ internal sealed class HomeCamDarkMenuRenderer : ToolStripProfessionalRenderer
 
     protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs eventArgs)
     {
-        eventArgs.TextColor = eventArgs.Item.Enabled ? Color.White : Color.FromArgb(125, 125, 130);
+        eventArgs.TextColor = eventArgs.Item?.Enabled != false ? Color.White : Color.FromArgb(125, 125, 130);
         base.OnRenderItemText(eventArgs);
     }
 
     protected override void OnRenderArrow(ToolStripArrowRenderEventArgs eventArgs)
     {
-        eventArgs.ArrowColor = eventArgs.Item.Enabled ? Color.White : Color.FromArgb(125, 125, 130);
+        eventArgs.ArrowColor = eventArgs.Item?.Enabled != false ? Color.White : Color.FromArgb(125, 125, 130);
         base.OnRenderArrow(eventArgs);
     }
 
@@ -1161,11 +1161,12 @@ internal sealed class HomeCamDarkMenuRenderer : ToolStripProfessionalRenderer
             EndCap = System.Drawing.Drawing2D.LineCap.Round
         };
         eventArgs.Graphics.DrawLines(pen,
-        [
+        new Point[]
+        {
             new Point(rectangle.Left + 3, rectangle.Top + rectangle.Height / 2),
             new Point(rectangle.Left + 7, rectangle.Bottom - 4),
             new Point(rectangle.Right - 2, rectangle.Top + 3)
-        ]);
+        });
     }
 }
 
