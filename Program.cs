@@ -114,6 +114,9 @@ internal sealed class MonitorForm : Form
     private readonly System.Windows.Forms.Timer restartTimer = new() { Interval = 2000 };
     private readonly System.Windows.Forms.Timer controlsTimer = new() { Interval = 150 };
     private readonly string pipeName = $"HomeCamMonitor-{Environment.ProcessId}";
+#if BETA
+    private readonly string recordingPipeName = $"HomeCamMonitor-Recording-{Environment.ProcessId}";
+#endif
     private Settings settings;
     private ToolbarForm? toolbar;
     private DragSurfaceForm? dragSurface;
@@ -128,6 +131,7 @@ internal sealed class MonitorForm : Form
 #if BETA
     private bool recording;
     private string? recordingPath;
+    private Process? recordingPlayer;
     private bool wasMinimized;
     private bool sentToBackground;
     private DateTime sentToBackgroundAt = DateTime.MinValue;
@@ -236,6 +240,7 @@ internal sealed class MonitorForm : Form
     {
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
+        StopRecordingForClose();
         motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
@@ -286,21 +291,6 @@ internal sealed class MonitorForm : Form
     {
         intentionalStop = true; var current = player; player = null;
         if (current is null) return;
-#if BETA
-        if (recording)
-        {
-            try
-            {
-                SendCommandAsync(new object[] { "set_property", "stream-record", "" }).GetAwaiter().GetResult();
-                Thread.Sleep(200);
-            }
-            catch { }
-            recording = false;
-            recordingPath = null;
-            toolbar?.SetRecording(false);
-            if (!closing) latencyTimer.Start();
-        }
-#endif
         try { current.Exited -= PlayerExited; if (!current.HasExited) { current.Kill(true); current.WaitForExit(2000); } current.Dispose(); } catch { }
     }
 
@@ -369,12 +359,7 @@ internal sealed class MonitorForm : Form
         {
             if (recording)
             {
-                await SendCommandAsync(new object[] { "set_property", "stream-record", "" });
-                recording = false;
-                toolbar?.SetRecording(false);
-                latencyTimer.Start();
-                toolbar?.Flash("Aufnahme gespeichert");
-                recordingPath = null;
+                await StopRecordingAsync();
                 return;
             }
 
@@ -383,7 +368,20 @@ internal sealed class MonitorForm : Form
             Directory.CreateDirectory(folder);
             var cameraName = string.Concat(settings.Cameras[settings.SelectedCamera].Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
             recordingPath = Path.Combine(folder, $"{cameraName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.mkv");
-            await SendCommandAsync(new object[] { "set_property", "stream-record", recordingPath });
+            var camera = settings.Cameras[settings.SelectedCamera];
+            var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+            foreach (var argument in new[]
+            {
+                "--no-terminal", "--really-quiet", "--no-audio", "--vo=null", "--cache=no",
+                "--demuxer-lavf-o=rtsp_transport=tcp", $"--stream-record={recordingPath}",
+                $"--input-ipc-server=\\\\.\\pipe\\{recordingPipeName}", camera.StreamUrl
+            }) start.ArgumentList.Add(argument);
+            recordingPlayer = Process.Start(start) ?? throw new InvalidOperationException("Der Aufnahmeprozess konnte nicht gestartet werden.");
             recording = true;
             latencyTimer.Stop();
             toolbar?.SetRecording(true);
@@ -397,11 +395,69 @@ internal sealed class MonitorForm : Form
             MessageBox.Show(this, $"Die Aufnahme konnte nicht gestartet oder beendet werden.\n\nZiel: {recordingPath}\n\n{exception.Message}", "Aufnahme fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
+
+    private async Task StopRecordingAsync()
+    {
+        var current = recordingPlayer;
+        var completedPath = recordingPath;
+        recordingPlayer = null;
+        recording = false;
+        toolbar?.SetRecording(false);
+        latencyTimer.Start();
+
+        if (current is not null)
+        {
+            try
+            {
+                if (!current.HasExited)
+                {
+                    await SendCommandToPipeAsync(recordingPipeName, new object[] { "quit" });
+                    await Task.Run(() => current.WaitForExit(5000));
+                    if (!current.HasExited) current.Kill(true);
+                }
+            }
+            catch
+            {
+                try { if (!current.HasExited) current.Kill(true); } catch { }
+            }
+            finally { current.Dispose(); }
+        }
+
+        recordingPath = null;
+        if (!string.IsNullOrWhiteSpace(completedPath) && File.Exists(completedPath) && new FileInfo(completedPath).Length > 0)
+        {
+            toolbar?.Flash("Aufnahme gespeichert");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(completedPath) && File.Exists(completedPath)) File.Delete(completedPath);
+        MessageBox.Show(this, "Die Kameraaufnahme enthielt keine Videodaten und wurde entfernt.", "Aufnahme fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+    }
+
+    private void StopRecordingForClose()
+    {
+        var current = recordingPlayer;
+        recordingPlayer = null;
+        recording = false;
+        try
+        {
+            if (current is not null && !current.HasExited)
+            {
+                SendCommandToPipeAsync(recordingPipeName, new object[] { "quit" }).GetAwaiter().GetResult();
+                if (!current.WaitForExit(5000)) current.Kill(true);
+            }
+        }
+        catch { try { if (current is { HasExited: false }) current.Kill(true); } catch { } }
+        finally { current?.Dispose(); }
+    }
 #endif
 
     private async Task SendCommandAsync(object[] command)
+        => await SendCommandToPipeAsync(pipeName, command);
+
+    private static async Task SendCommandToPipeAsync(string targetPipeName, object[] command)
     {
-        using var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.Out, PipeOptions.Asynchronous);
+        using var pipe = new NamedPipeClientStream(".", targetPipeName, PipeDirection.Out, PipeOptions.Asynchronous);
         await pipe.ConnectAsync(2000); var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { command }) + "\n");
         await pipe.WriteAsync(bytes); await pipe.FlushAsync();
     }
@@ -1357,15 +1413,16 @@ internal sealed class ToolbarForm : Form
         var previous = Item("‹", 0, (_, _) => monitor.SelectRelativeCamera(-1));
         name = Item("Kamera", 32, null, 64); var next = Item("›", 96, (_, _) => monitor.SelectRelativeCamera(1));
         var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
-        snapshot.Font = new Font("Segoe MDL2 Assets", 15);
+        snapshot.Font = new Font("Segoe MDL2 Assets", 12);
 #if BETA
-        recording = Item("\uE714", 160, async (_, _) => await monitor.ToggleRecordingAsync());
-        recording.Font = new Font("Segoe MDL2 Assets", 14);
+        recording = Item("●", 160, async (_, _) => await monitor.ToggleRecordingAsync());
+        recording.Font = new Font("Segoe UI Symbol", 9);
+        recording.ForeColor = Color.FromArgb(215, 55, 55);
         var settings = Item("\uE713", 192, (_, _) => monitor.OpenSettings());
 #else
         var settings = Item("\uE713", 160, (_, _) => monitor.OpenSettings());
 #endif
-        settings.Font = new Font("Segoe MDL2 Assets", 14);
+        settings.Font = new Font("Segoe MDL2 Assets", 12);
 #if BETA
         var lastAction = Item("↓", 224, (_, _) => monitor.MinimizeWindow());
         var close = Item("\uE8BB", 256, (_, _) => monitor.Close());
@@ -1373,7 +1430,8 @@ internal sealed class ToolbarForm : Form
         var lastAction = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen());
         var close = Item("\uE8BB", 224, (_, _) => monitor.Close());
 #endif
-        close.Font = new Font("Segoe MDL2 Assets", 13);
+        lastAction.Font = new Font("Segoe UI Symbol", 12);
+        close.Font = new Font("Segoe MDL2 Assets", 11);
 #if BETA
         foreach (var icon in new[] { snapshot, recording, settings, lastAction, close })
 #else
@@ -1408,7 +1466,7 @@ internal sealed class ToolbarForm : Form
     }
     private static Label Item(string text, int x, EventHandler? click, int width = 32)
     {
-        var item = new Label { Text = text, Left = x, Top = 1, Width = width, Height = 32, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 9 : 15), Cursor = Cursors.Hand };
+        var item = new Label { Text = text, Left = x, Top = 0, Width = width, Height = 34, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 9 : 12), Cursor = Cursors.Hand };
         if (click is not null) item.Click += click; return item;
     }
     public async void Flash(string text)
@@ -1418,7 +1476,8 @@ internal sealed class ToolbarForm : Form
 #if BETA
     public void SetRecording(bool active)
     {
-        recording.Text = active ? "\uE71A" : "\uE714";
+        recording.Text = "●";
+        recording.ForeColor = active ? Color.Red : Color.FromArgb(215, 55, 55);
         toolTips.SetToolTip(recording, active ? "Aufnahme beenden und speichern" : "Aufnahme starten");
     }
 #endif
@@ -1482,7 +1541,7 @@ internal sealed class SettingsForm : Form
         cameras.MinimumSize = new Size(0, 170);
         BackColor = Color.FromArgb(24, 24, 27);
         ForeColor = Color.FromArgb(242, 242, 244);
-        Opacity = 0.97;
+        Opacity = 1.0;
         Shown += (_, _) =>
         {
             var darkTitleBar = 1;
