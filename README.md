@@ -89,7 +89,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 > **Empfohlener Beta-Stand:** `0.2.0-beta.14` – getesteter, als gut bekannter Stand.
 
-> **Neue Testversion:** `0.2.0-beta.19` – direkte Verbindung zu Home Assistant sowie größerem, skalierbarem Einstellungsfenster ohne systemweites „Immer im Vordergrund“.
+> **Neue Testversion:** `0.2.0-beta.20` – direkte Verbindung zu Home Assistant mit eigener Bewegungserkennung pro Kamera.
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
 
@@ -117,14 +117,15 @@ Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie
 
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
 
-In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert und Folgendes eingetragen:
+In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eine eigene Checkbox **Bewegung**. Nach dem Anklicken einer Kamerazeile wird darunter die zugehörige Bewegungs-Entität eingetragen.
 
 | Feld | Beispiel |
 |---|---|
 | HA-Adresse | `http://192.168.x.x:8123` |
 | Langzeit-Token | in Home Assistant im Benutzerprofil erstellt |
-| Bewegungs-Entität | `binary_sensor.camera_einfahrt_bewegung` |
-| Kameraname | `Einfahrt` |
+| Bewegungs-Entität | beispielsweise `binary_sensor.camera_einfahrt_bewegung` |
+
+Meldet eine aktivierte Entität Bewegung, wechselt HomeCam Monitor automatisch auf die zugehörige Kamera und holt deren Bild nach vorn. So können Einfahrt, Garten und Garage unabhängig voneinander eingerichtet werden. **Bewegungserkennung aktiv** bleibt der globale Hauptschalter für alle Kameras.
 
 Das Langzeit-Token wird in Home Assistant im eigenen Benutzerprofil unter **Sicherheit → Langzeit-Zugriffstoken** erstellt. Es wird nur lokal in `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json` gespeichert; diese Datei darf nicht weitergegeben oder veröffentlicht werden.
 

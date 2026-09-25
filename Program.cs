@@ -38,6 +38,7 @@ internal sealed class Settings
     public string MotionEntityId { get; set; } = "binary_sensor.camera_einfahrt_bewegung";
     public string MotionCameraName { get; set; } = "Einfahrt";
     public bool IgnoreHomeAssistantCertificateErrors { get; set; }
+    public bool PerCameraMotionConfigured { get; set; }
 #endif
 }
 
@@ -45,6 +46,10 @@ internal sealed class CameraEntry
 {
     public string Name { get; set; } = "Kamera";
     public string StreamUrl { get; set; } = "";
+#if BETA
+    public bool MotionEnabled { get; set; }
+    public string MotionEntityId { get; set; } = "";
+#endif
 }
 
 internal static class SettingsStore
@@ -61,15 +66,42 @@ internal static class SettingsStore
     {
         try
         {
-            if (File.Exists(FileName)) return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FileName)) ?? new Settings();
+            if (File.Exists(FileName))
+            {
+                var loaded = JsonSerializer.Deserialize<Settings>(File.ReadAllText(FileName)) ?? new Settings();
 #if BETA
-            if (File.Exists(StableFileName)) return JsonSerializer.Deserialize<Settings>(File.ReadAllText(StableFileName)) ?? new Settings();
+                MigratePerCameraMotion(loaded);
+#endif
+                return loaded;
+            }
+#if BETA
+            if (File.Exists(StableFileName))
+            {
+                var imported = JsonSerializer.Deserialize<Settings>(File.ReadAllText(StableFileName)) ?? new Settings();
+                MigratePerCameraMotion(imported);
+                return imported;
+            }
 #endif
         }
         catch { }
         return new Settings();
     }
     public static void Save(Settings value) { Directory.CreateDirectory(Folder); File.WriteAllText(FileName, JsonSerializer.Serialize(value, JsonOptions)); }
+#if BETA
+    private static void MigratePerCameraMotion(Settings value)
+    {
+        if (value.PerCameraMotionConfigured) return;
+        var camera = value.Cameras.FirstOrDefault(item => string.Equals(item.Name, value.MotionCameraName, StringComparison.OrdinalIgnoreCase))
+            ?? value.Cameras.FirstOrDefault(item => string.Equals(item.Name, "Einfahrt", StringComparison.OrdinalIgnoreCase));
+        if (camera is not null)
+        {
+            camera.MotionEnabled = true;
+            camera.MotionEntityId = value.MotionEntityId;
+        }
+        value.PerCameraMotionConfigured = true;
+        Save(value);
+    }
+#endif
 }
 
 internal sealed class MonitorForm : Form
@@ -632,7 +664,7 @@ internal sealed class MonitorForm : Form
         if (settings.DirectHomeAssistantEnabled &&
             !string.IsNullOrWhiteSpace(settings.HomeAssistantUrl) &&
             !string.IsNullOrWhiteSpace(settings.HomeAssistantToken) &&
-            !string.IsNullOrWhiteSpace(settings.MotionEntityId))
+            settings.Cameras.Any(camera => camera.MotionEnabled && !string.IsNullOrWhiteSpace(camera.MotionEntityId)))
         {
             _ = Task.Run(() => ListenToHomeAssistantAsync(motionCancellation.Token));
             return;
@@ -706,8 +738,7 @@ internal sealed class MonitorForm : Form
         while (socket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
         {
             using var message = await ReceiveHomeAssistantMessageAsync(socket, cancellationToken);
-            if (!IsConfiguredMotionEvent(message.RootElement)) continue;
-            var cameraName = string.IsNullOrWhiteSpace(settings.MotionCameraName) ? "Einfahrt" : settings.MotionCameraName.Trim();
+            if (!TryGetMotionCamera(message.RootElement, out var cameraName)) continue;
             if (!closing) BeginInvoke(new Action(() => HandleMotion(cameraName)));
         }
     }
@@ -792,18 +823,25 @@ internal sealed class MonitorForm : Form
         }
     }
 
-    private bool IsConfiguredMotionEvent(JsonElement root)
+    private bool TryGetMotionCamera(JsonElement root, out string cameraName)
     {
+        cameraName = "";
         if (!root.TryGetProperty("type", out var type) || type.GetString() != "event" ||
             !root.TryGetProperty("event", out var eventElement) ||
             !eventElement.TryGetProperty("data", out var data) ||
             !data.TryGetProperty("entity_id", out var entity) ||
-            !string.Equals(entity.GetString(), settings.MotionEntityId.Trim(), StringComparison.OrdinalIgnoreCase) ||
             !data.TryGetProperty("new_state", out var newState) || newState.ValueKind == JsonValueKind.Null ||
             !newState.TryGetProperty("state", out var newValue) || newValue.GetString() != "on") return false;
 
-        if (!data.TryGetProperty("old_state", out var oldState) || oldState.ValueKind == JsonValueKind.Null) return true;
-        return !oldState.TryGetProperty("state", out var oldValue) || oldValue.GetString() != "on";
+        if (data.TryGetProperty("old_state", out var oldState) && oldState.ValueKind != JsonValueKind.Null &&
+            oldState.TryGetProperty("state", out var oldValue) && oldValue.GetString() == "on") return false;
+
+        var matchingCamera = settings.Cameras.FirstOrDefault(camera => camera.MotionEnabled &&
+            !string.IsNullOrWhiteSpace(camera.MotionEntityId) &&
+            string.Equals(camera.MotionEntityId.Trim(), entity.GetString(), StringComparison.OrdinalIgnoreCase));
+        if (matchingCamera is null) return false;
+        cameraName = matchingCamera.Name;
+        return true;
     }
 
     private async Task ListenForMotionAsync(CancellationToken cancellationToken)
@@ -818,8 +856,9 @@ internal sealed class MonitorForm : Form
                 var requestLine = await reader.ReadLineAsync(cancellationToken) ?? "";
                 var parts = requestLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var camera = parts.Length >= 2 ? ReadCameraParameter(parts[1]) : null;
-                var accepted = string.Equals(camera, "Einfahrt", StringComparison.OrdinalIgnoreCase);
-                if (accepted && !closing) BeginInvoke(new Action(() => HandleMotion("Einfahrt")));
+                var matchingCamera = settings.Cameras.FirstOrDefault(item => item.MotionEnabled && string.Equals(camera, item.Name, StringComparison.OrdinalIgnoreCase));
+                var accepted = matchingCamera is not null;
+                if (accepted && !closing) BeginInvoke(new Action(() => HandleMotion(matchingCamera!.Name)));
                 var response = accepted ? "HTTP/1.1 204 No Content\r\nConnection: close\r\n\r\n" : "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
                 await stream.WriteAsync(Encoding.ASCII.GetBytes(response), cancellationToken);
             }
@@ -849,7 +888,7 @@ internal sealed class MonitorForm : Form
         ShowMotionIndicator();
         if (settings.AlwaysOnTop) return;
         var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
-        if (cameraIndex < 0) { toolbar?.Flash("Einfahrt fehlt"); return; }
+        if (cameraIndex < 0) { toolbar?.Flash($"{cameraName} fehlt"); return; }
         if (!motionRestoreTimer.Enabled) previousForegroundWindow = NativeMethods.GetForegroundWindow();
         if (settings.SelectedCamera != cameraIndex)
         {
@@ -1171,7 +1210,7 @@ internal sealed class SettingsForm : Form
     private readonly TextBox homeAssistantUrl = new() { Width = 300 };
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
     private readonly TextBox motionEntityId = new() { Width = 300 };
-    private readonly TextBox motionCameraName = new() { Width = 180 };
+    private readonly Label selectedMotionCamera = new() { AutoSize = true, Text = "Keine Kamera ausgewählt", Anchor = AnchorStyles.Left };
     private readonly CheckBox ignoreHomeAssistantCertificateErrors = new() { Text = "Ungültiges HA-Zertifikat erlauben (nur lokales Netzwerk)", AutoSize = true };
     private readonly Button testHomeAssistant = new() { Text = "Verbindung testen", AutoSize = true };
     private readonly Label homeAssistantStatus = new() { AutoSize = true, MaximumSize = new Size(600, 0), Margin = new Padding(10, 6, 3, 0) };
@@ -1193,8 +1232,16 @@ internal sealed class SettingsForm : Form
         MaximizeBox = false;
         ClientSize = new Size(760, 390);
 #endif
-        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "CameraName", HeaderText = "Name", FillWeight = 25 }); cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 75 });
-        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl); top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "CameraName", HeaderText = "Name", FillWeight = 24 });
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 64 });
+#if BETA
+        cameras.Columns.Add(new DataGridViewCheckBoxColumn { Name = "MotionEnabled", HeaderText = "Bewegung", FillWeight = 12 });
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionEntityId", Visible = false });
+        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl, camera.MotionEnabled, camera.MotionEntityId);
+#else
+        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl);
+#endif
+        top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
 #if BETA
         motionDetection.Checked = current.MotionDetectionEnabled;
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
@@ -1202,9 +1249,30 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.Checked = current.DirectHomeAssistantEnabled;
         homeAssistantUrl.Text = current.HomeAssistantUrl;
         homeAssistantToken.Text = current.HomeAssistantToken;
-        motionEntityId.Text = current.MotionEntityId;
-        motionCameraName.Text = current.MotionCameraName;
         ignoreHomeAssistantCertificateErrors.Checked = current.IgnoreHomeAssistantCertificateErrors;
+        var selectedCameraRow = -1;
+        void StoreSelectedCameraMotion()
+        {
+            if (selectedCameraRow >= 0 && selectedCameraRow < cameras.Rows.Count && !cameras.Rows[selectedCameraRow].IsNewRow)
+                cameras.Rows[selectedCameraRow].Cells[3].Value = motionEntityId.Text.Trim();
+        }
+        void LoadSelectedCameraMotion()
+        {
+            StoreSelectedCameraMotion();
+            selectedCameraRow = cameras.CurrentRow?.Index ?? -1;
+            if (selectedCameraRow < 0 || selectedCameraRow >= cameras.Rows.Count || cameras.Rows[selectedCameraRow].IsNewRow)
+            {
+                selectedMotionCamera.Text = "Keine Kamera ausgewählt";
+                motionEntityId.Text = "";
+                return;
+            }
+            selectedMotionCamera.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[0].Value)?.Trim() is { Length: > 0 } name ? name : "Neue Kamera";
+            motionEntityId.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[3].Value)?.Trim() ?? "";
+        }
+        cameras.SelectionChanged += (_, _) => LoadSelectedCameraMotion();
+        cameras.CurrentCellDirtyStateChanged += (_, _) => { if (cameras.IsCurrentCellDirty) cameras.CommitEdit(DataGridViewDataErrorContexts.Commit); };
+        if (cameras.Rows.Count > 0) { cameras.Rows[0].Selected = true; cameras.CurrentCell = cameras.Rows[0].Cells[0]; }
+        LoadSelectedCameraMotion();
         void UpdateMotionOptions()
         {
             var enabled = motionDetection.Checked && !top.Checked;
@@ -1215,7 +1283,6 @@ internal sealed class SettingsForm : Form
             homeAssistantUrl.Enabled = directEnabled;
             homeAssistantToken.Enabled = directEnabled;
             motionEntityId.Enabled = directEnabled;
-            motionCameraName.Enabled = directEnabled;
             ignoreHomeAssistantCertificateErrors.Enabled = directEnabled;
             testHomeAssistant.Enabled = directEnabled;
         }
@@ -1233,7 +1300,11 @@ internal sealed class SettingsForm : Form
         table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 #endif
         table.Controls.Add(cameras, 0, 0);
+#if BETA
+        table.Controls.Add(new Label { Text = "Kamera anklicken, Bewegungs-Entität unten eintragen und die Spalte Bewegung aktivieren.", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
+#else
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
+#endif
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart);
 #if BETA
         options.Controls.Add(motionDetection);
@@ -1256,8 +1327,8 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(homeAssistantToken, 1, 2);
         homeAssistantFields.Controls.Add(new Label { Text = "Bewegungs-Entität:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 3);
         homeAssistantFields.Controls.Add(motionEntityId, 1, 3);
-        homeAssistantFields.Controls.Add(new Label { Text = "Kameraname:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
-        homeAssistantFields.Controls.Add(motionCameraName, 1, 4);
+        homeAssistantFields.Controls.Add(new Label { Text = "Ausgewählte Kamera:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
+        homeAssistantFields.Controls.Add(selectedMotionCamera, 1, 4);
         homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 5);
         homeAssistantFields.SetColumnSpan(ignoreHomeAssistantCertificateErrors, 2);
         var testRow = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
@@ -1307,6 +1378,9 @@ internal sealed class SettingsForm : Form
 #endif
         ok.Click += (_, _) =>
         {
+#if BETA
+            StoreSelectedCameraMotion();
+#endif
             var entries = ReadCameras();
             if (entries.Count == 0 || entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _)))
             {
@@ -1318,10 +1392,9 @@ internal sealed class SettingsForm : Form
                 (!Uri.TryCreate(homeAssistantUrl.Text.Trim(), UriKind.Absolute, out var haUri) ||
                  (haUri.Scheme != Uri.UriSchemeHttp && haUri.Scheme != Uri.UriSchemeHttps) ||
                  string.IsNullOrWhiteSpace(homeAssistantToken.Text) ||
-                 string.IsNullOrWhiteSpace(motionEntityId.Text) ||
-                 string.IsNullOrWhiteSpace(motionCameraName.Text)))
+                 !entries.Any(camera => camera.MotionEnabled && !string.IsNullOrWhiteSpace(camera.MotionEntityId))))
             {
-                MessageBox.Show(this, "Bitte HA-Adresse, Langzeit-Token, Bewegungs-Entität und Kameraname vollständig eintragen.", "Home Assistant unvollständig", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Bitte HA-Adresse und Langzeit-Token eintragen sowie für mindestens eine aktivierte Kamera eine Bewegungs-Entität hinterlegen.", "Home Assistant unvollständig", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 DialogResult = DialogResult.None; return;
             }
 #endif
@@ -1337,15 +1410,28 @@ internal sealed class SettingsForm : Form
                 DirectHomeAssistantEnabled = directHomeAssistant.Checked,
                 HomeAssistantUrl = homeAssistantUrl.Text.Trim(),
                 HomeAssistantToken = homeAssistantToken.Text.Trim(),
-                MotionEntityId = motionEntityId.Text.Trim(),
-                MotionCameraName = motionCameraName.Text.Trim(),
-                IgnoreHomeAssistantCertificateErrors = ignoreHomeAssistantCertificateErrors.Checked
+                IgnoreHomeAssistantCertificateErrors = ignoreHomeAssistantCertificateErrors.Checked,
+                PerCameraMotionConfigured = true
 #endif
             };
         };
     }
     private List<CameraEntry> ReadCameras()
     {
-        var result = new List<CameraEntry>(); foreach (DataGridViewRow row in cameras.Rows) { if (row.IsNewRow) continue; var name = Convert.ToString(row.Cells[0].Value)?.Trim() ?? ""; var url = Convert.ToString(row.Cells[1].Value)?.Trim() ?? ""; if (name.Length > 0 || url.Length > 0) result.Add(new CameraEntry { Name = name, StreamUrl = url }); } return result;
+        var result = new List<CameraEntry>();
+        foreach (DataGridViewRow row in cameras.Rows)
+        {
+            if (row.IsNewRow) continue;
+            var name = Convert.ToString(row.Cells[0].Value)?.Trim() ?? "";
+            var url = Convert.ToString(row.Cells[1].Value)?.Trim() ?? "";
+            if (name.Length == 0 && url.Length == 0) continue;
+            var entry = new CameraEntry { Name = name, StreamUrl = url };
+#if BETA
+            entry.MotionEnabled = Convert.ToBoolean(row.Cells[2].Value ?? false);
+            entry.MotionEntityId = Convert.ToString(row.Cells[3].Value)?.Trim() ?? "";
+#endif
+            result.Add(entry);
+        }
+        return result;
     }
 }
