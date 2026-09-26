@@ -1689,8 +1689,11 @@ internal sealed class ToolbarForm : Form
 #else
         ClientSize = new Size(256, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
 #endif
-        var previous = Item("‹", 0, (_, _) => monitor.SelectRelativeCamera(-1));
-        name = Item("Kamera", 32, null, 64); var next = Item("›", 96, (_, _) => monitor.SelectRelativeCamera(1));
+        var previous = Item("", 0, (_, _) => monitor.SelectRelativeCamera(-1));
+        previous.Paint += (_, eventArgs) => DrawChevronIcon(eventArgs.Graphics, previous.ClientRectangle, false);
+        name = Item("Kamera", 32, null, 64);
+        var next = Item("", 96, (_, _) => monitor.SelectRelativeCamera(1));
+        next.Paint += (_, eventArgs) => DrawChevronIcon(eventArgs.Graphics, next.ClientRectangle, true);
 #if BETA
         grid = Item("", 128, (_, _) => monitor.ToggleGridView());
         grid.Paint += (_, eventArgs) => DrawGridIcon(eventArgs.Graphics, grid.ClientRectangle);
@@ -1756,6 +1759,28 @@ internal sealed class ToolbarForm : Form
     {
         var item = new Label { Text = text, Left = x, Top = 0, Width = width, Height = 34, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 9 : 12), Cursor = Cursors.Hand };
         if (click is not null) item.Click += click; return item;
+    }
+    private static void DrawChevronIcon(Graphics graphics, Rectangle bounds, bool pointsRight)
+    {
+        var state = graphics.Save();
+        graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+        using var pen = new Pen(Color.White, 1.7f)
+        {
+            StartCap = System.Drawing.Drawing2D.LineCap.Round,
+            EndCap = System.Drawing.Drawing2D.LineCap.Round,
+            LineJoin = System.Drawing.Drawing2D.LineJoin.Round
+        };
+        var centerX = bounds.Left + bounds.Width / 2f;
+        var centerY = bounds.Top + bounds.Height / 2f;
+        var direction = pointsRight ? 1f : -1f;
+        graphics.DrawLines(pen,
+        [
+            new PointF(centerX - direction * 3f, centerY - 6f),
+            new PointF(centerX + direction * 3f, centerY),
+            new PointF(centerX - direction * 3f, centerY + 6f)
+        ]);
+        graphics.Restore(state);
     }
     public async void Flash(string text)
     {
