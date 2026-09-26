@@ -631,21 +631,10 @@ internal sealed class MonitorForm : Form
         ApplyRoundedCorners(); PositionOverlays();
     }
 
-    internal void HandleSurfaceDoubleClick(Point screenPoint)
+    internal void HandleSurfaceDoubleClick(Point _)
     {
 #if BETA
         RegisterUserInteraction();
-        if (gridMode)
-        {
-            var point = cameraGrid.PointToClient(screenPoint);
-            if (!cameraGrid.ClientRectangle.Contains(point)) return;
-            var column = point.X < cameraGrid.ClientSize.Width / 2 ? 0 : 1;
-            var row = point.Y < cameraGrid.ClientSize.Height / 2 ? 0 : 1;
-            var slotIndex = row * 2 + column;
-            if (slotIndex >= 0 && slotIndex < gridSlots.Count && gridSlots[slotIndex].CameraIndex >= 0)
-                ExitGridView(gridSlots[slotIndex].CameraIndex);
-            return;
-        }
 #endif
         ToggleFullscreen();
     }
@@ -713,6 +702,12 @@ internal sealed class MonitorForm : Form
     {
         StopGridPlayers();
         gridMode = false;
+        if (fullscreen)
+        {
+            fullscreen = false;
+            Bounds = windowedBounds;
+            ApplyRoundedCorners();
+        }
         if (cameraIndex.HasValue)
         {
             settings.SelectedCamera = cameraIndex.Value;
@@ -743,11 +738,13 @@ internal sealed class MonitorForm : Form
             var slot = gridSlots[index];
             slot.CameraIndex = -1;
             slot.Name.Text = "";
+            slot.Name.Visible = false;
             if (index >= cameras.Count) continue;
 
             var camera = cameras[index];
             slot.CameraIndex = camera.Index;
             slot.Name.Text = camera.Camera.Name;
+            slot.Name.Visible = true;
             slot.Host.CreateControl();
             var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
             {
