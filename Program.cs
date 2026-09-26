@@ -32,6 +32,7 @@ internal sealed class Settings
     public bool MotionDetectionEnabled { get; set; } = true;
     public int MotionForegroundSeconds { get; set; } = 10;
     public bool MinimizeWhenInactive { get; set; }
+    public bool RestorePreviousCameraAfterMotion { get; set; } = true;
     public bool DirectHomeAssistantEnabled { get; set; }
     public string HomeAssistantUrl { get; set; } = "http://192.168.9.8:8123";
     public string HomeAssistantToken { get; set; } = "";
@@ -142,6 +143,7 @@ internal sealed class MonitorForm : Form
     private bool recording;
     private string? recordingPath;
     private Process? recordingPlayer;
+    private int? cameraBeforeMotion;
     private bool gridMode;
     private bool intentionalGridStop;
     private bool wasMinimized;
@@ -879,6 +881,7 @@ internal sealed class MonitorForm : Form
     {
         if (!motionRestoreTimer.Enabled) return;
         motionRestoreTimer.Stop();
+        cameraBeforeMotion = null;
         previousForegroundWindow = IntPtr.Zero;
         TopMost = settings.AlwaysOnTop;
         PositionOverlays();
@@ -888,6 +891,7 @@ internal sealed class MonitorForm : Form
     {
         settings.AlwaysOnTop = enabled;
         motionRestoreTimer.Stop();
+        cameraBeforeMotion = null;
         sentToBackground = false;
         TopMost = enabled;
         SettingsStore.Save(settings);
@@ -898,6 +902,7 @@ internal sealed class MonitorForm : Form
     {
         settings.MotionDetectionEnabled = enabled;
         motionRestoreTimer.Stop();
+        cameraBeforeMotion = null;
         previousForegroundWindow = IntPtr.Zero;
         SettingsStore.Save(settings);
         RestartMotionIntegration();
@@ -1314,12 +1319,16 @@ internal sealed class MonitorForm : Form
         if (!motionRestoreTimer.Enabled) previousForegroundWindow = NativeMethods.GetForegroundWindow();
         if (gridMode)
         {
+            cameraBeforeMotion = null;
             motionRestoreTimer.Stop();
             motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
             ForceToForeground();
             motionRestoreTimer.Start();
             return;
         }
+        if (settings.RestorePreviousCameraAfterMotion && cameraBeforeMotion is null && settings.SelectedCamera != cameraIndex)
+            cameraBeforeMotion = settings.SelectedCamera;
+        if (!settings.RestorePreviousCameraAfterMotion) cameraBeforeMotion = null;
         if (settings.SelectedCamera != cameraIndex)
         {
             settings.SelectedCamera = cameraIndex; SettingsStore.Save(settings); UpdateToolbar(); RestartPlayer();
@@ -1371,8 +1380,21 @@ internal sealed class MonitorForm : Form
             motionRestoreTimer.Start();
             return;
         }
+        RestoreCameraAfterMotion();
         if (settings.MinimizeWhenInactive) MinimizeAfterMotion();
         else SendToBackground();
+    }
+
+    private void RestoreCameraAfterMotion()
+    {
+        var cameraIndex = cameraBeforeMotion;
+        cameraBeforeMotion = null;
+        if (!settings.RestorePreviousCameraAfterMotion || gridMode || cameraIndex is null ||
+            cameraIndex < 0 || cameraIndex >= settings.Cameras.Count || settings.SelectedCamera == cameraIndex) return;
+        settings.SelectedCamera = cameraIndex.Value;
+        SettingsStore.Save(settings);
+        UpdateToolbar();
+        RestartPlayer();
     }
 
     private void MinimizeAfterMotion()
@@ -1799,6 +1821,7 @@ internal sealed class SettingsForm : Form
 #if BETA
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
+    private readonly CheckBox restorePreviousCamera = new() { Text = "Vorherige Kamera wiederherstellen", AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
     private readonly CheckBox directHomeAssistant = new() { Text = "Direkt mit Home Assistant verbinden (empfohlen)", AutoSize = true };
     private readonly TextBox homeAssistantUrl = new() { Width = 300 };
@@ -1849,6 +1872,7 @@ internal sealed class SettingsForm : Form
 #if BETA
         motionDetection.Checked = current.MotionDetectionEnabled;
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
+        restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
         directHomeAssistant.Checked = current.DirectHomeAssistantEnabled;
         homeAssistantUrl.Text = current.HomeAssistantUrl;
@@ -1882,6 +1906,7 @@ internal sealed class SettingsForm : Form
             var enabled = motionDetection.Checked && !top.Checked;
             motionSeconds.Enabled = enabled;
             minimizeWhenInactive.Enabled = enabled;
+            restorePreviousCamera.Enabled = enabled;
             directHomeAssistant.Enabled = motionDetection.Checked;
             var directEnabled = motionDetection.Checked && directHomeAssistant.Checked;
             homeAssistantUrl.Enabled = directEnabled;
@@ -1913,6 +1938,7 @@ internal sealed class SettingsForm : Form
 #if BETA
         options.Controls.Add(motionDetection);
         options.Controls.Add(minimizeWhenInactive);
+        options.Controls.Add(restorePreviousCamera);
         options.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
         options.Controls.Add(motionSeconds);
         options.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
@@ -2014,6 +2040,7 @@ internal sealed class SettingsForm : Form
                 MotionDetectionEnabled = motionDetection.Checked,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
                 MinimizeWhenInactive = minimizeWhenInactive.Checked,
+                RestorePreviousCameraAfterMotion = restorePreviousCamera.Checked,
                 DirectHomeAssistantEnabled = directHomeAssistant.Checked,
                 HomeAssistantUrl = homeAssistantUrl.Text.Trim(),
                 HomeAssistantToken = homeAssistantToken.Text.Trim(),

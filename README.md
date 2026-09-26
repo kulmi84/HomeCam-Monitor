@@ -96,13 +96,13 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.33`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.34`. Die stabile Ausgabe bleibt getrennt.
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird das Fenster je nach Option in den Hintergrund geschickt oder minimiert.
 
 Das Einblenden bei Bewegung erfolgt ohne Aktivierung des Kamerafensters. Der Tastaturfokus bleibt daher beispielsweise beim Schreiben in Word oder Outlook erhalten.
 
-Bei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unverändert. Bei ausgeschalteter Bewegungserkennung werden Meldungen von Home Assistant ignoriert.
+Mit der standardmäßig aktivierten Einstellung **Vorherige Kamera wiederherstellen** merkt sich HomeCam Monitor die Kamera, die vor der ersten Bewegung ausgewählt war. Nach Ablauf der Vordergrunddauer wird diese Kamera wieder geöffnet. Beispiel: Ist **Einfahrt** ausgewählt und **Garten** meldet Bewegung, wird vorübergehend Garten angezeigt und anschließend wieder auf Einfahrt gewechselt. Weitere Bewegungen während dieser Zeit überschreiben die gemerkte Ausgangskamera nicht. Eine manuelle Bedienung bricht das automatische Zurückschalten ab.\n\nBei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unverändert. Bei ausgeschalteter Bewegungserkennung werden Meldungen von Home Assistant ignoriert.
 
 Eine erkannte Bewegung wird oben rechts im Kamerabild für genau eine Sekunde durch ein kleines laufendes Männchen mit transparentem Hintergrund angezeigt. Das schwarz-weiß konturierte Symbol bleibt auf hellen und dunklen Bildbereichen sichtbar. Bei jeder neuen Bewegung wird die einsekündige Anzeige erneut ausgelöst. Das Symbol erscheint auch bei aktivem **Immer im Vordergrund**, ohne dabei die ausgewählte Kamera zu wechseln.
 
