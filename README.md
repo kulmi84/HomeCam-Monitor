@@ -61,7 +61,7 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
   <img src="docs/screenshots/homecam-controls.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
 </p>
 
-Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet; Größe und Klickflächen der Leiste bleiben unverändert. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt.
+Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet; Größe und Klickflächen der Leiste bleiben unverändert. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt. Text und Symbole sind optisch mittig in der Leiste ausgerichtet.
 
 | Bedienung | Funktion |
 |---|---|
@@ -96,7 +96,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.37`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.38`. Die stabile Ausgabe bleibt getrennt.
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird das Fenster je nach Option in den Hintergrund geschickt oder minimiert.
 
