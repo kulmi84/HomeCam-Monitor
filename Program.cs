@@ -1773,7 +1773,7 @@ internal sealed class ToolbarForm : Form
 #endif
     private static Label Item(string text, int x, EventHandler? click, int width = 32)
     {
-        var item = new Label { Text = text, Left = x, Top = 0, Width = width, Height = 34, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 9 : 12), Cursor = Cursors.Hand };
+        var item = new Label { Text = text, Left = x, Top = 0, Width = width, Height = 34, Padding = new Padding(0, 4, 0, 0), TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 9 : 12), Cursor = Cursors.Hand };
         if (click is not null) item.Click += click; return item;
     }
     private static void DrawChevronIcon(Graphics graphics, Rectangle bounds, bool pointsRight)
@@ -1788,7 +1788,7 @@ internal sealed class ToolbarForm : Form
             LineJoin = System.Drawing.Drawing2D.LineJoin.Round
         };
         var centerX = bounds.Left + bounds.Width / 2f;
-        var centerY = bounds.Top + bounds.Height / 2f;
+        var centerY = bounds.Top + bounds.Height / 2f + 2f;
         var direction = pointsRight ? 1f : -1f;
         graphics.DrawLines(pen,
         [
@@ -1809,7 +1809,7 @@ internal sealed class ToolbarForm : Form
         using var pen = new Pen(Color.White, 1.35f);
         const int size = 5, gap = 3;
         var left = (bounds.Width - size * 2 - gap) / 2;
-        var top = (bounds.Height - size * 2 - gap) / 2;
+        var top = (bounds.Height - size * 2 - gap) / 2 + 2;
         graphics.DrawRectangle(pen, left, top, size, size);
         graphics.DrawRectangle(pen, left + size + gap, top, size, size);
         graphics.DrawRectangle(pen, left, top + size + gap, size, size);

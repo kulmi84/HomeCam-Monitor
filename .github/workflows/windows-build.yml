@@ -35,7 +35,7 @@ jobs:
           Copy-Item $exe.FullName publish-beta/mpv.exe
       - name: Beta-Downloads erstellen
         shell: pwsh
-        run: .github/scripts/build-beta-downloads.ps1 -Version '0.2.0-beta.37'
+        run: .github/scripts/build-beta-downloads.ps1 -Version '0.2.0-beta.38'
       - name: Downloads mit Microsoft Defender prüfen
         shell: pwsh
         run: .github/scripts/scan-downloads.ps1
@@ -45,5 +45,5 @@ jobs:
           path: publish/
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-Beta-v0.2.0-beta.37-win-x64
+          name: HomeCamMonitor-Beta-v0.2.0-beta.38-win-x64
           path: beta-downloads/
