@@ -27,7 +27,7 @@ internal sealed class Settings
     public int Left { get; set; } = -1;
     public int Top { get; set; } = -1;
     public int Width { get; set; } = 480;
-    public int Height { get; set; } = 300;
+    public int Height { get; set; } = 270;
 #if BETA
     public bool MotionDetectionEnabled { get; set; } = true;
     public int MotionForegroundSeconds { get; set; } = 10;
@@ -176,7 +176,8 @@ internal sealed class MonitorForm : Form
         FormBorderStyle = FormBorderStyle.None;
         MinimumSize = new Size(240, 150);
         var initialWidth = Math.Max(240, settings.Width);
-        ClientSize = new Size(initialWidth, Math.Max(150, (int)Math.Round(initialWidth * 9d / 16d)));
+        var initialHeight = Math.Max(150, settings.Height);
+        ClientSize = new Size(initialWidth, initialHeight);
         if (settings.Left >= 0 && settings.Top >= 0) { StartPosition = FormStartPosition.Manual; Location = new Point(settings.Left, settings.Top); }
 #if BETA
         TopMost = settings.AlwaysOnTop;
@@ -567,6 +568,7 @@ internal sealed class MonitorForm : Form
             nativeMoveOrResize = false;
             PositionOverlays();
             lastCursorMovement = DateTime.UtcNow;
+            SaveWindow();
         }
     }
 
@@ -619,6 +621,7 @@ internal sealed class MonitorForm : Form
         nativeMoveOrResize = false;
         PositionOverlays();
         lastCursorMovement = DateTime.UtcNow;
+        SaveWindow();
     }
 
     internal void ToggleFullscreen()
@@ -1418,6 +1421,7 @@ internal sealed class MonitorForm : Form
             nativeMoveOrResize = false;
             PositionOverlays();
             lastCursorMovement = DateTime.UtcNow;
+            SaveWindow();
             return;
         }
         if (message.Msg != NativeMethods.WmNcHitTest || fullscreen || WindowState != FormWindowState.Normal) return;
