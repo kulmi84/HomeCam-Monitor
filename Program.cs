@@ -116,6 +116,16 @@ internal sealed class MonitorForm : Form
     private readonly string pipeName = $"HomeCamMonitor-{Environment.ProcessId}";
 #if BETA
     private readonly string recordingPipeName = $"HomeCamMonitor-Recording-{Environment.ProcessId}";
+    private readonly TableLayoutPanel cameraGrid = new()
+    {
+        Dock = DockStyle.Fill,
+        BackColor = Color.Black,
+        ColumnCount = 2,
+        RowCount = 2,
+        Padding = new Padding(1),
+        Visible = false
+    };
+    private readonly List<GridPlayerSlot> gridSlots = [];
 #endif
     private Settings settings;
     private ToolbarForm? toolbar;
@@ -132,6 +142,8 @@ internal sealed class MonitorForm : Form
     private bool recording;
     private string? recordingPath;
     private Process? recordingPlayer;
+    private bool gridMode;
+    private bool intentionalGridStop;
     private bool wasMinimized;
     private bool sentToBackground;
     private DateTime sentToBackgroundAt = DateTime.MinValue;
@@ -172,6 +184,10 @@ internal sealed class MonitorForm : Form
         TopMost = true;
 #endif
         Controls.Add(video);
+#if BETA
+        InitializeCameraGrid();
+        Controls.Add(cameraGrid);
+#endif
         Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
         Resize += (_, _) =>
@@ -197,7 +213,7 @@ internal sealed class MonitorForm : Form
 #if BETA
         Activated += (_, _) => RestoreFromBackground();
 #endif
-        video.DoubleClick += (_, _) => ToggleFullscreen();
+        video.MouseDoubleClick += (_, eventArgs) => HandleSurfaceDoubleClick(video.PointToScreen(eventArgs.Location));
         latencyTimer.Tick += (_, _) => RestartPlayer();
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
         controlsTimer.Tick += (_, _) => UpdateToolbarVisibility();
@@ -223,6 +239,12 @@ internal sealed class MonitorForm : Form
 #if BETA
         cameraContextMenu = CreateCameraContextMenu();
         video.ContextMenuStrip = cameraContextMenu;
+        cameraGrid.ContextMenuStrip = cameraContextMenu;
+        foreach (var slot in gridSlots)
+        {
+            slot.Host.ContextMenuStrip = cameraContextMenu;
+            slot.Name.ContextMenuStrip = cameraContextMenu;
+        }
         dragSurface.ContextMenuStrip = cameraContextMenu;
         toolbar.ContextMenuStrip = cameraContextMenu;
         foreach (var resizeGrip in resizeGrips) resizeGrip.ContextMenuStrip = cameraContextMenu;
@@ -242,6 +264,7 @@ internal sealed class MonitorForm : Form
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
         StopRecordingForClose();
+        StopGridPlayers();
         motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
@@ -249,6 +272,13 @@ internal sealed class MonitorForm : Form
 
     private void StartPlayer()
     {
+#if BETA
+        if (gridMode)
+        {
+            StartGridPlayers();
+            return;
+        }
+#endif
         if (closing || !HasUsableCamera() || player is { HasExited: false }) return;
         var camera = settings.Cameras[settings.SelectedCamera];
 #if BETA
@@ -298,6 +328,16 @@ internal sealed class MonitorForm : Form
     private void RestartPlayer()
     {
         if (closing) return;
+#if BETA
+        if (gridMode)
+        {
+            StopGridPlayers();
+            cameraGrid.Invalidate();
+            restartTimer.Stop();
+            restartTimer.Start();
+            return;
+        }
+#endif
         StopPlayer(); video.Invalidate(); restartTimer.Stop(); restartTimer.Start();
     }
 
@@ -305,6 +345,7 @@ internal sealed class MonitorForm : Form
     {
 #if BETA
         RegisterUserInteraction();
+        if (gridMode) { toolbar?.Flash("Kamera doppelt anklicken"); return; }
 #endif
         if (settings.Cameras.Count < 2) return;
         settings.SelectedCamera = (settings.SelectedCamera + direction + settings.Cameras.Count) % settings.Cameras.Count;
@@ -315,6 +356,7 @@ internal sealed class MonitorForm : Form
     {
 #if BETA
         RegisterUserInteraction();
+        if (gridMode) { toolbar?.Flash("Kamera doppelt anklicken"); return; }
 #endif
         string? path = null;
         try
@@ -356,6 +398,7 @@ internal sealed class MonitorForm : Form
     internal async Task ToggleRecordingAsync()
     {
         RegisterUserInteraction();
+        if (gridMode) { toolbar?.Flash("Kamera doppelt anklicken"); return; }
         try
         {
             if (recording)
@@ -588,6 +631,181 @@ internal sealed class MonitorForm : Form
         ApplyRoundedCorners(); PositionOverlays();
     }
 
+    internal void HandleSurfaceDoubleClick(Point screenPoint)
+    {
+#if BETA
+        RegisterUserInteraction();
+        if (gridMode)
+        {
+            var point = cameraGrid.PointToClient(screenPoint);
+            if (!cameraGrid.ClientRectangle.Contains(point)) return;
+            var column = point.X < cameraGrid.ClientSize.Width / 2 ? 0 : 1;
+            var row = point.Y < cameraGrid.ClientSize.Height / 2 ? 0 : 1;
+            var slotIndex = row * 2 + column;
+            if (slotIndex >= 0 && slotIndex < gridSlots.Count && gridSlots[slotIndex].CameraIndex >= 0)
+                ExitGridView(gridSlots[slotIndex].CameraIndex);
+            return;
+        }
+#endif
+        ToggleFullscreen();
+    }
+
+#if BETA
+    private void InitializeCameraGrid()
+    {
+        cameraGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        cameraGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        cameraGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+        cameraGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+
+        for (var index = 0; index < 4; index++)
+        {
+            var host = new Panel { Dock = DockStyle.Fill, Margin = new Padding(1), BackColor = Color.Black };
+            var name = new Label
+            {
+                AutoSize = true,
+                Text = "Kamera",
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(36, 36, 36),
+                Font = new Font("Segoe UI", 8.5f),
+                Padding = new Padding(5, 2, 5, 2),
+                Location = new Point(6, 6)
+            };
+            host.Controls.Add(name);
+            cameraGrid.Controls.Add(host, index % 2, index / 2);
+            gridSlots.Add(new GridPlayerSlot { Host = host, Name = name });
+        }
+    }
+
+    internal void ToggleGridView()
+    {
+        RegisterUserInteraction();
+        if (gridMode)
+        {
+            ExitGridView();
+            return;
+        }
+
+        if (settings.Cameras.Count(camera => Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _)) < 2)
+        {
+            toolbar?.Flash("Mindestens 2 Kameras");
+            return;
+        }
+
+        if (recording)
+        {
+            toolbar?.Flash("Aufnahme zuerst beenden");
+            return;
+        }
+
+        StopPlayer();
+        gridMode = true;
+        video.Hide();
+        cameraGrid.Show();
+        cameraGrid.BringToFront();
+        toolbar?.SetGridMode(true);
+        UpdateToolbar();
+        StartGridPlayers();
+        PositionOverlays();
+    }
+
+    private void ExitGridView(int? cameraIndex = null)
+    {
+        StopGridPlayers();
+        gridMode = false;
+        if (cameraIndex.HasValue)
+        {
+            settings.SelectedCamera = cameraIndex.Value;
+            SettingsStore.Save(settings);
+        }
+        cameraGrid.Hide();
+        video.Show();
+        video.BringToFront();
+        toolbar?.SetGridMode(false);
+        UpdateToolbar();
+        StartPlayer();
+        PositionOverlays();
+    }
+
+    private void StartGridPlayers()
+    {
+        if (closing || !gridMode) return;
+        StopGridPlayers();
+        var cameras = settings.Cameras
+            .Select((camera, index) => (Camera: camera, Index: index))
+            .Where(item => Uri.TryCreate(item.Camera.StreamUrl, UriKind.Absolute, out _))
+            .Take(4)
+            .ToList();
+
+        intentionalGridStop = false;
+        for (var index = 0; index < gridSlots.Count; index++)
+        {
+            var slot = gridSlots[index];
+            slot.CameraIndex = -1;
+            slot.Name.Text = "";
+            if (index >= cameras.Count) continue;
+
+            var camera = cameras[index];
+            slot.CameraIndex = camera.Index;
+            slot.Name.Text = camera.Camera.Name;
+            slot.Host.CreateControl();
+            var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+            foreach (var argument in new[]
+            {
+                $"--wid={slot.Host.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
+                "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
+                "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
+                "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no", "--keep-open=no",
+                camera.Camera.StreamUrl
+            }) start.ArgumentList.Add(argument);
+
+            try
+            {
+                slot.Player = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
+                slot.Player.EnableRaisingEvents = true;
+                slot.Player.Exited += GridPlayerExited;
+                slot.Name.BringToFront();
+            }
+            catch
+            {
+                slot.Player?.Dispose();
+                slot.Player = null;
+                slot.Name.Text = camera.Camera.Name + " – Stream nicht verfügbar";
+            }
+        }
+    }
+
+    private void StopGridPlayers()
+    {
+        intentionalGridStop = true;
+        foreach (var slot in gridSlots)
+        {
+            var current = slot.Player;
+            slot.Player = null;
+            if (current is null) continue;
+            try
+            {
+                current.Exited -= GridPlayerExited;
+                if (!current.HasExited) { current.Kill(true); current.WaitForExit(2000); }
+                current.Dispose();
+            }
+            catch { }
+        }
+        intentionalGridStop = false;
+    }
+
+    private void GridPlayerExited(object? sender, EventArgs eventArgs)
+    {
+        if (closing || intentionalGridStop || !gridMode) return;
+        try { BeginInvoke(new Action(() => { if (!closing && gridMode) { restartTimer.Stop(); restartTimer.Start(); } })); } catch { }
+    }
+#endif
+
 #if BETA
     private ContextMenuStrip CreateCameraContextMenu()
     {
@@ -755,7 +973,14 @@ internal sealed class MonitorForm : Form
         adjustingAspectRatio = false;
     }
 
-    private void UpdateToolbar() { if (toolbar is not null && HasUsableCamera()) toolbar.CameraName = settings.Cameras[settings.SelectedCamera].Name; }
+    private void UpdateToolbar()
+    {
+        if (toolbar is null) return;
+#if BETA
+        if (gridMode) { toolbar.CameraName = "4 Kameras"; return; }
+#endif
+        if (HasUsableCamera()) toolbar.CameraName = settings.Cameras[settings.SelectedCamera].Name;
+    }
     private void UpdateToolbarVisibility()
     {
 #if BETA
@@ -1087,6 +1312,14 @@ internal sealed class MonitorForm : Form
         var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (cameraIndex < 0) { toolbar?.Flash($"{cameraName} fehlt"); return; }
         if (!motionRestoreTimer.Enabled) previousForegroundWindow = NativeMethods.GetForegroundWindow();
+        if (gridMode)
+        {
+            motionRestoreTimer.Stop();
+            motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
+            ForceToForeground();
+            motionRestoreTimer.Start();
+            return;
+        }
         if (settings.SelectedCamera != cameraIndex)
         {
             settings.SelectedCamera = cameraIndex; SettingsStore.Save(settings); UpdateToolbar(); RestartPlayer();
@@ -1197,6 +1430,16 @@ internal sealed class MonitorForm : Form
         else if (left) message.Result = (IntPtr)NativeMethods.HtLeft; else if (right) message.Result = (IntPtr)NativeMethods.HtRight;
         else if (top) message.Result = (IntPtr)NativeMethods.HtTop; else if (bottom) message.Result = (IntPtr)NativeMethods.HtBottom;
     }
+
+#if BETA
+    private sealed class GridPlayerSlot
+    {
+        public required Panel Host { get; init; }
+        public required Label Name { get; init; }
+        public int CameraIndex { get; set; } = -1;
+        public Process? Player { get; set; }
+    }
+#endif
 }
 
 #if BETA
@@ -1348,7 +1591,7 @@ internal sealed class DragSurfaceForm : Form
             monitor.BeginMove();
         };
         MouseUp += (_, _) => dragPending = false;
-        DoubleClick += (_, _) => monitor.ToggleFullscreen();
+        MouseDoubleClick += (_, eventArgs) => monitor.HandleSurfaceDoubleClick(PointToScreen(eventArgs.Location));
     }
 }
 
@@ -1397,6 +1640,7 @@ internal sealed class ToolbarForm : Form
 {
     private readonly Label name;
 #if BETA
+    private readonly Label grid;
     private readonly Label recording;
 #endif
     private readonly Label note;
@@ -1413,26 +1657,30 @@ internal sealed class ToolbarForm : Form
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; BackColor = Color.FromArgb(20, 20, 20); Opacity = 0.78;
 #if BETA
-        ClientSize = new Size(288, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
+        ClientSize = new Size(320, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
 #else
         ClientSize = new Size(256, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
 #endif
         var previous = Item("‹", 0, (_, _) => monitor.SelectRelativeCamera(-1));
         name = Item("Kamera", 32, null, 64); var next = Item("›", 96, (_, _) => monitor.SelectRelativeCamera(1));
-        var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
-        snapshot.Font = new Font("Segoe MDL2 Assets", 12);
 #if BETA
-        recording = Item("●", 160, async (_, _) => await monitor.ToggleRecordingAsync());
+        grid = Item("", 128, (_, _) => monitor.ToggleGridView());
+        grid.Paint += (_, eventArgs) => DrawGridIcon(eventArgs.Graphics, grid.ClientRectangle);
+        var snapshot = Item("\uEB9F", 160, async (_, _) => await monitor.SaveSnapshotAsync());
+        snapshot.Font = new Font("Segoe MDL2 Assets", 12);
+        recording = Item("●", 192, async (_, _) => await monitor.ToggleRecordingAsync());
         recording.Font = new Font("Segoe UI Symbol", 9);
         recording.ForeColor = Color.White;
-        var settings = Item("\uE713", 192, (_, _) => monitor.OpenSettings());
+        var settings = Item("\uE713", 224, (_, _) => monitor.OpenSettings());
 #else
+        var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
+        snapshot.Font = new Font("Segoe MDL2 Assets", 12);
         var settings = Item("\uE713", 160, (_, _) => monitor.OpenSettings());
 #endif
         settings.Font = new Font("Segoe MDL2 Assets", 12);
 #if BETA
-        var lastAction = Item("\uE921", 224, (_, _) => monitor.MinimizeWindow());
-        var close = Item("\uE8BB", 256, (_, _) => monitor.Close());
+        var lastAction = Item("\uE921", 256, (_, _) => monitor.MinimizeWindow());
+        var close = Item("\uE8BB", 288, (_, _) => monitor.Close());
 #else
         var lastAction = Item("⛶", 192, (_, _) => monitor.ToggleFullscreen());
         var close = Item("\uE8BB", 224, (_, _) => monitor.Close());
@@ -1444,7 +1692,7 @@ internal sealed class ToolbarForm : Form
 #endif
         close.Font = new Font("Segoe MDL2 Assets", 9);
 #if BETA
-        foreach (var icon in new[] { snapshot, recording, settings, lastAction, close })
+        foreach (var icon in new[] { grid, snapshot, recording, settings, lastAction, close })
 #else
         foreach (var icon in new[] { snapshot, settings, lastAction, close })
 #endif
@@ -1454,7 +1702,7 @@ internal sealed class ToolbarForm : Form
             icon.TextAlign = ContentAlignment.MiddleCenter;
         }
 #if BETA
-        Controls.AddRange([previous, name, next, snapshot, recording, settings, lastAction, close]);
+        Controls.AddRange([previous, name, next, grid, snapshot, recording, settings, lastAction, close]);
 #else
         Controls.AddRange([previous, name, next, snapshot, settings, lastAction, close]);
 #endif
@@ -1463,6 +1711,7 @@ internal sealed class ToolbarForm : Form
         toolTips.SetToolTip(next, "Nächste Kamera");
         toolTips.SetToolTip(snapshot, "Snapshot speichern");
 #if BETA
+        toolTips.SetToolTip(grid, "4-Kamera-Raster");
         toolTips.SetToolTip(recording, "Aufnahme starten");
 #endif
         toolTips.SetToolTip(settings, "Einstellungen öffnen");
@@ -1485,6 +1734,26 @@ internal sealed class ToolbarForm : Form
         note.Text = text; note.Left = (Width - note.PreferredWidth) / 2; note.Top = 0; note.Visible = true; await Task.Delay(1600); if (!IsDisposed) note.Visible = false;
     }
 #if BETA
+    private static void DrawGridIcon(Graphics graphics, Rectangle bounds)
+    {
+        graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        using var pen = new Pen(Color.White, 1.35f);
+        const int size = 5, gap = 3;
+        var left = (bounds.Width - size * 2 - gap) / 2;
+        var top = (bounds.Height - size * 2 - gap) / 2;
+        graphics.DrawRectangle(pen, left, top, size, size);
+        graphics.DrawRectangle(pen, left + size + gap, top, size, size);
+        graphics.DrawRectangle(pen, left, top + size + gap, size, size);
+        graphics.DrawRectangle(pen, left + size + gap, top + size + gap, size, size);
+    }
+
+    public void SetGridMode(bool active)
+    {
+        grid.BackColor = active ? Color.FromArgb(62, 62, 68) : Color.FromArgb(20, 20, 20);
+        toolTips.SetToolTip(grid, active ? "Einzelansicht" : "4-Kamera-Raster");
+        grid.Invalidate();
+    }
+
     public void SetRecording(bool active)
     {
         recording.Text = "●";
@@ -1542,7 +1811,7 @@ internal sealed class SettingsForm : Form
     public Settings Result { get; private set; }
     public SettingsForm(Settings current)
     {
-        Result = current; Text = "HomeCamMonitor for Homeassistant – Einstellungen"; StartPosition = FormStartPosition.CenterParent; MinimizeBox = false;
+        Result = current; Text = "HomeCam Monitor – Einstellungen"; StartPosition = FormStartPosition.CenterParent; MinimizeBox = false;
 #if BETA
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;

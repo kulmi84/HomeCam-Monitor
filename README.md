@@ -68,6 +68,7 @@ Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Z
 | Kante oder Ecke ziehen | Fenstergröße ändern |
 | Doppelklick ins Bild | Vollbild ein/aus |
 | `‹` / `›` | vorherige/nächste Kamera |
+| Rastersymbol (Beta) | 2×2-Ansicht mit bis zu vier Kameras ein-/ausschalten |
 | Bildsymbol | Snapshot speichern |
 | Weißer/roter Aufnahmepunkt (Beta) | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
 | Zahnrad | Einstellungen öffnen |
@@ -76,6 +77,8 @@ Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Z
 | `×` | Anwendung beenden |
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
+
+Im **4-Kamera-Raster** zeigt die Beta die ersten vier gültig eingerichteten Kameras gleichzeitig. Ein Doppelklick auf ein Teilbild öffnet diese Kamera in der Einzelansicht. Snapshot und Aufnahme werden anschließend wie gewohnt für diese Einzelkamera verwendet. Ein erneuter Klick auf das Rastersymbol wechselt ebenfalls zurück zur Einzelansicht.
 
 Videoaufnahmen der Beta werden als MKV-Dateien unter `%USERPROFILE%\Videos\HomeCam Monitor` gespeichert. Der kleine Aufnahmepunkt ist im Ruhezustand weiß und leuchtet während der Aufnahme rot. Ein erneuter Klick beendet und speichert die Aufnahme. Die Aufnahme nutzt einen eigenen mpv-Prozess, damit der für geringe Verzögerung deaktivierte Cache des Livebilds keine leeren Dateien mehr erzeugt.
 
@@ -92,7 +95,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.30`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.31`. Die stabile Ausgabe bleibt getrennt.
 
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird das Fenster je nach Option in den Hintergrund geschickt oder minimiert.
 
