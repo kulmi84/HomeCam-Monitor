@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls-anonymized.png" alt="HomeCamMonitor mit Bedienleiste und anonymisiertem Kamerabild" width="390">
+  <img src="docs/screenshots/homecam-controls.png" alt="HomeCamMonitor mit Bedienleiste" width="390">
 </p>
 
 HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
@@ -57,7 +57,7 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
 ## Bedienung
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls-anonymized.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
 </p>
 
 Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder.
