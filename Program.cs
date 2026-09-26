@@ -156,9 +156,9 @@ internal sealed class MonitorForm : Form
     {
         settings = SettingsStore.Load();
 #if BETA
-        Text = "HomeCam Monitor Beta";
+        Text = "HomeCamMonitor for Homeassistant Beta";
 #else
-        Text = "HomeCam Monitor";
+        Text = "HomeCamMonitor for Homeassistant";
 #endif
         BackColor = Color.Black;
         FormBorderStyle = FormBorderStyle.None;
@@ -252,9 +252,9 @@ internal sealed class MonitorForm : Form
         if (closing || !HasUsableCamera() || player is { HasExited: false }) return;
         var camera = settings.Cameras[settings.SelectedCamera];
 #if BETA
-        Text = $"HomeCam Monitor Beta – {camera.Name}";
+        Text = $"HomeCamMonitor for Homeassistant Beta – {camera.Name}";
 #else
-        Text = $"HomeCam Monitor – {camera.Name}";
+        Text = $"HomeCamMonitor for Homeassistant – {camera.Name}";
 #endif
         intentionalStop = false;
         var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe")) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
@@ -1542,7 +1542,7 @@ internal sealed class SettingsForm : Form
     public Settings Result { get; private set; }
     public SettingsForm(Settings current)
     {
-        Result = current; Text = "HomeCam Monitor – Einstellungen"; StartPosition = FormStartPosition.CenterParent; MinimizeBox = false;
+        Result = current; Text = "HomeCamMonitor for Homeassistant – Einstellungen"; StartPosition = FormStartPosition.CenterParent; MinimizeBox = false;
 #if BETA
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;

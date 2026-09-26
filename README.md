@@ -1,4 +1,4 @@
-# HomeCam Monitor
+# HomeCamMonitor for Homeassistant
 
 <p align="center">
   <img src="assets/homecam-monitor-logo.png" alt="HomeCam Monitor Logo" width="128">
@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-monitor-v0.1.1.png" alt="HomeCam Monitor v0.1.1 mit Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls-anonymized.png" alt="HomeCamMonitor mit Bedienleiste und anonymisiertem Kamerabild" width="390">
 </p>
 
-HomeCam Monitor verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
+HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
 
 ## Funktionen
 
@@ -57,7 +57,7 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
 ## Bedienung
 
 <p align="center">
-  <img src="docs/screenshots/homecam-monitor-v0.1.1.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls-anonymized.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
 </p>
 
 Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder.
@@ -69,9 +69,10 @@ Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Z
 | Doppelklick ins Bild | Vollbild ein/aus |
 | `‹` / `›` | vorherige/nächste Kamera |
 | Bildsymbol | Snapshot speichern |
-| Videosymbol (Beta) | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
+| Weißer/roter Aufnahmepunkt (Beta) | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
 | Zahnrad | Einstellungen öffnen |
-| Vollbildsymbol | Vollbild ein/aus |
+| Rechtsklick ins Bild (Beta) | Dunkles Kontextmenü mit „Immer im Vordergrund“, „Bewegungserkennung aktiv“ und Vordergrunddauer |
+| `—` (Beta) | Fenster minimieren |
 | `×` | Anwendung beenden |
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
@@ -91,11 +92,9 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Empfohlener Beta-Stand:** `0.2.0-beta.14` – getesteter, als gut bekannter Stand.
+> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.30`. Die stabile Ausgabe bleibt getrennt.
 
-> **Neue Testversion:** `0.2.0-beta.30` – keine automatische Minimierung oder Hintergrundschaltung bei geöffneten Einstellungen.
-
-Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird HomeCam Monitor automatisch vollständig in den Hintergrund geschickt.
+Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird das Fenster je nach Option in den Hintergrund geschickt oder minimiert.
 
 Das Einblenden bei Bewegung erfolgt ohne Aktivierung des Kamerafensters. Der Tastaturfokus bleibt daher beispielsweise beim Schreiben in Word oder Outlook erhalten.
 
@@ -103,7 +102,7 @@ Bei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unve
 
 Eine erkannte Bewegung wird oben rechts im Kamerabild für genau eine Sekunde durch ein kleines laufendes Männchen mit transparentem Hintergrund angezeigt. Das schwarz-weiß konturierte Symbol bleibt auf hellen und dunklen Bildbereichen sichtbar. Bei jeder neuen Bewegung wird die einsekündige Anzeige erneut ausgelöst. Das Symbol erscheint auch bei aktivem **Immer im Vordergrund**, ohne dabei die ausgewählte Kamera zu wechseln.
 
-Per Rechtsklick ins Kamerabild lässt sich **Immer im Vordergrund** direkt umschalten. Ist die Option aktiv, bleibt das Fenster dauerhaft vorne und die Vordergrunddauer wird nicht verwendet. Ist sie inaktiv, kann die Dauer ebenfalls direkt im Kontextmenü gewählt werden.
+Per Rechtsklick ins Kamerabild lassen sich **Immer im Vordergrund** und **Bewegungserkennung aktiv** direkt umschalten. Ist die Option aktiv, bleibt das Fenster dauerhaft vorne und die Vordergrunddauer wird nicht verwendet. Ist sie inaktiv, kann die Dauer ebenfalls direkt im Kontextmenü gewählt werden.
 
 Wird das Fenster während der zeitgesteuerten Vordergrundanzeige mit Maus oder Bedienleiste verwendet, wird das automatische Zurückstellen abgebrochen. So verschwindet das Fenster nicht während einer manuellen Bedienung.
 
@@ -121,9 +120,13 @@ Der Beta-Build enthält nur `HomeCamMonitor-Beta-Setup.exe`. Die selbstextrahier
 
 Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie nicht digital signiert ist, können Browser oder Windows trotzdem eine Reputationswarnung anzeigen. GitHub verpackt Actions-Artefakte beim Herunterladen grundsätzlich in ein ZIP; darin befindet sich nur die Setup-EXE.
 
-### Direkte Home-Assistant-Verbindung ab Beta 15
+### Direkte Home-Assistant-Verbindung
 
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
+
+<p align="center">
+  <img src="docs/screenshots/homecam-settings-anonymized.png" alt="Anonymisierte dunkle Beta-Einstellungen mit Kamera- und Bewegungsoptionen" width="690">
+</p>
 
 In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eine eigene Checkbox **Bewegung**. Nach dem Anklicken einer Kamerazeile wird darunter die zugehörige Bewegungs-Entität eingetragen.
 
