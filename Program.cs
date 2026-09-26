@@ -29,6 +29,7 @@ internal sealed class Settings
     public int Width { get; set; } = 480;
     public int Height { get; set; } = 270;
 #if BETA
+    public int ToolbarSizePercent { get; set; } = 100;
     public bool MotionDetectionEnabled { get; set; } = true;
     public int MotionForegroundSeconds { get; set; } = 10;
     public bool MinimizeWhenInactive { get; set; }
@@ -238,7 +239,11 @@ internal sealed class MonitorForm : Form
             Close(); return;
         }
         dragSurface = new DragSurfaceForm(this); dragSurface.Show(this);
-        toolbar = new ToolbarForm(this); toolbar.Show(this); CreateResizeGrips();
+        toolbar = new ToolbarForm(this);
+#if BETA
+        toolbar.SetSizePercent(settings.ToolbarSizePercent);
+#endif
+        toolbar.Show(this); CreateResizeGrips();
 #if BETA
         cameraContextMenu = CreateCameraContextMenu();
         video.ContextMenuStrip = cameraContextMenu;
@@ -542,7 +547,11 @@ internal sealed class MonitorForm : Form
 
         if (changedSettings is null) return;
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
-        SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows); UpdateToolbar(); RestartPlayer();
+        SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows);
+#if BETA
+        toolbar?.SetSizePercent(settings.ToolbarSizePercent);
+#endif
+        UpdateToolbar(); PositionOverlays(); RestartPlayer();
 #if BETA
         RestartMotionIntegration();
 #endif
@@ -1668,6 +1677,7 @@ internal sealed class ToolbarForm : Form
 {
     private readonly Label name;
 #if BETA
+    private readonly Dictionary<Control, (Rectangle Bounds, float FontSize)> originalLayout = [];
     private readonly Label grid;
     private readonly Label recording;
 #endif
@@ -1753,11 +1763,36 @@ internal sealed class ToolbarForm : Form
 #endif
         toolTips.SetToolTip(close, "HomeCam Monitor beenden");
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
+#if BETA
+        foreach (Control control in Controls)
+            originalLayout[control] = (control.Bounds, control.Font.Size);
+#endif
 #if !BETA
         var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
 #endif
     }
 #if BETA
+    public void SetSizePercent(int percent)
+    {
+        var factor = Math.Clamp(percent, 60, 100) / 100f;
+        SuspendLayout();
+        ClientSize = new Size((int)Math.Round(320 * factor), (int)Math.Round(34 * factor));
+        foreach (var (control, layout) in originalLayout)
+        {
+            if (control == note) continue;
+            var left = (int)Math.Round(layout.Bounds.Left * factor);
+            var right = (int)Math.Round(layout.Bounds.Right * factor);
+            control.Bounds = new Rectangle(
+                left, 0, right - left, ClientSize.Height);
+            control.Padding = new Padding(0, (int)Math.Round(4 * factor), 0, 0);
+            var previousFont = control.Font;
+            control.Font = new Font(previousFont.FontFamily, layout.FontSize * factor, previousFont.Style);
+            previousFont.Dispose();
+            control.Invalidate();
+        }
+        ResumeLayout();
+    }
+
     protected override void OnHandleCreated(EventArgs eventArgs)
     {
         base.OnHandleCreated(eventArgs);
@@ -1781,20 +1816,21 @@ internal sealed class ToolbarForm : Form
         var state = graphics.Save();
         graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
         graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-        using var pen = new Pen(Color.White, 1.7f)
+        var scale = bounds.Width / 32f;
+        using var pen = new Pen(Color.White, 1.7f * scale)
         {
             StartCap = System.Drawing.Drawing2D.LineCap.Round,
             EndCap = System.Drawing.Drawing2D.LineCap.Round,
             LineJoin = System.Drawing.Drawing2D.LineJoin.Round
         };
         var centerX = bounds.Left + bounds.Width / 2f;
-        var centerY = bounds.Top + bounds.Height / 2f + 2f;
+        var centerY = bounds.Top + bounds.Height / 2f + 2f * scale;
         var direction = pointsRight ? 1f : -1f;
         graphics.DrawLines(pen,
         [
-            new PointF(centerX - direction * 3f, centerY - 6f),
-            new PointF(centerX + direction * 3f, centerY),
-            new PointF(centerX - direction * 3f, centerY + 6f)
+            new PointF(centerX - direction * 3f * scale, centerY - 6f * scale),
+            new PointF(centerX + direction * 3f * scale, centerY),
+            new PointF(centerX - direction * 3f * scale, centerY + 6f * scale)
         ]);
         graphics.Restore(state);
     }
@@ -1806,10 +1842,12 @@ internal sealed class ToolbarForm : Form
     private static void DrawGridIcon(Graphics graphics, Rectangle bounds)
     {
         graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        using var pen = new Pen(Color.White, 1.35f);
-        const int size = 5, gap = 3;
+        var scale = bounds.Width / 32f;
+        using var pen = new Pen(Color.White, 1.35f * scale);
+        var size = (int)Math.Round(5 * scale);
+        var gap = (int)Math.Round(3 * scale);
         var left = (bounds.Width - size * 2 - gap) / 2;
-        var top = (bounds.Height - size * 2 - gap) / 2 + 2;
+        var top = (bounds.Height - size * 2 - gap) / 2 + (int)Math.Round(2 * scale);
         graphics.DrawRectangle(pen, left, top, size, size);
         graphics.DrawRectangle(pen, left + size + gap, top, size, size);
         graphics.DrawRectangle(pen, left, top + size + gap, size, size);
@@ -1866,6 +1904,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
 #if BETA
+    private readonly NumericUpDown toolbarSize = new() { Minimum = 60, Maximum = 100, Increment = 5, Width = 60 };
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
     private readonly CheckBox restorePreviousCamera = new() { Text = "Vorherige Kamera wiederherstellen", AutoSize = true };
@@ -1917,6 +1956,7 @@ internal sealed class SettingsForm : Form
 #endif
         top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
 #if BETA
+        toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 60, 100);
         motionDetection.Checked = current.MotionDetectionEnabled;
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
         restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
@@ -1983,6 +2023,9 @@ internal sealed class SettingsForm : Form
 #endif
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart);
 #if BETA
+        options.Controls.Add(new Label { Text = "Bedienleiste:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
+        options.Controls.Add(toolbarSize);
+        options.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         options.Controls.Add(motionDetection);
         options.Controls.Add(minimizeWhenInactive);
         options.Controls.Add(restorePreviousCamera);
@@ -2084,6 +2127,7 @@ internal sealed class SettingsForm : Form
                 AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked,
                 Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
 #if BETA
+                ToolbarSizePercent = (int)toolbarSize.Value,
                 MotionDetectionEnabled = motionDetection.Checked,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
                 MinimizeWhenInactive = minimizeWhenInactive.Checked,
