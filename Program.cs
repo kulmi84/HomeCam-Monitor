@@ -1753,8 +1753,24 @@ internal sealed class ToolbarForm : Form
 #endif
         toolTips.SetToolTip(close, "HomeCam Monitor beenden");
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
+#if !BETA
         var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
+#endif
     }
+#if BETA
+    protected override void OnHandleCreated(EventArgs eventArgs)
+    {
+        base.OnHandleCreated(eventArgs);
+        const int windowCornerPreference = 33;
+        var roundCorners = 2;
+        if (NativeMethods.DwmSetWindowAttribute(Handle, windowCornerPreference, ref roundCorners, sizeof(int)) != 0)
+        {
+            var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14);
+            Region = Region.FromHrgn(shape);
+            NativeMethods.DeleteObject(shape);
+        }
+    }
+#endif
     private static Label Item(string text, int x, EventHandler? click, int width = 32)
     {
         var item = new Label { Text = text, Left = x, Top = 0, Width = width, Height = 34, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Font = new Font("Segoe UI Symbol", text == "Kamera" ? 9 : 12), Cursor = Cursors.Hand };
@@ -1835,6 +1851,7 @@ internal static class NativeMethods
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr window);
     [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr window, int command);
+    [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, int attribute, ref int value, int valueSize);
 #endif
     [DllImport("gdi32.dll")] public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr handle);
