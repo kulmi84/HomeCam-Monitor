@@ -1545,18 +1545,23 @@ internal sealed class HomeCamDarkMenuRenderer : ToolStripProfessionalRenderer
     protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs eventArgs)
     {
         var rectangle = eventArgs.ImageRectangle;
-        using var pen = new Pen(Color.White, 2f)
+        var graphicsState = eventArgs.Graphics.Save();
+        eventArgs.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        eventArgs.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+        using var pen = new Pen(Color.White, Math.Max(1.5f, rectangle.Height / 10f))
         {
             StartCap = System.Drawing.Drawing2D.LineCap.Round,
-            EndCap = System.Drawing.Drawing2D.LineCap.Round
+            EndCap = System.Drawing.Drawing2D.LineCap.Round,
+            LineJoin = System.Drawing.Drawing2D.LineJoin.Round
         };
         eventArgs.Graphics.DrawLines(pen,
-        new Point[]
+        new PointF[]
         {
-            new Point(rectangle.Left + 3, rectangle.Top + rectangle.Height / 2),
-            new Point(rectangle.Left + 7, rectangle.Bottom - 4),
-            new Point(rectangle.Right - 2, rectangle.Top + 3)
+            new(rectangle.Left + rectangle.Width * 0.20f, rectangle.Top + rectangle.Height * 0.53f),
+            new(rectangle.Left + rectangle.Width * 0.43f, rectangle.Top + rectangle.Height * 0.74f),
+            new(rectangle.Left + rectangle.Width * 0.82f, rectangle.Top + rectangle.Height * 0.27f)
         });
+        eventArgs.Graphics.Restore(graphicsState);
     }
 }
 
