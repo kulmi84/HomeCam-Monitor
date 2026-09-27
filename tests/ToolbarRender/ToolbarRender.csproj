@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>BETA</DefineConstants>
+    <StartupObject>ToolbarRender.Program</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Program.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

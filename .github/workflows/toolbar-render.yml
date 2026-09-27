@@ -1,0 +1,19 @@
+name: Toolbar render diagnostic
+
+on:
+  push:
+    branches: [toolbar-scale-diagnostic]
+
+jobs:
+  render:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet run --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- toolbar-render
+      - uses: actions/upload-artifact@v4
+        with:
+          name: toolbar-render
+          path: toolbar-render/
