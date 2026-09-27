@@ -18,6 +18,8 @@ jobs:
         run: dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
       - name: Beta mit Bewegungserkennung erstellen
         run: dotnet publish HomeCamMonitor.Beta.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-beta
+      - name: Skalierung der Bedienleiste prüfen
+        run: dotnet run --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- "${{ runner.temp }}/toolbar-render"
       - name: mpv Video-Engine laden
         shell: pwsh
         env:
@@ -35,7 +37,7 @@ jobs:
           Copy-Item $exe.FullName publish-beta/mpv.exe
       - name: Beta-Downloads erstellen
         shell: pwsh
-        run: .github/scripts/build-beta-downloads.ps1 -Version '0.2.0-beta.40'
+        run: .github/scripts/build-beta-downloads.ps1 -Version '0.2.0-beta.41'
       - name: Downloads mit Microsoft Defender prüfen
         shell: pwsh
         run: .github/scripts/scan-downloads.ps1
@@ -45,5 +47,5 @@ jobs:
           path: publish/
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-Beta-v0.2.0-beta.40-win-x64
+          name: HomeCamMonitor-Beta-v0.2.0-beta.41-win-x64
           path: beta-downloads/

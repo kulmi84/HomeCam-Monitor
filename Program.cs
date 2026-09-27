@@ -1676,6 +1676,7 @@ internal sealed class ToolbarForm : Form
     private readonly Label name;
 #if BETA
     private readonly Dictionary<Control, (Rectangle Bounds, string FontFamily, float FontSize, FontStyle FontStyle, GraphicsUnit FontUnit)> originalLayout = [];
+    private int sizePercent = 100;
     private readonly Label grid;
     private readonly Label recording;
 #endif
@@ -1776,7 +1777,8 @@ internal sealed class ToolbarForm : Form
 #if BETA
     public void SetSizePercent(int percent)
     {
-        var factor = Math.Clamp(percent, 50, 100) / 100f;
+        sizePercent = Math.Clamp(percent, 50, 100);
+        var factor = sizePercent / 100f;
         SuspendLayout();
         foreach (var (control, layout) in originalLayout)
         {
@@ -1795,6 +1797,15 @@ internal sealed class ToolbarForm : Form
         ClientSize = new Size((int)Math.Round(320 * factor), (int)Math.Round(34 * factor));
         ResumeLayout();
         Invalidate(true);
+    }
+
+    protected override void OnShown(EventArgs eventArgs)
+    {
+        base.OnShown(eventArgs);
+        // WinForms applies a minimum form height during the first Show().
+        // Reapply the requested size once the native window exists so the
+        // background and the scaled controls have the same height on startup.
+        SetSizePercent(sizePercent);
     }
 
     protected override void OnHandleCreated(EventArgs eventArgs)
