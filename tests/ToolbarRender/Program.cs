@@ -18,6 +18,9 @@ internal static class Program
         toolbar.Show();
         Application.DoEvents();
         Save(toolbar, output, "fresh-100");
+        toolbar.SetSizePercent(90);
+        Application.DoEvents();
+        Save(toolbar, output, "live-90");
         toolbar.SetSizePercent(50);
         Application.DoEvents();
         Save(toolbar, output, "live-50");
