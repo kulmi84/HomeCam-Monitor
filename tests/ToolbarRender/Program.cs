@@ -18,6 +18,9 @@ internal static class Program
         toolbar.Show();
         Application.DoEvents();
         Save(toolbar, output, "fresh-100");
+        toolbar.SetSizePercent(90);
+        Application.DoEvents();
+        Save(toolbar, output, "live-90");
         toolbar.SetSizePercent(50);
         Application.DoEvents();
         Save(toolbar, output, "live-50");
@@ -49,6 +52,9 @@ internal static class Program
         }
         if (toolbar.Height != 17 || restarted.Height != 17)
             throw new InvalidOperationException($"50% after toggle: {toolbar.Height}px; after restart: {restarted.Height}px; expected 17px");
+        AssertSameImage(output, "fresh-100", "restored-100");
+        AssertSameImage(output, "live-50", "restart-50");
+        AssertSameImage(output, "live-50", "hidden-then-50");
     }
 
     private static void Save(ToolbarForm toolbar, string output, string label)
@@ -61,5 +67,12 @@ internal static class Program
                 .Where(control => control.Visible)
                 .OrderBy(control => control.Left)
                 .Select(control => $"{control.Text}: {control.Bounds}; font {control.Font.Size} {control.Font.Unit}") ]);
+    }
+
+    private static void AssertSameImage(string output, string left, string right)
+    {
+        if (!File.ReadAllBytes(Path.Combine(output, left + ".png"))
+            .SequenceEqual(File.ReadAllBytes(Path.Combine(output, right + ".png"))))
+            throw new InvalidOperationException($"Toolbar rendering differs: {left} versus {right}");
     }
 }

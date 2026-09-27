@@ -1787,7 +1787,7 @@ internal sealed class ToolbarForm : Form
             var right = (int)Math.Round(layout.Bounds.Right * factor);
             control.Bounds = new Rectangle(
                 left, 0, right - left, (int)Math.Round(34 * factor));
-            control.Padding = new Padding(0, (int)Math.Round(4 * factor), 0, 0);
+            control.Padding = Padding.Empty;
             var previousFont = control.Font;
             control.Font = new Font(layout.FontFamily, layout.FontSize * factor,
                 layout.FontStyle, layout.FontUnit);
@@ -1839,7 +1839,11 @@ internal sealed class ToolbarForm : Form
             LineJoin = System.Drawing.Drawing2D.LineJoin.Round
         };
         var centerX = bounds.Left + bounds.Width / 2f;
+#if BETA
+        var centerY = bounds.Top + bounds.Height / 2f;
+#else
         var centerY = bounds.Top + bounds.Height / 2f + 2f * scale;
+#endif
         var direction = pointsRight ? 1f : -1f;
         graphics.DrawLines(pen,
         [
@@ -1862,7 +1866,7 @@ internal sealed class ToolbarForm : Form
         var size = (int)Math.Round(5 * scale);
         var gap = (int)Math.Round(3 * scale);
         var left = (bounds.Width - size * 2 - gap) / 2;
-        var top = (bounds.Height - size * 2 - gap) / 2 + (int)Math.Round(2 * scale);
+        var top = (bounds.Height - size * 2 - gap) / 2;
         graphics.DrawRectangle(pen, left, top, size, size);
         graphics.DrawRectangle(pen, left + size + gap, top, size, size);
         graphics.DrawRectangle(pen, left, top + size + gap, size, size);
