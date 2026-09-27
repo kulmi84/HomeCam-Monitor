@@ -538,6 +538,7 @@ internal sealed class MonitorForm : Form
         {
 #if BETA
             activeSettingsDialog = null;
+            if (changedSettings is not null) toolbar?.SetSizePercent(changedSettings.ToolbarSizePercent);
 #endif
             suppressToolbar = false;
             TopMost = changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop;
@@ -548,9 +549,6 @@ internal sealed class MonitorForm : Form
         if (changedSettings is null) return;
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
         SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows);
-#if BETA
-        toolbar?.SetSizePercent(settings.ToolbarSizePercent);
-#endif
         UpdateToolbar(); PositionOverlays(); RestartPlayer();
 #if BETA
         RestartMotionIntegration();
@@ -1677,7 +1675,7 @@ internal sealed class ToolbarForm : Form
 {
     private readonly Label name;
 #if BETA
-    private readonly Dictionary<Control, (Rectangle Bounds, float FontSize)> originalLayout = [];
+    private readonly Dictionary<Control, (Rectangle Bounds, string FontFamily, float FontSize, FontStyle FontStyle, GraphicsUnit FontUnit)> originalLayout = [];
     private readonly Label grid;
     private readonly Label recording;
 #endif
@@ -1695,6 +1693,9 @@ internal sealed class ToolbarForm : Form
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; BackColor = Color.FromArgb(20, 20, 20); Opacity = 0.78;
 #if BETA
+        // The toolbar has its own pixel-based layout. WinForms font autoscaling
+        // otherwise changes its bounds once the handle is created (and again on DPI changes).
+        AutoScaleMode = AutoScaleMode.None;
         ClientSize = new Size(320, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
 #else
         ClientSize = new Size(256, 34); StartPosition = FormStartPosition.Manual; TopMost = true;
@@ -1765,7 +1766,8 @@ internal sealed class ToolbarForm : Form
         note = new Label { AutoSize = true, ForeColor = Color.White, BackColor = Color.FromArgb(20, 20, 20), Visible = false }; Controls.Add(note);
 #if BETA
         foreach (Control control in Controls)
-            originalLayout[control] = (control.Bounds, control.Font.Size);
+            originalLayout[control] = (control.Bounds, control.Font.FontFamily.Name,
+                control.Font.Size, control.Font.Style, control.Font.Unit);
 #endif
 #if !BETA
         var shape = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, 14, 14); Region = Region.FromHrgn(shape); NativeMethods.DeleteObject(shape);
@@ -1774,23 +1776,25 @@ internal sealed class ToolbarForm : Form
 #if BETA
     public void SetSizePercent(int percent)
     {
-        var factor = Math.Clamp(percent, 60, 100) / 100f;
+        var factor = Math.Clamp(percent, 50, 100) / 100f;
         SuspendLayout();
-        ClientSize = new Size((int)Math.Round(320 * factor), (int)Math.Round(34 * factor));
         foreach (var (control, layout) in originalLayout)
         {
             if (control == note) continue;
             var left = (int)Math.Round(layout.Bounds.Left * factor);
             var right = (int)Math.Round(layout.Bounds.Right * factor);
             control.Bounds = new Rectangle(
-                left, 0, right - left, ClientSize.Height);
+                left, 0, right - left, (int)Math.Round(34 * factor));
             control.Padding = new Padding(0, (int)Math.Round(4 * factor), 0, 0);
             var previousFont = control.Font;
-            control.Font = new Font(previousFont.FontFamily, layout.FontSize * factor, previousFont.Style);
+            control.Font = new Font(layout.FontFamily, layout.FontSize * factor,
+                layout.FontStyle, layout.FontUnit);
             previousFont.Dispose();
             control.Invalidate();
         }
+        ClientSize = new Size((int)Math.Round(320 * factor), (int)Math.Round(34 * factor));
         ResumeLayout();
+        Invalidate(true);
     }
 
     protected override void OnHandleCreated(EventArgs eventArgs)
@@ -1904,7 +1908,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
 #if BETA
-    private readonly NumericUpDown toolbarSize = new() { Minimum = 60, Maximum = 100, Increment = 5, Width = 60 };
+    private readonly NumericUpDown toolbarSize = new() { Minimum = 50, Maximum = 100, Increment = 5, Width = 60 };
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
     private readonly CheckBox restorePreviousCamera = new() { Text = "Vorherige Kamera wiederherstellen", AutoSize = true };
@@ -1956,7 +1960,7 @@ internal sealed class SettingsForm : Form
 #endif
         top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
 #if BETA
-        toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 60, 100);
+        toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 50, 100);
         motionDetection.Checked = current.MotionDetectionEnabled;
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
         restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
