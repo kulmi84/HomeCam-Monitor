@@ -61,7 +61,7 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
   <img src="docs/screenshots/homecam-controls.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
 </p>
 
-Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet; Größe und Klickflächen der Leiste bleiben unverändert. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt. Text und Symbole sind optisch mittig in der Leiste ausgerichtet.
+Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt. Bei 100 % bleibt das ursprüngliche Layout erhalten; Text und Symbole sind optisch mittig in der Leiste ausgerichtet.
 
 In der Beta lässt sich die **Größe der Bedienleiste** in den Einstellungen von 50 bis 100 % wählen, beispielsweise 75 %. Die gesamte Leiste mit Symbolen und Klickflächen wird proportional verkleinert und bleibt mittig am unteren Fensterrand. Symbole und Text sind innerhalb der Leiste vertikal zentriert. Der Wechsel wirkt sofort und bleibt auch nach einem Neustart erhalten. Vorhandene Einstellungen bleiben standardmäßig bei 100 %.
 
@@ -100,11 +100,23 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 > **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.42`. Die stabile Ausgabe bleibt getrennt.
 
+
+### Neu in Beta 39–42
+
+- **Bedienleiste skalierbar:** 50 bis 100 % in 5-%-Schritten, einschließlich 75 %.
+- **Sofortige Vorschau:** Änderungen an der Bedienleistengröße werden direkt nach dem Speichern übernommen.
+- **Sauber nach Neustart:** Eine verkleinerte Leiste startet wieder mit derselben Größe; der Wechsel zurück auf 100 % stellt das ursprüngliche Layout korrekt wieder her.
+- **Korrekte Fensterhöhe:** Die Leiste bleibt auch beim ersten Anzeigen nach dem Programmstart passend zur gewählten Skalierung.
+- **Vertikal zentriert:** Kamera-Pfeile, Raster-Symbol, Text und übrige Bedienelemente sitzen auch bei verkleinerter Leiste mittig.
+- **Automatischer Build-Test:** Der GitHub-Build prüft die Darstellung der skalierten Bedienleiste zusätzlich automatisch.
+
 Der zusätzliche Build `HomeCamMonitor-Beta.exe` kann bei einer Personenerkennung automatisch die gemeldete Kamera auswählen und das Kamerafenster nach vorne holen. Dazu muss **Bewegungserkennung aktiv** eingeschaltet und **Immer im Vordergrund** ausgeschaltet sein. Die Vordergrunddauer ist in den Einstellungen zwischen 3 und 300 Sekunden wählbar (Standard: 10 Sekunden). Eine weitere Erkennung startet diese Zeit erneut. Danach wird das Fenster je nach Option in den Hintergrund geschickt oder minimiert.
 
 Das Einblenden bei Bewegung erfolgt ohne Aktivierung des Kamerafensters. Der Tastaturfokus bleibt daher beispielsweise beim Schreiben in Word oder Outlook erhalten.
 
-Mit der standardmäßig aktivierten Einstellung **Vorherige Kamera wiederherstellen** merkt sich HomeCam Monitor die Kamera, die vor der ersten Bewegung ausgewählt war. Nach Ablauf der Vordergrunddauer wird diese Kamera wieder geöffnet. Beispiel: Ist **Einfahrt** ausgewählt und **Garten** meldet Bewegung, wird vorübergehend Garten angezeigt und anschließend wieder auf Einfahrt gewechselt. Weitere Bewegungen während dieser Zeit überschreiben die gemerkte Ausgangskamera nicht. Eine manuelle Bedienung bricht das automatische Zurückschalten ab.\n\nBei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unverändert. Bei ausgeschalteter Bewegungserkennung werden Meldungen von Home Assistant ignoriert.
+Mit der standardmäßig aktivierten Einstellung **Vorherige Kamera wiederherstellen** merkt sich HomeCam Monitor die Kamera, die vor der ersten Bewegung ausgewählt war. Nach Ablauf der Vordergrunddauer wird diese Kamera wieder geöffnet. Beispiel: Ist **Einfahrt** ausgewählt und **Garten** meldet Bewegung, wird vorübergehend Garten angezeigt und anschließend wieder auf Einfahrt gewechselt. Weitere Bewegungen während dieser Zeit überschreiben die gemerkte Ausgangskamera nicht. Eine manuelle Bedienung bricht das automatische Zurückschalten ab.
+
+Bei aktivem **Immer im Vordergrund** bleibt die manuell ausgewählte Kamera unverändert. Bei ausgeschalteter Bewegungserkennung werden Meldungen von Home Assistant ignoriert.
 
 Eine erkannte Bewegung wird oben rechts im Kamerabild für genau eine Sekunde durch ein kleines laufendes Männchen mit transparentem Hintergrund angezeigt. Das schwarz-weiß konturierte Symbol bleibt auf hellen und dunklen Bildbereichen sichtbar. Bei jeder neuen Bewegung wird die einsekündige Anzeige erneut ausgelöst. Das Symbol erscheint auch bei aktivem **Immer im Vordergrund**, ohne dabei die ausgewählte Kamera zu wechseln.
 
