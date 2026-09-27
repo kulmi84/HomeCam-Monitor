@@ -98,7 +98,12 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.42`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.43`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in Beta 43
+
+- **Bedienleiste automatisch skalieren:** In den Einstellungen per Häkchen aktivierbar. Bei kleinen Kamerafenstern wird die gesamte Leiste einschließlich Schaltflächen, Symbolen und Schrift passend verkleinert; ab 340 Pixel Fensterbreite erreicht sie wieder 100 %.
+- Ohne Häkchen bleibt die manuell gewählte Größe von 50 bis 100 % erhalten. Die manuelle Einstellung wird gespeichert und nach dem Ausschalten der Automatik wieder verwendet.
 
 
 ### Neu in Beta 39–42

@@ -55,6 +55,20 @@ internal static class Program
         AssertSameImage(output, "fresh-100", "restored-100");
         AssertSameImage(output, "live-50", "restart-50");
         AssertSameImage(output, "live-50", "hidden-then-50");
+
+        var automatic = new Settings { AutoScaleToolbar = true, ToolbarSizePercent = 75 };
+        foreach (var (width, expected) in new[] { (480, 100), (340, 100), (300, 87), (240, 68), (480, 100) })
+        {
+            var actual = MonitorForm.GetToolbarSizePercent(automatic, width);
+            if (actual != expected)
+                throw new InvalidOperationException($"Automatic toolbar size at {width}px: {actual}%, expected {expected}%");
+            toolbar.SetSizePercent(actual);
+            if (toolbar.Width > width - 20)
+                throw new InvalidOperationException($"Toolbar {toolbar.Width}px does not fit a {width}px camera window");
+        }
+        automatic.AutoScaleToolbar = false;
+        if (MonitorForm.GetToolbarSizePercent(automatic, 240) != 75)
+            throw new InvalidOperationException("Manual toolbar size was not restored when automatic scaling was disabled");
     }
 
     private static void Save(ToolbarForm toolbar, string output, string label)

@@ -30,6 +30,7 @@ internal sealed class Settings
     public int Height { get; set; } = 270;
 #if BETA
     public int ToolbarSizePercent { get; set; } = 100;
+    public bool AutoScaleToolbar { get; set; }
     public bool MotionDetectionEnabled { get; set; } = true;
     public int MotionForegroundSeconds { get; set; } = 10;
     public bool MinimizeWhenInactive { get; set; }
@@ -205,6 +206,9 @@ internal sealed class MonitorForm : Form
 #endif
             KeepCameraAspectRatio();
             ApplyRoundedCorners();
+#if BETA
+            UpdateToolbarScale();
+#endif
             if (!nativeMoveOrResize) PositionOverlays();
 #if BETA
             if (wasMinimized && WindowState == FormWindowState.Normal)
@@ -241,7 +245,7 @@ internal sealed class MonitorForm : Form
         dragSurface = new DragSurfaceForm(this); dragSurface.Show(this);
         toolbar = new ToolbarForm(this);
 #if BETA
-        toolbar.SetSizePercent(settings.ToolbarSizePercent);
+        toolbar.SetSizePercent(GetToolbarSizePercent(settings, Width));
 #endif
         toolbar.Show(this); CreateResizeGrips();
 #if BETA
@@ -538,7 +542,6 @@ internal sealed class MonitorForm : Form
         {
 #if BETA
             activeSettingsDialog = null;
-            if (changedSettings is not null) toolbar?.SetSizePercent(changedSettings.ToolbarSizePercent);
 #endif
             suppressToolbar = false;
             TopMost = changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop;
@@ -1037,6 +1040,9 @@ internal sealed class MonitorForm : Form
     {
         if (toolbar is null || toolbar.IsDisposed) return;
 #if BETA
+        UpdateToolbarScale();
+#endif
+#if BETA
         if (sentToBackground)
         {
             toolbar.Hide(); dragSurface?.Hide();
@@ -1077,6 +1083,21 @@ internal sealed class MonitorForm : Form
         }
         if (toolbar.Visible) toolbar.BringToFront();
     }
+#if BETA
+    internal static int GetToolbarSizePercent(Settings current, int windowWidth)
+    {
+        if (!current.AutoScaleToolbar) return Math.Clamp(current.ToolbarSizePercent, 50, 100);
+        // Leave ten pixels on each side. At the smallest supported camera width
+        // the entire toolbar still fits without clipping.
+        return Math.Clamp((int)Math.Floor((windowWidth - 20) * 100d / 320), 50, 100);
+    }
+
+    private void UpdateToolbarScale()
+    {
+        if (toolbar is null || toolbar.IsDisposed) return;
+        toolbar.SetSizePercent(GetToolbarSizePercent(settings, Width));
+    }
+#endif
     private bool HasUsableCamera() => settings.Cameras.Count > 0 && settings.SelectedCamera >= 0 && settings.SelectedCamera < settings.Cameras.Count && Uri.TryCreate(settings.Cameras[settings.SelectedCamera].StreamUrl, UriKind.Absolute, out _);
     private static void ConfigureAutostart(bool enabled)
     {
@@ -1775,9 +1796,11 @@ internal sealed class ToolbarForm : Form
 #endif
     }
 #if BETA
-    public void SetSizePercent(int percent)
+    public void SetSizePercent(int percent, bool force = false)
     {
-        sizePercent = Math.Clamp(percent, 50, 100);
+        percent = Math.Clamp(percent, 50, 100);
+        if (!force && sizePercent == percent) return;
+        sizePercent = percent;
         var factor = sizePercent / 100f;
         SuspendLayout();
         foreach (var (control, layout) in originalLayout)
@@ -1805,7 +1828,7 @@ internal sealed class ToolbarForm : Form
         // WinForms applies a minimum form height during the first Show().
         // Reapply the requested size once the native window exists so the
         // background and the scaled controls have the same height on startup.
-        SetSizePercent(sizePercent);
+        SetSizePercent(sizePercent, force: true);
     }
 
     protected override void OnHandleCreated(EventArgs eventArgs)
@@ -1924,6 +1947,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
 #if BETA
     private readonly NumericUpDown toolbarSize = new() { Minimum = 50, Maximum = 100, Increment = 5, Width = 60 };
+    private readonly CheckBox autoScaleToolbar = new() { Text = "Bedienleiste automatisch skalieren", AutoSize = true };
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
     private readonly CheckBox restorePreviousCamera = new() { Text = "Vorherige Kamera wiederherstellen", AutoSize = true };
@@ -1976,6 +2000,9 @@ internal sealed class SettingsForm : Form
         top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
 #if BETA
         toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 50, 100);
+        autoScaleToolbar.Checked = current.AutoScaleToolbar;
+        toolbarSize.Enabled = !autoScaleToolbar.Checked;
+        autoScaleToolbar.CheckedChanged += (_, _) => toolbarSize.Enabled = !autoScaleToolbar.Checked;
         motionDetection.Checked = current.MotionDetectionEnabled;
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
         restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
@@ -2045,6 +2072,7 @@ internal sealed class SettingsForm : Form
         options.Controls.Add(new Label { Text = "Bedienleiste:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
         options.Controls.Add(toolbarSize);
         options.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        options.Controls.Add(autoScaleToolbar);
         options.Controls.Add(motionDetection);
         options.Controls.Add(minimizeWhenInactive);
         options.Controls.Add(restorePreviousCamera);
@@ -2147,6 +2175,7 @@ internal sealed class SettingsForm : Form
                 Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
 #if BETA
                 ToolbarSizePercent = (int)toolbarSize.Value,
+                AutoScaleToolbar = autoScaleToolbar.Checked,
                 MotionDetectionEnabled = motionDetection.Checked,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
                 MinimizeWhenInactive = minimizeWhenInactive.Checked,
