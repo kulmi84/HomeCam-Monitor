@@ -24,6 +24,11 @@ internal static class Program
         toolbar.SetSizePercent(100);
         Application.DoEvents();
         Save(toolbar, output, "restored-100");
+        toolbar.Hide();
+        toolbar.SetSizePercent(50);
+        toolbar.Show();
+        Application.DoEvents();
+        Save(toolbar, output, "hidden-then-50");
 
         using var restarted = new ToolbarForm(null!);
         restarted.CameraName = "Einfahrt";
@@ -31,6 +36,19 @@ internal static class Program
         restarted.Show();
         Application.DoEvents();
         Save(restarted, output, "restart-50");
+
+        foreach (var percent in new[] { 100, 50, 100 })
+        {
+            var expectedHeight = (int)Math.Round(34 * percent / 100d);
+            using var fresh = new ToolbarForm(null!);
+            fresh.SetSizePercent(percent);
+            fresh.Show();
+            Application.DoEvents();
+            if (fresh.Height != expectedHeight || fresh.ClientSize.Height != expectedHeight)
+                throw new InvalidOperationException($"Initial {percent}%: window {fresh.Height}px, client {fresh.ClientSize.Height}px, expected {expectedHeight}px");
+        }
+        if (toolbar.Height != 17 || restarted.Height != 17)
+            throw new InvalidOperationException($"50% after toggle: {toolbar.Height}px; after restart: {restarted.Height}px; expected 17px");
     }
 
     private static void Save(ToolbarForm toolbar, string output, string label)
