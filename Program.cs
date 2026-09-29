@@ -48,6 +48,7 @@ internal sealed class Settings
     public string MotionCameraName { get; set; } = "Einfahrt";
     public bool IgnoreHomeAssistantCertificateErrors { get; set; }
     public bool PerCameraMotionConfigured { get; set; }
+    public int MotionRetentionDays { get; set; } = 7;
 #endif
 }
 
@@ -58,6 +59,8 @@ internal sealed class CameraEntry
 #if BETA
     public bool MotionEnabled { get; set; }
     public string MotionEntityId { get; set; } = "";
+    public string MotionAction { get; set; } = "None";
+    public int MotionVideoSeconds { get; set; } = 30;
 #endif
 }
 
@@ -125,6 +128,9 @@ internal sealed class MonitorForm : Form
     private readonly string pipeName = $"HomeCamMonitor-{Environment.ProcessId}";
 #if BETA
     private readonly string recordingPipeName = $"HomeCamMonitor-Recording-{Environment.ProcessId}";
+    private readonly Dictionary<string, DateTime> lastMotionCapture = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> activeMotionCapture = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<Process> motionProcesses = [];
     private readonly TableLayoutPanel cameraGrid = new()
     {
         Dock = DockStyle.Fill,
@@ -178,6 +184,7 @@ internal sealed class MonitorForm : Form
     {
         settings = SettingsStore.Load();
 #if BETA
+        DeleteExpiredMotionFiles(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor", "Bewegung"), settings.MotionRetentionDays);
         Text = "HomeCamMonitor for Homeassistant Beta";
 #else
         Text = "HomeCamMonitor for Homeassistant";
@@ -296,6 +303,8 @@ internal sealed class MonitorForm : Form
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
         StopRecordingForClose();
+        foreach (var capture in motionProcesses.ToArray())
+            try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
         motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
@@ -1368,6 +1377,9 @@ internal sealed class MonitorForm : Form
     {
         if (!settings.MotionDetectionEnabled) return;
         ShowMotionIndicator();
+        var motionCamera = settings.Cameras.FirstOrDefault(camera =>
+            camera.MotionEnabled && string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
+        if (motionCamera is not null) StartMotionCapture(motionCamera);
         if (settings.AlwaysOnTop) return;
         var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (cameraIndex < 0) { toolbar?.Flash($"{cameraName} fehlt"); return; }
@@ -1392,6 +1404,92 @@ internal sealed class MonitorForm : Form
         motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         ForceToForeground();
         if (!settings.AlwaysOnTop) motionRestoreTimer.Start();
+    }
+
+    private async void StartMotionCapture(CameraEntry camera)
+    {
+        if (camera.MotionAction is not ("Snapshot" or "Video") ||
+            activeMotionCapture.Contains(camera.Name)) return;
+        // The HTTP endpoint can be called more than once for the same event.
+        if (lastMotionCapture.TryGetValue(camera.Name, out var last) &&
+            DateTime.UtcNow - last < TimeSpan.FromSeconds(2)) return;
+        lastMotionCapture[camera.Name] = DateTime.UtcNow;
+        activeMotionCapture.Add(camera.Name);
+        try
+        {
+            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor", "Bewegung");
+            Directory.CreateDirectory(folder);
+            DeleteExpiredMotionFiles(folder, settings.MotionRetentionDays);
+            var safeName = string.Concat(camera.Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+            var baseName = $"{safeName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}_{Guid.NewGuid():N}";
+            var executable = Path.Combine(AppContext.BaseDirectory, "mpv.exe");
+            if (camera.MotionAction == "Snapshot")
+            {
+                // A separate player captures the triggering camera, even if another one is visible.
+                var temporary = Path.Combine(folder, ".capture-" + Guid.NewGuid().ToString("N"));
+                Directory.CreateDirectory(temporary);
+                try
+                {
+                    var start = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true };
+                    foreach (var argument in new[] { "--no-config", "--no-terminal", "--really-quiet", "--no-audio",
+                        "--demuxer-lavf-o=rtsp_transport=tcp", "--vo=image", "--vo-image-format=png",
+                        $"--vo-image-outdir={temporary}", "--frames=1", camera.StreamUrl }) start.ArgumentList.Add(argument);
+                    using var process = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
+                    motionProcesses.Add(process);
+                    try
+                    {
+                        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+                        try { await process.WaitForExitAsync(timeout.Token); }
+                        catch (OperationCanceledException) { if (!process.HasExited) process.Kill(true); }
+                    }
+                    finally { motionProcesses.Remove(process); }
+                    var frame = Directory.GetFiles(temporary, "*.png").FirstOrDefault();
+                    if (frame is null) throw new IOException("Der Stream lieferte kein Einzelbild.");
+                    File.Move(frame, Path.Combine(folder, baseName + ".png"));
+                }
+                finally { Directory.Delete(temporary, true); }
+            }
+            else
+            {
+                var path = Path.Combine(folder, baseName + ".mkv");
+                var pipe = $"HomeCamMonitor-Motion-{Guid.NewGuid():N}";
+                var start = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true };
+                foreach (var argument in new[] { "--no-config", "--no-terminal", "--really-quiet", "--no-audio",
+                    "--vo=null", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
+                    $"--stream-record={path}", $"--input-ipc-server=\\\\.\\pipe\\{pipe}", camera.StreamUrl }) start.ArgumentList.Add(argument);
+                using var process = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
+                motionProcesses.Add(process);
+                try
+                {
+                    await Task.Delay(camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds * 1000 : 30000);
+                    if (!process.HasExited)
+                    {
+                        try { await SendCommandToPipeAsync(pipe, new object[] { "quit" }); } catch { }
+                        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                        try { await process.WaitForExitAsync(timeout.Token); } catch (OperationCanceledException) { process.Kill(true); }
+                    }
+                    if (File.Exists(path) && new FileInfo(path).Length == 0) File.Delete(path);
+                }
+                finally { motionProcesses.Remove(process); }
+            }
+        }
+        catch (Exception exception)
+        {
+            if (!closing) toolbar?.Flash($"Bewegung: {exception.Message}");
+        }
+        finally { activeMotionCapture.Remove(camera.Name); }
+    }
+
+    internal static void DeleteExpiredMotionFiles(string folder, int days)
+    {
+        if (days <= 0 || !Directory.Exists(folder)) return; // 0 means unlimited.
+        var cutoff = DateTime.UtcNow.AddDays(-days);
+        foreach (var file in Directory.EnumerateFiles(folder))
+        {
+            if (Path.GetExtension(file) is not (".png" or ".mkv")) continue;
+            try { if (File.GetLastWriteTimeUtc(file) < cutoff) File.Delete(file); }
+            catch (IOException) { } catch (UnauthorizedAccessException) { }
+        }
     }
 
     private void ShowMotionIndicator()
@@ -2035,6 +2133,9 @@ internal sealed class SettingsForm : Form
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
     private readonly TextBox motionEntityId = new() { Width = 300 };
     private readonly Label selectedMotionCamera = new() { AutoSize = true, Text = "Keine Kamera ausgewählt", Anchor = AnchorStyles.Left };
+    private readonly ComboBox motionAction = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 135 };
+    private readonly ComboBox motionVideoSeconds = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 85 };
+    private readonly ComboBox motionRetention = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
     private readonly CheckBox ignoreHomeAssistantCertificateErrors = new() { Text = "Ungültiges HA-Zertifikat erlauben (nur lokales Netzwerk)", AutoSize = true };
     private readonly Button testHomeAssistant = new() { Text = "Verbindung testen", AutoSize = true };
     private readonly Label homeAssistantStatus = new() { AutoSize = true, MaximumSize = new Size(600, 0), Margin = new Padding(10, 6, 3, 0) };
@@ -2071,7 +2172,9 @@ internal sealed class SettingsForm : Form
 #if BETA
         cameras.Columns.Add(new DataGridViewCheckBoxColumn { Name = "MotionEnabled", HeaderText = "Bewegung", FillWeight = 12 });
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionEntityId", Visible = false });
-        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl, camera.MotionEnabled, camera.MotionEntityId);
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionAction", Visible = false });
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionVideoSeconds", Visible = false });
+        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl, camera.MotionEnabled, camera.MotionEntityId, camera.MotionAction, camera.MotionVideoSeconds);
 #else
         foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl);
 #endif
@@ -2094,11 +2197,20 @@ internal sealed class SettingsForm : Form
         homeAssistantUrl.Text = current.HomeAssistantUrl;
         homeAssistantToken.Text = current.HomeAssistantToken;
         ignoreHomeAssistantCertificateErrors.Checked = current.IgnoreHomeAssistantCertificateErrors;
+        motionAction.Items.AddRange(["Keine", "Snapshot", "Videoaufnahme"]);
+        motionVideoSeconds.Items.AddRange(["15 Sekunden", "30 Sekunden", "60 Sekunden"]);
+        motionRetention.Items.AddRange(["1 Tag", "3 Tage", "7 Tage", "14 Tage", "30 Tage", "Unbegrenzt"]);
+        var retentionValues = new[] { 1, 3, 7, 14, 30, 0 };
+        motionRetention.SelectedIndex = Math.Max(0, Array.IndexOf(retentionValues, current.MotionRetentionDays));
         var selectedCameraRow = -1;
         void StoreSelectedCameraMotion()
         {
             if (selectedCameraRow >= 0 && selectedCameraRow < cameras.Rows.Count && !cameras.Rows[selectedCameraRow].IsNewRow)
+            {
                 cameras.Rows[selectedCameraRow].Cells[3].Value = motionEntityId.Text.Trim();
+                cameras.Rows[selectedCameraRow].Cells[4].Value = motionAction.SelectedIndex switch { 1 => "Snapshot", 2 => "Video", _ => "None" };
+                cameras.Rows[selectedCameraRow].Cells[5].Value = motionVideoSeconds.SelectedIndex switch { 0 => 15, 2 => 60, _ => 30 };
+            }
         }
         void LoadSelectedCameraMotion()
         {
@@ -2108,11 +2220,17 @@ internal sealed class SettingsForm : Form
             {
                 selectedMotionCamera.Text = "Keine Kamera ausgewählt";
                 motionEntityId.Text = "";
+                motionAction.SelectedIndex = 0;
+                motionVideoSeconds.SelectedIndex = 1;
                 return;
             }
             selectedMotionCamera.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[0].Value)?.Trim() is { Length: > 0 } name ? name : "Neue Kamera";
             motionEntityId.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[3].Value)?.Trim() ?? "";
+            motionAction.SelectedIndex = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[4].Value) switch { "Snapshot" => 1, "Video" => 2, _ => 0 };
+            motionVideoSeconds.SelectedIndex = Convert.ToInt32(cameras.Rows[selectedCameraRow].Cells[5].Value ?? 30) switch { 15 => 0, 60 => 2, _ => 1 };
+            motionVideoSeconds.Enabled = motionAction.SelectedIndex == 2;
         }
+        motionAction.SelectedIndexChanged += (_, _) => motionVideoSeconds.Enabled = motionAction.SelectedIndex == 2;
         cameras.SelectionChanged += (_, _) => LoadSelectedCameraMotion();
         cameras.CurrentCellDirtyStateChanged += (_, _) => { if (cameras.IsCurrentCellDirty) cameras.CommitEdit(DataGridViewDataErrorContexts.Commit); };
         void RefreshStartCameraChoices()
@@ -2152,7 +2270,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 7 };
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 };
         table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -2209,6 +2327,13 @@ internal sealed class SettingsForm : Form
         startBehavior.SelectedIndexChanged += (_, _) => UpdateStartCameraOption();
         UpdateStartCameraOption();
         table.Controls.Add(startupOptions, 0, 3);
+        var captureOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
+        captureOptions.Controls.Add(new Label { Text = "Ausgewählte Kamera – bei Bewegung:", AutoSize = true, Margin = new Padding(3, 5, 3, 0) });
+        captureOptions.Controls.Add(motionAction);
+        captureOptions.Controls.Add(motionVideoSeconds);
+        captureOptions.Controls.Add(new Label { Text = "Aufbewahrung:", AutoSize = true, Margin = new Padding(14, 5, 3, 0) });
+        captureOptions.Controls.Add(motionRetention);
+        table.Controls.Add(captureOptions, 0, 4);
         var homeAssistantGroup = new GroupBox { Text = "Bewegung direkt aus Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
         var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 7 };
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -2231,10 +2356,10 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(testRow, 0, 6);
         homeAssistantFields.SetColumnSpan(testRow, 2);
         homeAssistantGroup.Controls.Add(homeAssistantFields);
-        table.Controls.Add(homeAssistantGroup, 0, 4);
+        table.Controls.Add(homeAssistantGroup, 0, 5);
 #endif
 #if BETA
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 5);
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 6);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -2246,7 +2371,7 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 6);
+        table.Controls.Add(buttons, 0, 7);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
@@ -2326,7 +2451,8 @@ internal sealed class SettingsForm : Form
                 HomeAssistantUrl = homeAssistantUrl.Text.Trim(),
                 HomeAssistantToken = homeAssistantToken.Text.Trim(),
                 IgnoreHomeAssistantCertificateErrors = ignoreHomeAssistantCertificateErrors.Checked,
-                PerCameraMotionConfigured = true
+                PerCameraMotionConfigured = true,
+                MotionRetentionDays = retentionValues[motionRetention.SelectedIndex]
 #endif
             };
         };
@@ -2344,6 +2470,8 @@ internal sealed class SettingsForm : Form
 #if BETA
             entry.MotionEnabled = Convert.ToBoolean(row.Cells[2].Value ?? false);
             entry.MotionEntityId = Convert.ToString(row.Cells[3].Value)?.Trim() ?? "";
+            entry.MotionAction = Convert.ToString(row.Cells[4].Value) ?? "None";
+            entry.MotionVideoSeconds = Convert.ToInt32(row.Cells[5].Value ?? 30);
 #endif
             result.Add(entry);
         }
