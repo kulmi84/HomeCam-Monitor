@@ -91,6 +91,37 @@ internal static class Program
         savedWindow.Left = -3000;
         if (MonitorForm.RestoreWindowBounds(savedWindow, [displays[0]]) != new Rectangle(720, 385, 480, 270))
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
+
+        using var settingsForm = new SettingsForm(new Settings
+        {
+            Cameras = [new CameraEntry { Name = "Einfahrt", StreamUrl = "rtsp://127.0.0.1:8554/Einfahrt" }]
+        });
+        settingsForm.Show();
+        Application.DoEvents();
+        var cameraTable = AllControls(settingsForm).OfType<DataGridView>().Single();
+        var cameraHint = settingsForm.Controls.Find("CameraHint", true).Single();
+        var options = settingsForm.Controls.Find("Options", true).Single();
+        var startup = settingsForm.Controls.Find("StartupOptions", true).Single();
+        if (cameraTable.Bottom > cameraHint.Top || cameraHint.Bottom > options.Top || options.Bottom > startup.Top)
+            throw new InvalidOperationException("Settings rows overlap or the camera hint is hidden");
+        var seconds = AllControls(settingsForm)
+            .OfType<Label>().Single(label => label.Text == "Sekunden");
+        var duration = seconds.Parent!.Controls.OfType<NumericUpDown>().Single();
+        if (seconds.Top > duration.Bottom || seconds.Bottom < duration.Top)
+            throw new InvalidOperationException("Seconds label wrapped away from the duration field");
+        var buttons = AllControls(settingsForm).OfType<FlowLayoutPanel>()
+            .Single(panel => panel.Controls.OfType<Button>().Any(button => button.Text == "Speichern"));
+        if (settingsForm.ClientSize.Height - buttons.Bottom > 25)
+            throw new InvalidOperationException("Unused space remains below the settings buttons");
+    }
+
+    private static IEnumerable<Control> AllControls(Control parent)
+    {
+        foreach (Control child in parent.Controls)
+        {
+            yield return child;
+            foreach (var descendant in AllControls(child)) yield return descendant;
+        }
     }
 
     private static void Save(ToolbarForm toolbar, string output, string label)

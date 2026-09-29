@@ -2049,7 +2049,7 @@ internal sealed class SettingsForm : Form
         MinimumSize = new Size(780, 650);
         var workingArea = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1024, 768);
         ClientSize = new Size(Math.Min(840, workingArea.Width - 40), Math.Min(680, workingArea.Height - 60));
-        cameras.MinimumSize = new Size(0, 170);
+        cameras.MinimumSize = new Size(0, 130);
         BackColor = Color.FromArgb(24, 24, 27);
         ForeColor = Color.FromArgb(242, 242, 244);
         Opacity = 1.0;
@@ -2082,8 +2082,6 @@ internal sealed class SettingsForm : Form
         foreach (var camera in current.Cameras) startCamera.Items.Add(camera.Name);
         if (startCamera.Items.Count > 0)
             startCamera.SelectedIndex = Math.Clamp(current.StartCameraIndex, 0, startCamera.Items.Count - 1);
-        startCamera.Enabled = startBehavior.SelectedIndex == 2;
-        startBehavior.SelectedIndexChanged += (_, _) => startCamera.Enabled = startBehavior.SelectedIndex == 2;
         toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 50, 100);
         autoScaleToolbar.Checked = current.AutoScaleToolbar;
         toolbarSize.Enabled = !autoScaleToolbar.Checked;
@@ -2163,30 +2161,53 @@ internal sealed class SettingsForm : Form
 #endif
         table.Controls.Add(cameras, 0, 0);
 #if BETA
-        table.Controls.Add(new Label { Text = "Kamera anklicken, Bewegungs-Entität unten eintragen und die Spalte Bewegung aktivieren.", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
+        table.Controls.Add(new Label { Name = "CameraHint", Text = "Kamera anklicken, Bewegungs-Entität unten eintragen und die Spalte Bewegung aktivieren.", AutoSize = true, ForeColor = SystemColors.GrayText, Margin = new Padding(3, 5, 3, 5) }, 0, 1);
 #else
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
 #endif
-        var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true }; options.Controls.Add(top); options.Controls.Add(autostart);
 #if BETA
-        options.Controls.Add(new Label { Text = "Bedienleiste:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
-        options.Controls.Add(toolbarSize);
-        options.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
-        options.Controls.Add(autoScaleToolbar);
-        options.Controls.Add(motionDetection);
-        options.Controls.Add(minimizeWhenInactive);
-        options.Controls.Add(restorePreviousCamera);
-        options.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
-        options.Controls.Add(motionSeconds);
-        options.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        var options = new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) };
+        for (var row = 0; row < options.RowCount; row++) options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        var generalOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        generalOptions.Controls.Add(top);
+        generalOptions.Controls.Add(autostart);
+        generalOptions.Controls.Add(motionDetection);
+        options.Controls.Add(generalOptions, 0, 0);
+
+        var motionOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        motionOptions.Controls.Add(minimizeWhenInactive);
+        motionOptions.Controls.Add(restorePreviousCamera);
+        motionOptions.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
+        motionOptions.Controls.Add(motionSeconds);
+        motionOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        options.Controls.Add(motionOptions, 0, 1);
+
+        var toolbarOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        toolbarOptions.Controls.Add(new Label { Text = "Bedienleiste:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        toolbarOptions.Controls.Add(toolbarSize);
+        toolbarOptions.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        toolbarOptions.Controls.Add(autoScaleToolbar);
+        options.Controls.Add(toolbarOptions, 0, 2);
+#else
+        var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
+        options.Controls.Add(top);
+        options.Controls.Add(autostart);
 #endif
         table.Controls.Add(options, 0, 2);
 #if BETA
-        var startupOptions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
+        var startupOptions = new FlowLayoutPanel { Name = "StartupOptions", Dock = DockStyle.Fill, AutoSize = true };
         startupOptions.Controls.Add(new Label { Text = "Beim Start:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         startupOptions.Controls.Add(startBehavior);
-        startupOptions.Controls.Add(new Label { Text = "Kamera:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
+        var startCameraLabel = new Label { Text = "Kamera:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) };
+        startupOptions.Controls.Add(startCameraLabel);
         startupOptions.Controls.Add(startCamera);
+        void UpdateStartCameraOption()
+        {
+            startCameraLabel.Visible = startBehavior.SelectedIndex == 2;
+            startCamera.Visible = startBehavior.SelectedIndex == 2;
+        }
+        startBehavior.SelectedIndexChanged += (_, _) => UpdateStartCameraOption();
+        UpdateStartCameraOption();
         table.Controls.Add(startupOptions, 0, 3);
         var homeAssistantGroup = new GroupBox { Text = "Bewegung direkt aus Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
         var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 7 };
@@ -2217,7 +2238,12 @@ internal sealed class SettingsForm : Form
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft }; var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
+#if BETA
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, FlowDirection = FlowDirection.RightToLeft };
+#else
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft };
+#endif
+        var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
         table.Controls.Add(buttons, 0, 6);
@@ -2362,6 +2388,11 @@ internal sealed class SettingsForm : Form
                     numeric.BackColor = field;
                     numeric.ForeColor = text;
                     numeric.BorderStyle = BorderStyle.FixedSingle;
+                    break;
+                case ComboBox combo:
+                    combo.BackColor = field;
+                    combo.ForeColor = text;
+                    combo.FlatStyle = FlatStyle.Flat;
                     break;
                 case Button button:
                     button.FlatStyle = FlatStyle.Flat;

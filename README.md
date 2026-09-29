@@ -98,7 +98,11 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.44`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.45`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in Beta 45
+
+- **Einstellungen aufgeräumt:** Die Optionen stehen in festen Zeilen. Der Hinweis unter der Kameratabelle bleibt sichtbar, und die Einheit „Sekunden“ steht direkt neben der Vordergrunddauer. Die Startkamera erscheint nur bei „Mit Kamera starten“. Die Schaltflächen schließen das Formular ohne unnötige Leerfläche ab.
 
 ### Neu in Beta 44
 
