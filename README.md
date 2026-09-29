@@ -98,7 +98,12 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.43`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.44`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in Beta 44
+
+- **Monitor merken:** Die Beta speichert, auf welchem Bildschirm das Fenster zuletzt war, samt Größe und Position relativ zu dessen Arbeitsfläche. Das funktioniert auch für Monitore links oder oberhalb des Hauptbildschirms. Wenn dieser Monitor fehlt, erscheint das Fenster auf einem verfügbaren Bildschirm.
+- **Startverhalten:** Unter **Beim Start** stehen „Wie zuletzt“, „Minimiert starten“, „Mit Kamera starten“ (mit Kameraauswahl) und „Raster starten“ zur Wahl. „Wie zuletzt“ übernimmt die letzte Einzel- oder Rasteransicht und die zuletzt gewählte Kamera. Für das Raster sind mindestens zwei gültige Kameras erforderlich; sonst startet die Einzelansicht.
 
 ### Neu in Beta 43
 

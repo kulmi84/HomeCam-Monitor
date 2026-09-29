@@ -29,6 +29,12 @@ internal sealed class Settings
     public int Width { get; set; } = 480;
     public int Height { get; set; } = 270;
 #if BETA
+    public string LastMonitorDeviceName { get; set; } = "";
+    public int MonitorOffsetX { get; set; }
+    public int MonitorOffsetY { get; set; }
+    public string StartBehavior { get; set; } = "Last";
+    public int StartCameraIndex { get; set; }
+    public bool LastGridMode { get; set; }
     public int ToolbarSizePercent { get; set; } = 100;
     public bool AutoScaleToolbar { get; set; }
     public bool MotionDetectionEnabled { get; set; } = true;
@@ -182,7 +188,12 @@ internal sealed class MonitorForm : Form
         var initialWidth = Math.Max(240, settings.Width);
         var initialHeight = Math.Max(150, settings.Height);
         ClientSize = new Size(initialWidth, initialHeight);
+#if BETA
+        StartPosition = FormStartPosition.Manual;
+        Bounds = RestoreWindowBounds(settings, Screen.AllScreens.Select(screen => (screen.DeviceName, screen.WorkingArea)).ToArray());
+#else
         if (settings.Left >= 0 && settings.Top >= 0) { StartPosition = FormStartPosition.Manual; Location = new Point(settings.Left, settings.Top); }
+#endif
 #if BETA
         TopMost = settings.AlwaysOnTop;
 #else
@@ -265,8 +276,17 @@ internal sealed class MonitorForm : Form
         motionIndicator.Hide();
 #endif
         if (!HasUsableCamera()) OpenSettings();
+        if (closing) return;
+#if BETA
+        if (settings.StartBehavior == "Camera" && settings.Cameras.Count > 0)
+            settings.SelectedCamera = Math.Clamp(settings.StartCameraIndex, 0, settings.Cameras.Count - 1);
+#endif
         UpdateToolbar(); PositionOverlays(); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
 #if BETA
+        if ((settings.StartBehavior == "Grid" || settings.StartBehavior == "Last" && settings.LastGridMode) &&
+            settings.Cameras.Count(camera => Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _)) >= 2)
+            ToggleGridView();
+        if (settings.StartBehavior == "Minimized") MinimizeWindow();
         RestartMotionIntegration();
 #endif
     }
@@ -551,6 +571,9 @@ internal sealed class MonitorForm : Form
 
         if (changedSettings is null) return;
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
+#if BETA
+        settings.LastGridMode = gridMode;
+#endif
         SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows);
         UpdateToolbar(); PositionOverlays(); RestartPlayer();
 #if BETA
@@ -704,6 +727,8 @@ internal sealed class MonitorForm : Form
 
         StopPlayer();
         gridMode = true;
+        settings.LastGridMode = true;
+        SettingsStore.Save(settings);
         video.Hide();
         cameraGrid.Show();
         cameraGrid.BringToFront();
@@ -717,6 +742,8 @@ internal sealed class MonitorForm : Form
     {
         StopGridPlayers();
         gridMode = false;
+        settings.LastGridMode = false;
+        SettingsStore.Save(settings);
         if (fullscreen)
         {
             fullscreen = false;
@@ -1448,8 +1475,57 @@ internal sealed class MonitorForm : Form
     }
     private void SaveWindow()
     {
-        var value = fullscreen ? windowedBounds : Bounds; settings.Left = value.Left; settings.Top = value.Top; settings.Width = value.Width; settings.Height = value.Height; SettingsStore.Save(settings);
+        if (WindowState == FormWindowState.Minimized)
+        {
+            SettingsStore.Save(settings);
+            return;
+        }
+        var value = fullscreen ? windowedBounds : Bounds;
+        settings.Left = value.Left; settings.Top = value.Top; settings.Width = value.Width; settings.Height = value.Height;
+#if BETA
+        var screen = Screen.FromRectangle(value);
+        settings.LastMonitorDeviceName = screen.DeviceName;
+        settings.MonitorOffsetX = value.Left - screen.WorkingArea.Left;
+        settings.MonitorOffsetY = value.Top - screen.WorkingArea.Top;
+        settings.LastGridMode = gridMode;
+#endif
+        SettingsStore.Save(settings);
     }
+#if BETA
+    internal static Rectangle RestoreWindowBounds(Settings saved, IReadOnlyList<(string DeviceName, Rectangle WorkingArea)> screens)
+    {
+        var width = Math.Max(240, saved.Width);
+        var height = Math.Max(150, saved.Height);
+        if (screens.Count == 0) return new Rectangle(0, 0, width, height);
+
+        var preferred = screens.FirstOrDefault(screen =>
+            !string.IsNullOrEmpty(saved.LastMonitorDeviceName) &&
+            string.Equals(screen.DeviceName, saved.LastMonitorDeviceName, StringComparison.OrdinalIgnoreCase));
+        var hasPreferred = preferred.WorkingArea.Width > 0;
+        var oldBounds = new Rectangle(saved.Left, saved.Top, width, height);
+        var target = hasPreferred ? preferred.WorkingArea :
+            screens.FirstOrDefault(screen => screen.WorkingArea.IntersectsWith(oldBounds)).WorkingArea;
+        if (target.Width <= 0) target = screens[0].WorkingArea;
+
+        var left = hasPreferred ? target.Left + saved.MonitorOffsetX : saved.Left;
+        var top = hasPreferred ? target.Top + saved.MonitorOffsetY : saved.Top;
+        if (saved.Left == -1 && saved.Top == -1 && !hasPreferred)
+        {
+            left = target.Left + (target.Width - width) / 2;
+            top = target.Top + (target.Height - height) / 2;
+        }
+        // A disconnected monitor must never leave the camera window invisible.
+        if (!hasPreferred && !target.IntersectsWith(new Rectangle(left, top, width, height)))
+        {
+            left = target.Left + (target.Width - width) / 2;
+            top = target.Top + (target.Height - height) / 2;
+        }
+        return new Rectangle(
+            Math.Clamp(left, target.Left, Math.Max(target.Left, target.Right - width)),
+            Math.Clamp(top, target.Top, Math.Max(target.Top, target.Bottom - height)),
+            Math.Min(width, target.Width), Math.Min(height, target.Height));
+    }
+#endif
     protected override void WndProc(ref Message message)
     {
         if (message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
@@ -1946,6 +2022,8 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
 #if BETA
+    private readonly ComboBox startBehavior = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
+    private readonly ComboBox startCamera = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
     private readonly NumericUpDown toolbarSize = new() { Minimum = 50, Maximum = 100, Increment = 5, Width = 60 };
     private readonly CheckBox autoScaleToolbar = new() { Text = "Bedienleiste automatisch skalieren", AutoSize = true };
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
@@ -1999,6 +2077,13 @@ internal sealed class SettingsForm : Form
 #endif
         top.Checked = current.AlwaysOnTop; autostart.Checked = current.StartWithWindows;
 #if BETA
+        startBehavior.Items.AddRange(["Wie zuletzt", "Minimiert starten", "Mit Kamera starten", "Raster starten"]);
+        startBehavior.SelectedIndex = current.StartBehavior switch { "Minimized" => 1, "Camera" => 2, "Grid" => 3, _ => 0 };
+        foreach (var camera in current.Cameras) startCamera.Items.Add(camera.Name);
+        if (startCamera.Items.Count > 0)
+            startCamera.SelectedIndex = Math.Clamp(current.StartCameraIndex, 0, startCamera.Items.Count - 1);
+        startCamera.Enabled = startBehavior.SelectedIndex == 2;
+        startBehavior.SelectedIndexChanged += (_, _) => startCamera.Enabled = startBehavior.SelectedIndex == 2;
         toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 50, 100);
         autoScaleToolbar.Checked = current.AutoScaleToolbar;
         toolbarSize.Enabled = !autoScaleToolbar.Checked;
@@ -2032,6 +2117,21 @@ internal sealed class SettingsForm : Form
         }
         cameras.SelectionChanged += (_, _) => LoadSelectedCameraMotion();
         cameras.CurrentCellDirtyStateChanged += (_, _) => { if (cameras.IsCurrentCellDirty) cameras.CommitEdit(DataGridViewDataErrorContexts.Commit); };
+        void RefreshStartCameraChoices()
+        {
+            var selected = startCamera.SelectedIndex;
+            startCamera.Items.Clear();
+            foreach (DataGridViewRow row in cameras.Rows)
+            {
+                if (row.IsNewRow) continue;
+                var name = Convert.ToString(row.Cells[0].Value)?.Trim() ?? "";
+                var url = Convert.ToString(row.Cells[1].Value)?.Trim() ?? "";
+                if (name.Length > 0 || url.Length > 0) startCamera.Items.Add(name.Length > 0 ? name : "Neue Kamera");
+            }
+            if (startCamera.Items.Count > 0) startCamera.SelectedIndex = Math.Clamp(selected, 0, startCamera.Items.Count - 1);
+        }
+        cameras.CellValueChanged += (_, eventArgs) => { if (eventArgs.ColumnIndex is 0 or 1) RefreshStartCameraChoices(); };
+        cameras.RowsRemoved += (_, _) => RefreshStartCameraChoices();
         if (cameras.Rows.Count > 0) { cameras.Rows[0].Selected = true; cameras.CurrentCell = cameras.Rows[0].Cells[0]; }
         LoadSelectedCameraMotion();
         void UpdateMotionOptions()
@@ -2054,7 +2154,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 6 };
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 7 };
         table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -2082,6 +2182,12 @@ internal sealed class SettingsForm : Form
 #endif
         table.Controls.Add(options, 0, 2);
 #if BETA
+        var startupOptions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
+        startupOptions.Controls.Add(new Label { Text = "Beim Start:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        startupOptions.Controls.Add(startBehavior);
+        startupOptions.Controls.Add(new Label { Text = "Kamera:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
+        startupOptions.Controls.Add(startCamera);
+        table.Controls.Add(startupOptions, 0, 3);
         var homeAssistantGroup = new GroupBox { Text = "Bewegung direkt aus Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
         var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 7 };
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -2104,17 +2210,17 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(testRow, 0, 6);
         homeAssistantFields.SetColumnSpan(testRow, 2);
         homeAssistantGroup.Controls.Add(homeAssistantFields);
-        table.Controls.Add(homeAssistantGroup, 0, 3);
+        table.Controls.Add(homeAssistantGroup, 0, 4);
 #endif
 #if BETA
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 4);
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 5);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft }; var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 5);
+        table.Controls.Add(buttons, 0, 6);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
@@ -2158,6 +2264,11 @@ internal sealed class SettingsForm : Form
                 DialogResult = DialogResult.None; return;
             }
 #if BETA
+            if (startBehavior.SelectedIndex == 2 && (startCamera.SelectedIndex < 0 || startCamera.SelectedIndex >= entries.Count))
+            {
+                MessageBox.Show(this, "Bitte eine Startkamera auswählen.", "Startverhalten", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None; return;
+            }
             if (directHomeAssistant.Checked &&
                 (!Uri.TryCreate(homeAssistantUrl.Text.Trim(), UriKind.Absolute, out var haUri) ||
                  (haUri.Scheme != Uri.UriSchemeHttp && haUri.Scheme != Uri.UriSchemeHttps) ||
@@ -2174,6 +2285,11 @@ internal sealed class SettingsForm : Form
                 AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked,
                 Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
 #if BETA
+                LastMonitorDeviceName = current.LastMonitorDeviceName,
+                MonitorOffsetX = current.MonitorOffsetX, MonitorOffsetY = current.MonitorOffsetY,
+                LastGridMode = current.LastGridMode,
+                StartBehavior = startBehavior.SelectedIndex switch { 1 => "Minimized", 2 => "Camera", 3 => "Grid", _ => "Last" },
+                StartCameraIndex = Math.Max(0, startCamera.SelectedIndex),
                 ToolbarSizePercent = (int)toolbarSize.Value,
                 AutoScaleToolbar = autoScaleToolbar.Checked,
                 MotionDetectionEnabled = motionDetection.Checked,

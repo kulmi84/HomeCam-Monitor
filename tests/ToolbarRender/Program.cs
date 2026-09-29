@@ -69,6 +69,28 @@ internal static class Program
         automatic.AutoScaleToolbar = false;
         if (MonitorForm.GetToolbarSizePercent(automatic, 240) != 75)
             throw new InvalidOperationException("Manual toolbar size was not restored when automatic scaling was disabled");
+
+        var displays = new (string DeviceName, Rectangle WorkingArea)[]
+        {
+            (@"\\.\DISPLAY1", new Rectangle(0, 0, 1920, 1040)),
+            (@"\\.\DISPLAY2", new Rectangle(-1600, 0, 1600, 900))
+        };
+        var savedWindow = new Settings
+        {
+            Left = -1400, Top = 100, Width = 480, Height = 270,
+            LastMonitorDeviceName = @"\\.\DISPLAY2", MonitorOffsetX = 200, MonitorOffsetY = 100
+        };
+        if (MonitorForm.RestoreWindowBounds(savedWindow, displays) != new Rectangle(-1400, 100, 480, 270))
+            throw new InvalidOperationException("Window on the monitor left of the primary display was not restored");
+        var changedLayout = new (string DeviceName, Rectangle WorkingArea)[]
+        {
+            displays[0], (@"\\.\DISPLAY2", new Rectangle(1920, 0, 1600, 900))
+        };
+        if (MonitorForm.RestoreWindowBounds(savedWindow, changedLayout) != new Rectangle(2120, 100, 480, 270))
+            throw new InvalidOperationException("Window did not follow its monitor after the display layout changed");
+        savedWindow.Left = -3000;
+        if (MonitorForm.RestoreWindowBounds(savedWindow, [displays[0]]) != new Rectangle(720, 385, 480, 270))
+            throw new InvalidOperationException("Missing display did not fall back to the primary screen");
     }
 
     private static void Save(ToolbarForm toolbar, string output, string label)
