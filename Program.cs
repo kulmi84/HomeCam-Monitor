@@ -1763,6 +1763,9 @@ internal sealed class MonitorForm : Form
     {
 #if BETA
         NativeMethods.DisableDwmBorder(Handle);
+        // The halo in the camera-grid footage belongs to the monitor's own
+        // non-client shadow, not to its transparent drag or resize helpers.
+        NativeMethods.DisableOverlayDecoration(Handle);
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
         {
             // A GDI window region prevents DWM from anti-aliasing the corners.
