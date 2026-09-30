@@ -1427,36 +1427,44 @@ internal sealed class MonitorForm : Form
             DeleteExpiredMotionFiles(folder, settings.MotionRetentionDays);
             var safeName = string.Concat(camera.Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
             var baseName = $"{safeName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}_{Guid.NewGuid():N}";
-            var executable = Path.Combine(AppContext.BaseDirectory, "mpv.exe");
             var captureSnapshot = camera.MotionAction is "Snapshot" or "Both" ? CaptureSnapshotAsync() : Task.CompletedTask;
             var recordVideo = camera.MotionAction is "Video" or "Both" ? RecordVideoAsync() : Task.CompletedTask;
             await Task.WhenAll(captureSnapshot, recordVideo);
 
             async Task CaptureSnapshotAsync()
             {
-                // A separate player captures the triggering camera, even if another one is visible.
-                var temporary = Path.Combine(folder, ".capture-" + Guid.NewGuid().ToString("N"));
-                Directory.CreateDirectory(temporary);
+                var path = Path.Combine(folder, baseName + ".png");
+                var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "ffmpeg.exe"))
+                {
+                    UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true
+                };
+                foreach (var argument in new[] { "-nostdin", "-hide_banner", "-loglevel", "error" }) start.ArgumentList.Add(argument);
+                if (Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out var streamUri) && streamUri.Scheme == "rtsp")
+                {
+                    start.ArgumentList.Add("-rtsp_transport");
+                    start.ArgumentList.Add("tcp");
+                }
+                foreach (var argument in new[] { "-i", camera.StreamUrl, "-map", "0:v:0",
+                    "-frames:v", "1", "-an", "-f", "image2", "-y", path }) start.ArgumentList.Add(argument);
+                using var process = Process.Start(start) ?? throw new InvalidOperationException("FFmpeg konnte nicht gestartet werden.");
+                motionProcesses.Add(process);
                 try
                 {
-                    var start = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true };
-                    foreach (var argument in new[] { "--no-config", "--no-terminal", "--really-quiet", "--no-audio",
-                        "--demuxer-lavf-o=rtsp_transport=tcp", "--vo=image", "--vo-image-format=png",
-                        $"--vo-image-outdir={temporary}", "--frames=1", camera.StreamUrl }) start.ArgumentList.Add(argument);
-                    using var process = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
-                    motionProcesses.Add(process);
-                    try
+                    var errors = process.StandardError.ReadToEndAsync();
+                    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+                    try { await process.WaitForExitAsync(timeout.Token); }
+                    catch (OperationCanceledException)
                     {
-                        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(25));
-                        try { await process.WaitForExitAsync(timeout.Token); }
-                        catch (OperationCanceledException) { if (!process.HasExited) process.Kill(true); }
+                        if (!process.HasExited) process.Kill(true);
+                        throw new IOException("Der Snapshot hat das Zeitlimit überschritten.");
                     }
-                    finally { motionProcesses.Remove(process); }
-                    var frame = Directory.GetFiles(temporary, "*.png").FirstOrDefault();
-                    if (frame is null) throw new IOException("Der Stream lieferte kein Einzelbild.");
-                    File.Move(frame, Path.Combine(folder, baseName + ".png"));
+                    if (process.ExitCode != 0 || !File.Exists(path) || new FileInfo(path).Length < 64)
+                        throw new IOException("Kein Bild vom Stream: " + (await errors).Trim());
+                    using var image = Image.FromFile(path);
+                    if (image.Width < 1 || image.Height < 1) throw new IOException("Das Einzelbild ist leer.");
                 }
-                finally { Directory.Delete(temporary, true); }
+                catch { if (File.Exists(path)) File.Delete(path); throw; }
+                finally { motionProcesses.Remove(process); }
             }
             async Task RecordVideoAsync()
             {
