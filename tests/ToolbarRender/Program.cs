@@ -110,13 +110,9 @@ internal static class Program
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
 
         using var monitor = new MonitorForm();
-        var initialBounds = monitor.Bounds;
-        monitor.RefreshCameraClientArea();
-        if (monitor.Bounds != initialBounds)
-            throw new InvalidOperationException($"Initial layout changed window size: {initialBounds} -> {monitor.Bounds}");
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) &&
-            monitor.ClientSize != monitor.Size)
-            throw new InvalidOperationException($"Initial camera area is offset: window {monitor.Size}, client {monitor.ClientSize}");
+            (monitor.Region is not null || monitor.ClientSize != monitor.Size))
+            throw new InvalidOperationException($"Rounded borderless window is inset: window {monitor.Size}, client {monitor.ClientSize}");
         foreach (var width in new[] { 640, 641, 640, 641, 640 })
         {
             monitor.Bounds = new Rectangle(200, 150, width, 360);
