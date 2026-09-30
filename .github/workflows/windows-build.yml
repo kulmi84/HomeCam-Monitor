@@ -37,9 +37,37 @@ jobs:
           if (-not $exe) { throw 'mpv.exe wurde im Paket nicht gefunden.' }
           Copy-Item $exe.FullName publish/mpv.exe
           Copy-Item $exe.FullName publish-beta/mpv.exe
+      - name: FFmpeg für Bewegungsaufnahmen laden
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; 'X-GitHub-Api-Version' = '2022-11-28' }
+          $release = Invoke-RestMethod https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest -Headers $headers
+          $asset = $release.assets | Where-Object { $_.name -eq 'ffmpeg-master-latest-win64-lgpl.zip' } | Select-Object -First 1
+          if (-not $asset) { throw 'Kein LGPL-FFmpeg-Windows-Paket gefunden.' }
+          Invoke-WebRequest $asset.browser_download_url -OutFile ffmpeg.zip
+          Expand-Archive ffmpeg.zip -DestinationPath ffmpeg -Force
+          $exe = Get-ChildItem ffmpeg -Filter ffmpeg.exe -Recurse | Select-Object -First 1
+          if (-not $exe) { throw 'ffmpeg.exe wurde im Paket nicht gefunden.' }
+          Copy-Item $exe.FullName publish-beta/ffmpeg.exe
+          $license = Get-ChildItem ffmpeg -File -Recurse | Where-Object { $_.Name -match '^LICENSE' } | Select-Object -First 1
+          if ($license) { Copy-Item $license.FullName publish-beta/FFmpeg-LICENSE.txt }
+      - name: Video-Datei mit FFmpeg erzeugen und lesen
+        shell: pwsh
+        run: |
+          $ffmpeg = (Resolve-Path publish-beta/ffmpeg.exe).Path
+          $source = Join-Path $env:RUNNER_TEMP 'homecam-source.mkv'
+          $recorded = Join-Path $env:RUNNER_TEMP 'homecam-recorded.mkv'
+          & $ffmpeg -nostdin -hide_banner -loglevel error -f lavfi -i 'testsrc=size=320x180:rate=10' -t 2 -c:v mpeg4 -y $source
+          if ($LASTEXITCODE -ne 0) { throw 'FFmpeg-Testquelle fehlgeschlagen.' }
+          & $ffmpeg -nostdin -hide_banner -loglevel error -i $source -t 1 -map 0:v:0 -an -c:v copy -f matroska -y $recorded
+          if ($LASTEXITCODE -ne 0 -or (Get-Item $recorded).Length -lt 4096) { throw 'Bewegungsaufnahme fehlgeschlagen.' }
+          & $ffmpeg -nostdin -hide_banner -loglevel error -i $recorded -f null NUL
+          if ($LASTEXITCODE -ne 0) { throw 'Die erzeugte Videodatei ist nicht lesbar.' }
       - name: Beta-Downloads erstellen
         shell: pwsh
-        run: .github/scripts/build-beta-downloads.ps1 -Version '0.3.0-beta.7'
+        run: .github/scripts/build-beta-downloads.ps1 -Version '0.3.0-beta.8'
       - name: Downloads mit Microsoft Defender prüfen
         shell: pwsh
         run: .github/scripts/scan-downloads.ps1
@@ -49,5 +77,5 @@ jobs:
           path: publish/
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-Beta-v0.3.0-beta.7-win-x64
+          name: HomeCamMonitor-Beta-v0.3.0-beta.8-win-x64
           path: beta-downloads/
