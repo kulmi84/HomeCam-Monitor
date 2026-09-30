@@ -2274,7 +2274,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 };
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 7 };
         table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -2332,14 +2332,11 @@ internal sealed class SettingsForm : Form
         UpdateStartCameraOption();
         table.Controls.Add(startupOptions, 0, 3);
         var captureOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
-        captureOptions.Controls.Add(new Label { Text = "Ausgewählte Kamera – bei Bewegung:", AutoSize = true, Margin = new Padding(3, 5, 3, 0) });
+        captureOptions.Controls.Add(new Label { Text = "Bei Bewegung:", AutoSize = true, Margin = new Padding(3, 5, 3, 0) });
         captureOptions.Controls.Add(motionAction);
         captureOptions.Controls.Add(motionVideoSeconds);
-        captureOptions.Controls.Add(new Label { Text = "Aufbewahrung:", AutoSize = true, Margin = new Padding(14, 5, 3, 0) });
-        captureOptions.Controls.Add(motionRetention);
-        table.Controls.Add(captureOptions, 0, 4);
-        var homeAssistantGroup = new GroupBox { Text = "Bewegung direkt aus Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
-        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 7 };
+        var homeAssistantGroup = new GroupBox { Text = "Bewegung pro Kamera und Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
+        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 9 };
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         homeAssistantFields.Controls.Add(directHomeAssistant, 0, 0);
@@ -2352,18 +2349,21 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(motionEntityId, 1, 3);
         homeAssistantFields.Controls.Add(new Label { Text = "Ausgewählte Kamera:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
         homeAssistantFields.Controls.Add(selectedMotionCamera, 1, 4);
-        homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 5);
+        homeAssistantFields.Controls.Add(captureOptions, 1, 5);
+        homeAssistantFields.Controls.Add(new Label { Text = "Aufbewahrung (alle Kameras):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 6);
+        homeAssistantFields.Controls.Add(motionRetention, 1, 6);
+        homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 7);
         homeAssistantFields.SetColumnSpan(ignoreHomeAssistantCertificateErrors, 2);
         var testRow = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
         testRow.Controls.Add(testHomeAssistant);
         testRow.Controls.Add(homeAssistantStatus);
-        homeAssistantFields.Controls.Add(testRow, 0, 6);
+        homeAssistantFields.Controls.Add(testRow, 0, 8);
         homeAssistantFields.SetColumnSpan(testRow, 2);
         homeAssistantGroup.Controls.Add(homeAssistantFields);
-        table.Controls.Add(homeAssistantGroup, 0, 5);
+        table.Controls.Add(homeAssistantGroup, 0, 4);
 #endif
 #if BETA
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 6);
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 5);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -2375,7 +2375,7 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 7);
+        table.Controls.Add(buttons, 0, 6);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
