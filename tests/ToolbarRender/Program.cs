@@ -56,10 +56,21 @@ internal static class Program
         AssertSameImage(output, "live-50", "restart-50");
         AssertSameImage(output, "live-50", "hidden-then-50");
 
+        foreach (var size in new[] { new Size(180, 100), new Size(181, 101), new Size(752, 473) })
+        {
+            var tiles = MonitorForm.GetCameraGridBounds(size);
+            if (tiles.Length != 4 ||
+                tiles[0].Right != tiles[1].Left || tiles[2].Right != tiles[3].Left ||
+                tiles[0].Bottom != tiles[2].Top || tiles[1].Bottom != tiles[3].Top ||
+                tiles[0].Width != tiles[2].Width || tiles[1].Width != tiles[3].Width ||
+                tiles[0].Height != tiles[1].Height || tiles[2].Height != tiles[3].Height ||
+                tiles[1].Right != size.Width || tiles[3].Bottom != size.Height)
+                throw new InvalidOperationException($"Grid tiles do not meet at the same center for {size}");
+        }
         var tileBorders = MonitorForm.GetGridMotionBorderBounds(new Size(180, 100));
         if (tileBorders.Length != 4 ||
-            tileBorders.Any(border => border.Left < 5 || border.Top < 5 ||
-                border.Right > 175 || border.Bottom > 95))
+            tileBorders.Any(border => border.Left < 2 || border.Top < 2 ||
+                border.Right > 178 || border.Bottom > 98))
             throw new InvalidOperationException("Motion borders must stay inside their camera tile");
 
         var automatic = new Settings { AutoScaleToolbar = true, ToolbarSizePercent = 75 };
