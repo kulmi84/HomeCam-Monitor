@@ -109,6 +109,24 @@ internal static class Program
         if (MonitorForm.RestoreWindowBounds(savedWindow, [displays[0]]) != new Rectangle(720, 385, 480, 270))
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
 
+        using var monitor = new MonitorForm();
+        foreach (var width in new[] { 640, 641, 640, 641, 640 })
+        {
+            monitor.Bounds = new Rectangle(200, 150, width, 360);
+            Application.DoEvents();
+            var expected = (int)Math.Round(width * 9d / 16d);
+            if (Math.Abs(monitor.Height - expected) > 1)
+                throw new InvalidOperationException($"Camera window grew while resizing: {monitor.Bounds}, expected height {expected}");
+        }
+        var previousHeight = monitor.Height;
+        for (var move = 0; move < 5; move++)
+        {
+            monitor.Location = new Point(200 + move, 150 + move);
+            Application.DoEvents();
+            if (monitor.Height != previousHeight)
+                throw new InvalidOperationException("Camera window grew while moving");
+        }
+
         using var settingsForm = new SettingsForm(new Settings
         {
             Cameras = [new CameraEntry { Name = "Einfahrt", StreamUrl = "rtsp://127.0.0.1:8554/Einfahrt",
