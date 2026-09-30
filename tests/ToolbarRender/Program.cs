@@ -126,7 +126,7 @@ internal static class Program
             throw new InvalidOperationException("Seconds label wrapped away from the duration field");
         var buttons = AllControls(settingsForm).OfType<FlowLayoutPanel>()
             .Single(panel => panel.Controls.OfType<Button>().Any(button => button.Text == "Speichern"));
-        if (settingsForm.ClientSize.Height - buttons.Bottom > 25)
+        if (buttons.Bottom <= settingsForm.ClientSize.Height && settingsForm.ClientSize.Height - buttons.Bottom > 25)
             throw new InvalidOperationException("Unused space remains below the settings buttons");
     }
 
