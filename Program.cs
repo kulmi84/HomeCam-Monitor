@@ -1461,28 +1461,37 @@ internal sealed class MonitorForm : Form
             async Task RecordVideoAsync()
             {
                 var path = Path.Combine(folder, baseName + ".mkv");
-                var pipe = $"HomeCamMonitor-Motion-{Guid.NewGuid():N}";
-                var start = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true };
-                foreach (var argument in new[] { "--no-config", "--no-terminal", "--really-quiet", "--no-audio",
-                    "--vo=null", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
-                    $"--stream-record={path}", $"--input-ipc-server=\\\\.\\pipe\\{pipe}", camera.StreamUrl }) start.ArgumentList.Add(argument);
-                using var process = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
+                var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "ffmpeg.exe"))
+                {
+                    UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true
+                };
+                foreach (var argument in new[] { "-nostdin", "-hide_banner", "-loglevel", "error" }) start.ArgumentList.Add(argument);
+                if (Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out var streamUri) && streamUri.Scheme == "rtsp")
+                {
+                    start.ArgumentList.Add("-rtsp_transport");
+                    start.ArgumentList.Add("tcp");
+                }
+                foreach (var argument in new[] { "-i", camera.StreamUrl,
+                    "-t", (camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds : 30).ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    "-map", "0:v:0", "-an", "-c:v", "copy", "-f", "matroska", "-y", path }) start.ArgumentList.Add(argument);
+                using var process = Process.Start(start) ?? throw new InvalidOperationException("FFmpeg konnte nicht gestartet werden.");
                 motionProcesses.Add(process);
                 activeMotionRecordings++;
                 RefreshRecordingIndicator();
                 try
                 {
-                    await Task.WhenAny(
-                        Task.Delay(camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds * 1000 : 30000),
-                        process.WaitForExitAsync());
-                    if (!process.HasExited)
+                    var errors = process.StandardError.ReadToEndAsync();
+                    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(camera.MotionVideoSeconds + 30));
+                    try { await process.WaitForExitAsync(timeout.Token); }
+                    catch (OperationCanceledException)
                     {
-                        try { await SendCommandToPipeAsync(pipe, new object[] { "quit" }); } catch { }
-                        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                        try { await process.WaitForExitAsync(timeout.Token); } catch (OperationCanceledException) { process.Kill(true); }
+                        if (!process.HasExited) process.Kill(true);
+                        throw new IOException("Die Videoaufnahme hat das Zeitlimit überschritten.");
                     }
-                    if (File.Exists(path) && new FileInfo(path).Length == 0) File.Delete(path);
+                    if (process.ExitCode != 0 || !File.Exists(path) || new FileInfo(path).Length < 4096)
+                        throw new IOException("Kein gültiges Video: " + (await errors).Trim());
                 }
+                catch { if (File.Exists(path)) File.Delete(path); throw; }
                 finally
                 {
                     motionProcesses.Remove(process);
