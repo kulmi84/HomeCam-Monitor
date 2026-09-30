@@ -112,7 +112,7 @@ internal static class Program
             BottomOnScreen(cameraHint) > TopOnScreen(generalGroup) ||
             BottomOnScreen(options) > TopOnScreen(startup) ||
             BottomOnScreen(generalGroup) > TopOnScreen(motionGroup))
-            throw new InvalidOperationException("Settings rows overlap or the camera hint is hidden");
+            throw new InvalidOperationException($"Settings rows overlap: table={BottomOnScreen(cameraTable)}, hint={TopOnScreen(cameraHint)}..{BottomOnScreen(cameraHint)}, general={TopOnScreen(generalGroup)}..{BottomOnScreen(generalGroup)}, options={BottomOnScreen(options)}, startup={TopOnScreen(startup)}, motion={TopOnScreen(motionGroup)}");
         var selectedCamera = AllControls(motionGroup).OfType<Label>()
             .Single(label => label.Text == "Ausgewählte Kamera:");
         var action = AllControls(motionGroup).OfType<ComboBox>()
