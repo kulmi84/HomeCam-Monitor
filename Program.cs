@@ -2041,7 +2041,7 @@ internal sealed class DragSurfaceForm : Form
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
         BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = Cursors.Default;
 #if BETA
-        HandleCreated += (_, _) => NativeMethods.DisableDwmBorder(Handle);
+        HandleCreated += (_, _) => NativeMethods.DisableOverlayDecoration(Handle);
         MouseDown += (_, eventArgs) =>
         {
             if (eventArgs.Button == MouseButtons.Left) monitor.RegisterUserInteraction();
@@ -2078,6 +2078,9 @@ internal sealed class ResizeGripForm : Form
     {
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
         BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = cursor;
+#if BETA
+        HandleCreated += (_, _) => NativeMethods.DisableOverlayDecoration(Handle);
+#endif
         MouseDown += (_, eventArgs) =>
         {
             if (eventArgs.Button != MouseButtons.Left) return;
@@ -2367,7 +2370,7 @@ internal static class NativeMethods
 #endif
     [DllImport("gdi32.dll")] public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr handle);
-    public enum DwmWindowAttribute { UseImmersiveDarkMode = 20, WindowCornerPreference = 33, BorderColor = 34 }
+    public enum DwmWindowAttribute { NonClientRenderingPolicy = 2, UseImmersiveDarkMode = 20, WindowCornerPreference = 33, BorderColor = 34 }
     public enum DwmWindowCornerPreference { Default = 0, DoNotRound = 1, Round = 2, RoundSmall = 3 }
     [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, DwmWindowAttribute attribute, ref int value, int size);
     public static void DisableDwmBorder(IntPtr window)
@@ -2376,6 +2379,17 @@ internal static class NativeMethods
         var noBorder = unchecked((int)0xFFFFFFFE);
         DwmSetWindowAttribute(window, DwmWindowAttribute.BorderColor, ref noBorder, sizeof(int));
     }
+#if BETA
+    public static void DisableOverlayDecoration(IntPtr window)
+    {
+        DisableDwmBorder(window);
+        // The nearly transparent drag and resize windows need no DWM non-client
+        // rendering, which can leave a separate shadow outside the camera image.
+        var disabled = 1; // DWMNCRP_DISABLED
+        DwmSetWindowAttribute(window, (int)DwmWindowAttribute.NonClientRenderingPolicy,
+            ref disabled, sizeof(int));
+    }
+#endif
 }
 
 internal sealed class SettingsForm : Form
