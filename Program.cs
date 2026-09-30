@@ -39,6 +39,8 @@ internal sealed class Settings
     public bool AutoScaleToolbar { get; set; }
     public bool MotionDetectionEnabled { get; set; } = true;
     public int MotionForegroundSeconds { get; set; } = 10;
+    public int MotionIndicatorSeconds { get; set; } = 2;
+    public bool HighlightMotionInGrid { get; set; }
     public bool MinimizeWhenInactive { get; set; }
     public bool RestorePreviousCameraAfterMotion { get; set; } = true;
     public bool DirectHomeAssistantEnabled { get; set; }
@@ -171,6 +173,8 @@ internal sealed class MonitorForm : Form
     private DateTime sentToBackgroundAt = DateTime.MinValue;
     private ContextMenuStrip? cameraContextMenu;
     private MotionIndicatorForm? motionIndicator;
+    private GridMotionHighlightForm? gridMotionHighlight;
+    private int gridHighlightedCameraIndex = -1;
     private SettingsForm? activeSettingsDialog;
     private bool motionIndicatorVisible;
 #endif
@@ -252,7 +256,7 @@ internal sealed class MonitorForm : Form
 #if BETA
         motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
-        motionIndicatorTimer.Interval = 1000;
+        motionIndicatorTimer.Interval = Math.Clamp(settings.MotionIndicatorSeconds, 1, 10) * 1000;
         motionIndicatorTimer.Tick += (_, _) => HideMotionIndicator();
 #endif
         FormClosing += (_, _) => CloseMonitor();
@@ -287,6 +291,9 @@ internal sealed class MonitorForm : Form
         motionIndicator = new MotionIndicatorForm();
         motionIndicator.Show(this);
         motionIndicator.Hide();
+        gridMotionHighlight = new GridMotionHighlightForm();
+        gridMotionHighlight.Show(this);
+        gridMotionHighlight.Hide();
 #endif
         if (!HasUsableCamera()) OpenSettings();
         if (closing) return;
@@ -312,7 +319,7 @@ internal sealed class MonitorForm : Form
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
-        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
+        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close(); gridMotionHighlight?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
@@ -757,6 +764,8 @@ internal sealed class MonitorForm : Form
 
     private void ExitGridView(int? cameraIndex = null)
     {
+        gridHighlightedCameraIndex = -1;
+        gridMotionHighlight?.Hide();
         StopGridPlayers();
         gridMode = false;
         settings.LastGridMode = false;
@@ -1104,7 +1113,22 @@ internal sealed class MonitorForm : Form
 #if BETA
         if (motionIndicator is not null && !motionIndicator.IsDisposed)
         {
-            motionIndicator.Location = new Point(Right - motionIndicator.Width - 12, Top + 12);
+            var highlightedSlot = motionIndicatorVisible && gridMode && settings.HighlightMotionInGrid
+                ? gridSlots.FirstOrDefault(slot => slot.CameraIndex == gridHighlightedCameraIndex) : null;
+            var highlightBounds = highlightedSlot?.Host.RectangleToScreen(highlightedSlot.Host.ClientRectangle);
+            if (gridMotionHighlight is not null && !gridMotionHighlight.IsDisposed)
+            {
+                gridMotionHighlight.Visible = highlightBounds.HasValue;
+                if (highlightBounds.HasValue)
+                {
+                    gridMotionHighlight.Bounds = highlightBounds.Value;
+                    gridMotionHighlight.TopMost = TopMost;
+                    gridMotionHighlight.BringToFront();
+                }
+            }
+            motionIndicator.Location = highlightBounds.HasValue
+                ? new Point(highlightBounds.Value.Right - motionIndicator.Width - 10, highlightBounds.Value.Top + 10)
+                : new Point(Right - motionIndicator.Width - 12, Top + 12);
             motionIndicator.TopMost = TopMost;
             motionIndicator.Visible = motionIndicatorVisible;
             if (motionIndicatorVisible) motionIndicator.BringToFront();
@@ -1400,7 +1424,8 @@ internal sealed class MonitorForm : Form
     private void HandleMotion(string cameraName)
     {
         if (!settings.MotionDetectionEnabled) return;
-        ShowMotionIndicator();
+        ShowMotionIndicator(cameraIndex: settings.Cameras.FindIndex(camera =>
+            string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase)));
         var motionCamera = settings.Cameras.FirstOrDefault(camera =>
             camera.MotionEnabled && string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (motionCamera is not null) StartMotionCapture(motionCamera);
@@ -1558,12 +1583,14 @@ internal sealed class MonitorForm : Form
         }
     }
 
-    private void ShowMotionIndicator(bool personDetected = false)
+    private void ShowMotionIndicator(bool personDetected = false, int cameraIndex = -1)
     {
         if (motionIndicator is not null) motionIndicator.PersonDetected = personDetected;
+        gridHighlightedCameraIndex = !personDetected && gridMode && settings.HighlightMotionInGrid
+            ? cameraIndex : -1;
         motionIndicatorVisible = true;
         motionIndicatorTimer.Stop();
-        motionIndicatorTimer.Interval = 1000;
+        motionIndicatorTimer.Interval = Math.Clamp(settings.MotionIndicatorSeconds, 1, 10) * 1000;
         motionIndicatorTimer.Start();
         PositionOverlays();
     }
@@ -1572,7 +1599,9 @@ internal sealed class MonitorForm : Form
     {
         motionIndicatorTimer.Stop();
         motionIndicatorVisible = false;
+        gridHighlightedCameraIndex = -1;
         motionIndicator?.Hide();
+        gridMotionHighlight?.Hide();
     }
 
     private void ForceToForeground()
@@ -1735,6 +1764,37 @@ internal sealed class MonitorForm : Form
 }
 
 #if BETA
+internal sealed class GridMotionHighlightForm : Form
+{
+    protected override bool ShowWithoutActivation => true;
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            parameters.ExStyle |= 0x00000020 | 0x08000000 | 0x00000080;
+            return parameters;
+        }
+    }
+
+    public GridMotionHighlightForm()
+    {
+        FormBorderStyle = FormBorderStyle.None;
+        ShowInTaskbar = false;
+        StartPosition = FormStartPosition.Manual;
+        AutoScaleMode = AutoScaleMode.None;
+        BackColor = Color.Black;
+        TransparencyKey = Color.Black;
+    }
+
+    protected override void OnPaint(PaintEventArgs eventArgs)
+    {
+        base.OnPaint(eventArgs);
+        using var outline = new Pen(Color.White, 3);
+        eventArgs.Graphics.DrawRectangle(outline, 2, 2, Math.Max(1, Width - 5), Math.Max(1, Height - 5));
+    }
+}
+
 internal sealed class MotionIndicatorForm : Form
 {
     private bool personDetected;
@@ -2236,6 +2296,8 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
     private readonly CheckBox restorePreviousCamera = new() { Text = "Vorherige Kamera wiederherstellen", AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
+    private readonly NumericUpDown indicatorSeconds = new() { Minimum = 1, Maximum = 10, Value = 2, Width = 60 };
+    private readonly CheckBox highlightMotionInGrid = new() { Text = "Bewegung im 4er-Raster hervorheben", AutoSize = true };
     private readonly CheckBox directHomeAssistant = new() { Text = "Direkt mit Home Assistant verbinden (empfohlen)", AutoSize = true };
     private readonly TextBox homeAssistantUrl = new() { Width = 300 };
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
@@ -2315,6 +2377,8 @@ internal sealed class SettingsForm : Form
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
         restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
+        indicatorSeconds.Value = Math.Clamp(current.MotionIndicatorSeconds, 1, 10);
+        highlightMotionInGrid.Checked = current.HighlightMotionInGrid;
         directHomeAssistant.Checked = current.DirectHomeAssistantEnabled;
         homeAssistantUrl.Text = current.HomeAssistantUrl;
         homeAssistantToken.Text = current.HomeAssistantToken;
@@ -2410,7 +2474,7 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
 #endif
 #if BETA
-        var options = new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) };
+        var options = new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 4, Margin = new Padding(0) };
         for (var row = 0; row < options.RowCount; row++) options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var generalOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
         generalOptions.Controls.Add(top);
@@ -2426,12 +2490,19 @@ internal sealed class SettingsForm : Form
         motionOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         options.Controls.Add(motionOptions, 0, 1);
 
+        var indicatorOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        indicatorOptions.Controls.Add(new Label { Text = "Symbole anzeigen:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        indicatorOptions.Controls.Add(indicatorSeconds);
+        indicatorOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 12, 0) });
+        indicatorOptions.Controls.Add(highlightMotionInGrid);
+        options.Controls.Add(indicatorOptions, 0, 2);
+
         var toolbarOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
         toolbarOptions.Controls.Add(new Label { Text = "Bedienleiste:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(toolbarSize);
         toolbarOptions.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(autoScaleToolbar);
-        options.Controls.Add(toolbarOptions, 0, 2);
+        options.Controls.Add(toolbarOptions, 0, 3);
 #else
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
         options.Controls.Add(top);
@@ -2592,6 +2663,8 @@ internal sealed class SettingsForm : Form
                 AutoScaleToolbar = autoScaleToolbar.Checked,
                 MotionDetectionEnabled = motionDetection.Checked,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
+                MotionIndicatorSeconds = (int)indicatorSeconds.Value,
+                HighlightMotionInGrid = highlightMotionInGrid.Checked,
                 MinimizeWhenInactive = minimizeWhenInactive.Checked,
                 RestorePreviousCameraAfterMotion = restorePreviousCamera.Checked,
                 DirectHomeAssistantEnabled = directHomeAssistant.Checked,
