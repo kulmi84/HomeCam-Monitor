@@ -2274,7 +2274,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 7 };
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 6 };
         table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -2315,7 +2315,6 @@ internal sealed class SettingsForm : Form
         options.Controls.Add(top);
         options.Controls.Add(autostart);
 #endif
-        table.Controls.Add(options, 0, 2);
 #if BETA
         var startupOptions = new FlowLayoutPanel { Name = "StartupOptions", Dock = DockStyle.Fill, AutoSize = true };
         startupOptions.Controls.Add(new Label { Text = "Beim Start:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
@@ -2330,7 +2329,18 @@ internal sealed class SettingsForm : Form
         }
         startBehavior.SelectedIndexChanged += (_, _) => UpdateStartCameraOption();
         UpdateStartCameraOption();
-        table.Controls.Add(startupOptions, 0, 3);
+        var generalGroup = new GroupBox { Text = "Allgemeine Einstellungen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
+        var generalFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2 };
+        generalFields.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        generalFields.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        generalFields.Controls.Add(options, 0, 0);
+        generalFields.Controls.Add(startupOptions, 0, 1);
+        generalGroup.Controls.Add(generalFields);
+        table.Controls.Add(generalGroup, 0, 2);
+#else
+        table.Controls.Add(options, 0, 2);
+#endif
+#if BETA
         var captureOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
         captureOptions.Controls.Add(new Label { Text = "Bei Bewegung:", AutoSize = true, Margin = new Padding(3, 5, 3, 0) });
         captureOptions.Controls.Add(motionAction);
@@ -2360,10 +2370,10 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(testRow, 0, 8);
         homeAssistantFields.SetColumnSpan(testRow, 2);
         homeAssistantGroup.Controls.Add(homeAssistantFields);
-        table.Controls.Add(homeAssistantGroup, 0, 4);
+        table.Controls.Add(homeAssistantGroup, 0, 3);
 #endif
 #if BETA
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 5);
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 4);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -2375,7 +2385,7 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 6);
+        table.Controls.Add(buttons, 0, 5);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
