@@ -134,7 +134,7 @@ internal static class Program
         if (seconds.Top > duration.Bottom || seconds.Bottom < duration.Top)
             throw new InvalidOperationException("Seconds label wrapped away from the duration field");
         var gridHighlight = AllControls(settingsForm).OfType<CheckBox>()
-            .Single(check => check.Text == "Bewegung im 4er-Raster hervorheben");
+            .Single(check => check.Text == "Bewegungsindikator im 4er-Raster anzeigen");
         var indicatorDuration = AllControls(settingsForm).OfType<NumericUpDown>()
             .Single(number => number.Maximum == 10);
         if (gridHighlight.Checked || indicatorDuration.Value != 2)
