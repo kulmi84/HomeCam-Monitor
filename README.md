@@ -98,7 +98,11 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.20`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.21`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 21
+
+- **Raster direkt beim Start bündig:** Die Windows-11-Fensterfläche wird nach dem Öffnen erneut berechnet, bevor die Kameras starten. Damit füllt das Bild den abgerundeten Rahmen bereits beim ersten Anzeigen bis rechts und unten aus.
 
 ### Neu in 0.3.0 Beta 20
 
