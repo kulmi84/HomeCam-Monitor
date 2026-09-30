@@ -1430,7 +1430,9 @@ internal sealed class MonitorForm : Form
         if (!settings.MotionDetectionEnabled) return;
         var camera = settings.Cameras.FirstOrDefault(item => item.MotionEnabled &&
             string.Equals(item.Name, cameraName, StringComparison.OrdinalIgnoreCase));
-        if (camera is not null) StartMotionCapture(camera, personDetected: true);
+        if (camera is null) return;
+        ShowMotionIndicator(personDetected: true);
+        StartMotionCapture(camera, personDetected: true);
     }
 
     private async void StartMotionCapture(CameraEntry camera, bool personDetected = false)
@@ -1550,8 +1552,9 @@ internal sealed class MonitorForm : Form
         }
     }
 
-    private void ShowMotionIndicator()
+    private void ShowMotionIndicator(bool personDetected = false)
     {
+        if (motionIndicator is not null) motionIndicator.PersonDetected = personDetected;
         motionIndicatorVisible = true;
         motionIndicatorTimer.Stop();
         motionIndicatorTimer.Interval = 1000;
@@ -1728,6 +1731,13 @@ internal sealed class MonitorForm : Form
 #if BETA
 internal sealed class MotionIndicatorForm : Form
 {
+    private bool personDetected;
+    public bool PersonDetected
+    {
+        get => personDetected;
+        set { if (personDetected == value) return; personDetected = value; Invalidate(); }
+    }
+
     protected override bool ShowWithoutActivation => true;
     protected override CreateParams CreateParams
     {
@@ -1769,6 +1779,24 @@ internal sealed class MotionIndicatorForm : Form
             EndCap = System.Drawing.Drawing2D.LineCap.Round,
             LineJoin = System.Drawing.Drawing2D.LineJoin.Round
         };
+
+        if (personDetected)
+        {
+            // Ruhende Person als Gegenstück zum laufenden Bewegungssymbol.
+            eventArgs.Graphics.FillEllipse(Brushes.Black, 13, 1, 11, 11);
+            eventArgs.Graphics.FillEllipse(whiteBrush, 15, 3, 7, 7);
+            var body = new[]
+            {
+                new[] { new PointF(18, 13), new PointF(18, 23) },
+                new[] { new PointF(18, 16), new PointF(10, 21) },
+                new[] { new PointF(18, 16), new PointF(26, 21) },
+                new[] { new PointF(18, 23), new PointF(13, 32) },
+                new[] { new PointF(18, 23), new PointF(23, 32) }
+            };
+            foreach (var line in body) eventArgs.Graphics.DrawLines(blackPen, line);
+            foreach (var line in body) eventArgs.Graphics.DrawLines(whitePen, line);
+            return;
+        }
 
         // Kräftige, laufende Silhouette: weiß mit schwarzer Kontur, damit das
         // Symbol sowohl auf hellen als auch auf dunklen Kamerabildern sichtbar ist.
