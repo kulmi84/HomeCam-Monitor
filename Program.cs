@@ -146,6 +146,7 @@ internal sealed class MonitorForm : Form
         Visible = false
     };
     private readonly List<GridPlayerSlot> gridSlots = [];
+    private readonly Panel gridDivider = new() { BackColor = Color.Black, TabStop = false };
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
 #endif
     private Settings settings;
@@ -747,6 +748,8 @@ internal sealed class MonitorForm : Form
             cameraGrid.Controls.Add(host);
             gridSlots.Add(slot);
         }
+        cameraGrid.Controls.Add(gridDivider);
+        gridDivider.BringToFront();
         LayoutCameraGrid();
     }
 
@@ -769,6 +772,11 @@ internal sealed class MonitorForm : Form
         var bounds = GetCameraGridBounds(cameraGrid.ClientSize);
         for (var index = 0; index < gridSlots.Count; index++)
             gridSlots[index].Host.Bounds = bounds[index];
+        // mpv may letterbox one edge pixel in only one row after rounding
+        // a camera's aspect ratio. A shared inner divider keeps both rows
+        // on the same visible vertical line at every window size.
+        gridDivider.Bounds = new Rectangle(Math.Max(0, bounds[1].Left - 1), 0, 1, cameraGrid.ClientSize.Height);
+        gridDivider.BringToFront();
     }
 
     private void AlignCameraSurfaces()
@@ -1763,9 +1771,6 @@ internal sealed class MonitorForm : Form
     {
 #if BETA
         NativeMethods.DisableDwmBorder(Handle);
-        // The halo in the camera-grid footage belongs to the monitor's own
-        // non-client shadow, not to its transparent drag or resize helpers.
-        NativeMethods.DisableOverlayDecoration(Handle);
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
         {
             // A GDI window region prevents DWM from anti-aliasing the corners.
