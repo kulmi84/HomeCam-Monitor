@@ -98,7 +98,11 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.25`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.26`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 26
+
+- Der äußere DWM-Schatten des Kamerafensters wird deaktiviert. Das 4er-Raster bleibt bis an die Fensterkante ausgerichtet.
 
 ### Neu in 0.3.0 Beta 25
 
