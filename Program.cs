@@ -49,6 +49,8 @@ internal sealed class Settings
     public bool IgnoreHomeAssistantCertificateErrors { get; set; }
     public bool PerCameraMotionConfigured { get; set; }
     public int MotionRetentionDays { get; set; } = 7;
+    public int SettingsWindowWidth { get; set; } = 980;
+    public int SettingsWindowHeight { get; set; } = 780;
 #endif
 }
 
@@ -155,6 +157,7 @@ internal sealed class MonitorForm : Form
     private bool nativeMoveOrResize;
 #if BETA
     private bool recording;
+    private int activeMotionRecordings;
     private string? recordingPath;
     private Process? recordingPlayer;
     private int? cameraBeforeMotion;
@@ -469,13 +472,13 @@ internal sealed class MonitorForm : Form
             recordingPlayer = Process.Start(start) ?? throw new InvalidOperationException("Der Aufnahmeprozess konnte nicht gestartet werden.");
             recording = true;
             latencyTimer.Stop();
-            toolbar?.SetRecording(true);
+            RefreshRecordingIndicator();
             toolbar?.Flash("Aufnahme läuft");
         }
         catch (Exception exception)
         {
             recording = false;
-            toolbar?.SetRecording(false);
+            RefreshRecordingIndicator();
             latencyTimer.Start();
             MessageBox.Show(this, $"Die Aufnahme konnte nicht gestartet oder beendet werden.\n\nZiel: {recordingPath}\n\n{exception.Message}", "Aufnahme fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
@@ -487,7 +490,7 @@ internal sealed class MonitorForm : Form
         var completedPath = recordingPath;
         recordingPlayer = null;
         recording = false;
-        toolbar?.SetRecording(false);
+        RefreshRecordingIndicator();
         latencyTimer.Start();
 
         if (current is not null)
@@ -535,6 +538,8 @@ internal sealed class MonitorForm : Form
         catch { try { if (current is { HasExited: false }) current.Kill(true); } catch { } }
         finally { current?.Dispose(); }
     }
+
+    private void RefreshRecordingIndicator() => toolbar?.SetRecording(recording || activeMotionRecordings > 0, recording);
 #endif
 
     private async Task SendCommandAsync(object[] command)
@@ -1463,9 +1468,13 @@ internal sealed class MonitorForm : Form
                     $"--stream-record={path}", $"--input-ipc-server=\\\\.\\pipe\\{pipe}", camera.StreamUrl }) start.ArgumentList.Add(argument);
                 using var process = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
                 motionProcesses.Add(process);
+                activeMotionRecordings++;
+                RefreshRecordingIndicator();
                 try
                 {
-                    await Task.Delay(camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds * 1000 : 30000);
+                    await Task.WhenAny(
+                        Task.Delay(camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds * 1000 : 30000),
+                        process.WaitForExitAsync());
                     if (!process.HasExited)
                     {
                         try { await SendCommandToPipeAsync(pipe, new object[] { "quit" }); } catch { }
@@ -1474,7 +1483,12 @@ internal sealed class MonitorForm : Form
                     }
                     if (File.Exists(path) && new FileInfo(path).Length == 0) File.Delete(path);
                 }
-                finally { motionProcesses.Remove(process); }
+                finally
+                {
+                    motionProcesses.Remove(process);
+                    activeMotionRecordings--;
+                    if (!closing) RefreshRecordingIndicator();
+                }
             }
         }
         catch (Exception exception)
@@ -1878,6 +1892,9 @@ internal sealed class ToolbarForm : Form
     private int sizePercent = 100;
     private readonly Label grid;
     private readonly Label recording;
+    private readonly System.Windows.Forms.Timer recordingBlinkTimer = new() { Interval = 500 };
+    private bool recordingIndicatorActive;
+    private bool recordingBlinkVisible = true;
 #endif
     private readonly Label note;
     private readonly ToolTip toolTips = new()
@@ -1913,6 +1930,12 @@ internal sealed class ToolbarForm : Form
         recording = Item("●", 192, async (_, _) => await monitor.ToggleRecordingAsync());
         recording.Font = new Font("Segoe UI Symbol", 9);
         recording.ForeColor = Color.White;
+        recordingBlinkTimer.Tick += (_, _) =>
+        {
+            recordingBlinkVisible = !recordingBlinkVisible;
+            recording.ForeColor = recordingBlinkVisible ? Color.Red : BackColor;
+        };
+        Disposed += (_, _) => recordingBlinkTimer.Dispose();
         var settings = Item("\uE713", 224, (_, _) => monitor.OpenSettings());
 #else
         var snapshot = Item("\uEB9F", 128, async (_, _) => await monitor.SaveSnapshotAsync());
@@ -2081,11 +2104,18 @@ internal sealed class ToolbarForm : Form
         grid.Invalidate();
     }
 
-    public void SetRecording(bool active)
+    public void SetRecording(bool active, bool manuallyStoppable = true)
     {
         recording.Text = "●";
-        recording.ForeColor = active ? Color.Red : Color.White;
-        toolTips.SetToolTip(recording, active ? "Aufnahme beenden und speichern" : "Aufnahme starten");
+        if (recordingIndicatorActive != active)
+        {
+            recordingIndicatorActive = active;
+            recordingBlinkVisible = true;
+            if (active) recordingBlinkTimer.Start(); else recordingBlinkTimer.Stop();
+            recording.ForeColor = active ? Color.Red : Color.White;
+        }
+        toolTips.SetToolTip(recording, !active ? "Aufnahme starten" : manuallyStoppable
+            ? "Aufnahme beenden und speichern" : "Automatische Bewegungsaufnahme läuft");
     }
 #endif
 }
@@ -2153,7 +2183,16 @@ internal sealed class SettingsForm : Form
         MaximizeBox = true;
         MinimumSize = new Size(780, 650);
         var workingArea = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1024, 768);
-        ClientSize = new Size(Math.Min(840, workingArea.Width - 40), Math.Min(680, workingArea.Height - 60));
+        ClientSize = new Size(
+            Math.Clamp(current.SettingsWindowWidth, 760, Math.Max(760, workingArea.Width - 40)),
+            Math.Clamp(current.SettingsWindowHeight, 610, Math.Max(610, workingArea.Height - 60)));
+        FormClosed += (_, _) =>
+        {
+            current.SettingsWindowWidth = ClientSize.Width;
+            current.SettingsWindowHeight = ClientSize.Height;
+            // Window geometry is independent of whether the setting changes were saved.
+            if (DialogResult != DialogResult.OK) SettingsStore.Save(current);
+        };
         cameras.MinimumSize = new Size(0, 130);
         BackColor = Color.FromArgb(24, 24, 27);
         ForeColor = Color.FromArgb(242, 242, 244);
@@ -2466,7 +2505,9 @@ internal sealed class SettingsForm : Form
                 HomeAssistantToken = homeAssistantToken.Text.Trim(),
                 IgnoreHomeAssistantCertificateErrors = ignoreHomeAssistantCertificateErrors.Checked,
                 PerCameraMotionConfigured = true,
-                MotionRetentionDays = retentionValues[motionRetention.SelectedIndex]
+                MotionRetentionDays = retentionValues[motionRetention.SelectedIndex],
+                SettingsWindowWidth = ClientSize.Width,
+                SettingsWindowHeight = ClientSize.Height
 #endif
             };
         };
