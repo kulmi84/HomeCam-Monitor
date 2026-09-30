@@ -128,18 +128,6 @@ internal sealed class MonitorForm : Form
 #if BETA
     protected override bool ShowWithoutActivation => true;
 #endif
-#if BETA
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var parameters = base.CreateParams;
-            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
-                parameters.Style |= 0x00C40000; // WS_CAPTION | WS_THICKFRAME: DWM can round the borderless client.
-            return parameters;
-        }
-    }
-#endif
     private readonly Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
     private readonly System.Windows.Forms.Timer latencyTimer = new() { Interval = 5 * 60 * 1000 };
     private readonly System.Windows.Forms.Timer restartTimer = new() { Interval = 2000 };
@@ -230,14 +218,7 @@ internal sealed class MonitorForm : Form
         InitializeCameraGrid();
         Controls.Add(cameraGrid);
 #endif
-        Shown += (_, _) =>
-        {
-            InitializeMonitor();
-#if BETA
-            if (!IsDisposed && !closing)
-                BeginInvoke(new Action(RefreshCameraClientArea));
-#endif
-        };
+        Shown += (_, _) => InitializeMonitor();
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
         Resize += (_, _) =>
         {
@@ -279,28 +260,6 @@ internal sealed class MonitorForm : Form
         ApplyRoundedCorners();
     }
 
-#if BETA
-    internal void RefreshCameraClientArea()
-    {
-        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) || IsDisposed) return;
-        // An actual size change is needed after the selected grid has become visible:
-        // SWP_FRAMECHANGED without resizing leaves its first client rectangle offset.
-        var original = Bounds;
-        var flags = NativeMethods.SwpNoMove | NativeMethods.SwpNoZOrder |
-            NativeMethods.SwpNoActivate | NativeMethods.SwpFrameChanged;
-        adjustingAspectRatio = true;
-        try
-        {
-            NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, original.Width + 1, original.Height + 1, flags);
-            NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, original.Width, original.Height, flags);
-        }
-        finally { adjustingAspectRatio = false; }
-        PerformLayout();
-        cameraGrid.PerformLayout();
-        LayoutCameraGrid();
-        PositionOverlays();
-    }
-#endif
 
     private void InitializeMonitor()
     {
@@ -1136,8 +1095,7 @@ internal sealed class MonitorForm : Form
 #if BETA
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
         {
-            // Native frame styles enable smooth DWM corners. Never resize the outer
-            // window through ClientSize: a transient non-client margin can accumulate.
+            // Keep the rounded borderless window at a stable 16:9 outer size.
             var targetHeight = Math.Max(MinimumSize.Height, (int)Math.Round(Width * 9d / 16d));
             if (Math.Abs(Height - targetHeight) <= 1) return;
             adjustingAspectRatio = true;
@@ -1839,12 +1797,7 @@ internal sealed class MonitorForm : Form
 #endif
     protected override void WndProc(ref Message message)
     {
-        if (message.Msg == NativeMethods.WmNcCalcSize &&
-            (message.WParam != IntPtr.Zero
-#if BETA
-             || OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)
-#endif
-            ))
+        if (message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
         {
             message.Result = IntPtr.Zero;
             return;
@@ -2355,7 +2308,7 @@ internal static class NativeMethods
 #if BETA
     public static readonly IntPtr HwndBottom = new(1);
 #endif
-    public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoZOrder = 0x0004, SwpNoActivate = 0x0010, SwpFrameChanged = 0x0020;
+    public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
     public const uint SwpShowWindow = 0x0040;
     public const int SwShowNoActivate = 4;
     public const int HtLeft = 10, HtRight = 11, HtTop = 12, HtTopLeft = 13, HtTopRight = 14, HtBottom = 15, HtBottomLeft = 16, HtBottomRight = 17;
