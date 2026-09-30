@@ -2488,7 +2488,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 6 };
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 7 };
         table.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -2502,35 +2502,20 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
 #endif
 #if BETA
-        var options = new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 4, Margin = new Padding(0) };
-        for (var row = 0; row < options.RowCount; row++) options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        var options = new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2, Margin = new Padding(0) };
+        options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var generalOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
         generalOptions.Controls.Add(top);
         generalOptions.Controls.Add(autostart);
-        generalOptions.Controls.Add(motionDetection);
         options.Controls.Add(generalOptions, 0, 0);
-
-        var motionOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
-        motionOptions.Controls.Add(minimizeWhenInactive);
-        motionOptions.Controls.Add(restorePreviousCamera);
-        motionOptions.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
-        motionOptions.Controls.Add(motionSeconds);
-        motionOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
-        options.Controls.Add(motionOptions, 0, 1);
-
-        var indicatorOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
-        indicatorOptions.Controls.Add(new Label { Text = "Symbole anzeigen:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
-        indicatorOptions.Controls.Add(indicatorSeconds);
-        indicatorOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 12, 0) });
-        indicatorOptions.Controls.Add(highlightMotionInGrid);
-        options.Controls.Add(indicatorOptions, 0, 2);
 
         var toolbarOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
         toolbarOptions.Controls.Add(new Label { Text = "Bedienleiste:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(toolbarSize);
         toolbarOptions.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(autoScaleToolbar);
-        options.Controls.Add(toolbarOptions, 0, 3);
+        options.Controls.Add(toolbarOptions, 0, 1);
 #else
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
         options.Controls.Add(top);
@@ -2558,12 +2543,35 @@ internal sealed class SettingsForm : Form
         generalFields.Controls.Add(startupOptions, 0, 1);
         generalGroup.Controls.Add(generalFields);
         table.Controls.Add(generalGroup, 0, 2);
+
+        var activityOptions = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3 };
+        for (var row = 0; row < activityOptions.RowCount; row++)
+            activityOptions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        activityOptions.Controls.Add(motionDetection, 0, 0);
+
+        var motionOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        motionOptions.Controls.Add(minimizeWhenInactive);
+        motionOptions.Controls.Add(restorePreviousCamera);
+        motionOptions.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
+        motionOptions.Controls.Add(motionSeconds);
+        motionOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        activityOptions.Controls.Add(motionOptions, 0, 1);
+
+        var indicatorOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        indicatorOptions.Controls.Add(new Label { Text = "Aktivitätssymbole anzeigen:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
+        indicatorOptions.Controls.Add(indicatorSeconds);
+        indicatorOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 12, 0) });
+        indicatorOptions.Controls.Add(highlightMotionInGrid);
+        activityOptions.Controls.Add(indicatorOptions, 0, 2);
+
+        var activityGroup = new GroupBox { Text = "Bewegung und Aktivitätsanzeige", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
+        activityGroup.Controls.Add(activityOptions);
+        table.Controls.Add(activityGroup, 0, 3);
 #else
         table.Controls.Add(options, 0, 2);
 #endif
 #if BETA
-        var captureOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
-        captureOptions.Controls.Add(new Label { Text = "Bei Bewegung:", AutoSize = true, Margin = new Padding(3, 5, 3, 0) });
+        var captureOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
         captureOptions.Controls.Add(motionAction);
         captureOptions.Controls.Add(motionVideoSeconds);
         var homeAssistantGroup = new GroupBox { Text = "Bewegung pro Kamera und Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
@@ -2576,27 +2584,28 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(homeAssistantUrl, 1, 1);
         homeAssistantFields.Controls.Add(new Label { Text = "Langzeit-Token:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 2);
         homeAssistantFields.Controls.Add(homeAssistantToken, 1, 2);
-        homeAssistantFields.Controls.Add(new Label { Text = "Bewegungs-Entität:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 3);
-        homeAssistantFields.Controls.Add(motionEntityId, 1, 3);
-        homeAssistantFields.Controls.Add(new Label { Text = "Ausgewählte Kamera:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
-        homeAssistantFields.Controls.Add(selectedMotionCamera, 1, 4);
-        homeAssistantFields.Controls.Add(new Label { Text = "Personen-Entität (Snapshot):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 5);
-        homeAssistantFields.Controls.Add(personEntityId, 1, 5);
-        homeAssistantFields.Controls.Add(captureOptions, 1, 6);
-        homeAssistantFields.Controls.Add(new Label { Text = "Aufbewahrung (alle Kameras):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 7);
-        homeAssistantFields.Controls.Add(motionRetention, 1, 7);
-        homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 8);
+        homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 3);
         homeAssistantFields.SetColumnSpan(ignoreHomeAssistantCertificateErrors, 2);
         var testRow = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
         testRow.Controls.Add(testHomeAssistant);
         testRow.Controls.Add(homeAssistantStatus);
-        homeAssistantFields.Controls.Add(testRow, 0, 9);
+        homeAssistantFields.Controls.Add(testRow, 0, 4);
         homeAssistantFields.SetColumnSpan(testRow, 2);
+        homeAssistantFields.Controls.Add(new Label { Text = "Ausgewählte Kamera:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 5);
+        homeAssistantFields.Controls.Add(selectedMotionCamera, 1, 5);
+        homeAssistantFields.Controls.Add(new Label { Text = "Bewegungs-Entität:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 6);
+        homeAssistantFields.Controls.Add(motionEntityId, 1, 6);
+        homeAssistantFields.Controls.Add(new Label { Text = "Personen-Entität (Snapshot):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 7);
+        homeAssistantFields.Controls.Add(personEntityId, 1, 7);
+        homeAssistantFields.Controls.Add(new Label { Text = "Aufzeichnung bei Bewegung:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 8);
+        homeAssistantFields.Controls.Add(captureOptions, 1, 8);
+        homeAssistantFields.Controls.Add(new Label { Text = "Aufbewahrung (alle Kameras):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 9);
+        homeAssistantFields.Controls.Add(motionRetention, 1, 9);
         homeAssistantGroup.Controls.Add(homeAssistantFields);
-        table.Controls.Add(homeAssistantGroup, 0, 3);
+        table.Controls.Add(homeAssistantGroup, 0, 4);
 #endif
 #if BETA
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 4);
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 5);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -2608,7 +2617,7 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 5);
+        table.Controls.Add(buttons, 0, 6);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
