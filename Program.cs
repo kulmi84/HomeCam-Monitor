@@ -144,7 +144,7 @@ internal sealed class MonitorForm : Form
         BackColor = Color.Black,
         ColumnCount = 2,
         RowCount = 2,
-        Padding = new Padding(1),
+        Padding = new Padding(0),
         Visible = false
     };
     private readonly List<GridPlayerSlot> gridSlots = [];
@@ -173,7 +173,6 @@ internal sealed class MonitorForm : Form
     private DateTime sentToBackgroundAt = DateTime.MinValue;
     private ContextMenuStrip? cameraContextMenu;
     private MotionIndicatorForm? motionIndicator;
-    private GridMotionHighlightForm? gridMotionHighlight;
     private int gridHighlightedCameraIndex = -1;
     private SettingsForm? activeSettingsDialog;
     private bool motionIndicatorVisible;
@@ -291,9 +290,6 @@ internal sealed class MonitorForm : Form
         motionIndicator = new MotionIndicatorForm();
         motionIndicator.Show(this);
         motionIndicator.Hide();
-        gridMotionHighlight = new GridMotionHighlightForm();
-        gridMotionHighlight.Show(this);
-        gridMotionHighlight.Hide();
 #endif
         if (!HasUsableCamera()) OpenSettings();
         if (closing) return;
@@ -319,7 +315,7 @@ internal sealed class MonitorForm : Form
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
-        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close(); gridMotionHighlight?.Close();
+        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
@@ -711,7 +707,7 @@ internal sealed class MonitorForm : Form
 
         for (var index = 0; index < 4; index++)
         {
-            var host = new Panel { Dock = DockStyle.Fill, Margin = new Padding(1), BackColor = Color.Black };
+            var host = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0), BackColor = Color.Black };
             var name = new Label
             {
                 AutoSize = true,
@@ -765,7 +761,6 @@ internal sealed class MonitorForm : Form
     private void ExitGridView(int? cameraIndex = null)
     {
         gridHighlightedCameraIndex = -1;
-        gridMotionHighlight?.Hide();
         StopGridPlayers();
         gridMode = false;
         settings.LastGridMode = false;
@@ -1113,19 +1108,9 @@ internal sealed class MonitorForm : Form
 #if BETA
         if (motionIndicator is not null && !motionIndicator.IsDisposed)
         {
-            var highlightedSlot = motionIndicatorVisible && gridMode && settings.HighlightMotionInGrid
+            var highlightedSlot = motionIndicatorVisible && gridMode && settings.HighlightMotionInGrid && gridHighlightedCameraIndex >= 0
                 ? gridSlots.FirstOrDefault(slot => slot.CameraIndex == gridHighlightedCameraIndex) : null;
             var highlightBounds = highlightedSlot?.Host.RectangleToScreen(highlightedSlot.Host.ClientRectangle);
-            if (gridMotionHighlight is not null && !gridMotionHighlight.IsDisposed)
-            {
-                gridMotionHighlight.Visible = highlightBounds.HasValue;
-                if (highlightBounds.HasValue)
-                {
-                    gridMotionHighlight.Bounds = highlightBounds.Value;
-                    gridMotionHighlight.TopMost = TopMost;
-                    gridMotionHighlight.BringToFront();
-                }
-            }
             motionIndicator.Location = highlightBounds.HasValue
                 ? new Point(highlightBounds.Value.Right - motionIndicator.Width - 10, highlightBounds.Value.Top + 10)
                 : new Point(Right - motionIndicator.Width - 12, Top + 12);
@@ -1601,7 +1586,6 @@ internal sealed class MonitorForm : Form
         motionIndicatorVisible = false;
         gridHighlightedCameraIndex = -1;
         motionIndicator?.Hide();
-        gridMotionHighlight?.Hide();
     }
 
     private void ForceToForeground()
@@ -1660,6 +1644,9 @@ internal sealed class MonitorForm : Form
 #endif
     private void ApplyRoundedCorners()
     {
+#if BETA
+        NativeMethods.DisableDwmBorder(Handle);
+#endif
         Region?.Dispose(); if (fullscreen) { Region = null; return; }
         var radius = Math.Max(12, DeviceDpi * 14 / 96); var handle = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, radius, radius);
         Region = Region.FromHrgn(handle); NativeMethods.DeleteObject(handle);
@@ -1764,37 +1751,6 @@ internal sealed class MonitorForm : Form
 }
 
 #if BETA
-internal sealed class GridMotionHighlightForm : Form
-{
-    protected override bool ShowWithoutActivation => true;
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var parameters = base.CreateParams;
-            parameters.ExStyle |= 0x00000020 | 0x08000000 | 0x00000080;
-            return parameters;
-        }
-    }
-
-    public GridMotionHighlightForm()
-    {
-        FormBorderStyle = FormBorderStyle.None;
-        ShowInTaskbar = false;
-        StartPosition = FormStartPosition.Manual;
-        AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.Black;
-        TransparencyKey = Color.Black;
-    }
-
-    protected override void OnPaint(PaintEventArgs eventArgs)
-    {
-        base.OnPaint(eventArgs);
-        using var outline = new Pen(Color.White, 3);
-        eventArgs.Graphics.DrawRectangle(outline, 2, 2, Math.Max(1, Width - 5), Math.Max(1, Height - 5));
-    }
-}
-
 internal sealed class MotionIndicatorForm : Form
 {
     private bool personDetected;
@@ -1952,6 +1908,7 @@ internal sealed class DragSurfaceForm : Form
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; StartPosition = FormStartPosition.Manual;
         BackColor = Color.Black; Opacity = 0.01; TopMost = true; Cursor = Cursors.Default;
 #if BETA
+        HandleCreated += (_, _) => NativeMethods.DisableDwmBorder(Handle);
         MouseDown += (_, eventArgs) =>
         {
             if (eventArgs.Button == MouseButtons.Left) monitor.RegisterUserInteraction();
@@ -2277,9 +2234,15 @@ internal static class NativeMethods
 #endif
     [DllImport("gdi32.dll")] public static extern IntPtr CreateRoundRectRgn(int left, int top, int right, int bottom, int width, int height);
     [DllImport("gdi32.dll")] public static extern bool DeleteObject(IntPtr handle);
-    public enum DwmWindowAttribute { UseImmersiveDarkMode = 20, WindowCornerPreference = 33 }
+    public enum DwmWindowAttribute { UseImmersiveDarkMode = 20, WindowCornerPreference = 33, BorderColor = 34 }
     public enum DwmWindowCornerPreference { Default = 0, DoNotRound = 1, Round = 2, RoundSmall = 3 }
     [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, DwmWindowAttribute attribute, ref int value, int size);
+    public static void DisableDwmBorder(IntPtr window)
+    {
+        // DWMWA_COLOR_NONE keeps Windows 11 corners rounded without the system outline.
+        var noBorder = unchecked((int)0xFFFFFFFE);
+        DwmSetWindowAttribute(window, DwmWindowAttribute.BorderColor, ref noBorder, sizeof(int));
+    }
 }
 
 internal sealed class SettingsForm : Form
@@ -2297,7 +2260,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox restorePreviousCamera = new() { Text = "Vorherige Kamera wiederherstellen", AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
     private readonly NumericUpDown indicatorSeconds = new() { Minimum = 1, Maximum = 10, Value = 2, Width = 60 };
-    private readonly CheckBox highlightMotionInGrid = new() { Text = "Bewegung im 4er-Raster hervorheben", AutoSize = true };
+    private readonly CheckBox highlightMotionInGrid = new() { Text = "Bewegungsindikator im 4er-Raster anzeigen", AutoSize = true };
     private readonly CheckBox directHomeAssistant = new() { Text = "Direkt mit Home Assistant verbinden (empfohlen)", AutoSize = true };
     private readonly TextBox homeAssistantUrl = new() { Width = 300 };
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
