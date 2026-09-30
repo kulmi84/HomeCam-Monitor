@@ -98,7 +98,13 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.12`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.13`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 13
+
+- **Anzeigedauer der Symbole:** Das Bewegungs- und Personensymbol erscheint standardmäßig zwei Sekunden. Unter „Allgemeine Einstellungen → Symbole anzeigen“ lässt sich die Dauer von 1 bis 10 Sekunden wählen.
+- **Bewegung im 4er-Raster:** Die Option „Bewegung im 4er-Raster hervorheben“ ist standardmäßig aus. Eingeschaltet erhält das betroffene sichtbare Kamerafeld bei Bewegung einen weißen Rahmen und das Bewegungssymbol oben rechts im Feld. Das Raster bleibt geöffnet. Die Hervorhebung verschwindet nach der eingestellten Symboldauer.
+- **Sensoren ausschalten:** Die Kästchen „Bewegung“ und „Person“ unterdrücken die Auswertung der jeweiligen Home-Assistant-Ereignisse. Die WebSocket-Verbindung abonniert weiterhin die gemeinsamen Statusereignisse, solange mindestens ein Sensor aktiv ist; es findet keine separate Abfrage jedes Sensors statt.
 
 ### Neu in 0.3.0 Beta 12
 
