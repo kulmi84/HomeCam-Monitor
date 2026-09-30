@@ -1408,7 +1408,7 @@ internal sealed class MonitorForm : Form
 
     private async void StartMotionCapture(CameraEntry camera)
     {
-        if (camera.MotionAction is not ("Snapshot" or "Video") ||
+        if (camera.MotionAction is not ("Snapshot" or "Video" or "Both") ||
             activeMotionCapture.Contains(camera.Name)) return;
         // The HTTP endpoint can be called more than once for the same event.
         if (lastMotionCapture.TryGetValue(camera.Name, out var last) &&
@@ -1423,7 +1423,11 @@ internal sealed class MonitorForm : Form
             var safeName = string.Concat(camera.Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
             var baseName = $"{safeName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}_{Guid.NewGuid():N}";
             var executable = Path.Combine(AppContext.BaseDirectory, "mpv.exe");
-            if (camera.MotionAction == "Snapshot")
+            var captureSnapshot = camera.MotionAction is "Snapshot" or "Both" ? CaptureSnapshotAsync() : Task.CompletedTask;
+            var recordVideo = camera.MotionAction is "Video" or "Both" ? RecordVideoAsync() : Task.CompletedTask;
+            await Task.WhenAll(captureSnapshot, recordVideo);
+
+            async Task CaptureSnapshotAsync()
             {
                 // A separate player captures the triggering camera, even if another one is visible.
                 var temporary = Path.Combine(folder, ".capture-" + Guid.NewGuid().ToString("N"));
@@ -1449,7 +1453,7 @@ internal sealed class MonitorForm : Form
                 }
                 finally { Directory.Delete(temporary, true); }
             }
-            else
+            async Task RecordVideoAsync()
             {
                 var path = Path.Combine(folder, baseName + ".mkv");
                 var pipe = $"HomeCamMonitor-Motion-{Guid.NewGuid():N}";
@@ -2133,7 +2137,7 @@ internal sealed class SettingsForm : Form
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
     private readonly TextBox motionEntityId = new() { Width = 300 };
     private readonly Label selectedMotionCamera = new() { AutoSize = true, Text = "Keine Kamera ausgewählt", Anchor = AnchorStyles.Left };
-    private readonly ComboBox motionAction = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 135 };
+    private readonly ComboBox motionAction = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
     private readonly ComboBox motionVideoSeconds = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 85 };
     private readonly ComboBox motionRetention = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
     private readonly CheckBox ignoreHomeAssistantCertificateErrors = new() { Text = "Ungültiges HA-Zertifikat erlauben (nur lokales Netzwerk)", AutoSize = true };
@@ -2197,7 +2201,7 @@ internal sealed class SettingsForm : Form
         homeAssistantUrl.Text = current.HomeAssistantUrl;
         homeAssistantToken.Text = current.HomeAssistantToken;
         ignoreHomeAssistantCertificateErrors.Checked = current.IgnoreHomeAssistantCertificateErrors;
-        motionAction.Items.AddRange(["Keine", "Snapshot", "Videoaufnahme"]);
+        motionAction.Items.AddRange(["Keine", "Snapshot", "Videoaufnahme", "Snapshot + Videoaufnahme"]);
         motionVideoSeconds.Items.AddRange(["15 Sekunden", "30 Sekunden", "60 Sekunden"]);
         motionRetention.Items.AddRange(["1 Tag", "3 Tage", "7 Tage", "14 Tage", "30 Tage", "Unbegrenzt"]);
         var retentionValues = new[] { 1, 3, 7, 14, 30, 0 };
@@ -2208,7 +2212,7 @@ internal sealed class SettingsForm : Form
             if (selectedCameraRow >= 0 && selectedCameraRow < cameras.Rows.Count && !cameras.Rows[selectedCameraRow].IsNewRow)
             {
                 cameras.Rows[selectedCameraRow].Cells[3].Value = motionEntityId.Text.Trim();
-                cameras.Rows[selectedCameraRow].Cells[4].Value = motionAction.SelectedIndex switch { 1 => "Snapshot", 2 => "Video", _ => "None" };
+                cameras.Rows[selectedCameraRow].Cells[4].Value = motionAction.SelectedIndex switch { 1 => "Snapshot", 2 => "Video", 3 => "Both", _ => "None" };
                 cameras.Rows[selectedCameraRow].Cells[5].Value = motionVideoSeconds.SelectedIndex switch { 0 => 15, 2 => 60, _ => 30 };
             }
         }
@@ -2226,11 +2230,11 @@ internal sealed class SettingsForm : Form
             }
             selectedMotionCamera.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[0].Value)?.Trim() is { Length: > 0 } name ? name : "Neue Kamera";
             motionEntityId.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[3].Value)?.Trim() ?? "";
-            motionAction.SelectedIndex = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[4].Value) switch { "Snapshot" => 1, "Video" => 2, _ => 0 };
+            motionAction.SelectedIndex = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[4].Value) switch { "Snapshot" => 1, "Video" => 2, "Both" => 3, _ => 0 };
             motionVideoSeconds.SelectedIndex = Convert.ToInt32(cameras.Rows[selectedCameraRow].Cells[5].Value ?? 30) switch { 15 => 0, 60 => 2, _ => 1 };
-            motionVideoSeconds.Enabled = motionAction.SelectedIndex == 2;
+            motionVideoSeconds.Enabled = motionAction.SelectedIndex is 2 or 3;
         }
-        motionAction.SelectedIndexChanged += (_, _) => motionVideoSeconds.Enabled = motionAction.SelectedIndex == 2;
+        motionAction.SelectedIndexChanged += (_, _) => motionVideoSeconds.Enabled = motionAction.SelectedIndex is 2 or 3;
         cameras.SelectionChanged += (_, _) => LoadSelectedCameraMotion();
         cameras.CurrentCellDirtyStateChanged += (_, _) => { if (cameras.IsCurrentCellDirty) cameras.CommitEdit(DataGridViewDataErrorContexts.Commit); };
         void RefreshStartCameraChoices()
