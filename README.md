@@ -98,7 +98,11 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.18`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.19`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 19
+
+- **Geglättete Fensterecken unter Windows 11:** Das Kamerafenster überlässt die Rundung Windows statt einer pixelgenau ausgeschnittenen GDI-Form. Die Randlinie bleibt ausgeblendet; im Vollbild bleiben die Ecken gerade. Auf älteren Windows-Versionen bleibt die bisherige Rundung.
 
 ### Neu in 0.3.0 Beta 18
 
