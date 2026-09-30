@@ -56,18 +56,11 @@ internal static class Program
         AssertSameImage(output, "live-50", "restart-50");
         AssertSameImage(output, "live-50", "hidden-then-50");
 
-        using (var gridFrame = new GridMotionHighlightForm())
-        {
-            gridFrame.ClientSize = new Size(180, 100);
-            gridFrame.Show();
-            Application.DoEvents();
-            using var frameImage = new Bitmap(gridFrame.Width, gridFrame.Height);
-            gridFrame.DrawToBitmap(frameImage, gridFrame.ClientRectangle);
-            if (frameImage.GetPixel(2, 50).ToArgb() != Color.White.ToArgb() ||
-                frameImage.GetPixel(90, 50).ToArgb() == Color.White.ToArgb())
-                throw new InvalidOperationException("Grid motion frame must only draw a white outline around its camera tile");
-            gridFrame.Hide();
-        }
+        var tileBorders = MonitorForm.GetGridMotionBorderBounds(new Size(180, 100));
+        if (tileBorders.Length != 4 ||
+            tileBorders.Any(border => border.Left < 5 || border.Top < 5 ||
+                border.Right > 175 || border.Bottom > 95))
+            throw new InvalidOperationException("Motion borders must stay inside their camera tile");
 
         var automatic = new Settings { AutoScaleToolbar = true, ToolbarSizePercent = 75 };
         foreach (var (width, expected) in new[] { (480, 100), (340, 100), (300, 87), (240, 68), (480, 100) })
