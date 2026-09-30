@@ -98,12 +98,16 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.14`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.15`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 15
+
+- **Kurzzeitiger Bewegungsrahmen:** Ist „Bewegung im 4er-Raster hervorheben“ eingeschaltet, bekommt nur das betroffene sichtbare Kamerafeld bei Bewegung für die eingestellte Symboldauer einen weißen Rahmen und das laufende Männchen. Der Rahmen erscheint nie dauerhaft und nicht um das ganze HomeCam-Fenster. Die dauerhaften Zwischen- und Außenränder bleiben entfernt.
 
 ### Neu in 0.3.0 Beta 14
 
 - **Raster ohne Ränder:** Die dauerhaften Zwischen- und Außenabstände zwischen den Kamerafeldern entfallen. Unter Windows 11 wird der Systemrahmen des abgerundeten HomeCam-Fensters unterdrückt.
-- **Bewegung im Raster:** Bei eingeschalteter Option erscheint nur das laufende Symbol direkt im betroffenen Kamerafeld; ein zusätzlicher Rahmen wird nicht mehr gezeichnet. Die Einstellung heißt jetzt „Bewegungsindikator im 4er-Raster anzeigen“ und bleibt standardmäßig aus.
+- **Bewegung im Raster:** Die Markierung wird nur bei einem Bewegungssignal im betroffenen Feld angezeigt; die Option bleibt standardmäßig aus.
 
 ### Neu in 0.3.0 Beta 13
 
