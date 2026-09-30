@@ -128,10 +128,17 @@ internal static class Program
         if (BottomOnScreen(selectedCamera) > TopOnScreen(action))
             throw new InvalidOperationException("Motion action is not below the selected camera");
         var seconds = AllControls(settingsForm)
-            .OfType<Label>().Single(label => label.Text == "Sekunden");
+            .OfType<Label>().Single(label => label.Text == "Sekunden" &&
+                label.Parent!.Controls.OfType<NumericUpDown>().Any(number => number.Maximum == 300));
         var duration = seconds.Parent!.Controls.OfType<NumericUpDown>().Single();
         if (seconds.Top > duration.Bottom || seconds.Bottom < duration.Top)
             throw new InvalidOperationException("Seconds label wrapped away from the duration field");
+        var gridHighlight = AllControls(settingsForm).OfType<CheckBox>()
+            .Single(check => check.Text == "Bewegung im 4er-Raster hervorheben");
+        var indicatorDuration = AllControls(settingsForm).OfType<NumericUpDown>()
+            .Single(number => number.Maximum == 10);
+        if (gridHighlight.Checked || indicatorDuration.Value != 2)
+            throw new InvalidOperationException("Grid highlighting must be disabled and indicators shown for two seconds by default");
         var buttons = AllControls(settingsForm).OfType<FlowLayoutPanel>()
             .Single(panel => panel.Controls.OfType<Button>().Any(button => button.Text == "Speichern"));
         if (buttons.Bottom <= settingsForm.ClientSize.Height && settingsForm.ClientSize.Height - buttons.Bottom > 25)
