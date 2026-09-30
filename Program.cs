@@ -146,7 +146,6 @@ internal sealed class MonitorForm : Form
         Visible = false
     };
     private readonly List<GridPlayerSlot> gridSlots = [];
-    private readonly Panel gridDivider = new() { BackColor = Color.Black, TabStop = false };
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
 #endif
     private Settings settings;
@@ -748,8 +747,6 @@ internal sealed class MonitorForm : Form
             cameraGrid.Controls.Add(host);
             gridSlots.Add(slot);
         }
-        cameraGrid.Controls.Add(gridDivider);
-        gridDivider.BringToFront();
         LayoutCameraGrid();
     }
 
@@ -772,11 +769,6 @@ internal sealed class MonitorForm : Form
         var bounds = GetCameraGridBounds(cameraGrid.ClientSize);
         for (var index = 0; index < gridSlots.Count; index++)
             gridSlots[index].Host.Bounds = bounds[index];
-        // mpv may letterbox one edge pixel in only one row after rounding
-        // a camera's aspect ratio. A shared inner divider keeps both rows
-        // on the same visible vertical line at every window size.
-        gridDivider.Bounds = new Rectangle(Math.Max(0, bounds[1].Left - 1), 0, 1, cameraGrid.ClientSize.Height);
-        gridDivider.BringToFront();
     }
 
     private void AlignCameraSurfaces()
@@ -931,7 +923,8 @@ internal sealed class MonitorForm : Form
                 $"--wid={slot.Host.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
                 "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
                 "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
-                "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no", "--keep-open=no",
+                "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no",
+                "--keepaspect-window=no", "--panscan=1.0", "--keep-open=no",
                 camera.Camera.StreamUrl
             }) start.ArgumentList.Add(argument);
 
