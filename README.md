@@ -98,7 +98,12 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.11`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.12`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 12
+
+- **Getrennte Kästchen pro Kamera:** Die Kameraliste enthält „Bewegung“ und „Person“. Beide Sensoren können unabhängig aktiviert werden. Bei einem Update bleiben bereits eingerichtete Personensensoren eingeschaltet. Die allgemeine Bewegungserkennung und die direkte HA-Verbindung müssen für beide aktiv sein.
+- **Sekundenfeld:** Die Auswahlliste für die Dauer der Bewegungsaufnahme ist breiter.
 
 ### Neu in 0.3.0 Beta 11
 
@@ -106,7 +111,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ### Neu in 0.3.0 Beta 10
 
-- **Personenerkennung pro Kamera:** In den Einstellungen die Kamera auswählen und unter „Personen-Entität (Snapshot)“ die Home-Assistant-Entitäts-ID ihres Personensensors eintragen (z. B. `binary_sensor.camera_einfahrt_person`). Beim Wechsel dieses Sensors auf `on` wird ein PNG mit „Person“ im Dateinamen unter `Videos\HomeCam Monitor\Bewegung` gespeichert. Dafür muss die Spalte „Bewegung“ der Kamera aktiviert und die direkte Home-Assistant-Verbindung eingeschaltet sein. Das gilt unabhängig von der gewählten Aktion „Bei Bewegung“.
+- **Personenerkennung pro Kamera:** In den Einstellungen die Kamera auswählen und unter „Personen-Entität (Snapshot)“ die Home-Assistant-Entitäts-ID ihres Personensensors eintragen (z. B. `binary_sensor.camera_einfahrt_person`). Beim Wechsel dieses Sensors auf `on` wird ein PNG mit „Person“ im Dateinamen unter `Videos\HomeCam Monitor\Bewegung` gespeichert. Dafür muss die direkte Home-Assistant-Verbindung eingeschaltet sein. Das gilt unabhängig von der gewählten Aktion „Bei Bewegung“.
 - **Anzeige wie bisher:** Der Personensensor wechselt keine Kamera und holt das Fenster nicht in den Vordergrund. Dafür bleibt allein der Bewegungssensor zuständig. Der Verbindungstest prüft beide eingetragenen Entitäten.
 
 ### Neu in 0.3.0 Beta 9
