@@ -98,7 +98,11 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.22`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.23`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 23
+
+- **Fensterrand an der Ursache korrigiert:** Die zusätzlichen Windows-Rahmenstile, die einen Innenabstand um das gesamte Raster erzeugten, sind entfernt. Die native Rundung bleibt angefordert; das Raster nutzt wieder die vollständige Fensterfläche.
 
 ### Neu in 0.3.0 Beta 22
 
