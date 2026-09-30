@@ -146,6 +146,7 @@ internal sealed class MonitorForm : Form
         Visible = false
     };
     private readonly List<GridPlayerSlot> gridSlots = [];
+    private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
 #endif
     private Settings settings;
     private ToolbarForm? toolbar;
@@ -218,7 +219,17 @@ internal sealed class MonitorForm : Form
         InitializeCameraGrid();
         Controls.Add(cameraGrid);
 #endif
-        Shown += (_, _) => InitializeMonitor();
+        Shown += (_, _) =>
+        {
+            InitializeMonitor();
+#if BETA
+            if (!closing && !IsDisposed)
+            {
+                AlignCameraSurfaces();
+                ScheduleCameraLayout();
+            }
+#endif
+        };
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
         Resize += (_, _) =>
         {
@@ -232,6 +243,8 @@ internal sealed class MonitorForm : Form
             KeepCameraAspectRatio();
             ApplyRoundedCorners();
 #if BETA
+            AlignCameraSurfaces();
+            ScheduleCameraLayout();
             UpdateToolbarScale();
 #endif
             if (!nativeMoveOrResize) PositionOverlays();
@@ -255,6 +268,11 @@ internal sealed class MonitorForm : Form
         motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
         motionIndicatorTimer.Interval = Math.Clamp(settings.MotionIndicatorSeconds, 1, 10) * 1000;
         motionIndicatorTimer.Tick += (_, _) => HideMotionIndicator();
+        cameraLayoutTimer.Tick += (_, _) =>
+        {
+            cameraLayoutTimer.Stop();
+            AlignCameraSurfaces();
+        };
 #endif
         FormClosing += (_, _) => CloseMonitor();
         ApplyRoundedCorners();
@@ -314,7 +332,7 @@ internal sealed class MonitorForm : Form
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
-        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
+        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
@@ -673,6 +691,10 @@ internal sealed class MonitorForm : Form
     {
         if (!nativeMoveOrResize) return;
         nativeMoveOrResize = false;
+#if BETA
+        AlignCameraSurfaces();
+        ScheduleCameraLayout();
+#endif
         PositionOverlays();
         lastCursorMovement = DateTime.UtcNow;
         SaveWindow();
@@ -749,6 +771,22 @@ internal sealed class MonitorForm : Form
             gridSlots[index].Host.Bounds = bounds[index];
     }
 
+    private void AlignCameraSurfaces()
+    {
+        if (closing || IsDisposed) return;
+        var visibleArea = ClientRectangle;
+        if (video.Bounds != visibleArea) video.Bounds = visibleArea;
+        if (cameraGrid.Bounds != visibleArea) cameraGrid.Bounds = visibleArea;
+        LayoutCameraGrid();
+    }
+
+    private void ScheduleCameraLayout()
+    {
+        if (closing || IsDisposed || !IsHandleCreated) return;
+        cameraLayoutTimer.Stop();
+        cameraLayoutTimer.Start();
+    }
+
     internal static Rectangle[] GetGridMotionBorderBounds(Size size)
     {
         // Four narrow strips are children of the camera tile, inset from its edges.
@@ -813,6 +851,8 @@ internal sealed class MonitorForm : Form
         SettingsStore.Save(settings);
         video.Hide();
         cameraGrid.Show();
+        AlignCameraSurfaces();
+        ScheduleCameraLayout();
         cameraGrid.BringToFront();
         toolbar?.SetGridMode(true);
         UpdateToolbar();
@@ -1814,6 +1854,10 @@ internal sealed class MonitorForm : Form
         if (message.Msg == NativeMethods.WmExitSizeMove)
         {
             nativeMoveOrResize = false;
+#if BETA
+            AlignCameraSurfaces();
+            ScheduleCameraLayout();
+#endif
             PositionOverlays();
             lastCursorMovement = DateTime.UtcNow;
             SaveWindow();
