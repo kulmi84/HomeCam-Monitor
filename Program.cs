@@ -128,6 +128,18 @@ internal sealed class MonitorForm : Form
 #if BETA
     protected override bool ShowWithoutActivation => true;
 #endif
+#if BETA
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+                parameters.Style |= 0x00C40000; // WS_CAPTION | WS_THICKFRAME: DWM can round the borderless client.
+            return parameters;
+        }
+    }
+#endif
     private readonly Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
     private readonly System.Windows.Forms.Timer latencyTimer = new() { Interval = 5 * 60 * 1000 };
     private readonly System.Windows.Forms.Timer restartTimer = new() { Interval = 2000 };
@@ -1710,6 +1722,17 @@ internal sealed class MonitorForm : Form
     {
 #if BETA
         NativeMethods.DisableDwmBorder(Handle);
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+        {
+            // A GDI window region prevents DWM from anti-aliasing the corners.
+            Region?.Dispose();
+            Region = null;
+            var systemCorners = fullscreen ? (int)NativeMethods.DwmWindowCornerPreference.DoNotRound
+                : (int)NativeMethods.DwmWindowCornerPreference.Round;
+            NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.WindowCornerPreference,
+                ref systemCorners, sizeof(int));
+            return;
+        }
 #endif
         Region?.Dispose(); if (fullscreen) { Region = null; return; }
         var radius = Math.Max(12, DeviceDpi * 14 / 96); var handle = NativeMethods.CreateRoundRectRgn(0, 0, Width + 1, Height + 1, radius, radius);
