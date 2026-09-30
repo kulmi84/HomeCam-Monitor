@@ -56,6 +56,19 @@ internal static class Program
         AssertSameImage(output, "live-50", "restart-50");
         AssertSameImage(output, "live-50", "hidden-then-50");
 
+        using (var gridFrame = new GridMotionHighlightForm())
+        {
+            gridFrame.ClientSize = new Size(180, 100);
+            gridFrame.Show();
+            Application.DoEvents();
+            using var frameImage = new Bitmap(gridFrame.Width, gridFrame.Height);
+            gridFrame.DrawToBitmap(frameImage, gridFrame.ClientRectangle);
+            if (frameImage.GetPixel(2, 50).ToArgb() != Color.White.ToArgb() ||
+                frameImage.GetPixel(90, 50).ToArgb() == Color.White.ToArgb())
+                throw new InvalidOperationException("Grid motion frame must only draw a white outline around its camera tile");
+            gridFrame.Hide();
+        }
+
         var automatic = new Settings { AutoScaleToolbar = true, ToolbarSizePercent = 75 };
         foreach (var (width, expected) in new[] { (480, 100), (340, 100), (300, 87), (240, 68), (480, 100) })
         {
@@ -134,7 +147,7 @@ internal static class Program
         if (seconds.Top > duration.Bottom || seconds.Bottom < duration.Top)
             throw new InvalidOperationException("Seconds label wrapped away from the duration field");
         var gridHighlight = AllControls(settingsForm).OfType<CheckBox>()
-            .Single(check => check.Text == "Bewegungsindikator im 4er-Raster anzeigen");
+            .Single(check => check.Text == "Bewegung im 4er-Raster hervorheben");
         var indicatorDuration = AllControls(settingsForm).OfType<NumericUpDown>()
             .Single(number => number.Maximum == 10);
         if (gridHighlight.Checked || indicatorDuration.Value != 2)
