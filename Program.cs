@@ -61,6 +61,7 @@ internal sealed class CameraEntry
 #if BETA
     public bool MotionEnabled { get; set; }
     public string MotionEntityId { get; set; } = "";
+    public string PersonEntityId { get; set; } = "";
     public string MotionAction { get; set; } = "None";
     public int MotionVideoSeconds { get; set; } = 30;
 #endif
@@ -1160,7 +1161,8 @@ internal sealed class MonitorForm : Form
         if (settings.DirectHomeAssistantEnabled &&
             !string.IsNullOrWhiteSpace(settings.HomeAssistantUrl) &&
             !string.IsNullOrWhiteSpace(settings.HomeAssistantToken) &&
-            settings.Cameras.Any(camera => camera.MotionEnabled && !string.IsNullOrWhiteSpace(camera.MotionEntityId)))
+            settings.Cameras.Any(camera => camera.MotionEnabled &&
+                (!string.IsNullOrWhiteSpace(camera.MotionEntityId) || !string.IsNullOrWhiteSpace(camera.PersonEntityId))))
         {
             _ = Task.Run(() => ListenToHomeAssistantAsync(motionCancellation.Token));
             return;
@@ -1234,8 +1236,12 @@ internal sealed class MonitorForm : Form
         while (socket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
         {
             using var message = await ReceiveHomeAssistantMessageAsync(socket, cancellationToken);
-            if (!TryGetMotionCamera(message.RootElement, out var cameraName)) continue;
-            if (!closing) BeginInvoke(new Action(() => HandleMotion(cameraName)));
+            if (!TryGetCameraEvent(message.RootElement, out var cameraName, out var personDetected)) continue;
+            if (!closing) BeginInvoke(new Action(() =>
+            {
+                if (personDetected) HandlePersonDetected(cameraName);
+                else HandleMotion(cameraName);
+            }));
         }
     }
 
@@ -1277,7 +1283,7 @@ internal sealed class MonitorForm : Form
         return await JsonDocument.ParseAsync(content, cancellationToken: cancellationToken);
     }
 
-    internal static async Task<string?> TestHomeAssistantConnectionAsync(string address, string token, string entityId, bool ignoreCertificateErrors)
+    internal static async Task<string?> TestHomeAssistantConnectionAsync(string address, string token, string entityId, bool ignoreCertificateErrors, string personEntityId = "")
     {
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(12));
         try
@@ -1303,10 +1309,12 @@ internal sealed class MonitorForm : Form
             using var states = await ReceiveHomeAssistantMessageAsync(socket, timeout.Token);
             if (!states.RootElement.TryGetProperty("success", out var success) || !success.GetBoolean())
                 return "Home Assistant konnte die Entitäten nicht liefern.";
-            if (!states.RootElement.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Array ||
-                !result.EnumerateArray().Any(state => state.TryGetProperty("entity_id", out var id) &&
-                    string.Equals(id.GetString(), entityId.Trim(), StringComparison.OrdinalIgnoreCase)))
-                return $"Entität nicht gefunden: {entityId.Trim()}";
+            if (!states.RootElement.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Array)
+                return "Home Assistant hat keine Entitäten geliefert.";
+            foreach (var expected in new[] { entityId.Trim(), personEntityId.Trim() }.Where(id => id.Length > 0))
+                if (!result.EnumerateArray().Any(state => state.TryGetProperty("entity_id", out var id) &&
+                    string.Equals(id.GetString(), expected, StringComparison.OrdinalIgnoreCase)))
+                    return $"Entität nicht gefunden: {expected}";
             return null;
         }
         catch (OperationCanceledException) { return "Zeitüberschreitung – HA-Adresse oder Netzwerk prüfen."; }
@@ -1319,9 +1327,10 @@ internal sealed class MonitorForm : Form
         }
     }
 
-    private bool TryGetMotionCamera(JsonElement root, out string cameraName)
+    private bool TryGetCameraEvent(JsonElement root, out string cameraName, out bool personDetected)
     {
         cameraName = "";
+        personDetected = false;
         if (!root.TryGetProperty("type", out var type) || type.GetString() != "event" ||
             !root.TryGetProperty("event", out var eventElement) ||
             !eventElement.TryGetProperty("data", out var data) ||
@@ -1335,8 +1344,13 @@ internal sealed class MonitorForm : Form
         var matchingCamera = settings.Cameras.FirstOrDefault(camera => camera.MotionEnabled &&
             !string.IsNullOrWhiteSpace(camera.MotionEntityId) &&
             string.Equals(camera.MotionEntityId.Trim(), entity.GetString(), StringComparison.OrdinalIgnoreCase));
+        if (matchingCamera is not null) { cameraName = matchingCamera.Name; return true; }
+        matchingCamera = settings.Cameras.FirstOrDefault(camera => camera.MotionEnabled &&
+            !string.IsNullOrWhiteSpace(camera.PersonEntityId) &&
+            string.Equals(camera.PersonEntityId.Trim(), entity.GetString(), StringComparison.OrdinalIgnoreCase));
         if (matchingCamera is null) return false;
         cameraName = matchingCamera.Name;
+        personDetected = true;
         return true;
     }
 
@@ -1411,24 +1425,33 @@ internal sealed class MonitorForm : Form
         if (!settings.AlwaysOnTop) motionRestoreTimer.Start();
     }
 
-    private async void StartMotionCapture(CameraEntry camera)
+    private void HandlePersonDetected(string cameraName)
     {
-        if (camera.MotionAction is not ("Snapshot" or "Video" or "Both") ||
-            activeMotionCapture.Contains(camera.Name)) return;
+        if (!settings.MotionDetectionEnabled) return;
+        var camera = settings.Cameras.FirstOrDefault(item => item.MotionEnabled &&
+            string.Equals(item.Name, cameraName, StringComparison.OrdinalIgnoreCase));
+        if (camera is not null) StartMotionCapture(camera, personDetected: true);
+    }
+
+    private async void StartMotionCapture(CameraEntry camera, bool personDetected = false)
+    {
+        if (!personDetected && camera.MotionAction is not ("Snapshot" or "Video" or "Both")) return;
+        var captureKey = camera.Name + (personDetected ? "|Person" : "|Motion");
+        if (activeMotionCapture.Contains(captureKey)) return;
         // The HTTP endpoint can be called more than once for the same event.
-        if (lastMotionCapture.TryGetValue(camera.Name, out var last) &&
+        if (lastMotionCapture.TryGetValue(captureKey, out var last) &&
             DateTime.UtcNow - last < TimeSpan.FromSeconds(2)) return;
-        lastMotionCapture[camera.Name] = DateTime.UtcNow;
-        activeMotionCapture.Add(camera.Name);
+        lastMotionCapture[captureKey] = DateTime.UtcNow;
+        activeMotionCapture.Add(captureKey);
         try
         {
             var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor", "Bewegung");
             Directory.CreateDirectory(folder);
             DeleteExpiredMotionFiles(folder, settings.MotionRetentionDays);
             var safeName = string.Concat(camera.Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
-            var baseName = $"{safeName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}_{Guid.NewGuid():N}";
-            var captureSnapshot = camera.MotionAction is "Snapshot" or "Both" ? CaptureSnapshotAsync() : Task.CompletedTask;
-            var recordVideo = camera.MotionAction is "Video" or "Both" ? RecordVideoAsync() : Task.CompletedTask;
+            var baseName = $"{safeName}_{(personDetected ? "Person_" : "")}{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}_{Guid.NewGuid():N}";
+            var captureSnapshot = (personDetected || camera.MotionAction is "Snapshot" or "Both") ? CaptureSnapshotAsync() : Task.CompletedTask;
+            var recordVideo = (!personDetected && camera.MotionAction is "Video" or "Both") ? RecordVideoAsync() : Task.CompletedTask;
             await Task.WhenAll(captureSnapshot, recordVideo);
 
             async Task CaptureSnapshotAsync()
@@ -1512,7 +1535,7 @@ internal sealed class MonitorForm : Form
         {
             if (!closing) toolbar?.Flash($"Bewegung: {exception.Message}");
         }
-        finally { activeMotionCapture.Remove(camera.Name); }
+        finally { activeMotionCapture.Remove(captureKey); }
     }
 
     internal static void DeleteExpiredMotionFiles(string folder, int days)
@@ -2183,6 +2206,7 @@ internal sealed class SettingsForm : Form
     private readonly TextBox homeAssistantUrl = new() { Width = 300 };
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
     private readonly TextBox motionEntityId = new() { Width = 300 };
+    private readonly TextBox personEntityId = new() { Width = 300 };
     private readonly Label selectedMotionCamera = new() { AutoSize = true, Text = "Keine Kamera ausgewählt", Anchor = AnchorStyles.Left };
     private readonly ComboBox motionAction = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
     private readonly ComboBox motionVideoSeconds = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 85 };
@@ -2234,7 +2258,8 @@ internal sealed class SettingsForm : Form
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionEntityId", Visible = false });
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionAction", Visible = false });
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionVideoSeconds", Visible = false });
-        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl, camera.MotionEnabled, camera.MotionEntityId, camera.MotionAction, camera.MotionVideoSeconds);
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "PersonEntityId", Visible = false });
+        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl, camera.MotionEnabled, camera.MotionEntityId, camera.MotionAction, camera.MotionVideoSeconds, camera.PersonEntityId);
 #else
         foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl);
 #endif
@@ -2270,6 +2295,7 @@ internal sealed class SettingsForm : Form
                 cameras.Rows[selectedCameraRow].Cells[3].Value = motionEntityId.Text.Trim();
                 cameras.Rows[selectedCameraRow].Cells[4].Value = motionAction.SelectedIndex switch { 1 => "Snapshot", 2 => "Video", 3 => "Both", _ => "None" };
                 cameras.Rows[selectedCameraRow].Cells[5].Value = motionVideoSeconds.SelectedIndex switch { 0 => 15, 2 => 60, _ => 30 };
+                cameras.Rows[selectedCameraRow].Cells[6].Value = personEntityId.Text.Trim();
             }
         }
         void LoadSelectedCameraMotion()
@@ -2280,12 +2306,14 @@ internal sealed class SettingsForm : Form
             {
                 selectedMotionCamera.Text = "Keine Kamera ausgewählt";
                 motionEntityId.Text = "";
+                personEntityId.Text = "";
                 motionAction.SelectedIndex = 0;
                 motionVideoSeconds.SelectedIndex = 1;
                 return;
             }
             selectedMotionCamera.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[0].Value)?.Trim() is { Length: > 0 } name ? name : "Neue Kamera";
             motionEntityId.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[3].Value)?.Trim() ?? "";
+            personEntityId.Text = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[6].Value)?.Trim() ?? "";
             motionAction.SelectedIndex = Convert.ToString(cameras.Rows[selectedCameraRow].Cells[4].Value) switch { "Snapshot" => 1, "Video" => 2, "Both" => 3, _ => 0 };
             motionVideoSeconds.SelectedIndex = Convert.ToInt32(cameras.Rows[selectedCameraRow].Cells[5].Value ?? 30) switch { 15 => 0, 60 => 2, _ => 1 };
             motionVideoSeconds.Enabled = motionAction.SelectedIndex is 2 or 3;
@@ -2321,6 +2349,7 @@ internal sealed class SettingsForm : Form
             homeAssistantUrl.Enabled = directEnabled;
             homeAssistantToken.Enabled = directEnabled;
             motionEntityId.Enabled = directEnabled;
+            personEntityId.Enabled = directEnabled;
             ignoreHomeAssistantCertificateErrors.Enabled = directEnabled;
             testHomeAssistant.Enabled = directEnabled;
         }
@@ -2402,7 +2431,7 @@ internal sealed class SettingsForm : Form
         captureOptions.Controls.Add(motionAction);
         captureOptions.Controls.Add(motionVideoSeconds);
         var homeAssistantGroup = new GroupBox { Text = "Bewegung pro Kamera und Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
-        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 9 };
+        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 10 };
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         homeAssistantFields.Controls.Add(directHomeAssistant, 0, 0);
@@ -2415,15 +2444,17 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(motionEntityId, 1, 3);
         homeAssistantFields.Controls.Add(new Label { Text = "Ausgewählte Kamera:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
         homeAssistantFields.Controls.Add(selectedMotionCamera, 1, 4);
-        homeAssistantFields.Controls.Add(captureOptions, 1, 5);
-        homeAssistantFields.Controls.Add(new Label { Text = "Aufbewahrung (alle Kameras):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 6);
-        homeAssistantFields.Controls.Add(motionRetention, 1, 6);
-        homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 7);
+        homeAssistantFields.Controls.Add(new Label { Text = "Personen-Entität (Snapshot):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 5);
+        homeAssistantFields.Controls.Add(personEntityId, 1, 5);
+        homeAssistantFields.Controls.Add(captureOptions, 1, 6);
+        homeAssistantFields.Controls.Add(new Label { Text = "Aufbewahrung (alle Kameras):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 7);
+        homeAssistantFields.Controls.Add(motionRetention, 1, 7);
+        homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 8);
         homeAssistantFields.SetColumnSpan(ignoreHomeAssistantCertificateErrors, 2);
         var testRow = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
         testRow.Controls.Add(testHomeAssistant);
         testRow.Controls.Add(homeAssistantStatus);
-        homeAssistantFields.Controls.Add(testRow, 0, 8);
+        homeAssistantFields.Controls.Add(testRow, 0, 9);
         homeAssistantFields.SetColumnSpan(testRow, 2);
         homeAssistantGroup.Controls.Add(homeAssistantFields);
         table.Controls.Add(homeAssistantGroup, 0, 3);
@@ -2459,16 +2490,17 @@ internal sealed class SettingsForm : Form
             {
                 if (!Uri.TryCreate(homeAssistantUrl.Text.Trim(), UriKind.Absolute, out var testUri) ||
                     (testUri.Scheme != Uri.UriSchemeHttp && testUri.Scheme != Uri.UriSchemeHttps) ||
-                    string.IsNullOrWhiteSpace(homeAssistantToken.Text) || string.IsNullOrWhiteSpace(motionEntityId.Text))
+                    string.IsNullOrWhiteSpace(homeAssistantToken.Text) ||
+                    (string.IsNullOrWhiteSpace(motionEntityId.Text) && string.IsNullOrWhiteSpace(personEntityId.Text)))
                 {
                     homeAssistantStatus.ForeColor = Color.Firebrick;
                     homeAssistantStatus.Text = "Adresse, Token und Entität vollständig eintragen.";
                     return;
                 }
                 var error = await MonitorForm.TestHomeAssistantConnectionAsync(homeAssistantUrl.Text.Trim(), homeAssistantToken.Text.Trim(),
-                    motionEntityId.Text.Trim(), ignoreHomeAssistantCertificateErrors.Checked);
+                    motionEntityId.Text.Trim(), ignoreHomeAssistantCertificateErrors.Checked, personEntityId.Text.Trim());
                 homeAssistantStatus.ForeColor = error is null ? Color.ForestGreen : Color.Firebrick;
-                homeAssistantStatus.Text = error is null ? "Verbunden – Bewegungssensor gefunden." : error;
+                homeAssistantStatus.Text = error is null ? "Verbunden – eingetragene Sensoren gefunden." : error;
             }
             finally { testHomeAssistant.Enabled = directHomeAssistant.Checked && motionDetection.Checked; }
         };
@@ -2494,9 +2526,10 @@ internal sealed class SettingsForm : Form
                 (!Uri.TryCreate(homeAssistantUrl.Text.Trim(), UriKind.Absolute, out var haUri) ||
                  (haUri.Scheme != Uri.UriSchemeHttp && haUri.Scheme != Uri.UriSchemeHttps) ||
                  string.IsNullOrWhiteSpace(homeAssistantToken.Text) ||
-                 !entries.Any(camera => camera.MotionEnabled && !string.IsNullOrWhiteSpace(camera.MotionEntityId))))
+                 !entries.Any(camera => camera.MotionEnabled &&
+                    (!string.IsNullOrWhiteSpace(camera.MotionEntityId) || !string.IsNullOrWhiteSpace(camera.PersonEntityId)))))
             {
-                MessageBox.Show(this, "Bitte HA-Adresse und Langzeit-Token eintragen sowie für mindestens eine aktivierte Kamera eine Bewegungs-Entität hinterlegen.", "Home Assistant unvollständig", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Bitte HA-Adresse und Langzeit-Token eintragen sowie für mindestens eine aktivierte Kamera eine Sensor-Entität hinterlegen.", "Home Assistant unvollständig", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 DialogResult = DialogResult.None; return;
             }
 #endif
@@ -2544,6 +2577,7 @@ internal sealed class SettingsForm : Form
             entry.MotionEntityId = Convert.ToString(row.Cells[3].Value)?.Trim() ?? "";
             entry.MotionAction = Convert.ToString(row.Cells[4].Value) ?? "None";
             entry.MotionVideoSeconds = Convert.ToInt32(row.Cells[5].Value ?? 30);
+            entry.PersonEntityId = Convert.ToString(row.Cells[6].Value)?.Trim() ?? "";
 #endif
             result.Add(entry);
         }
