@@ -98,11 +98,19 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.17`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.18`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 18
+
+- **Übersichtlichere Einstellungen:** Allgemeines Fensterverhalten, Bewegung und Aktivitätsanzeige sowie die Einstellungen der ausgewählten Kamera stehen in eigenen Bereichen. „Aktivitätssymbole anzeigen“ ersetzt „Symbole anzeigen“; „Aufzeichnung bei Bewegung“ beginnt links in der Zeile vor den Auswahlfeldern. Die Aufbewahrungsdauer steht direkt darunter.
+
+### Neu in 0.3.0 Beta 17
+
+- **Rastermitte:** Alle vier Kamerafelder teilen sich auch bei ungerader Fenstergröße dieselbe Pixelmitte.
 
 ### Neu in 0.3.0 Beta 16
 
-- **Bewegungsrahmen im Kamerabild:** Die kurze weiße Markierung wird als schmale Linie innerhalb des betroffenen Rasterfeldes gezeichnet. Alle vier Felder teilen sich dieselbe exakt berechnete Pixelmitte, auch bei ungerader Fenstergröße. Dafür öffnet HomeCam kein zusätzliches Fenster um oder über dem Kamerabild. Der dauerhafte äußere Fensterrand bleibt entfernt.
+- **Bewegungsrahmen im Kamerabild:** Die kurze weiße Markierung wird als schmale Linie innerhalb des betroffenen Rasterfeldes gezeichnet. Dafür öffnet HomeCam kein zusätzliches Fenster um oder über dem Kamerabild. Der dauerhafte äußere Fensterrand bleibt entfernt.
 
 ### Neu in 0.3.0 Beta 15
 
