@@ -125,6 +125,8 @@ internal static class Program
         var startup = settingsForm.Controls.Find("StartupOptions", true).Single();
         var generalGroup = AllControls(settingsForm).OfType<GroupBox>()
             .Single(group => group.Text == "Allgemeine Einstellungen");
+        var activityGroup = AllControls(settingsForm).OfType<GroupBox>()
+            .Single(group => group.Text == "Bewegung und Aktivitätsanzeige");
         var motionGroup = AllControls(settingsForm).OfType<GroupBox>()
             .Single(group => group.Text == "Bewegung pro Kamera und Home Assistant");
         static int TopOnScreen(Control control) => control.PointToScreen(Point.Empty).Y;
@@ -132,10 +134,24 @@ internal static class Program
         if (BottomOnScreen(cameraTable) > TopOnScreen(cameraHint) ||
             BottomOnScreen(cameraHint) > TopOnScreen(generalGroup) ||
             BottomOnScreen(options) > TopOnScreen(startup) ||
-            BottomOnScreen(generalGroup) > TopOnScreen(motionGroup))
+            BottomOnScreen(generalGroup) > TopOnScreen(activityGroup) ||
+            BottomOnScreen(activityGroup) > TopOnScreen(motionGroup))
             throw new InvalidOperationException($"Settings rows overlap: table={BottomOnScreen(cameraTable)}, hint={TopOnScreen(cameraHint)}..{BottomOnScreen(cameraHint)}, general={TopOnScreen(generalGroup)}..{BottomOnScreen(generalGroup)}, options={BottomOnScreen(options)}, startup={TopOnScreen(startup)}, motion={TopOnScreen(motionGroup)}");
         var selectedCamera = AllControls(motionGroup).OfType<Label>()
             .Single(label => label.Text == "Ausgewählte Kamera:");
+        var actionLabel = AllControls(motionGroup).OfType<Label>()
+            .Single(label => label.Text == "Aufzeichnung bei Bewegung:");
+        var motionFields = (TableLayoutPanel)actionLabel.Parent!;
+        if (motionFields.GetPositionFromControl(actionLabel).Column != 0 ||
+            motionFields.GetPositionFromControl(actionLabel).Row !=
+            motionFields.GetPositionFromControl(actionLabel.Parent.Controls.OfType<FlowLayoutPanel>()
+                .Single(panel => panel.Controls.OfType<ComboBox>().Any(combo => combo.Items.Contains("Snapshot + Videoaufnahme")))).Row)
+            throw new InvalidOperationException("Recording label must start the camera action row");
+        var indicatorLabel = AllControls(activityGroup).OfType<Label>()
+            .Single(label => label.Text == "Aktivitätssymbole anzeigen:");
+        if (!AllControls(activityGroup).OfType<CheckBox>().Any(check => check.Text == "Bewegungserkennung aktiv") ||
+            indicatorLabel.Parent is null)
+            throw new InvalidOperationException("Activity controls must be grouped together");
         var action = AllControls(motionGroup).OfType<ComboBox>()
             .Single(combo => combo.Items.Contains("Snapshot + Videoaufnahme"));
         var videoSeconds = AllControls(motionGroup).OfType<ComboBox>()
