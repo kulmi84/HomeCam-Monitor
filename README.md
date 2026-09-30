@@ -98,9 +98,9 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.3`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.4`. Die stabile Ausgabe bleibt getrennt.
 
-### Neu in 0.3.0 Beta 3
+### Neu in 0.3.0 Beta 4
 
 - **Aktion pro Kamera bei Bewegung:** In der Kameratabelle eine Kamera anklicken und „Keine“, „Snapshot“, „Videoaufnahme“ oder „Snapshot + Videoaufnahme“ wählen. Die Spalte **Bewegung** muss für die Kamera aktiviert sein. Ein Snapshot speichert genau ein Bild je Ereignis. Für Video sind 15, 30 oder 60 Sekunden wählbar.
 - **Eigener Bewegungsordner:** Automatische Dateien liegen unter `Videos\HomeCam Monitor\Bewegung`. Manuell erstellte Snapshots und Videos liegen weiterhin in ihren bisherigen Ordnern.
