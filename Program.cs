@@ -138,12 +138,10 @@ internal sealed class MonitorForm : Form
     private readonly Dictionary<string, DateTime> lastMotionCapture = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> activeMotionCapture = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<Process> motionProcesses = [];
-    private readonly TableLayoutPanel cameraGrid = new()
+    private readonly Panel cameraGrid = new()
     {
         Dock = DockStyle.Fill,
         BackColor = Color.Black,
-        ColumnCount = 2,
-        RowCount = 2,
         Padding = new Padding(0),
         Visible = false
     };
@@ -700,14 +698,11 @@ internal sealed class MonitorForm : Form
 #if BETA
     private void InitializeCameraGrid()
     {
-        cameraGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-        cameraGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-        cameraGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
-        cameraGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
+        cameraGrid.Resize += (_, _) => LayoutCameraGrid();
 
         for (var index = 0; index < 4; index++)
         {
-            var host = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0), BackColor = Color.Black };
+            var host = new Panel { Margin = new Padding(0), BackColor = Color.Black };
             var name = new Label
             {
                 AutoSize = true,
@@ -726,15 +721,37 @@ internal sealed class MonitorForm : Form
             var slot = new GridPlayerSlot { Host = host, Name = name, BorderParts = borders };
             host.Resize += (_, _) => LayoutGridMotionBorder(slot);
             LayoutGridMotionBorder(slot);
-            cameraGrid.Controls.Add(host, index % 2, index / 2);
+            cameraGrid.Controls.Add(host);
             gridSlots.Add(slot);
         }
+        LayoutCameraGrid();
+    }
+
+    internal static Rectangle[] GetCameraGridBounds(Size size)
+    {
+        // Split each axis once so all four tiles meet at exactly the same pixel.
+        var middleX = size.Width / 2;
+        var middleY = size.Height / 2;
+        return
+        [
+            new Rectangle(0, 0, middleX, middleY),
+            new Rectangle(middleX, 0, size.Width - middleX, middleY),
+            new Rectangle(0, middleY, middleX, size.Height - middleY),
+            new Rectangle(middleX, middleY, size.Width - middleX, size.Height - middleY)
+        ];
+    }
+
+    private void LayoutCameraGrid()
+    {
+        var bounds = GetCameraGridBounds(cameraGrid.ClientSize);
+        for (var index = 0; index < gridSlots.Count; index++)
+            gridSlots[index].Host.Bounds = bounds[index];
     }
 
     internal static Rectangle[] GetGridMotionBorderBounds(Size size)
     {
         // Four narrow strips are children of the camera tile, inset from its edges.
-        const int inset = 5, stroke = 3;
+        const int inset = 2, stroke = 3;
         var width = Math.Max(1, size.Width - 2 * inset);
         var height = Math.Max(1, size.Height - 2 * inset - 2 * stroke);
         return
