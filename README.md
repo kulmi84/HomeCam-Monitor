@@ -98,7 +98,11 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.10`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.11`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 11
+
+- **Personensymbol:** Bei einem Ereignis des eingetragenen Personensensors erscheint eine Sekunde lang eine weiße, stehende Person oben rechts im HomeCam-Fenster. Das bisherige Bewegungssymbol bleibt als laufende Person erhalten. Die Personenerkennung ändert weder die ausgewählte Kamera noch die Vordergrundsteuerung.
 
 ### Neu in 0.3.0 Beta 10
 
