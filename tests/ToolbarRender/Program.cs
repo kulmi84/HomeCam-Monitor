@@ -120,6 +120,15 @@ internal static class Program
             var expected = (int)Math.Round(width * 9d / 16d);
             if (Math.Abs(monitor.Height - expected) > 1)
                 throw new InvalidOperationException($"Camera window grew while resizing: {monitor.Bounds}, expected height {expected}");
+            foreach (var surface in monitor.Controls.OfType<Panel>())
+                if (surface.Bounds != monitor.ClientRectangle)
+                    throw new InvalidOperationException($"Camera surface is inset after resizing: {surface.Bounds} versus {monitor.ClientRectangle}");
+            var cameraGrid = monitor.Controls.OfType<Panel>()
+                .Single(panel => panel.Controls.OfType<Panel>().Count() == 4);
+            var tiles = MonitorForm.GetCameraGridBounds(cameraGrid.ClientSize);
+            for (var index = 0; index < tiles.Length; index++)
+                if (cameraGrid.Controls[index].Bounds != tiles[index])
+                    throw new InvalidOperationException($"Camera tile {index} is offset after resizing");
         }
         var previousHeight = monitor.Height;
         for (var move = 0; move < 5; move++)
