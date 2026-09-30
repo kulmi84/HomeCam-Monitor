@@ -173,7 +173,6 @@ internal sealed class MonitorForm : Form
     private DateTime sentToBackgroundAt = DateTime.MinValue;
     private ContextMenuStrip? cameraContextMenu;
     private MotionIndicatorForm? motionIndicator;
-    private GridMotionHighlightForm? gridMotionHighlight;
     private int gridHighlightedCameraIndex = -1;
     private SettingsForm? activeSettingsDialog;
     private bool motionIndicatorVisible;
@@ -291,9 +290,6 @@ internal sealed class MonitorForm : Form
         motionIndicator = new MotionIndicatorForm();
         motionIndicator.Show(this);
         motionIndicator.Hide();
-        gridMotionHighlight = new GridMotionHighlightForm();
-        gridMotionHighlight.Show(this);
-        gridMotionHighlight.Hide();
 #endif
         if (!HasUsableCamera()) OpenSettings();
         if (closing) return;
@@ -319,7 +315,7 @@ internal sealed class MonitorForm : Form
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
-        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close(); gridMotionHighlight?.Close();
+        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
@@ -723,8 +719,52 @@ internal sealed class MonitorForm : Form
                 Location = new Point(6, 6)
             };
             host.Controls.Add(name);
+            var borders = Enumerable.Range(0, 4)
+                .Select(_ => new Panel { BackColor = Color.White, Visible = false, TabStop = false })
+                .ToArray();
+            host.Controls.AddRange(borders);
+            var slot = new GridPlayerSlot { Host = host, Name = name, BorderParts = borders };
+            host.Resize += (_, _) => LayoutGridMotionBorder(slot);
+            LayoutGridMotionBorder(slot);
             cameraGrid.Controls.Add(host, index % 2, index / 2);
-            gridSlots.Add(new GridPlayerSlot { Host = host, Name = name });
+            gridSlots.Add(slot);
+        }
+    }
+
+    internal static Rectangle[] GetGridMotionBorderBounds(Size size)
+    {
+        // Four narrow strips are children of the camera tile, inset from its edges.
+        const int inset = 5, stroke = 3;
+        var width = Math.Max(1, size.Width - 2 * inset);
+        var height = Math.Max(1, size.Height - 2 * inset - 2 * stroke);
+        return
+        [
+            new Rectangle(inset, inset, width, stroke),
+            new Rectangle(inset, Math.Max(inset, size.Height - inset - stroke), width, stroke),
+            new Rectangle(inset, inset + stroke, stroke, height),
+            new Rectangle(Math.Max(inset, size.Width - inset - stroke), inset + stroke, stroke, height)
+        ];
+    }
+
+    private static void LayoutGridMotionBorder(GridPlayerSlot slot)
+    {
+        var bounds = GetGridMotionBorderBounds(slot.Host.ClientSize);
+        for (var index = 0; index < bounds.Length; index++)
+            slot.BorderParts[index].Bounds = bounds[index];
+    }
+
+    private void UpdateGridMotionBorders()
+    {
+        foreach (var slot in gridSlots)
+        {
+            var active = motionIndicatorVisible && gridMode && settings.HighlightMotionInGrid &&
+                gridHighlightedCameraIndex >= 0 && slot.CameraIndex == gridHighlightedCameraIndex;
+            foreach (var strip in slot.BorderParts)
+            {
+                strip.Visible = active;
+                if (active) strip.BringToFront();
+            }
+            if (active) slot.Name.BringToFront();
         }
     }
 
@@ -765,7 +805,7 @@ internal sealed class MonitorForm : Form
     private void ExitGridView(int? cameraIndex = null)
     {
         gridHighlightedCameraIndex = -1;
-        gridMotionHighlight?.Hide();
+        UpdateGridMotionBorders();
         StopGridPlayers();
         gridMode = false;
         settings.LastGridMode = false;
@@ -1116,17 +1156,7 @@ internal sealed class MonitorForm : Form
             var highlightedSlot = motionIndicatorVisible && gridMode && settings.HighlightMotionInGrid && gridHighlightedCameraIndex >= 0
                 ? gridSlots.FirstOrDefault(slot => slot.CameraIndex == gridHighlightedCameraIndex) : null;
             var highlightBounds = highlightedSlot?.Host.RectangleToScreen(highlightedSlot.Host.ClientRectangle);
-            if (gridMotionHighlight is not null && !gridMotionHighlight.IsDisposed)
-            {
-                if (highlightBounds.HasValue)
-                {
-                    gridMotionHighlight.Bounds = highlightBounds.Value;
-                    gridMotionHighlight.TopMost = TopMost;
-                    if (!gridMotionHighlight.Visible) gridMotionHighlight.Show(this);
-                    gridMotionHighlight.BringToFront();
-                }
-                else gridMotionHighlight.Hide();
-            }
+            UpdateGridMotionBorders();
             motionIndicator.Location = highlightBounds.HasValue
                 ? new Point(highlightBounds.Value.Right - motionIndicator.Width - 10, highlightBounds.Value.Top + 10)
                 : new Point(Right - motionIndicator.Width - 12, Top + 12);
@@ -1602,7 +1632,7 @@ internal sealed class MonitorForm : Form
         motionIndicatorVisible = false;
         gridHighlightedCameraIndex = -1;
         motionIndicator?.Hide();
-        gridMotionHighlight?.Hide();
+        UpdateGridMotionBorders();
     }
 
     private void ForceToForeground()
@@ -1761,6 +1791,7 @@ internal sealed class MonitorForm : Form
     {
         public required Panel Host { get; init; }
         public required Label Name { get; init; }
+        public required Panel[] BorderParts { get; init; }
         public int CameraIndex { get; set; } = -1;
         public Process? Player { get; set; }
     }
@@ -1768,38 +1799,6 @@ internal sealed class MonitorForm : Form
 }
 
 #if BETA
-internal sealed class GridMotionHighlightForm : Form
-{
-    protected override bool ShowWithoutActivation => true;
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var parameters = base.CreateParams;
-            parameters.ExStyle |= 0x00000020 | 0x08000000 | 0x00000080;
-            return parameters;
-        }
-    }
-
-    public GridMotionHighlightForm()
-    {
-        FormBorderStyle = FormBorderStyle.None;
-        ShowInTaskbar = false;
-        StartPosition = FormStartPosition.Manual;
-        AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.Magenta;
-        TransparencyKey = Color.Magenta;
-        HandleCreated += (_, _) => NativeMethods.DisableDwmBorder(Handle);
-    }
-
-    protected override void OnPaint(PaintEventArgs eventArgs)
-    {
-        base.OnPaint(eventArgs);
-        using var outline = new Pen(Color.White, 3);
-        eventArgs.Graphics.DrawRectangle(outline, 2, 2, Math.Max(1, ClientSize.Width - 5), Math.Max(1, ClientSize.Height - 5));
-    }
-}
-
 internal sealed class MotionIndicatorForm : Form
 {
     private bool personDetected;
