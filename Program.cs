@@ -232,10 +232,11 @@ internal sealed class MonitorForm : Form
 #endif
         Shown += (_, _) =>
         {
-#if BETA
-            RefreshCameraClientArea();
-#endif
             InitializeMonitor();
+#if BETA
+            if (!IsDisposed && !closing)
+                BeginInvoke(new Action(RefreshCameraClientArea));
+#endif
         };
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
         Resize += (_, _) =>
@@ -281,16 +282,23 @@ internal sealed class MonitorForm : Form
 #if BETA
     internal void RefreshCameraClientArea()
     {
-        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) return;
-        // WS_CAPTION/WS_THICKFRAME are present for DWM's smooth corners.
-        // Recalculate the frame after the HWND is shown so the video fills it
-        // immediately instead of waiting for the first manual resize.
-        NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0,
-            NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoZOrder |
-            NativeMethods.SwpNoActivate | NativeMethods.SwpFrameChanged);
+        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) || IsDisposed) return;
+        // An actual size change is needed after the selected grid has become visible:
+        // SWP_FRAMECHANGED without resizing leaves its first client rectangle offset.
+        var original = Bounds;
+        var flags = NativeMethods.SwpNoMove | NativeMethods.SwpNoZOrder |
+            NativeMethods.SwpNoActivate | NativeMethods.SwpFrameChanged;
+        adjustingAspectRatio = true;
+        try
+        {
+            NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, original.Width + 1, original.Height + 1, flags);
+            NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, original.Width, original.Height, flags);
+        }
+        finally { adjustingAspectRatio = false; }
         PerformLayout();
         cameraGrid.PerformLayout();
         LayoutCameraGrid();
+        PositionOverlays();
     }
 #endif
 
