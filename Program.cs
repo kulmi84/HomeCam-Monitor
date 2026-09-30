@@ -230,7 +230,13 @@ internal sealed class MonitorForm : Form
         InitializeCameraGrid();
         Controls.Add(cameraGrid);
 #endif
-        Shown += (_, _) => InitializeMonitor();
+        Shown += (_, _) =>
+        {
+#if BETA
+            RefreshCameraClientArea();
+#endif
+            InitializeMonitor();
+        };
         Move += (_, _) => { if (!nativeMoveOrResize) PositionOverlays(); };
         Resize += (_, _) =>
         {
@@ -271,6 +277,22 @@ internal sealed class MonitorForm : Form
         FormClosing += (_, _) => CloseMonitor();
         ApplyRoundedCorners();
     }
+
+#if BETA
+    internal void RefreshCameraClientArea()
+    {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) return;
+        // WS_CAPTION/WS_THICKFRAME are present for DWM's smooth corners.
+        // Recalculate the frame after the HWND is shown so the video fills it
+        // immediately instead of waiting for the first manual resize.
+        NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0,
+            NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoZOrder |
+            NativeMethods.SwpNoActivate | NativeMethods.SwpFrameChanged);
+        PerformLayout();
+        cameraGrid.PerformLayout();
+        LayoutCameraGrid();
+    }
+#endif
 
     private void InitializeMonitor()
     {
@@ -2325,7 +2347,7 @@ internal static class NativeMethods
 #if BETA
     public static readonly IntPtr HwndBottom = new(1);
 #endif
-    public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
+    public const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoZOrder = 0x0004, SwpNoActivate = 0x0010, SwpFrameChanged = 0x0020;
     public const uint SwpShowWindow = 0x0040;
     public const int SwShowNoActivate = 4;
     public const int HtLeft = 10, HtRight = 11, HtTop = 12, HtTopLeft = 13, HtTopRight = 14, HtBottom = 15, HtBottomLeft = 16, HtBottomRight = 17;
