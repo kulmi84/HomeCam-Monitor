@@ -102,8 +102,23 @@ internal static class Program
         var cameraHint = settingsForm.Controls.Find("CameraHint", true).Single();
         var options = settingsForm.Controls.Find("Options", true).Single();
         var startup = settingsForm.Controls.Find("StartupOptions", true).Single();
-        if (cameraTable.Bottom > cameraHint.Top || cameraHint.Bottom > options.Top || options.Bottom > startup.Top)
+        var generalGroup = AllControls(settingsForm).OfType<GroupBox>()
+            .Single(group => group.Text == "Allgemeine Einstellungen");
+        var motionGroup = AllControls(settingsForm).OfType<GroupBox>()
+            .Single(group => group.Text == "Bewegung pro Kamera und Home Assistant");
+        static int TopOnScreen(Control control) => control.PointToScreen(Point.Empty).Y;
+        static int BottomOnScreen(Control control) => TopOnScreen(control) + control.Height;
+        if (BottomOnScreen(cameraTable) > TopOnScreen(cameraHint) ||
+            BottomOnScreen(cameraHint) > TopOnScreen(generalGroup) ||
+            BottomOnScreen(options) > TopOnScreen(startup) ||
+            BottomOnScreen(generalGroup) > TopOnScreen(motionGroup))
             throw new InvalidOperationException("Settings rows overlap or the camera hint is hidden");
+        var selectedCamera = AllControls(motionGroup).OfType<Label>()
+            .Single(label => label.Text == "Ausgewählte Kamera:");
+        var action = AllControls(motionGroup).OfType<ComboBox>()
+            .Single(combo => combo.Items.Contains("Snapshot + Videoaufnahme"));
+        if (BottomOnScreen(selectedCamera) > TopOnScreen(action))
+            throw new InvalidOperationException("Motion action is not below the selected camera");
         var seconds = AllControls(settingsForm)
             .OfType<Label>().Single(label => label.Text == "Sekunden");
         var duration = seconds.Parent!.Controls.OfType<NumericUpDown>().Single();
