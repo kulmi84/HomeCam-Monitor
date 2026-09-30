@@ -53,21 +53,26 @@ jobs:
           Copy-Item $exe.FullName publish-beta/ffmpeg.exe
           $license = Get-ChildItem ffmpeg -File -Recurse | Where-Object { $_.Name -match '^LICENSE' } | Select-Object -First 1
           if ($license) { Copy-Item $license.FullName publish-beta/FFmpeg-LICENSE.txt }
-      - name: Video-Datei mit FFmpeg erzeugen und lesen
+      - name: Video und Snapshot mit FFmpeg erzeugen und lesen
         shell: pwsh
         run: |
           $ffmpeg = (Resolve-Path publish-beta/ffmpeg.exe).Path
           $source = Join-Path $env:RUNNER_TEMP 'homecam-source.mkv'
           $recorded = Join-Path $env:RUNNER_TEMP 'homecam-recorded.mkv'
+          $snapshot = Join-Path $env:RUNNER_TEMP 'homecam-snapshot.png'
           & $ffmpeg -nostdin -hide_banner -loglevel error -f lavfi -i 'testsrc=size=320x180:rate=10' -t 2 -c:v mpeg4 -y $source
           if ($LASTEXITCODE -ne 0) { throw 'FFmpeg-Testquelle fehlgeschlagen.' }
           & $ffmpeg -nostdin -hide_banner -loglevel error -i $source -t 1 -map 0:v:0 -an -c:v copy -f matroska -y $recorded
           if ($LASTEXITCODE -ne 0 -or (Get-Item $recorded).Length -lt 4096) { throw 'Bewegungsaufnahme fehlgeschlagen.' }
           & $ffmpeg -nostdin -hide_banner -loglevel error -i $recorded -f null NUL
           if ($LASTEXITCODE -ne 0) { throw 'Die erzeugte Videodatei ist nicht lesbar.' }
+          & $ffmpeg -nostdin -hide_banner -loglevel error -i $source -map 0:v:0 -frames:v 1 -an -f image2 -y $snapshot
+          if ($LASTEXITCODE -ne 0 -or (Get-Item $snapshot).Length -lt 64) { throw 'Snapshot fehlgeschlagen.' }
+          & $ffmpeg -nostdin -hide_banner -loglevel error -i $snapshot -f null NUL
+          if ($LASTEXITCODE -ne 0) { throw 'Der erzeugte Snapshot ist nicht lesbar.' }
       - name: Beta-Downloads erstellen
         shell: pwsh
-        run: .github/scripts/build-beta-downloads.ps1 -Version '0.3.0-beta.8'
+        run: .github/scripts/build-beta-downloads.ps1 -Version '0.3.0-beta.9'
       - name: Downloads mit Microsoft Defender prüfen
         shell: pwsh
         run: .github/scripts/scan-downloads.ps1
@@ -77,5 +82,5 @@ jobs:
           path: publish/
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-Beta-v0.3.0-beta.8-win-x64
+          name: HomeCamMonitor-Beta-v0.3.0-beta.9-win-x64
           path: beta-downloads/
