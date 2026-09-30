@@ -1103,11 +1103,24 @@ internal sealed class MonitorForm : Form
     private void KeepCameraAspectRatio()
     {
         if (fullscreen || adjustingAspectRatio || WindowState != FormWindowState.Normal) return;
-        var targetHeight = Math.Max(MinimumSize.Height, (int)Math.Round(ClientSize.Width * 9d / 16d));
-        if (Math.Abs(ClientSize.Height - targetHeight) <= 1) return;
+#if BETA
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+        {
+            // Native frame styles enable smooth DWM corners. Never resize the outer
+            // window through ClientSize: a transient non-client margin can accumulate.
+            var targetHeight = Math.Max(MinimumSize.Height, (int)Math.Round(Width * 9d / 16d));
+            if (Math.Abs(Height - targetHeight) <= 1) return;
+            adjustingAspectRatio = true;
+            try { Bounds = new Rectangle(Left, Top, Width, targetHeight); }
+            finally { adjustingAspectRatio = false; }
+            return;
+        }
+#endif
+        var targetHeightLegacy = Math.Max(MinimumSize.Height, (int)Math.Round(ClientSize.Width * 9d / 16d));
+        if (Math.Abs(ClientSize.Height - targetHeightLegacy) <= 1) return;
         adjustingAspectRatio = true;
-        ClientSize = new Size(ClientSize.Width, targetHeight);
-        adjustingAspectRatio = false;
+        try { ClientSize = new Size(ClientSize.Width, targetHeightLegacy); }
+        finally { adjustingAspectRatio = false; }
     }
 
     private void UpdateToolbar()
@@ -1796,7 +1809,12 @@ internal sealed class MonitorForm : Form
 #endif
     protected override void WndProc(ref Message message)
     {
-        if (message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
+        if (message.Msg == NativeMethods.WmNcCalcSize &&
+            (message.WParam != IntPtr.Zero
+#if BETA
+             || OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)
+#endif
+            ))
         {
             message.Result = IntPtr.Zero;
             return;
