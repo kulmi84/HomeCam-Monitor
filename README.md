@@ -98,7 +98,11 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.8`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.9`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 9
+
+- **Automatische Snapshots:** Das Bewegungsbild wird mit dem enthaltenen FFmpeg direkt aus dem Kamerastream als PNG gespeichert. Eine beschädigte oder leere Datei wird entfernt und als Fehler angezeigt.
 
 ### Neu in 0.3.0 Beta 8
 
