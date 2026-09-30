@@ -94,11 +94,15 @@ internal static class Program
 
         using var settingsForm = new SettingsForm(new Settings
         {
-            Cameras = [new CameraEntry { Name = "Einfahrt", StreamUrl = "rtsp://127.0.0.1:8554/Einfahrt" }]
+            Cameras = [new CameraEntry { Name = "Einfahrt", StreamUrl = "rtsp://127.0.0.1:8554/Einfahrt",
+                PersonEntityId = "binary_sensor.einfahrt_person" }]
         });
         settingsForm.Show();
         Application.DoEvents();
         var cameraTable = AllControls(settingsForm).OfType<DataGridView>().Single();
+        if (Convert.ToBoolean(cameraTable.Rows[0].Cells["MotionEnabled"].Value) ||
+            !Convert.ToBoolean(cameraTable.Rows[0].Cells["PersonEnabled"].Value))
+            throw new InvalidOperationException("An existing person sensor must stay enabled independently of motion");
         var cameraHint = settingsForm.Controls.Find("CameraHint", true).Single();
         var options = settingsForm.Controls.Find("Options", true).Single();
         var startup = settingsForm.Controls.Find("StartupOptions", true).Single();
@@ -117,6 +121,10 @@ internal static class Program
             .Single(label => label.Text == "Ausgewählte Kamera:");
         var action = AllControls(motionGroup).OfType<ComboBox>()
             .Single(combo => combo.Items.Contains("Snapshot + Videoaufnahme"));
+        var videoSeconds = AllControls(motionGroup).OfType<ComboBox>()
+            .Single(combo => combo.Items.Contains("30 Sekunden"));
+        if (videoSeconds.Width < 110)
+            throw new InvalidOperationException("The video duration selection is too narrow");
         if (BottomOnScreen(selectedCamera) > TopOnScreen(action))
             throw new InvalidOperationException("Motion action is not below the selected camera");
         var seconds = AllControls(settingsForm)
