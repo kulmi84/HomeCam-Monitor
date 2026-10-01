@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Pipes;
 #if BETA
 using System.Net;
@@ -2659,14 +2659,22 @@ internal sealed class CameraPlaceholderPanel : Panel
         var iconSize = Math.Clamp(Math.Min(Width / 4, Height / 3), 20, 96);
         var textHeight = Math.Clamp(Height / 8, 14, 25);
         if (empty && !showEmptyLogo) return;
-        var totalHeight = empty ? iconSize : iconSize + 8 + 2 * textHeight;
+        var totalHeight = iconSize + 8 + (empty ? textHeight : 2 * textHeight);
         var top = Math.Max(4, (Height - totalHeight) / 2);
         if (logo is not null)
         {
             eventArgs.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             eventArgs.Graphics.DrawImage(logo, (Width - iconSize) / 2, top, iconSize, iconSize);
         }
-        if (empty) return;
+        if (empty)
+        {
+            using var brandFont = new Font("Segoe UI", Math.Clamp(Height / 28f, 8f, 11f));
+            TextRenderer.DrawText(eventArgs.Graphics, "HomeCamMonitor", brandFont,
+                new Rectangle(6, top + iconSize + 8, Math.Max(1, Width - 12), textHeight), ForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
+                | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix);
+            return;
+        }
         using var statusFont = new Font("Segoe UI", Math.Clamp(Height / 24f, 9f, 13f));
         using var nameFont = new Font("Segoe UI", Math.Clamp(Height / 28f, 8f, 11f));
         const TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
