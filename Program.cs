@@ -863,6 +863,10 @@ internal sealed class MonitorForm : Form
         NativeMethods.DwmSetWindowAttribute(dialog.Handle, 3, ref disableTransitions, sizeof(int));
 #endif
         suppressToolbar = true;
+#if BETA
+        activeSettingsDialog = dialog;
+        HideMotionIndicator();
+#endif
         toolbar?.Hide();
         dragSurface?.Hide();
         foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
@@ -1629,6 +1633,16 @@ internal sealed class MonitorForm : Form
     {
         if (toolbar is null || toolbar.IsDisposed) return;
 #if BETA
+        if (activeSettingsDialog is not null)
+        {
+            toolbar.Hide();
+            dragSurface?.Hide();
+            motionIndicator?.Hide();
+            foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
+            return;
+        }
+#endif
+#if BETA
         UpdateToolbarScale();
 #endif
 #if BETA
@@ -1957,6 +1971,7 @@ internal sealed class MonitorForm : Form
         var motionCamera = settings.Cameras.FirstOrDefault(camera =>
             camera.MotionEnabled && string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (motionCamera is not null) StartMotionCapture(motionCamera);
+        if (activeSettingsDialog is not null) return;
         if (settings.AlwaysOnTop) return;
         var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (cameraIndex < 0) { toolbar?.Flash($"{cameraName} fehlt"); return; }
@@ -2114,6 +2129,7 @@ internal sealed class MonitorForm : Form
 
     private void ShowMotionIndicator(bool personDetected = false, int cameraIndex = -1)
     {
+        if (activeSettingsDialog is not null) { HideMotionIndicator(); return; }
         if (motionIndicator is not null) motionIndicator.PersonDetected = personDetected;
         gridHighlightedCameraIndex = !personDetected && gridMode && settings.HighlightMotionInGrid
             ? cameraIndex : -1;
