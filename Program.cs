@@ -163,6 +163,7 @@ internal sealed class MonitorForm : Form
     };
     private readonly List<GridPlayerSlot> gridSlots = [];
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
+    private readonly System.Windows.Forms.Timer videoDecorationTimer = new() { Interval = 50 };
     private CancellationTokenSource? refreshCancellation;
     private CancellationTokenSource? initialPlayerReveal;
     private CancellationTokenSource? initialGridReveal;
@@ -310,6 +311,15 @@ internal sealed class MonitorForm : Form
             cameraLayoutTimer.Stop();
             AlignCameraSurfaces();
         };
+        videoDecorationTimer.Tick += (_, _) =>
+        {
+            // mpv creates its HWND asynchronously, even when a stream never opens.
+            // Sanitize it while connecting too, rather than waiting for a frame.
+            foreach (var surface in gridSlots.SelectMany(slot => new[] { slot.ActiveSurface, slot.SpareSurface })
+                .Concat(new[] { video, standbyVideo }))
+                if (surface.IsHandleCreated) NativeMethods.PrepareVideoChildren(surface.Handle);
+        };
+        videoDecorationTimer.Start();
 #endif
         FormClosing += (_, _) => CloseMonitor();
         ApplyRoundedCorners();
@@ -385,6 +395,7 @@ internal sealed class MonitorForm : Form
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
+        videoDecorationTimer.Stop(); videoDecorationTimer.Dispose();
         motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionPauseTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
@@ -2743,6 +2754,22 @@ internal sealed class HomeCamDarkColorTable : ProfessionalColorTable
 // FormBorderStyle. Layered overlays must never acquire a temporary title area.
 internal abstract class OverlayForm : Form
 {
+#if BETA
+    protected override void WndProc(ref Message message)
+    {
+        if (message.Msg == NativeMethods.WmNcPaint || message.Msg == 0x0086)
+        {
+            message.Result = (IntPtr)1;
+            return;
+        }
+        if (message.Msg == NativeMethods.WmNcCalcSize)
+        {
+            message.Result = IntPtr.Zero;
+            return;
+        }
+        base.WndProc(ref message);
+    }
+#endif
     protected override CreateParams CreateParams
     {
         get
@@ -3149,6 +3176,7 @@ internal static class NativeMethods
         {
             const int styleIndex = -16;
             var style = GetWindowStyle(window, styleIndex);
+            if ((style & 0x00C40000) == 0) return true;
             SetWindowStyle(window, styleIndex, style & ~0x00C40000);
             DisableOverlayDecoration(window);
             var dark = 1;
