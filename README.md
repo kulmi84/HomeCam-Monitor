@@ -98,7 +98,13 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.27`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.28`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 28
+
+- Der planmäßige Stream-Refresh nach fünf Minuten startet eine zweite mpv-Instanz im Hintergrund. Erst nach dem ersten Videobild wird umgeschaltet und die bisherige Instanz beendet.
+- Im 4er-Raster werden die Kameras nacheinander erneuert. Schlägt ein Ersatzstream fehl, läuft die bisherige Wiedergabe weiter; der nächste Versuch erfolgt beim folgenden Intervall.
+- Beim manuellen Kamerawechsel und beim Schließen werden laufende Hintergrund-Refreshs abgebrochen.
 
 ### Neu in 0.3.0 Beta 27
 
