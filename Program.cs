@@ -2750,21 +2750,40 @@ internal sealed class ToolbarForm : OverlayForm
 
     protected override void SetVisibleCore(bool value)
     {
-        if (value && !Visible)
+        if (value && !Visible && !firstPresentationComplete)
         {
-            // Create and size the layered window while it is still hidden.
-            // Resizing in OnShown is too late: Windows may already have
-            // composed one frame with its initial, taller window bounds.
+            // Creating handles alone does not paint a layered window. Keep
+            // its first presentation transparent until the form and every
+            // child have synchronously painted their dark content.
+            var targetOpacity = Opacity;
+            Opacity = 0;
             _ = Handle;
             SetSizePercent(sizePercent, force: true);
             foreach (Control control in Controls) _ = control.Handle;
+            try
+            {
+                base.SetVisibleCore(true);
+                Refresh();
+                foreach (Control control in Controls)
+                    if (control.Visible) control.Refresh();
+                firstPresentationComplete = true;
+            }
+            finally { Opacity = targetOpacity; }
+            return;
         }
         base.SetVisibleCore(value);
     }
 
+    private bool firstPresentationComplete;
+
     protected override void OnHandleCreated(EventArgs eventArgs)
     {
         base.OnHandleCreated(eventArgs);
+        firstPresentationComplete = false;
+        var darkMode = 1;
+        NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.UseImmersiveDarkMode,
+            ref darkMode, sizeof(int));
+        NativeMethods.DisableDwmBorder(Handle);
         const int windowCornerPreference = 33;
         var roundCorners = 2;
         if (NativeMethods.DwmSetWindowAttribute(Handle, windowCornerPreference, ref roundCorners, sizeof(int)) != 0)
