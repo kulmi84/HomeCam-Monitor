@@ -328,6 +328,9 @@ internal sealed class MonitorForm : Form
 
     private void InitializeMonitor()
     {
+#if BETA
+        NativeMethods.SetDiagnosticCaptionColor(Handle, Color.Orange);
+#endif
         if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "mpv.exe")))
         {
             MessageBox.Show(this, "mpv.exe fehlt. Bitte den vollständigen Ordner aus dem GitHub-Artefakt entpacken.", "HomeCam Monitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -3172,23 +3175,35 @@ internal static class NativeMethods
     {
         // mpv owns these HWNDs, not WinForms. Remove native caption/border before
         // revealing their hidden parent, including the very first camera switch.
+        SetDiagnosticCaptionColor(parent, Color.Lime);
         EnumChildWindows(parent, (window, _) =>
         {
             const int styleIndex = -16;
             var style = GetWindowStyle(window, styleIndex);
-            if ((style & 0x00C40000) == 0) return true;
-            SetWindowStyle(window, styleIndex, style & ~0x00C40000);
+            if ((style & 0x00C40000) != 0)
+                SetWindowStyle(window, styleIndex, style & ~0x00C40000);
             DisableOverlayDecoration(window);
+            SetDiagnosticCaptionColor(window, Color.Magenta);
             var dark = 1;
             DwmSetWindowAttribute(window, (int)DwmWindowAttribute.UseImmersiveDarkMode, ref dark, sizeof(int));
-            SetWindowPos(window, IntPtr.Zero, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate | 0x0004 | 0x0020);
+            if ((style & 0x00C40000) != 0) SetWindowPos(window, IntPtr.Zero, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate | 0x0004 | 0x0020);
             return true;
         }, IntPtr.Zero);
+    }
+
+    internal static void SetDiagnosticCaptionColor(IntPtr window, Color color)
+    {
+        // Beta 46 diagnostic: only the native caption, never the video pixels.
+        var captionColor = color.R | (color.G << 8) | (color.B << 16);
+        DwmSetWindowAttribute(window, 35, ref captionColor, sizeof(int));
+        var dark = 1;
+        DwmSetWindowAttribute(window, 20, ref dark, sizeof(int));
     }
 
     public static void DisableOverlayDecoration(IntPtr window)
     {
         DisableDwmBorder(window);
+        SetDiagnosticCaptionColor(window, Color.Cyan);
         // The nearly transparent drag and resize windows need no DWM non-client
         // rendering, which can leave a separate shadow outside the camera image.
         var disabled = 1; // DWMNCRP_DISABLED
