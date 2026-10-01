@@ -1187,11 +1187,10 @@ internal sealed class MonitorForm : Form
 #if BETA
     private ContextMenuStrip CreateCameraContextMenu()
     {
-        var menu = new ContextMenuStrip
+        var menu = new HomeCamRoundedContextMenuStrip
         {
             BackColor = Color.FromArgb(28, 28, 31),
             ForeColor = Color.White,
-            Opacity = 0.94,
             Renderer = new HomeCamDarkMenuRenderer(),
             ShowImageMargin = true,
             Padding = new Padding(4)
@@ -1252,7 +1251,10 @@ internal sealed class MonitorForm : Form
         var paused = MotionActionsArePaused();
         var pause = new ToolStripMenuItem(paused
             ? $"Bewegungsaktionen pausiert bis {settings.MotionActionsPausedUntilUtc!.Value.ToLocalTime():HH:mm}"
-            : "Bewegungsaktionen pausieren");
+            : "Bewegungsaktionen pausieren")
+        {
+            DropDown = new HomeCamRoundedDropDownMenu()
+        };
         foreach (var (label, minutes) in new[] { ("15 Minuten", 15), ("30 Minuten", 30), ("1 Stunde", 60) })
         {
             var item = new ToolStripMenuItem(label) { Enabled = settings.MotionDetectionEnabled };
@@ -1283,7 +1285,8 @@ internal sealed class MonitorForm : Form
 
         var duration = new ToolStripMenuItem($"Vordergrunddauer: {settings.MotionForegroundSeconds} Sekunden")
         {
-            Enabled = settings.MotionDetectionEnabled && !settings.AlwaysOnTop
+            Enabled = settings.MotionDetectionEnabled && !settings.AlwaysOnTop,
+            DropDown = new HomeCamRoundedDropDownMenu()
         };
         var values = new[] { 3, 5, 10, 15, 30, 60 };
         foreach (var seconds in values.Append(settings.MotionForegroundSeconds).Distinct().OrderBy(value => value))
@@ -2272,6 +2275,57 @@ internal sealed class MotionIndicatorForm : Form
         };
         foreach (var limb in limbs) eventArgs.Graphics.DrawLines(blackPen, limb);
         foreach (var limb in limbs) eventArgs.Graphics.DrawLines(whitePen, limb);
+    }
+}
+
+internal sealed class HomeCamRoundedContextMenuStrip : ContextMenuStrip
+{
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            // Keep the popup's full client area while making it eligible for
+            // DWM's anti-aliased window corners on Windows 11.
+            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+                parameters.Style |= 0x00C00000 | 0x00040000; // WS_CAPTION | WS_THICKFRAME
+            return parameters;
+        }
+    }
+
+    protected override void WndProc(ref Message message)
+    {
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) &&
+            message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
+        {
+            message.Result = IntPtr.Zero;
+            return;
+        }
+        base.WndProc(ref message);
+    }
+}
+
+internal sealed class HomeCamRoundedDropDownMenu : ToolStripDropDownMenu
+{
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            parameters.Style |= 0x00C00000 | 0x00040000; // WS_CAPTION | WS_THICKFRAME
+            return parameters;
+        }
+    }
+
+    protected override void WndProc(ref Message message)
+    {
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) &&
+            message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
+        {
+            message.Result = IntPtr.Zero;
+            return;
+        }
+        base.WndProc(ref message);
     }
 }
 
