@@ -797,6 +797,8 @@ internal sealed class MonitorForm : Form
         RegisterUserInteraction();
 #endif
         Settings? changedSettings = null;
+        // Build and theme the dialog while the camera and toolbar remain visible.
+        using var dialog = new SettingsForm(settings);
         suppressToolbar = true;
         toolbar?.Hide();
         dragSurface?.Hide();
@@ -805,7 +807,6 @@ internal sealed class MonitorForm : Form
 
         try
         {
-            using var dialog = new SettingsForm(settings);
 #if BETA
             activeSettingsDialog = dialog;
 #endif
@@ -827,15 +828,46 @@ internal sealed class MonitorForm : Form
         if (changedSettings.MotionDetectionEnabled != settings.MotionDetectionEnabled)
             changedSettings.MotionActionsPausedUntilUtc = null;
 #endif
+        var previousSettings = settings;
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
 #if BETA
         settings.LastGridMode = gridMode;
+        var streamsChanged = previousSettings.SelectedCamera != settings.SelectedCamera ||
+            previousSettings.Cameras.Count != settings.Cameras.Count ||
+            previousSettings.Cameras.Where((camera, index) =>
+                !string.Equals(camera.StreamUrl, settings.Cameras[index].StreamUrl, StringComparison.Ordinal))
+                .Any();
+        var sensorsChanged = previousSettings.Cameras.Count != settings.Cameras.Count ||
+            previousSettings.Cameras.Where((camera, index) =>
+                camera.MotionEnabled != settings.Cameras[index].MotionEnabled ||
+                camera.PersonEnabled != settings.Cameras[index].PersonEnabled ||
+                !string.Equals(camera.MotionEntityId, settings.Cameras[index].MotionEntityId, StringComparison.Ordinal) ||
+                !string.Equals(camera.PersonEntityId, settings.Cameras[index].PersonEntityId, StringComparison.Ordinal))
+                .Any();
+        var reconnectMotion = previousSettings.MotionDetectionEnabled != settings.MotionDetectionEnabled ||
+            previousSettings.DirectHomeAssistantEnabled != settings.DirectHomeAssistantEnabled ||
+            previousSettings.HomeAssistantUrl != settings.HomeAssistantUrl ||
+            previousSettings.HomeAssistantToken != settings.HomeAssistantToken ||
+            previousSettings.IgnoreHomeAssistantCertificateErrors != settings.IgnoreHomeAssistantCertificateErrors ||
+            sensorsChanged;
+        foreach (var slot in gridSlots)
+        {
+            if (slot.CameraIndex < 0 || slot.CameraIndex >= settings.Cameras.Count) continue;
+            slot.Name.Text = settings.Cameras[slot.CameraIndex].Name;
+            slot.Name.Visible = settings.ShowGridCameraNames;
+        }
+        UpdateGridMotionBorders();
 #endif
-        SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows);
-        UpdateToolbar(); PositionOverlays(); RestartPlayer();
+        SettingsStore.Save(settings);
+        if (previousSettings.StartWithWindows != settings.StartWithWindows)
+            ConfigureAutostart(settings.StartWithWindows);
+        UpdateToolbar(); PositionOverlays();
 #if BETA
+        if (streamsChanged) RestartPlayer();
         ScheduleMotionPauseExpiry();
-        RestartMotionIntegration();
+        if (reconnectMotion) RestartMotionIntegration();
+#else
+        RestartPlayer();
 #endif
     }
 
@@ -2784,6 +2816,19 @@ internal static class NativeMethods
 
 internal sealed class SettingsForm : Form
 {
+#if BETA
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            // Paint the settings dialog and its child controls as one frame.
+            // This prevents white child-control placeholders while opening.
+            parameters.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
+            return parameters;
+        }
+    }
+#endif
     private readonly DataGridView cameras = new() { Dock = DockStyle.Fill, AllowUserToAddRows = true, AllowUserToDeleteRows = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
@@ -2835,14 +2880,13 @@ internal sealed class SettingsForm : Form
         BackColor = Color.FromArgb(24, 24, 27);
         ForeColor = Color.FromArgb(242, 242, 244);
         Opacity = 1.0;
-        Shown += (_, _) =>
+        HandleCreated += (_, _) =>
         {
             var darkTitleBar = 1;
             NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.UseImmersiveDarkMode,
                 ref darkTitleBar, sizeof(int));
-            Activate();
-            BringToFront();
         };
+        Shown += (_, _) => { Activate(); BringToFront(); };
 #else
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
