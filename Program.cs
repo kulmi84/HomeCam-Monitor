@@ -1201,14 +1201,33 @@ internal sealed class MonitorForm : Form
             RegisterUserInteraction();
             PopulateCameraContextMenu(menu);
         };
-        menu.Opened += (_, _) =>
-        {
-            menu.Region?.Dispose();
-            var shape = NativeMethods.CreateRoundRectRgn(0, 0, menu.Width + 1, menu.Height + 1, 12, 12);
-            menu.Region = Region.FromHrgn(shape);
-            NativeMethods.DeleteObject(shape);
-        };
+        ConfigureContextMenuCorners(menu);
         return menu;
+    }
+
+    private static void ConfigureContextMenuCorners(ToolStripDropDown popup)
+    {
+        popup.HandleCreated += (_, _) => ApplyContextMenuCorners(popup);
+        popup.Opened += (_, _) => ApplyContextMenuCorners(popup);
+    }
+
+    private static void ApplyContextMenuCorners(ToolStripDropDown popup)
+    {
+        popup.Region?.Dispose();
+        popup.Region = null;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+        {
+            // A GDI region has binary pixel edges. Windows 11 can draw a
+            // smooth, smaller radius on menu popups and their submenus.
+            var preference = (int)NativeMethods.DwmWindowCornerPreference.RoundSmall;
+            NativeMethods.DwmSetWindowAttribute(popup.Handle,
+                NativeMethods.DwmWindowAttribute.WindowCornerPreference, ref preference, sizeof(int));
+            NativeMethods.DisableDwmBorder(popup.Handle);
+            return;
+        }
+        var shape = NativeMethods.CreateRoundRectRgn(0, 0, popup.Width + 1, popup.Height + 1, 12, 12);
+        popup.Region = Region.FromHrgn(shape);
+        NativeMethods.DeleteObject(shape);
     }
 
     private void PopulateCameraContextMenu(ContextMenuStrip menu)
@@ -1251,6 +1270,7 @@ internal sealed class MonitorForm : Form
         var endPause = new ToolStripMenuItem("Pause beenden") { Enabled = paused };
         endPause.Click += (_, _) => ClearMotionPause();
         pause.DropDownItems.Add(endPause);
+        ConfigureContextMenuCorners(pause.DropDown);
         menu.Items.Add(pause);
         menu.Items.Add(new ToolStripSeparator());
 
@@ -1273,6 +1293,7 @@ internal sealed class MonitorForm : Form
             };
             duration.DropDownItems.Add(item);
         }
+        ConfigureContextMenuCorners(duration.DropDown);
         menu.Items.Add(duration);
     }
 
@@ -2249,7 +2270,7 @@ internal sealed class MotionIndicatorForm : Form
 
 internal sealed class HomeCamDarkMenuRenderer : ToolStripProfessionalRenderer
 {
-    public HomeCamDarkMenuRenderer() : base(new HomeCamDarkColorTable()) { RoundedEdges = true; }
+    public HomeCamDarkMenuRenderer() : base(new HomeCamDarkColorTable()) { RoundedEdges = false; }
 
     protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs eventArgs)
     {
