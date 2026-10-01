@@ -143,6 +143,7 @@ internal sealed class MonitorForm : Form
     private Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
 #if BETA
     private Panel standbyVideo = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
+    private readonly CameraPlaceholderPanel offlinePlaceholder = new() { Dock = DockStyle.Fill, Visible = false };
 #endif
     private readonly System.Windows.Forms.Timer latencyTimer = new() { Interval = 5 * 60 * 1000 };
     private readonly System.Windows.Forms.Timer restartTimer = new() { Interval = 2000 };
@@ -244,6 +245,7 @@ internal sealed class MonitorForm : Form
         video.BringToFront();
         InitializeCameraGrid();
         Controls.Add(cameraGrid);
+        Controls.Add(offlinePlaceholder);
 #endif
         Shown += (_, _) =>
         {
@@ -406,6 +408,9 @@ internal sealed class MonitorForm : Form
         standbyVideo.BringToFront();
         video.Hide();
         standbyVideo.Refresh();
+        offlinePlaceholder.Configure(camera.Name);
+        offlinePlaceholder.Show();
+        offlinePlaceholder.BringToFront();
 #endif
         var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe")) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
         foreach (var argument in new[]
@@ -427,7 +432,8 @@ internal sealed class MonitorForm : Form
             var startedPlayer = player;
             _ = RevealWhenReadyAsync(startedPlayer, pipeName, initialPlayerReveal.Token,
                 () => ReferenceEquals(player, startedPlayer) && !gridMode,
-                () => { video.Show(); video.BringToFront(); });
+                () => { offlinePlaceholder.SetConnecting(); offlinePlaceholder.Hide(); video.Show(); video.BringToFront(); },
+                () => { offlinePlaceholder.SetOffline(); RestartPlayer(); });
             if (TopMost && !sentToBackground)
 #endif
                 NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
@@ -435,14 +441,28 @@ internal sealed class MonitorForm : Form
         }
         catch (Exception exception)
         {
+#if BETA
+            offlinePlaceholder.SetOffline();
+            restartTimer.Start();
+#else
             MessageBox.Show(this, $"Der Kamerastream konnte nicht gestartet werden.\n\n{exception.Message}", "HomeCam Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+#endif
         }
     }
 
     private void PlayerExited(object? sender, EventArgs eventArgs)
     {
         if (closing || intentionalStop) return;
-        try { BeginInvoke(new Action(() => { if (!closing) restartTimer.Start(); })); } catch { }
+        try { BeginInvoke(new Action(() =>
+        {
+            if (closing || !ReferenceEquals(sender, player)) return;
+#if BETA
+            offlinePlaceholder.SetOffline();
+            offlinePlaceholder.Show();
+            offlinePlaceholder.BringToFront();
+#endif
+            restartTimer.Start();
+        })); } catch { }
     }
 
     private void StopPlayer()
@@ -478,6 +498,7 @@ internal sealed class MonitorForm : Form
         video.Hide();
         standbyVideo.BringToFront();
         standbyVideo.Refresh();
+        if (offlinePlaceholder.Visible) offlinePlaceholder.BringToFront();
 #endif
         StopPlayer(); video.Invalidate(); restartTimer.Stop(); restartTimer.Start();
     }
@@ -610,7 +631,7 @@ internal sealed class MonitorForm : Form
     }
 
     private async Task RevealWhenReadyAsync(Process started, string ipcName,
-        CancellationToken cancellationToken, Func<bool> stillCurrent, Action reveal)
+        CancellationToken cancellationToken, Func<bool> stillCurrent, Action reveal, Action? unavailable = null)
     {
         try
         {
@@ -621,6 +642,11 @@ internal sealed class MonitorForm : Form
                     if (!closing && !cancellationToken.IsCancellationRequested && stillCurrent())
                         reveal();
                     return;
+                }
+                if (!closing && !cancellationToken.IsCancellationRequested && stillCurrent())
+                {
+                    unavailable?.Invoke();
+                    if (unavailable is not null) return;
                 }
                 await Task.Delay(1000, cancellationToken);
             }
@@ -1050,6 +1076,8 @@ internal sealed class MonitorForm : Form
             var spareSurface = new Panel { Dock = DockStyle.Fill, BackColor = Color.Black };
             host.Controls.Add(spareSurface);
             host.Controls.Add(activeSurface);
+            var placeholder = new CameraPlaceholderPanel { Dock = DockStyle.Fill, Visible = false };
+            host.Controls.Add(placeholder);
             activeSurface.BringToFront();
             var name = new Label
             {
@@ -1067,7 +1095,7 @@ internal sealed class MonitorForm : Form
                 .ToArray();
             host.Controls.AddRange(borders);
             var slot = new GridPlayerSlot { Host = host, ActiveSurface = activeSurface,
-                SpareSurface = spareSurface, Name = name, BorderParts = borders };
+                SpareSurface = spareSurface, Name = name, BorderParts = borders, Placeholder = placeholder };
             host.Resize += (_, _) => LayoutGridMotionBorder(slot);
             LayoutGridMotionBorder(slot);
             cameraGrid.Controls.Add(host);
@@ -1173,6 +1201,7 @@ internal sealed class MonitorForm : Form
         }
 
         StopPlayer();
+        offlinePlaceholder.Hide();
         gridMode = true;
         settings.LastGridMode = true;
         SettingsStore.Save(settings);
@@ -1218,8 +1247,7 @@ internal sealed class MonitorForm : Form
     private void StartGridPlayers()
     {
         if (closing || !gridMode) return;
-        StopGridPlayers();
-        initialGridReveal = new CancellationTokenSource();
+        initialGridReveal ??= new CancellationTokenSource();
         var cameras = settings.Cameras
             .Select((camera, index) => (Camera: camera, Index: index))
             .Where(item => Uri.TryCreate(item.Camera.StreamUrl, UriKind.Absolute, out _))
@@ -1230,17 +1258,25 @@ internal sealed class MonitorForm : Form
         for (var index = 0; index < gridSlots.Count; index++)
         {
             var slot = gridSlots[index];
+            if (index < cameras.Count && slot.CameraIndex == cameras[index].Index &&
+                slot.Player is { HasExited: false }) continue;
+            DisposePlayer(slot.Player, GridPlayerExited);
+            slot.Player = null;
             slot.CameraIndex = -1;
             slot.Name.Text = "";
             slot.Name.Visible = false;
-            if (index >= cameras.Count) continue;
+            if (index >= cameras.Count) { slot.Placeholder.Hide(); continue; }
 
             var camera = cameras[index];
             slot.CameraIndex = camera.Index;
+            slot.Placeholder.Configure(camera.Camera.Name);
+            slot.Placeholder.Show();
+            slot.Placeholder.BringToFront();
             slot.Name.Text = camera.Camera.Name;
             slot.Name.Visible = settings.ShowGridCameraNames;
             slot.SpareSurface.Bounds = slot.Host.ClientRectangle;
             slot.SpareSurface.BringToFront();
+            slot.Placeholder.BringToFront();
             slot.ActiveSurface.CreateControl();
             var gridPipeName = $"HomeCamMonitor-Grid-{Environment.ProcessId}-{Guid.NewGuid():N}";
             var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
@@ -1270,9 +1306,18 @@ internal sealed class MonitorForm : Form
                     () => gridMode && ReferenceEquals(slot.Player, startedPlayer) && slot.CameraIndex == currentIndex,
                     () =>
                     {
+                        slot.Placeholder.SetConnecting();
+                        slot.Placeholder.Hide();
                         slot.ActiveSurface.BringToFront();
                         if (slot.Name.Visible) slot.Name.BringToFront();
                         UpdateGridMotionBorders();
+                    },
+                    () =>
+                    {
+                        slot.Placeholder.SetOffline();
+                        DisposePlayer(slot.Player, GridPlayerExited);
+                        slot.Player = null;
+                        restartTimer.Start();
                     });
                 if (slot.Name.Visible) slot.Name.BringToFront();
             }
@@ -1280,6 +1325,8 @@ internal sealed class MonitorForm : Form
             {
                 slot.Player?.Dispose();
                 slot.Player = null;
+                slot.Placeholder.SetOffline();
+                restartTimer.Start();
                 slot.Name.Text = camera.Camera.Name + " – Stream nicht verfügbar";
             }
         }
@@ -1311,7 +1358,16 @@ internal sealed class MonitorForm : Form
     private void GridPlayerExited(object? sender, EventArgs eventArgs)
     {
         if (closing || intentionalGridStop || !gridMode) return;
-        try { BeginInvoke(new Action(() => { if (!closing && gridMode) { restartTimer.Stop(); restartTimer.Start(); } })); } catch { }
+        try { BeginInvoke(new Action(() =>
+        {
+            if (closing || !gridMode) return;
+            var slot = gridSlots.FirstOrDefault(item => ReferenceEquals(item.Player, sender));
+            if (slot is null) return;
+            slot.Placeholder.SetOffline();
+            slot.Placeholder.Show();
+            slot.Placeholder.BringToFront();
+            restartTimer.Start();
+        })); } catch { }
     }
 #endif
 
@@ -2331,6 +2387,7 @@ internal sealed class MonitorForm : Form
         public required Panel ActiveSurface { get; set; }
         public required Panel SpareSurface { get; set; }
         public required Label Name { get; init; }
+        public required CameraPlaceholderPanel Placeholder { get; init; }
         public required Panel[] BorderParts { get; init; }
         public int CameraIndex { get; set; } = -1;
         public Process? Player { get; set; }
@@ -2339,6 +2396,68 @@ internal sealed class MonitorForm : Form
 }
 
 #if BETA
+internal sealed class CameraPlaceholderPanel : Panel
+{
+    private readonly Image? logo;
+    private string cameraName = "";
+    private bool offline;
+
+    public CameraPlaceholderPanel()
+    {
+        BackColor = Color.Black;
+        ForeColor = Color.White;
+        DoubleBuffered = true;
+        ResizeRedraw = true;
+        using var resource = typeof(CameraPlaceholderPanel).Assembly
+            .GetManifestResourceStream("HomeCamMonitor.OfflineLogo");
+        if (resource is not null)
+        {
+            using var source = Image.FromStream(resource);
+            logo = new Bitmap(source);
+        }
+    }
+
+    public void Configure(string name)
+    {
+        if (cameraName != name) offline = false;
+        cameraName = name;
+        Invalidate();
+    }
+
+    public void SetOffline() { offline = true; Invalidate(); }
+    public void SetConnecting() { offline = false; Invalidate(); }
+
+    protected override void OnPaint(PaintEventArgs eventArgs)
+    {
+        base.OnPaint(eventArgs);
+        if (Width < 40 || Height < 40) return;
+        var iconSize = Math.Clamp(Math.Min(Width / 4, Height / 3), 20, 96);
+        var textHeight = Math.Clamp(Height / 8, 14, 25);
+        var totalHeight = iconSize + 8 + 2 * textHeight;
+        var top = Math.Max(4, (Height - totalHeight) / 2);
+        if (logo is not null)
+        {
+            eventArgs.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            eventArgs.Graphics.DrawImage(logo, (Width - iconSize) / 2, top, iconSize, iconSize);
+        }
+        using var statusFont = new Font("Segoe UI", Math.Clamp(Height / 24f, 9f, 13f));
+        using var nameFont = new Font("Segoe UI", Math.Clamp(Height / 28f, 8f, 11f));
+        const TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
+            | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix;
+        TextRenderer.DrawText(eventArgs.Graphics, offline ? "Kamera offline" : "Verbinde …", statusFont,
+            new Rectangle(6, top + iconSize + 8, Math.Max(1, Width - 12), textHeight), ForeColor, flags);
+        TextRenderer.DrawText(eventArgs.Graphics, cameraName, nameFont,
+            new Rectangle(6, top + iconSize + 8 + textHeight, Math.Max(1, Width - 12), textHeight),
+            Color.FromArgb(165, 165, 165), flags);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) logo?.Dispose();
+        base.Dispose(disposing);
+    }
+}
+
 internal sealed class MotionIndicatorForm : OverlayForm
 {
     private bool personDetected;

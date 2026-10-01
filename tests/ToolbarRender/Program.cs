@@ -12,6 +12,15 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         var output = args.Length == 0 ? "toolbar-render" : args[0];
         Directory.CreateDirectory(output);
+        foreach (var size in new[] { new Size(160, 90), new Size(480, 270), new Size(1920, 1080) })
+        {
+            using var placeholder = new CameraPlaceholderPanel { Size = size };
+            placeholder.Configure("Testkamera mit langem Namen");
+            placeholder.SetOffline();
+            using var bitmap = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(bitmap, new Rectangle(Point.Empty, size));
+            bitmap.Save(Path.Combine(output, $"offline-{size.Width}x{size.Height}.png"));
+        }
 
         using var toolbar = new ToolbarForm(null!);
         toolbar.CameraName = "Einfahrt";

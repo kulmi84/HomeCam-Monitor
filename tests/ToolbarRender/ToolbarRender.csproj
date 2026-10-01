@@ -10,6 +10,7 @@
     <StartupObject>ToolbarRender.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="../../assets/homecam-monitor-logo.png" LogicalName="HomeCamMonitor.OfflineLogo" />
     <Compile Include="../../Program.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
