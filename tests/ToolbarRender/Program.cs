@@ -129,6 +129,21 @@ internal static class Program
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
 
         using var monitor = new MonitorForm();
+        using (var layoutMonitor = new MonitorForm())
+        {
+            const System.Reflection.BindingFlags privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            typeof(MonitorForm).GetField("settings", privateInstance)!.SetValue(layoutMonitor, new Settings());
+            var originalBounds = layoutMonitor.Bounds;
+            layoutMonitor.ToggleFullscreen();
+            var fullscreenBounds = layoutMonitor.Bounds;
+            typeof(MonitorForm).GetField("gridMode", privateInstance)!.SetValue(layoutMonitor, true);
+            typeof(MonitorForm).GetMethod("ExitGridView", privateInstance)!.Invoke(layoutMonitor, new object?[] { null });
+            if (layoutMonitor.Bounds != fullscreenBounds || !(bool)typeof(MonitorForm).GetField("fullscreen", privateInstance)!.GetValue(layoutMonitor)!)
+                throw new InvalidOperationException("Grid-to-single transition exited fullscreen.");
+            layoutMonitor.ToggleFullscreen();
+            if (layoutMonitor.Bounds != originalBounds)
+                throw new InvalidOperationException("Fullscreen restore bounds were lost after leaving the grid.");
+        }
         using (var drag = new DragSurfaceForm(monitor))
         using (var grip = new ResizeGripForm(monitor, NativeMethods.HtRight, Cursors.SizeWE))
         using (var hiddenToolbar = new ToolbarForm(monitor))

@@ -1323,12 +1323,7 @@ internal sealed class MonitorForm : Form
         gridMode = false;
         settings.LastGridMode = false;
         SettingsStore.Save(settings);
-        if (fullscreen)
-        {
-            fullscreen = false;
-            Bounds = windowedBounds;
-            ApplyRoundedCorners();
-        }
+        // Changing the camera layout must preserve fullscreen and its saved restore bounds.
         if (cameraIndex.HasValue)
         {
             settings.SelectedCamera = cameraIndex.Value;
