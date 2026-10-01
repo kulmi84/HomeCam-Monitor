@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls.png" alt="HomeCamMonitor mit Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls-beta32.webp" alt="HomeCamMonitor mit Bedienleiste" width="390">
 </p>
 
 HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
@@ -26,9 +26,13 @@ HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11.
 - Snapshot direkt im Windows-Bilderordner
 - Videoaufnahme direkt im Windows-Videosordner (Beta)
 - automatische Wiederverbindung nach einem Stream- oder Playerabbruch
-- vorsorglicher Stream-Neustart nach fünf Minuten gegen zunehmende Verzögerung
+- nahtloser Stream-Refresh nach fünf Minuten per Double Buffering: ein neuer mpv-Stream übernimmt erst nach dem ersten Bild
 - Fensterposition und Fenstergröße werden nach dem Verschieben oder Ändern sofort gespeichert und beim nächsten Start exakt wiederhergestellt
 - gespeicherte Kameraauswahl
+- direkter Home-Assistant-WebSocket mit Bewegungs- und Personen-Sensoren pro Kamera (Beta)
+- Aktivitätssymbole und optionale Hervorhebung der auslösenden Kamera im 4er-Raster (Beta)
+- automatische Bewegungsaktionen pro Kamera: Snapshot, Video oder beides mit Aufbewahrungsfrist (Beta)
+- Bewegungsaktionen zeitweise direkt im Rechtsklickmenü pausieren (Beta)
 - optional „Immer im Vordergrund“ und Windows-Autostart
 
 ## Installation
@@ -58,7 +62,7 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
 ## Bedienung
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls-beta32.webp" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
 </p>
 
 Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt. Bei 100 % bleibt das ursprüngliche Layout erhalten; Text und Symbole sind optisch mittig in der Leiste ausgerichtet.
@@ -75,9 +79,20 @@ In der Beta lässt sich die **Größe der Bedienleiste** in den Einstellungen vo
 | Bildsymbol | Snapshot speichern |
 | Weißer/roter Aufnahmepunkt (Beta) | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
 | Zahnrad | Einstellungen öffnen |
-| Rechtsklick ins Bild (Beta) | Dunkles Kontextmenü mit „Immer im Vordergrund“, „Bewegungserkennung aktiv“ und Vordergrunddauer |
+| Rechtsklick ins Bild (Beta) | Dunkles Kontextmenü mit „Immer im Vordergrund“, „Bewegungserkennung aktiv“, „Bewegungsaktionen pausieren“ und Vordergrunddauer |
 | `—` (Beta) | Fenster minimieren |
 | `×` | Anwendung beenden |
+
+### Kontextmenü für Bewegung
+
+<p align="center">
+  <img src="docs/screenshots/homecam-motion-pause-beta32.webp" alt="Kontextmenü zum Pausieren der Bewegungsaktionen" width="48%">
+  <img src="docs/screenshots/homecam-foreground-duration-beta32.webp" alt="Kontextmenü zur Auswahl der Vordergrunddauer" width="48%">
+</p>
+
+Über **Bewegungsaktionen pausieren** lassen sich Kamerawechsel, Vordergrundreaktion sowie automatische Snapshots und Aufnahmen für **15 Minuten**, **30 Minuten** oder **1 Stunde** aussetzen. **Bis manuell aktiviert** schaltet die Bewegungserkennung bis zum manuellen Wiedereinschalten aus. Eine laufende Zeitpause kann über **Pause beenden** vorzeitig beendet werden. Sensorereignisse und Aktivitätssymbole bleiben während einer Zeitpause aktiv.
+
+Die **Vordergrunddauer** lässt sich im Rechtsklickmenü schnell auf **3, 5, 10, 15, 30 oder 60 Sekunden** setzen. In den Einstellungen steht weiterhin der vollständige Bereich zur Verfügung.
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
 
@@ -98,7 +113,125 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller dokumentierter Beta-Stand:** `0.2.0-beta.45`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.32`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 32
+
+- Der aktuelle Stand des geglätteten Rechtsklickmenüs einschließlich der abgerundeten Untermenüs ist als `0.3.0-beta.32` paketiert.
+- Die Dokumentation und Screenshots wurden auf den aktuellen Bedien- und Einstellungsstand gebracht.
+
+### Neu in 0.3.0 Beta 31
+
+- Haupt- und Untermenüs erhalten den für geglättete Windows-11-Rundungen nötigen Fensterstil; die halbtransparente Popup-Ebene entfällt. Der Inhalt bleibt bis an den Rand des Menüs nutzbar.
+
+### Neu in 0.3.0 Beta 30
+
+- Das Rechtsklickmenü und seine Untermenüs verwenden unter Windows 11 geglättete Systemrundungen statt eines pixeligen Fensterausschnitts. Die Untermenü-Pfeile werden ebenfalls geglättet.
+- „Pause beenden“ im Untermenü schaltet nach „Bis manuell aktiviert“ die Bewegungserkennung wieder ein.
+
+### Neu in 0.3.0 Beta 29
+
+- Rechtsklickmenü: „Bewegungsaktionen pausieren“ für 15 Minuten, 30 Minuten oder eine Stunde. Sensorereignisse und Aktivitätssymbole bleiben aktiv; Kamerawechsel, Vordergrundreaktion und automatische Snapshots/Aufnahmen pausieren.
+- „Bis manuell aktiviert“ schaltet den vorhandenen globalen Schalter „Bewegungserkennung aktiv“ aus. Er wird im Menü oder in den Einstellungen wieder eingeschaltet.
+- Zeitpausen bleiben nach einem Neustart bis zu ihrem Ablauf erhalten und können im Menü vorzeitig beendet werden.
+
+### Neu in 0.3.0 Beta 28
+
+- Der planmäßige Stream-Refresh nach fünf Minuten startet eine zweite mpv-Instanz im Hintergrund. Erst nach dem ersten Videobild wird umgeschaltet und die bisherige Instanz beendet.
+- Im 4er-Raster werden die Kameras nacheinander erneuert. Schlägt ein Ersatzstream fehl, läuft die bisherige Wiedergabe weiter; der nächste Versuch erfolgt beim folgenden Intervall.
+- Beim manuellen Kamerawechsel und beim Schließen werden laufende Hintergrund-Refreshs abgebrochen.
+
+### Neu in 0.3.0 Beta 27
+
+- Die vier Rastervideos füllen ihre Felder auch bei kleinen Rundungsunterschieden nach einer Größenänderung vollständig aus. Ein minimaler Rand des Kamerabilds kann dabei abgeschnitten werden.
+- Die wirkungslose Änderung am Fensterschatten aus Beta 26 wurde zurückgenommen.
+
+### Neu in 0.3.0 Beta 26
+
+- Der äußere DWM-Schatten des Kamerafensters wird deaktiviert. Das 4er-Raster bleibt bis an die Fensterkante ausgerichtet.
+
+### Neu in 0.3.0 Beta 25
+
+- **Schatten der Hilfsfenster entfernt:** Die unsichtbaren Fenster zum Verschieben und Ändern der Größe erhalten keine eigene Windows-Rahmenzeichnung mehr. Die abgerundeten Ecken des Kamerafensters bleiben davon unberührt.
+
+### Neu in 0.3.0 Beta 24
+
+- **Raster bei Größenänderung ausrichten:** Die vier Kamerafelder werden bei jeder Änderung und nach Abschluss der Größenänderung an der aktuellen Fensterfläche ausgerichtet. Eine kurze Nachprüfung fängt verzögerte Windows-Layouts ab.
+
+### Neu in 0.3.0 Beta 23
+
+- **Fensterrand an der Ursache korrigiert:** Die zusätzlichen Windows-Rahmenstile, die einen Innenabstand um das gesamte Raster erzeugten, sind entfernt. Die native Rundung bleibt angefordert; das Raster nutzt wieder die vollständige Fensterfläche.
+
+### Neu in 0.3.0 Beta 22
+
+- **Raster nach dem Start ausrichten:** Nach dem Anzeigen der ausgewählten Rasterkameras wird einmal eine echte Größenänderung um einen Pixel und zurück ausgeführt. Das Fenster behält seine Außenmaße und die geglätteten Ecken.
+
+### Neu in 0.3.0 Beta 21
+
+- **Raster direkt beim Start bündig:** Die Windows-11-Fensterfläche wird nach dem Öffnen erneut berechnet, bevor die Kameras starten. Damit füllt das Bild den abgerundeten Rahmen bereits beim ersten Anzeigen bis rechts und unten aus.
+
+### Neu in 0.3.0 Beta 20
+
+- **Fenstergröße korrigiert:** Die Höhe wird auch mit den geglätteten Windows-11-Ecken aus den äußeren Fenstermaßen berechnet und wächst beim Verschieben oder wiederholten Ändern der Größe nicht mehr.
+
+### Neu in 0.3.0 Beta 19
+
+- **Geglättete Fensterecken unter Windows 11:** Das Kamerafenster überlässt die Rundung Windows statt einer pixelgenau ausgeschnittenen GDI-Form. Die Randlinie bleibt ausgeblendet; im Vollbild bleiben die Ecken gerade. Auf älteren Windows-Versionen bleibt die bisherige Rundung.
+
+### Neu in 0.3.0 Beta 18
+
+- **Übersichtlichere Einstellungen:** Allgemeines Fensterverhalten, Bewegung und Aktivitätsanzeige sowie die Einstellungen der ausgewählten Kamera stehen in eigenen Bereichen. „Aktivitätssymbole anzeigen“ ersetzt „Symbole anzeigen“; „Aufzeichnung bei Bewegung“ beginnt links in der Zeile vor den Auswahlfeldern. Die Aufbewahrungsdauer steht direkt darunter.
+
+### Neu in 0.3.0 Beta 17
+
+- **Rastermitte:** Alle vier Kamerafelder teilen sich auch bei ungerader Fenstergröße dieselbe Pixelmitte.
+
+### Neu in 0.3.0 Beta 16
+
+- **Bewegungsrahmen im Kamerabild:** Die kurze weiße Markierung wird als schmale Linie innerhalb des betroffenen Rasterfeldes gezeichnet. Dafür öffnet HomeCam kein zusätzliches Fenster um oder über dem Kamerabild. Der dauerhafte äußere Fensterrand bleibt entfernt.
+
+### Neu in 0.3.0 Beta 15
+
+- **Kurzzeitiger Bewegungsrahmen:** Ist „Bewegung im 4er-Raster hervorheben“ eingeschaltet, bekommt nur das betroffene sichtbare Kamerafeld bei Bewegung für die eingestellte Symboldauer einen weißen Rahmen und das laufende Männchen. Der Rahmen erscheint nie dauerhaft und nicht um das ganze HomeCam-Fenster. Die dauerhaften Zwischen- und Außenränder bleiben entfernt.
+
+### Neu in 0.3.0 Beta 14
+
+- **Raster ohne Ränder:** Die dauerhaften Zwischen- und Außenabstände zwischen den Kamerafeldern entfallen. Unter Windows 11 wird der Systemrahmen des abgerundeten HomeCam-Fensters unterdrückt.
+- **Bewegung im Raster:** Die Markierung wird nur bei einem Bewegungssignal im betroffenen Feld angezeigt; die Option bleibt standardmäßig aus.
+
+### Neu in 0.3.0 Beta 13
+
+- **Anzeigedauer der Symbole:** Das Bewegungs- und Personensymbol erscheint standardmäßig zwei Sekunden. Unter „Allgemeine Einstellungen → Symbole anzeigen“ lässt sich die Dauer von 1 bis 10 Sekunden wählen.
+- **Bewegung im 4er-Raster:** Die Option „Bewegung im 4er-Raster hervorheben“ ist standardmäßig aus. Eingeschaltet erhält das betroffene sichtbare Kamerafeld bei Bewegung einen weißen Rahmen und das Bewegungssymbol oben rechts im Feld. Das Raster bleibt geöffnet. Die Hervorhebung verschwindet nach der eingestellten Symboldauer.
+- **Sensoren ausschalten:** Die Kästchen „Bewegung“ und „Person“ unterdrücken die Auswertung der jeweiligen Home-Assistant-Ereignisse. Die WebSocket-Verbindung abonniert weiterhin die gemeinsamen Statusereignisse, solange mindestens ein Sensor aktiv ist; es findet keine separate Abfrage jedes Sensors statt.
+
+### Neu in 0.3.0 Beta 12
+
+- **Getrennte Kästchen pro Kamera:** Die Kameraliste enthält „Bewegung“ und „Person“. Beide Sensoren können unabhängig aktiviert werden. Bei einem Update bleiben bereits eingerichtete Personensensoren eingeschaltet. Die allgemeine Bewegungserkennung und die direkte HA-Verbindung müssen für beide aktiv sein.
+- **Sekundenfeld:** Die Auswahlliste für die Dauer der Bewegungsaufnahme ist breiter.
+
+### Neu in 0.3.0 Beta 11
+
+- **Personensymbol:** Bei einem Ereignis des eingetragenen Personensensors erscheint eine Sekunde lang eine weiße, stehende Person oben rechts im HomeCam-Fenster. Das bisherige Bewegungssymbol bleibt als laufende Person erhalten. Die Personenerkennung ändert weder die ausgewählte Kamera noch die Vordergrundsteuerung.
+
+### Neu in 0.3.0 Beta 10
+
+- **Personenerkennung pro Kamera:** In den Einstellungen die Kamera auswählen und unter „Personen-Entität (Snapshot)“ die Home-Assistant-Entitäts-ID ihres Personensensors eintragen (z. B. `binary_sensor.camera_einfahrt_person`). Beim Wechsel dieses Sensors auf `on` wird ein PNG mit „Person“ im Dateinamen unter `Videos\HomeCam Monitor\Bewegung` gespeichert. Dafür muss die direkte Home-Assistant-Verbindung eingeschaltet sein. Das gilt unabhängig von der gewählten Aktion „Bei Bewegung“.
+- **Anzeige wie bisher:** Der Personensensor wechselt keine Kamera und holt das Fenster nicht in den Vordergrund. Dafür bleibt allein der Bewegungssensor zuständig. Der Verbindungstest prüft beide eingetragenen Entitäten.
+
+### Neu in 0.3.0 Beta 9
+
+- **Automatische Snapshots:** Das Bewegungsbild wird mit dem enthaltenen FFmpeg direkt aus dem Kamerastream als PNG gespeichert. Eine beschädigte oder leere Datei wird entfernt und als Fehler angezeigt.
+
+### Neu in 0.3.0 Beta 8
+
+- **Aktion pro Kamera bei Bewegung:** In der Kameratabelle eine Kamera anklicken und „Keine“, „Snapshot“, „Videoaufnahme“ oder „Snapshot + Videoaufnahme“ wählen. Die Spalte **Bewegung** muss für die Kamera aktiviert sein. Ein Snapshot speichert genau ein Bild je Ereignis. Für Video sind 15, 30 oder 60 Sekunden wählbar.
+- **Eigener Bewegungsordner:** Automatische Dateien liegen unter `Videos\HomeCam Monitor\Bewegung`. Manuell erstellte Snapshots und Videos liegen weiterhin in ihren bisherigen Ordnern.
+- **Aufbewahrung:** 1, 3, 7, 14 oder 30 Tage sowie „Unbegrenzt“. Alte automatische Dateien werden beim Start und bei neuen Bewegungsereignissen gelöscht. Manuelle Dateien werden nie durch diese Einstellung gelöscht.
+- **Aufnahmeanzeige:** Der rote Punkt der Bedienleiste blinkt während manueller und automatischer Videoaufnahmen. Bei einer automatischen Aufnahme zeigt sein Hilfetext den laufenden Hintergrundvorgang an.
+- **Einstellungsfenster:** Größerer Startwert und Wiederherstellung der zuletzt verwendeten Größe, auch wenn das Fenster mit „Abbrechen“ geschlossen wurde.
+- **Abspielbare Bewegungsaufnahmen:** Automatische Videos werden mit FFmpeg als Matroska-Datei abgeschlossen. Bei einem Fehler wird die unvollständige Datei entfernt. Die Beta-Downloads enthalten dafür `ffmpeg.exe` aus dem [LGPL-Windows-Build von BtbN](https://github.com/BtbN/FFmpeg-Builds); Quellcode und Lizenzhinweise sind dort verfügbar.
+- Die Hervorhebung einer Bewegung im 4er-Raster ist für eine spätere Version vorgemerkt.
 
 ### Neu in Beta 45
 
@@ -157,18 +290,19 @@ Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
 
 <p align="center">
-  <img src="docs/screenshots/homecam-settings-anonymized.png" alt="Anonymisierte dunkle Beta-Einstellungen mit Kamera- und Bewegungsoptionen" width="690">
+  <img src="docs/screenshots/homecam-settings-anonymized-beta32.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.3.0-beta.32" width="650">
 </p>
 
-In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eine eigene Checkbox **Bewegung**. Nach dem Anklicken einer Kamerazeile wird darunter die zugehörige Bewegungs-Entität eingetragen.
+In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen konfigurieren sowie eine gemeinsame Aufbewahrungsfrist festlegen.
 
 | Feld | Beispiel |
 |---|---|
 | HA-Adresse | `http://192.168.x.x:8123` |
 | Langzeit-Token | in Home Assistant im Benutzerprofil erstellt |
 | Bewegungs-Entität | beispielsweise `binary_sensor.camera_einfahrt_bewegung` |
+| Personen-Entität | beispielsweise `binary_sensor.camera_einfahrt_person` |
 
-Meldet eine aktivierte Entität Bewegung, wechselt HomeCam Monitor automatisch auf die zugehörige Kamera und holt deren Bild nach vorn. So können Einfahrt, Garten und Garage unabhängig voneinander eingerichtet werden. **Bewegungserkennung aktiv** bleibt der globale Hauptschalter für alle Kameras.
+Meldet eine aktivierte Entität Bewegung, wechselt HomeCam Monitor automatisch auf die zugehörige Kamera und holt deren Bild nach vorn. Die Personenerkennung kann separat pro Kamera aktiviert werden und wird unter anderem für den Personen-Snapshot verwendet. So können Einfahrt, Garten und Garage unabhängig voneinander eingerichtet werden. **Bewegungserkennung aktiv** bleibt der globale Hauptschalter für alle Kameras. Die Einstellungen enthalten außerdem die automatische Bedienleistenskalierung, das Startverhalten, die Dauer der Aktivitätssymbole und die optionale Hervorhebung im 4er-Raster.
 
 Das Langzeit-Token wird in Home Assistant im eigenen Benutzerprofil unter **Sicherheit → Langzeit-Zugriffstoken** erstellt. Es wird nur lokal in `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json` gespeichert; diese Datei darf nicht weitergegeben oder veröffentlicht werden.
 
