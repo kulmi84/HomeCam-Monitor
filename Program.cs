@@ -1131,6 +1131,7 @@ internal sealed class MonitorForm : Form
         var visibleArea = ClientRectangle;
         if (video.Bounds != visibleArea) video.Bounds = visibleArea;
         if (standbyVideo.Bounds != visibleArea) standbyVideo.Bounds = visibleArea;
+        if (offlinePlaceholder.Bounds != visibleArea) offlinePlaceholder.Bounds = visibleArea;
         if (cameraGrid.Bounds != visibleArea) cameraGrid.Bounds = visibleArea;
         LayoutCameraGrid();
     }
