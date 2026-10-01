@@ -584,6 +584,7 @@ internal sealed class MonitorForm : Form
                 replacement.HasExited || cancellationToken.IsCancellationRequested || closing || gridMode ||
                 player != oldPlayer || settings.SelectedCamera != cameraIndex) return;
 
+            nextSurface.Show();
             nextSurface.BringToFront();
             video = nextSurface;
             standbyVideo = oldSurface;
@@ -591,6 +592,10 @@ internal sealed class MonitorForm : Form
             player = replacement;
             replacement.EnableRaisingEvents = true;
             replacement.Exited += PlayerExited;
+            var watchedPlayer = replacement;
+            _ = WatchPlaybackAsync(watchedPlayer, newPipeName, initialPlayerReveal?.Token ?? CancellationToken.None,
+                () => ReferenceEquals(player, watchedPlayer) && !gridMode,
+                () => { offlinePlaceholder.SetOffline(); offlinePlaceholder.Show(); offlinePlaceholder.BringToFront(); RestartPlayer(); });
             replacement = null;
             DisposePlayer(oldPlayer, PlayerExited);
             oldSurface.Invalidate();
@@ -619,12 +624,22 @@ internal sealed class MonitorForm : Form
                     replacement.HasExited || cancellationToken.IsCancellationRequested || closing || !gridMode ||
                     slot.Player != oldPlayer || slot.CameraIndex != cameraIndex) continue;
 
-                nextSurface.BringToFront();
+                nextSurface.Show();
+            nextSurface.BringToFront();
                 slot.ActiveSurface = nextSurface;
                 slot.SpareSurface = oldSurface;
                 slot.Player = replacement;
                 replacement.EnableRaisingEvents = true;
                 replacement.Exited += GridPlayerExited;
+                var watchedPlayer = replacement;
+                _ = WatchPlaybackAsync(watchedPlayer, newPipeName, initialGridReveal?.Token ?? CancellationToken.None,
+                    () => gridMode && ReferenceEquals(slot.Player, watchedPlayer),
+                    () =>
+                    {
+                        slot.ActiveSurface.Hide(); slot.SpareSurface.Hide();
+                        slot.Placeholder.SetOffline(); slot.Placeholder.Show(); slot.Placeholder.BringToFront();
+                        DisposePlayer(slot.Player, GridPlayerExited); slot.Player = null; restartTimer.Start();
+                    });
                 replacement = null;
                 slot.Name.BringToFront();
                 UpdateGridMotionBorders();
@@ -647,7 +662,10 @@ internal sealed class MonitorForm : Form
                 if (await WaitForFirstFrameAsync(started, ipcName, cancellationToken))
                 {
                     if (!closing && !cancellationToken.IsCancellationRequested && stillCurrent())
+                    {
                         reveal();
+                        await WatchPlaybackAsync(started, ipcName, cancellationToken, stillCurrent, unavailable);
+                    }
                     return;
                 }
                 if (!closing && !cancellationToken.IsCancellationRequested && stillCurrent())
@@ -656,6 +674,26 @@ internal sealed class MonitorForm : Form
                     if (unavailable is not null) return;
                 }
                 await Task.Delay(1000, cancellationToken);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (InvalidOperationException) { }
+    }
+
+    private async Task WatchPlaybackAsync(Process process, string ipcName, CancellationToken token,
+        Func<bool> stillCurrent, Action? unavailable)
+    {
+        // A running process is not proof of a live stream: RTSP can stall indefinitely.
+        try
+        {
+            while (!closing && !token.IsCancellationRequested && stillCurrent() && !process.HasExited)
+            {
+                if (!await WaitForFirstFrameAsync(process, ipcName, token))
+                {
+                    if (!closing && !token.IsCancellationRequested && stillCurrent()) unavailable?.Invoke();
+                    return;
+                }
+                await Task.Delay(2000, token);
             }
         }
         catch (OperationCanceledException) { }
@@ -680,8 +718,9 @@ internal sealed class MonitorForm : Form
             using var reader = new StreamReader(pipe, Encoding.UTF8, false, 1024, true);
             await writer.WriteLineAsync(JsonSerializer.Serialize(new
             {
-                command = new[] { "get_property", "video-frame-info" }, request_id = 1
+                command = new object[] { "observe_property", 1, "time-pos" }, request_id = 1
             }));
+            double? previousPosition = null;
             while (!process.HasExited)
             {
                 var line = await reader.ReadLineAsync(timeout.Token);
@@ -691,13 +730,16 @@ internal sealed class MonitorForm : Form
                 if (root.TryGetProperty("event", out var eventName))
                 {
                     var name = eventName.GetString();
-                    if (name == "playback-restart") return true;
+                    if (name == "property-change" && root.TryGetProperty("name", out var property) &&
+                        property.GetString() == "time-pos" && root.TryGetProperty("data", out var position) &&
+                        position.ValueKind == JsonValueKind.Number && position.TryGetDouble(out var value))
+                    {
+                        if (previousPosition.HasValue && Math.Abs(value - previousPosition.Value) > 0.001) return true;
+                        previousPosition = value;
+                    }
                     if (name is "end-file" or "shutdown") return false;
                 }
-                if (root.TryGetProperty("request_id", out var requestId) && requestId.GetInt32() == 1 &&
-                    root.TryGetProperty("error", out var error) && error.GetString() == "success" &&
-                    root.TryGetProperty("data", out var frame) && frame.ValueKind == JsonValueKind.Object)
-                    return true;
+
             }
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { }
@@ -1285,6 +1327,9 @@ internal sealed class MonitorForm : Form
             slot.SpareSurface.Bounds = slot.Host.ClientRectangle;
             slot.SpareSurface.BringToFront();
             slot.Placeholder.BringToFront();
+            slot.ActiveSurface.Hide();
+            slot.SpareSurface.Hide();
+            slot.Placeholder.Refresh();
             slot.ActiveSurface.CreateControl();
             var gridPipeName = $"HomeCamMonitor-Grid-{Environment.ProcessId}-{Guid.NewGuid():N}";
             var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
@@ -1315,6 +1360,7 @@ internal sealed class MonitorForm : Form
                     () =>
                     {
                         slot.Placeholder.SetConnecting();
+                        slot.ActiveSurface.Show();
                         slot.Placeholder.Hide();
                         slot.ActiveSurface.BringToFront();
                         if (slot.Name.Visible) slot.Name.BringToFront();
@@ -1322,7 +1368,11 @@ internal sealed class MonitorForm : Form
                     },
                     () =>
                     {
+                        slot.ActiveSurface.Hide();
+                        slot.SpareSurface.Hide();
                         slot.Placeholder.SetOffline();
+                        slot.Placeholder.Show();
+                        slot.Placeholder.BringToFront();
                         DisposePlayer(slot.Player, GridPlayerExited);
                         slot.Player = null;
                         restartTimer.Start();
@@ -1371,6 +1421,8 @@ internal sealed class MonitorForm : Form
             if (closing || !gridMode) return;
             var slot = gridSlots.FirstOrDefault(item => ReferenceEquals(item.Player, sender));
             if (slot is null) return;
+            slot.ActiveSurface.Hide();
+            slot.SpareSurface.Hide();
             slot.Placeholder.SetOffline();
             slot.Placeholder.Show();
             slot.Placeholder.BringToFront();
