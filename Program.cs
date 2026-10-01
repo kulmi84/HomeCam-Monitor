@@ -41,6 +41,7 @@ internal sealed class Settings
     public bool AutoScaleToolbar { get; set; }
     public bool ShowGridCameraNames { get; set; } = true;
     public bool ShowEmptyCameraLogo { get; set; } = true;
+    public bool ShowEmptyFourthFieldBorder { get; set; }
     public bool MotionDetectionEnabled { get; set; } = true;
     public DateTime? MotionActionsPausedUntilUtc { get; set; }
     public int MotionForegroundSeconds { get; set; } = 10;
@@ -1055,7 +1056,7 @@ internal sealed class MonitorForm : Form
         {
             if (slot.CameraIndex < 0)
             {
-                slot.Placeholder.SetEmpty(settings.ShowEmptyCameraLogo);
+                slot.Placeholder.SetEmpty(settings.ShowEmptyCameraLogo, settings.ShowEmptyFourthFieldBorder && gridSlots.IndexOf(slot) == 3);
                 continue;
             }
             if (slot.CameraIndex >= settings.Cameras.Count) continue;
@@ -1377,7 +1378,7 @@ internal sealed class MonitorForm : Form
             if (index >= cameras.Count)
             {
                 slot.ActiveSurface.Hide(); slot.SpareSurface.Hide();
-                slot.Placeholder.SetEmpty(settings.ShowEmptyCameraLogo);
+                slot.Placeholder.SetEmpty(settings.ShowEmptyCameraLogo, settings.ShowEmptyFourthFieldBorder && gridSlots.IndexOf(slot) == 3);
                 slot.Placeholder.Show(); slot.Placeholder.BringToFront();
                 continue;
             }
@@ -2623,6 +2624,7 @@ internal sealed class CameraPlaceholderPanel : Panel
     private bool offline;
     private bool empty;
     private bool showEmptyLogo;
+    private bool showEmptyOuterBorder;
 
     public CameraPlaceholderPanel()
     {
@@ -2647,7 +2649,10 @@ internal sealed class CameraPlaceholderPanel : Panel
         Invalidate();
     }
 
-    public void SetEmpty(bool showLogo) { empty = true; showEmptyLogo = showLogo; Invalidate(); }
+    public void SetEmpty(bool showLogo, bool showOuterBorder = false)
+    {
+        empty = true; showEmptyLogo = showLogo; showEmptyOuterBorder = showOuterBorder; Invalidate();
+    }
 
     public void SetOffline() { offline = true; Invalidate(); }
     public void SetConnecting() { offline = false; Invalidate(); }
@@ -2655,6 +2660,23 @@ internal sealed class CameraPlaceholderPanel : Panel
     protected override void OnPaint(PaintEventArgs eventArgs)
     {
         base.OnPaint(eventArgs);
+        if (empty && showEmptyOuterBorder && Width >= 20 && Height >= 20)
+        {
+            // Only the outside edges of the bottom-right tile; paint entirely inside it.
+            var inset = 2f * DeviceDpi / 96f;
+            var right = Width - inset;
+            var bottom = Height - inset;
+            var radius = Math.Max(4f, 7f * DeviceDpi / 96f - inset);
+            using var outline = new System.Drawing.Drawing2D.GraphicsPath();
+            outline.AddLine(right, 0, right, bottom - radius);
+            outline.AddArc(right - 2 * radius, bottom - 2 * radius, 2 * radius, 2 * radius, 0, 90);
+            outline.AddLine(right - radius, bottom, 0, bottom);
+            using var pen = new Pen(Color.FromArgb(64, 64, 64), 2f * DeviceDpi / 96f);
+            var smoothing = eventArgs.Graphics.SmoothingMode;
+            eventArgs.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            eventArgs.Graphics.DrawPath(pen, outline);
+            eventArgs.Graphics.SmoothingMode = smoothing;
+        }
         if (Width < 40 || Height < 40) return;
         var iconSize = Math.Clamp(Math.Min(Width / 4, Height / 3), 20, 96);
         var textHeight = Math.Clamp(Height / 8, 14, 25);
@@ -3387,6 +3409,7 @@ internal sealed class SettingsForm : Form
     private readonly ComboBox startCamera = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
     private readonly NumericUpDown toolbarSize = new() { Minimum = 50, Maximum = 100, Increment = 5, Width = 60 };
     private readonly CheckBox autoScaleToolbar = new() { Text = "Bedienleiste automatisch skalieren", AutoSize = true };
+    private readonly CheckBox showEmptyFourthFieldBorder = new() { Text = "Außenrahmen im leeren vierten Kamerafeld anzeigen", AutoSize = true };
     private readonly CheckBox showEmptyCameraLogo = new() { Text = "Logo in leeren Kamerafeldern anzeigen", AutoSize = true };
     private readonly CheckBox showGridCameraNames = new() { Text = "Kameranamen im 4er-Raster anzeigen", AutoSize = true };
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
@@ -3469,6 +3492,7 @@ internal sealed class SettingsForm : Form
         autoScaleToolbar.Checked = current.AutoScaleToolbar;
         showGridCameraNames.Checked = current.ShowGridCameraNames;
         showEmptyCameraLogo.Checked = current.ShowEmptyCameraLogo;
+        showEmptyFourthFieldBorder.Checked = current.ShowEmptyFourthFieldBorder;
         toolbarSize.Enabled = !autoScaleToolbar.Checked;
         autoScaleToolbar.CheckedChanged += (_, _) => toolbarSize.Enabled = !autoScaleToolbar.Checked;
         motionDetection.Checked = current.MotionDetectionEnabled;
@@ -3587,6 +3611,7 @@ internal sealed class SettingsForm : Form
         toolbarOptions.Controls.Add(autoScaleToolbar);
         toolbarOptions.Controls.Add(showGridCameraNames);
         toolbarOptions.Controls.Add(showEmptyCameraLogo);
+        toolbarOptions.Controls.Add(showEmptyFourthFieldBorder);
         options.Controls.Add(toolbarOptions, 0, 1);
 #else
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
@@ -3781,6 +3806,7 @@ internal sealed class SettingsForm : Form
                 AutoScaleToolbar = autoScaleToolbar.Checked,
                 ShowGridCameraNames = showGridCameraNames.Checked,
                 ShowEmptyCameraLogo = showEmptyCameraLogo.Checked,
+                ShowEmptyFourthFieldBorder = showEmptyFourthFieldBorder.Checked,
                 MotionDetectionEnabled = motionDetection.Checked,
                 MotionActionsPausedUntilUtc = current.MotionActionsPausedUntilUtc,
                 MotionForegroundSeconds = (int)motionSeconds.Value,

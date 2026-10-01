@@ -41,6 +41,22 @@ internal static class Program
                 for (var x = 0; x < size.Width; x++)
                     if (emptyBlack.GetPixel(x, y).ToArgb() != Color.Black.ToArgb())
                         throw new InvalidOperationException("Empty camera field with logo disabled is not fully black.");
+            placeholder.SetEmpty(false, true);
+            using var borderedEmpty = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(borderedEmpty, new Rectangle(Point.Empty, size));
+            borderedEmpty.Save(Path.Combine(output, $"empty-border-{size.Width}x{size.Height}.png"));
+            if (borderedEmpty.GetPixel(size.Width - 2, size.Height / 2).R < 40 ||
+                borderedEmpty.GetPixel(size.Width / 2, size.Height - 2).R < 40)
+                throw new InvalidOperationException("Empty tile outside border is missing.");
+            if (borderedEmpty.GetPixel(2, size.Height / 2).ToArgb() != Color.Black.ToArgb() ||
+                borderedEmpty.GetPixel(size.Width / 2, 2).ToArgb() != Color.Black.ToArgb())
+                throw new InvalidOperationException("Empty tile border leaks onto interior grid edges.");
+            placeholder.Configure("Testkamera mit langem Namen");
+            placeholder.SetOffline();
+            using var offlineAfterBorder = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(offlineAfterBorder, new Rectangle(Point.Empty, size));
+            if (offlineAfterBorder.GetPixel(size.Width - 2, size.Height / 2).ToArgb() != Color.Black.ToArgb())
+                throw new InvalidOperationException("Empty tile border persists on a configured camera.");
         }
 
         using var toolbar = new ToolbarForm(null!);
