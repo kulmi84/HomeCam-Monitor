@@ -51,6 +51,22 @@ internal static class Program
             if (borderedEmpty.GetPixel(2, size.Height / 2).ToArgb() != Color.Black.ToArgb() ||
                 borderedEmpty.GetPixel(size.Width / 2, 2).ToArgb() != Color.Black.ToArgb())
                 throw new InvalidOperationException("Empty tile border leaks onto interior grid edges.");
+            for (var gridIndex = 0; gridIndex < 4; gridIndex++)
+            {
+                placeholder.SetEmpty(false, true, gridIndex);
+                using var corner = new Bitmap(size.Width, size.Height);
+                placeholder.DrawToBitmap(corner, new Rectangle(Point.Empty, size));
+                corner.Save(Path.Combine(output, $"empty-border-slot-{gridIndex}-{size.Width}x{size.Height}.png"));
+                var outerX = gridIndex % 2 == 0 ? 2 : size.Width - 2;
+                var innerX = gridIndex % 2 == 0 ? size.Width - 2 : 2;
+                var outerY = gridIndex < 2 ? 2 : size.Height - 2;
+                var innerY = gridIndex < 2 ? size.Height - 2 : 2;
+                if (corner.GetPixel(outerX, size.Height / 2).R < 40 ||
+                    corner.GetPixel(size.Width / 2, outerY).R < 40 ||
+                    corner.GetPixel(innerX, size.Height / 2).ToArgb() != Color.Black.ToArgb() ||
+                    corner.GetPixel(size.Width / 2, innerY).ToArgb() != Color.Black.ToArgb())
+                    throw new InvalidOperationException("Empty tile border does not follow its outside grid edges.");
+            }
             placeholder.Configure("Testkamera mit langem Namen");
             placeholder.SetOffline();
             using var offlineAfterBorder = new Bitmap(size.Width, size.Height);
