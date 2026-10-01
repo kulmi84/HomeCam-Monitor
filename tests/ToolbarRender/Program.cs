@@ -30,6 +30,17 @@ internal static class Program
             using var bitmap = new Bitmap(size.Width, size.Height);
             placeholder.DrawToBitmap(bitmap, new Rectangle(Point.Empty, size));
             bitmap.Save(Path.Combine(output, $"offline-{size.Width}x{size.Height}.png"));
+            placeholder.SetEmpty(true);
+            using var emptyLogo = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(emptyLogo, new Rectangle(Point.Empty, size));
+            emptyLogo.Save(Path.Combine(output, $"empty-logo-{size.Width}x{size.Height}.png"));
+            placeholder.SetEmpty(false);
+            using var emptyBlack = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(emptyBlack, new Rectangle(Point.Empty, size));
+            for (var y = 0; y < size.Height; y++)
+                for (var x = 0; x < size.Width; x++)
+                    if (emptyBlack.GetPixel(x, y).ToArgb() != Color.Black.ToArgb())
+                        throw new InvalidOperationException("Empty camera field with logo disabled is not fully black.");
         }
 
         using var toolbar = new ToolbarForm(null!);

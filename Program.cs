@@ -40,6 +40,7 @@ internal sealed class Settings
     public int ToolbarSizePercent { get; set; } = 100;
     public bool AutoScaleToolbar { get; set; }
     public bool ShowGridCameraNames { get; set; } = true;
+    public bool ShowEmptyCameraLogo { get; set; } = true;
     public bool MotionDetectionEnabled { get; set; } = true;
     public DateTime? MotionActionsPausedUntilUtc { get; set; }
     public int MotionForegroundSeconds { get; set; } = 10;
@@ -422,6 +423,15 @@ internal sealed class MonitorForm : Form
         if (gridMode)
         {
             StartGridPlayers();
+            return;
+        }
+#endif
+#if BETA
+        if (!closing && !HasUsableCamera())
+        {
+            video.Hide(); standbyVideo.Hide();
+            offlinePlaceholder.SetEmpty(settings.ShowEmptyCameraLogo);
+            offlinePlaceholder.Show(); offlinePlaceholder.BringToFront();
             return;
         }
 #endif
@@ -1043,7 +1053,12 @@ internal sealed class MonitorForm : Form
             sensorsChanged;
         foreach (var slot in gridSlots)
         {
-            if (slot.CameraIndex < 0 || slot.CameraIndex >= settings.Cameras.Count) continue;
+            if (slot.CameraIndex < 0)
+            {
+                slot.Placeholder.SetEmpty(settings.ShowEmptyCameraLogo);
+                continue;
+            }
+            if (slot.CameraIndex >= settings.Cameras.Count) continue;
             slot.Name.Text = settings.Cameras[slot.CameraIndex].Name;
             slot.Name.Visible = settings.ShowGridCameraNames;
         }
@@ -1359,7 +1374,13 @@ internal sealed class MonitorForm : Form
             slot.CameraIndex = -1;
             slot.Name.Text = "";
             slot.Name.Visible = false;
-            if (index >= cameras.Count) { slot.Placeholder.Hide(); continue; }
+            if (index >= cameras.Count)
+            {
+                slot.ActiveSurface.Hide(); slot.SpareSurface.Hide();
+                slot.Placeholder.SetEmpty(settings.ShowEmptyCameraLogo);
+                slot.Placeholder.Show(); slot.Placeholder.BringToFront();
+                continue;
+            }
 
             var camera = cameras[index];
             slot.CameraIndex = camera.Index;
@@ -2600,6 +2621,8 @@ internal sealed class CameraPlaceholderPanel : Panel
     private readonly Image? logo;
     private string cameraName = "";
     private bool offline;
+    private bool empty;
+    private bool showEmptyLogo;
 
     public CameraPlaceholderPanel()
     {
@@ -2618,10 +2641,13 @@ internal sealed class CameraPlaceholderPanel : Panel
 
     public void Configure(string name)
     {
+        empty = false;
         if (cameraName != name) offline = false;
         cameraName = name;
         Invalidate();
     }
+
+    public void SetEmpty(bool showLogo) { empty = true; showEmptyLogo = showLogo; Invalidate(); }
 
     public void SetOffline() { offline = true; Invalidate(); }
     public void SetConnecting() { offline = false; Invalidate(); }
@@ -2632,13 +2658,15 @@ internal sealed class CameraPlaceholderPanel : Panel
         if (Width < 40 || Height < 40) return;
         var iconSize = Math.Clamp(Math.Min(Width / 4, Height / 3), 20, 96);
         var textHeight = Math.Clamp(Height / 8, 14, 25);
-        var totalHeight = iconSize + 8 + 2 * textHeight;
+        if (empty && !showEmptyLogo) return;
+        var totalHeight = empty ? iconSize : iconSize + 8 + 2 * textHeight;
         var top = Math.Max(4, (Height - totalHeight) / 2);
         if (logo is not null)
         {
             eventArgs.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             eventArgs.Graphics.DrawImage(logo, (Width - iconSize) / 2, top, iconSize, iconSize);
         }
+        if (empty) return;
         using var statusFont = new Font("Segoe UI", Math.Clamp(Height / 24f, 9f, 13f));
         using var nameFont = new Font("Segoe UI", Math.Clamp(Height / 28f, 8f, 11f));
         const TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
@@ -3351,6 +3379,7 @@ internal sealed class SettingsForm : Form
     private readonly ComboBox startCamera = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
     private readonly NumericUpDown toolbarSize = new() { Minimum = 50, Maximum = 100, Increment = 5, Width = 60 };
     private readonly CheckBox autoScaleToolbar = new() { Text = "Bedienleiste automatisch skalieren", AutoSize = true };
+    private readonly CheckBox showEmptyCameraLogo = new() { Text = "Logo in leeren Kamerafeldern anzeigen", AutoSize = true };
     private readonly CheckBox showGridCameraNames = new() { Text = "Kameranamen im 4er-Raster anzeigen", AutoSize = true };
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
@@ -3431,6 +3460,7 @@ internal sealed class SettingsForm : Form
         toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 50, 100);
         autoScaleToolbar.Checked = current.AutoScaleToolbar;
         showGridCameraNames.Checked = current.ShowGridCameraNames;
+        showEmptyCameraLogo.Checked = current.ShowEmptyCameraLogo;
         toolbarSize.Enabled = !autoScaleToolbar.Checked;
         autoScaleToolbar.CheckedChanged += (_, _) => toolbarSize.Enabled = !autoScaleToolbar.Checked;
         motionDetection.Checked = current.MotionDetectionEnabled;
@@ -3548,6 +3578,7 @@ internal sealed class SettingsForm : Form
         toolbarOptions.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(autoScaleToolbar);
         toolbarOptions.Controls.Add(showGridCameraNames);
+        toolbarOptions.Controls.Add(showEmptyCameraLogo);
         options.Controls.Add(toolbarOptions, 0, 1);
 #else
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
@@ -3741,6 +3772,7 @@ internal sealed class SettingsForm : Form
                 ToolbarSizePercent = (int)toolbarSize.Value,
                 AutoScaleToolbar = autoScaleToolbar.Checked,
                 ShowGridCameraNames = showGridCameraNames.Checked,
+                ShowEmptyCameraLogo = showEmptyCameraLogo.Checked,
                 MotionDetectionEnabled = motionDetection.Checked,
                 MotionActionsPausedUntilUtc = current.MotionActionsPausedUntilUtc,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
