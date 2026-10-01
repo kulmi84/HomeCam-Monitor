@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls.png" alt="HomeCamMonitor mit Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls-beta32.webp" alt="HomeCamMonitor mit Bedienleiste" width="390">
 </p>
 
 HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
@@ -26,9 +26,13 @@ HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11.
 - Snapshot direkt im Windows-Bilderordner
 - Videoaufnahme direkt im Windows-Videosordner (Beta)
 - automatische Wiederverbindung nach einem Stream- oder Playerabbruch
-- vorsorglicher Stream-Neustart nach fünf Minuten gegen zunehmende Verzögerung
+- nahtloser Stream-Refresh nach fünf Minuten per Double Buffering: ein neuer mpv-Stream übernimmt erst nach dem ersten Bild
 - Fensterposition und Fenstergröße werden nach dem Verschieben oder Ändern sofort gespeichert und beim nächsten Start exakt wiederhergestellt
 - gespeicherte Kameraauswahl
+- direkter Home-Assistant-WebSocket mit Bewegungs- und Personen-Sensoren pro Kamera (Beta)
+- Aktivitätssymbole und optionale Hervorhebung der auslösenden Kamera im 4er-Raster (Beta)
+- automatische Bewegungsaktionen pro Kamera: Snapshot, Video oder beides mit Aufbewahrungsfrist (Beta)
+- Bewegungsaktionen zeitweise direkt im Rechtsklickmenü pausieren (Beta)
 - optional „Immer im Vordergrund“ und Windows-Autostart
 
 ## Installation
@@ -58,7 +62,7 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
 ## Bedienung
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls.png" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls-beta32.webp" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
 </p>
 
 Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt. Bei 100 % bleibt das ursprüngliche Layout erhalten; Text und Symbole sind optisch mittig in der Leiste ausgerichtet.
@@ -75,9 +79,20 @@ In der Beta lässt sich die **Größe der Bedienleiste** in den Einstellungen vo
 | Bildsymbol | Snapshot speichern |
 | Weißer/roter Aufnahmepunkt (Beta) | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
 | Zahnrad | Einstellungen öffnen |
-| Rechtsklick ins Bild (Beta) | Dunkles Kontextmenü mit „Immer im Vordergrund“, „Bewegungserkennung aktiv“ und Vordergrunddauer |
+| Rechtsklick ins Bild (Beta) | Dunkles Kontextmenü mit „Immer im Vordergrund“, „Bewegungserkennung aktiv“, „Bewegungsaktionen pausieren“ und Vordergrunddauer |
 | `—` (Beta) | Fenster minimieren |
 | `×` | Anwendung beenden |
+
+### Kontextmenü für Bewegung
+
+<p align="center">
+  <img src="docs/screenshots/homecam-motion-pause-beta32.webp" alt="Kontextmenü zum Pausieren der Bewegungsaktionen" width="48%">
+  <img src="docs/screenshots/homecam-foreground-duration-beta32.webp" alt="Kontextmenü zur Auswahl der Vordergrunddauer" width="48%">
+</p>
+
+Über **Bewegungsaktionen pausieren** lassen sich Kamerawechsel, Vordergrundreaktion sowie automatische Snapshots und Aufnahmen für **15 Minuten**, **30 Minuten** oder **1 Stunde** aussetzen. **Bis manuell aktiviert** schaltet die Bewegungserkennung bis zum manuellen Wiedereinschalten aus. Eine laufende Zeitpause kann über **Pause beenden** vorzeitig beendet werden. Sensorereignisse und Aktivitätssymbole bleiben während einer Zeitpause aktiv.
+
+Die **Vordergrunddauer** lässt sich im Rechtsklickmenü schnell auf **3, 5, 10, 15, 30 oder 60 Sekunden** setzen. In den Einstellungen steht weiterhin der vollständige Bereich zur Verfügung.
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
 
@@ -98,7 +113,12 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.31`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.32`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 32
+
+- Der aktuelle Stand des geglätteten Rechtsklickmenüs einschließlich der abgerundeten Untermenüs ist als `0.3.0-beta.32` paketiert.
+- Die Dokumentation und Screenshots wurden auf den aktuellen Bedien- und Einstellungsstand gebracht.
 
 ### Neu in 0.3.0 Beta 31
 
@@ -270,18 +290,19 @@ Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
 
 <p align="center">
-  <img src="docs/screenshots/homecam-settings-anonymized.png" alt="Anonymisierte dunkle Beta-Einstellungen mit Kamera- und Bewegungsoptionen" width="690">
+  <img src="docs/screenshots/homecam-settings-anonymized-beta32.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.3.0-beta.32" width="650">
 </p>
 
-In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eine eigene Checkbox **Bewegung**. Nach dem Anklicken einer Kamerazeile wird darunter die zugehörige Bewegungs-Entität eingetragen.
+In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen konfigurieren sowie eine gemeinsame Aufbewahrungsfrist festlegen.
 
 | Feld | Beispiel |
 |---|---|
 | HA-Adresse | `http://192.168.x.x:8123` |
 | Langzeit-Token | in Home Assistant im Benutzerprofil erstellt |
 | Bewegungs-Entität | beispielsweise `binary_sensor.camera_einfahrt_bewegung` |
+| Personen-Entität | beispielsweise `binary_sensor.camera_einfahrt_person` |
 
-Meldet eine aktivierte Entität Bewegung, wechselt HomeCam Monitor automatisch auf die zugehörige Kamera und holt deren Bild nach vorn. So können Einfahrt, Garten und Garage unabhängig voneinander eingerichtet werden. **Bewegungserkennung aktiv** bleibt der globale Hauptschalter für alle Kameras.
+Meldet eine aktivierte Entität Bewegung, wechselt HomeCam Monitor automatisch auf die zugehörige Kamera und holt deren Bild nach vorn. Die Personenerkennung kann separat pro Kamera aktiviert werden und wird unter anderem für den Personen-Snapshot verwendet. So können Einfahrt, Garten und Garage unabhängig voneinander eingerichtet werden. **Bewegungserkennung aktiv** bleibt der globale Hauptschalter für alle Kameras. Die Einstellungen enthalten außerdem die automatische Bedienleistenskalierung, das Startverhalten, die Dauer der Aktivitätssymbole und die optionale Hervorhebung im 4er-Raster.
 
 Das Langzeit-Token wird in Home Assistant im eigenen Benutzerprofil unter **Sicherheit → Langzeit-Zugriffstoken** erstellt. Es wird nur lokal in `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json` gespeichert; diese Datei darf nicht weitergegeben oder veröffentlicht werden.
 
