@@ -128,6 +128,13 @@ internal static class SettingsStore
 internal sealed class MonitorForm : Form
 {
 #if BETA
+    protected override void OnHandleCreated(EventArgs eventArgs)
+    {
+        base.OnHandleCreated(eventArgs);
+        windowDiagnostics?.Dispose();
+        windowDiagnostics = new NativeWindowDiagnostics(Handle);
+    }
+
     protected override bool ShowWithoutActivation => true;
     protected override CreateParams CreateParams
     {
@@ -163,6 +170,7 @@ internal sealed class MonitorForm : Form
     };
     private readonly List<GridPlayerSlot> gridSlots = [];
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
+    private NativeWindowDiagnostics? windowDiagnostics;
     private readonly System.Windows.Forms.Timer videoDecorationTimer = new() { Interval = 50 };
     private CancellationTokenSource? refreshCancellation;
     private CancellationTokenSource? initialPlayerReveal;
@@ -398,6 +406,8 @@ internal sealed class MonitorForm : Form
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
+        windowDiagnostics?.Mark("closing");
+        windowDiagnostics?.Dispose(); windowDiagnostics = null;
         videoDecorationTimer.Stop(); videoDecorationTimer.Dispose();
         motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionPauseTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
@@ -942,11 +952,18 @@ internal sealed class MonitorForm : Form
     internal void OpenSettings()
     {
 #if BETA
+        windowDiagnostics?.Mark("settings requested before dialog construction");
+#endif
+#if BETA
         RegisterUserInteraction();
 #endif
         Settings? changedSettings = null;
         // Build and theme the dialog while the camera and toolbar remain visible.
         using var dialog = new SettingsForm(settings);
+#if BETA
+        windowDiagnostics?.Mark("settings constructed");
+        dialog.Shown += (_, _) => windowDiagnostics?.Mark("settings shown");
+#endif
 #if BETA
         // Resolve CenterParent ourselves before the dialog has a visible
         // native window, then keep Windows from animating it out of the owner.
@@ -2480,6 +2497,100 @@ internal sealed class MonitorForm : Form
 }
 
 #if BETA
+internal sealed class NativeWindowDiagnostics : IDisposable
+{
+    private readonly IntPtr monitor;
+    private readonly System.Threading.Timer timer;
+    private readonly object sync = new();
+    private readonly string logPath;
+    private string previous = "";
+    private bool disposed;
+    private readonly DateTime started = DateTime.UtcNow;
+    private delegate bool WindowCallback(IntPtr window, IntPtr parameter);
+    [StructLayout(LayoutKind.Sequential)] private struct WindowRectangle { public int Left, Top, Right, Bottom; }
+    [DllImport("user32.dll")] private static extern bool EnumWindows(WindowCallback callback, IntPtr parameter);
+    [DllImport("user32.dll")] private static extern bool EnumChildWindows(IntPtr parent, WindowCallback callback, IntPtr parameter);
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr window, out uint processId);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassName(IntPtr window, StringBuilder name, int capacity);
+    [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr window, out WindowRectangle rectangle);
+    [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr window);
+    [DllImport("user32.dll")] private static extern IntPtr GetParent(IntPtr window);
+
+    public NativeWindowDiagnostics(IntPtr monitor)
+    {
+        this.monitor = monitor;
+        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta");
+        logPath = Path.Combine(folder, "window-diagnostics.log");
+        try
+        {
+            Directory.CreateDirectory(folder);
+            if (File.Exists(logPath)) File.Move(logPath, logPath + ".previous", true);
+            File.WriteAllText(logPath, $"Beta 46 window diagnostics; pid={Environment.ProcessId}; UTC={started:O}\nNo window titles, stream URLs, credentials or screen contents are recorded.\n");
+        }
+        catch { }
+        // Independent of the UI thread, so dialog construction cannot hide the transient window.
+        timer = new System.Threading.Timer(_ => Sample(), null, 0, 100);
+    }
+
+    public void Mark(string message)
+    {
+        lock (sync) if (!disposed) Write("EVENT " + message);
+    }
+
+    private void Write(string message)
+    {
+        try
+        {
+            if (new FileInfo(logPath).Length > 4 * 1024 * 1024)
+                File.Move(logPath, logPath + ".previous", true);
+            File.AppendAllText(logPath, $"{DateTime.UtcNow:O} +{(DateTime.UtcNow - started).TotalMilliseconds:F0}ms {message}\n");
+        }
+        catch { }
+    }
+
+    private void Sample()
+    {
+        if (!System.Threading.Monitor.TryEnter(sync)) return;
+        try
+        {
+            if (disposed) return;
+            GetWindowRect(monitor, out var area);
+            var lines = new List<string>();
+            void Add(IntPtr window)
+            {
+                GetWindowThreadProcessId(window, out var pid);
+                GetWindowRect(window, out var rect);
+                var name = new StringBuilder(256);
+                GetClassName(window, name, name.Capacity);
+                lines.Add($"hwnd={window.ToInt64():X} parent={GetParent(window).ToInt64():X} pid={pid} class={name} visible={IsWindowVisible(window)} style={NativeMethods.GetWindowStyle(window, -16):X8} exstyle={NativeMethods.GetWindowStyle(window, -20):X8} rect={rect.Left},{rect.Top},{rect.Right},{rect.Bottom}");
+            }
+            EnumWindows((window, _) =>
+            {
+                GetWindowThreadProcessId(window, out var pid);
+                var name = new StringBuilder(256);
+                GetClassName(window, name, name.Capacity);
+                GetWindowRect(window, out var rect);
+                var intersects = rect.Right > area.Left && rect.Left < area.Right && rect.Bottom > area.Top && rect.Top < area.Bottom;
+                if (pid == Environment.ProcessId || (intersects && (name.ToString().Equals("Ghost", StringComparison.OrdinalIgnoreCase) || name.ToString().StartsWith("mpv", StringComparison.OrdinalIgnoreCase))))
+                {
+                    Add(window);
+                    EnumChildWindows(window, (child, unused) => { Add(child); return true; }, IntPtr.Zero);
+                }
+                return true;
+            }, IntPtr.Zero);
+            var state = string.Join("\n", lines);
+            if (state != previous) { previous = state; Write("WINDOWS\n" + state); }
+        }
+        catch { }
+        finally { System.Threading.Monitor.Exit(sync); }
+    }
+
+    public void Dispose()
+    {
+        lock (sync) { disposed = true; timer.Dispose(); }
+    }
+}
+
 internal sealed class CameraPlaceholderPanel : Panel
 {
     private readonly Image? logo;
