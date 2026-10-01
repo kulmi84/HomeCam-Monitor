@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls-beta32.webp" alt="HomeCamMonitor mit Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls-beta32-fixed.webp" alt="HomeCamMonitor mit Bedienleiste" width="390">
 </p>
 
 HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
@@ -62,7 +62,7 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
 ## Bedienung
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls-beta32.webp" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-controls-beta32-fixed.webp" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
 </p>
 
 Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt. Bei 100 % bleibt das ursprüngliche Layout erhalten; Text und Symbole sind optisch mittig in der Leiste ausgerichtet.
@@ -290,7 +290,7 @@ Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
 
 <p align="center">
-  <img src="docs/screenshots/homecam-settings-anonymized-beta32.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.3.0-beta.32" width="650">
+  <img src="docs/screenshots/homecam-settings-anonymized-beta32-fixed.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.3.0-beta.32" width="550">
 </p>
 
 In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen konfigurieren sowie eine gemeinsame Aufbewahrungsfrist festlegen.
