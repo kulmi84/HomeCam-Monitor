@@ -128,11 +128,14 @@ internal sealed class MonitorForm : Form
 #if BETA
     protected override bool ShowWithoutActivation => true;
 #endif
-    private readonly Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
+    private Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
+#if BETA
+    private Panel standbyVideo = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
+#endif
     private readonly System.Windows.Forms.Timer latencyTimer = new() { Interval = 5 * 60 * 1000 };
     private readonly System.Windows.Forms.Timer restartTimer = new() { Interval = 2000 };
     private readonly System.Windows.Forms.Timer controlsTimer = new() { Interval = 150 };
-    private readonly string pipeName = $"HomeCamMonitor-{Environment.ProcessId}";
+    private string pipeName = $"HomeCamMonitor-{Environment.ProcessId}";
 #if BETA
     private readonly string recordingPipeName = $"HomeCamMonitor-Recording-{Environment.ProcessId}";
     private readonly Dictionary<string, DateTime> lastMotionCapture = new(StringComparer.OrdinalIgnoreCase);
@@ -147,6 +150,7 @@ internal sealed class MonitorForm : Form
     };
     private readonly List<GridPlayerSlot> gridSlots = [];
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
+    private CancellationTokenSource? refreshCancellation;
 #endif
     private Settings settings;
     private ToolbarForm? toolbar;
@@ -214,8 +218,12 @@ internal sealed class MonitorForm : Form
 #else
         TopMost = true;
 #endif
+#if BETA
+        Controls.Add(standbyVideo);
+#endif
         Controls.Add(video);
 #if BETA
+        video.BringToFront();
         InitializeCameraGrid();
         Controls.Add(cameraGrid);
 #endif
@@ -259,8 +267,15 @@ internal sealed class MonitorForm : Form
 #if BETA
         Activated += (_, _) => RestoreFromBackground();
 #endif
-        video.MouseDoubleClick += (_, eventArgs) => HandleSurfaceDoubleClick(video.PointToScreen(eventArgs.Location));
+        video.MouseDoubleClick += (sender, eventArgs) => HandleSurfaceDoubleClick(((Control)sender!).PointToScreen(eventArgs.Location));
+#if BETA
+        standbyVideo.MouseDoubleClick += (sender, eventArgs) => HandleSurfaceDoubleClick(((Control)sender!).PointToScreen(eventArgs.Location));
+#endif
+#if BETA
+        latencyTimer.Tick += async (_, _) => await RefreshSeamlesslyAsync();
+#else
         latencyTimer.Tick += (_, _) => RestartPlayer();
+#endif
         restartTimer.Tick += (_, _) => { restartTimer.Stop(); StartPlayer(); };
         controlsTimer.Tick += (_, _) => UpdateToolbarVisibility();
 #if BETA
@@ -295,10 +310,13 @@ internal sealed class MonitorForm : Form
 #if BETA
         cameraContextMenu = CreateCameraContextMenu();
         video.ContextMenuStrip = cameraContextMenu;
+        standbyVideo.ContextMenuStrip = cameraContextMenu;
         cameraGrid.ContextMenuStrip = cameraContextMenu;
         foreach (var slot in gridSlots)
         {
             slot.Host.ContextMenuStrip = cameraContextMenu;
+            slot.ActiveSurface.ContextMenuStrip = cameraContextMenu;
+            slot.SpareSurface.ContextMenuStrip = cameraContextMenu;
             slot.Name.ContextMenuStrip = cameraContextMenu;
         }
         dragSurface.ContextMenuStrip = cameraContextMenu;
@@ -328,6 +346,7 @@ internal sealed class MonitorForm : Form
     {
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
+        CancelSeamlessRefresh();
         StopRecordingForClose();
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
@@ -387,6 +406,9 @@ internal sealed class MonitorForm : Form
 
     private void StopPlayer()
     {
+#if BETA
+        CancelSeamlessRefresh();
+#endif
         intentionalStop = true; var current = player; player = null;
         if (current is null) return;
         try { current.Exited -= PlayerExited; if (!current.HasExited) { current.Kill(true); current.WaitForExit(2000); } current.Dispose(); } catch { }
@@ -405,8 +427,183 @@ internal sealed class MonitorForm : Form
             return;
         }
 #endif
+#if BETA
+        CancelSeamlessRefresh();
+#endif
         StopPlayer(); video.Invalidate(); restartTimer.Stop(); restartTimer.Start();
     }
+
+
+#if BETA
+    private async Task RefreshSeamlesslyAsync()
+    {
+        if (closing || refreshCancellation is not null) return;
+        using var cancellation = new CancellationTokenSource();
+        refreshCancellation = cancellation;
+        try
+        {
+            if (gridMode) await RefreshGridSequentiallyAsync(cancellation.Token);
+            else await RefreshSingleCameraAsync(cancellation.Token);
+        }
+        catch (OperationCanceledException) { }
+        catch { /* Keep the current player visible and retry on the next interval. */ }
+        finally
+        {
+            if (ReferenceEquals(refreshCancellation, cancellation)) refreshCancellation = null;
+        }
+    }
+
+    private void CancelSeamlessRefresh() => refreshCancellation?.Cancel();
+
+    private Process StartRefreshPlayer(Panel target, string streamUrl, string ipcName, bool grid)
+    {
+        target.CreateControl();
+        var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
+        {
+            UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden
+        };
+        var arguments = new List<string>
+        {
+            $"--wid={target.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
+            "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
+            "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
+            "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no"
+        };
+        if (grid) arguments.AddRange(["--keepaspect-window=no", "--panscan=1.0"]);
+        else arguments.Add("--window-dragging=yes");
+        arguments.Add("--keep-open=no");
+        arguments.Add("--input-ipc-server=" + @"\\.\pipe\" + ipcName);
+        arguments.Add(streamUrl);
+        foreach (var argument in arguments) start.ArgumentList.Add(argument);
+        return Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
+    }
+
+    private static void DisposePlayer(Process? process, EventHandler? exitedHandler = null)
+    {
+        if (process is null) return;
+        try
+        {
+            if (exitedHandler is not null) process.Exited -= exitedHandler;
+            if (!process.HasExited) { process.Kill(true); process.WaitForExit(2000); }
+        }
+        catch { }
+        finally { process.Dispose(); }
+    }
+
+    private async Task RefreshSingleCameraAsync(CancellationToken cancellationToken)
+    {
+        if (!HasUsableCamera() || player is null || player.HasExited) return;
+        var oldPlayer = player;
+        var cameraIndex = settings.SelectedCamera;
+        var oldSurface = video;
+        var nextSurface = standbyVideo;
+        nextSurface.Bounds = ClientRectangle;
+        var newPipeName = $"HomeCamMonitor-Refresh-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        Process? replacement = null;
+        try
+        {
+            replacement = StartRefreshPlayer(nextSurface, settings.Cameras[cameraIndex].StreamUrl, newPipeName, false);
+            if (!await WaitForFirstFrameAsync(replacement, newPipeName, cancellationToken) ||
+                replacement.HasExited || cancellationToken.IsCancellationRequested || closing || gridMode ||
+                player != oldPlayer || settings.SelectedCamera != cameraIndex) return;
+
+            nextSurface.BringToFront();
+            video = nextSurface;
+            standbyVideo = oldSurface;
+            pipeName = newPipeName;
+            player = replacement;
+            replacement.EnableRaisingEvents = true;
+            replacement.Exited += PlayerExited;
+            replacement = null;
+            DisposePlayer(oldPlayer, PlayerExited);
+            oldSurface.Invalidate();
+        }
+        finally { DisposePlayer(replacement); }
+    }
+
+    private async Task RefreshGridSequentiallyAsync(CancellationToken cancellationToken)
+    {
+        foreach (var slot in gridSlots)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!gridMode || slot.CameraIndex < 0 || slot.CameraIndex >= settings.Cameras.Count ||
+                slot.Player is null || slot.Player.HasExited) continue;
+            var oldPlayer = slot.Player;
+            var cameraIndex = slot.CameraIndex;
+            var oldSurface = slot.ActiveSurface;
+            var nextSurface = slot.SpareSurface;
+            nextSurface.Bounds = slot.Host.ClientRectangle;
+            var newPipeName = $"HomeCamMonitor-GridRefresh-{Environment.ProcessId}-{Guid.NewGuid():N}";
+            Process? replacement = null;
+            try
+            {
+                replacement = StartRefreshPlayer(nextSurface, settings.Cameras[cameraIndex].StreamUrl, newPipeName, true);
+                if (!await WaitForFirstFrameAsync(replacement, newPipeName, cancellationToken) ||
+                    replacement.HasExited || cancellationToken.IsCancellationRequested || closing || !gridMode ||
+                    slot.Player != oldPlayer || slot.CameraIndex != cameraIndex) continue;
+
+                nextSurface.BringToFront();
+                slot.ActiveSurface = nextSurface;
+                slot.SpareSurface = oldSurface;
+                slot.Player = replacement;
+                replacement.EnableRaisingEvents = true;
+                replacement.Exited += GridPlayerExited;
+                replacement = null;
+                slot.Name.BringToFront();
+                UpdateGridMotionBorders();
+                DisposePlayer(oldPlayer, GridPlayerExited);
+                oldSurface.Invalidate();
+            }
+            catch (OperationCanceledException) { throw; }
+            catch { /* A failed replacement leaves this camera's original stream running. */ }
+            finally { DisposePlayer(replacement); }
+        }
+    }
+
+    private static async Task<bool> WaitForFirstFrameAsync(Process process, string ipcName,
+        CancellationToken cancellationToken)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromSeconds(12));
+        try
+        {
+            using var pipe = new NamedPipeClientStream(".", ipcName, PipeDirection.InOut, PipeOptions.Asynchronous);
+            while (!pipe.IsConnected)
+            {
+                if (process.HasExited) return false;
+                try { await pipe.ConnectAsync(500, timeout.Token); }
+                catch (TimeoutException) { }
+            }
+            using var writer = new StreamWriter(pipe, new UTF8Encoding(false), 1024, true) { AutoFlush = true };
+            using var reader = new StreamReader(pipe, Encoding.UTF8, false, 1024, true);
+            await writer.WriteLineAsync(JsonSerializer.Serialize(new
+            {
+                command = new[] { "get_property", "video-frame-info" }, request_id = 1
+            }));
+            while (!process.HasExited)
+            {
+                var line = await reader.ReadLineAsync(timeout.Token);
+                if (line is null) return false;
+                using var response = JsonDocument.Parse(line);
+                var root = response.RootElement;
+                if (root.TryGetProperty("event", out var eventName))
+                {
+                    var name = eventName.GetString();
+                    if (name == "playback-restart") return true;
+                    if (name is "end-file" or "shutdown") return false;
+                }
+                if (root.TryGetProperty("request_id", out var requestId) && requestId.GetInt32() == 1 &&
+                    root.TryGetProperty("error", out var error) && error.GetString() == "success" &&
+                    root.TryGetProperty("data", out var frame) && frame.ValueKind == JsonValueKind.Object)
+                    return true;
+            }
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { }
+        catch (IOException) { }
+        catch (TimeoutException) { }
+        return false;
+    }
+#endif
 
     internal void SelectRelativeCamera(int direction)
     {
@@ -726,6 +923,11 @@ internal sealed class MonitorForm : Form
         for (var index = 0; index < 4; index++)
         {
             var host = new Panel { Margin = new Padding(0), BackColor = Color.Black };
+            var activeSurface = new Panel { Dock = DockStyle.Fill, BackColor = Color.Black };
+            var spareSurface = new Panel { Dock = DockStyle.Fill, BackColor = Color.Black };
+            host.Controls.Add(spareSurface);
+            host.Controls.Add(activeSurface);
+            activeSurface.BringToFront();
             var name = new Label
             {
                 AutoSize = true,
@@ -741,7 +943,8 @@ internal sealed class MonitorForm : Form
                 .Select(_ => new Panel { BackColor = Color.White, Visible = false, TabStop = false })
                 .ToArray();
             host.Controls.AddRange(borders);
-            var slot = new GridPlayerSlot { Host = host, Name = name, BorderParts = borders };
+            var slot = new GridPlayerSlot { Host = host, ActiveSurface = activeSurface,
+                SpareSurface = spareSurface, Name = name, BorderParts = borders };
             host.Resize += (_, _) => LayoutGridMotionBorder(slot);
             LayoutGridMotionBorder(slot);
             cameraGrid.Controls.Add(host);
@@ -776,6 +979,7 @@ internal sealed class MonitorForm : Form
         if (closing || IsDisposed) return;
         var visibleArea = ClientRectangle;
         if (video.Bounds != visibleArea) video.Bounds = visibleArea;
+        if (standbyVideo.Bounds != visibleArea) standbyVideo.Bounds = visibleArea;
         if (cameraGrid.Bounds != visibleArea) cameraGrid.Bounds = visibleArea;
         LayoutCameraGrid();
     }
@@ -911,7 +1115,7 @@ internal sealed class MonitorForm : Form
             slot.CameraIndex = camera.Index;
             slot.Name.Text = camera.Camera.Name;
             slot.Name.Visible = true;
-            slot.Host.CreateControl();
+            slot.ActiveSurface.CreateControl();
             var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
             {
                 UseShellExecute = false,
@@ -920,7 +1124,7 @@ internal sealed class MonitorForm : Form
             };
             foreach (var argument in new[]
             {
-                $"--wid={slot.Host.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
+                $"--wid={slot.ActiveSurface.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
                 "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
                 "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
                 "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no",
@@ -946,6 +1150,7 @@ internal sealed class MonitorForm : Form
 
     private void StopGridPlayers()
     {
+        CancelSeamlessRefresh();
         intentionalGridStop = true;
         foreach (var slot in gridSlots)
         {
@@ -1876,6 +2081,8 @@ internal sealed class MonitorForm : Form
     private sealed class GridPlayerSlot
     {
         public required Panel Host { get; init; }
+        public required Panel ActiveSurface { get; set; }
+        public required Panel SpareSurface { get; set; }
         public required Label Name { get; init; }
         public required Panel[] BorderParts { get; init; }
         public int CameraIndex { get; set; } = -1;
