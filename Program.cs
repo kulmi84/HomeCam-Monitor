@@ -129,6 +129,16 @@ internal sealed class MonitorForm : Form
 {
 #if BETA
     protected override bool ShowWithoutActivation => true;
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            // The monitor has its own controls and no native title area.
+            parameters.Style &= ~0x00C00000; // WS_CAPTION
+            return parameters;
+        }
+    }
 #endif
     private Panel video = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
 #if BETA
@@ -200,7 +210,10 @@ internal sealed class MonitorForm : Form
         settings = SettingsStore.Load();
 #if BETA
         DeleteExpiredMotionFiles(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor", "Bewegung"), settings.MotionRetentionDays);
-        Text = "HomeCamMonitor for Homeassistant Beta";
+        // The borderless monitor has no caption. A nonempty window title can
+        // briefly be painted through embedded video surfaces on Windows.
+        Text = string.Empty;
+        AccessibleName = "HomeCam Monitor";
 #else
         Text = "HomeCamMonitor for Homeassistant";
 #endif
@@ -373,7 +386,8 @@ internal sealed class MonitorForm : Form
         if (closing || !HasUsableCamera() || player is { HasExited: false }) return;
         var camera = settings.Cameras[settings.SelectedCamera];
 #if BETA
-        Text = $"HomeCamMonitor for Homeassistant Beta – {camera.Name}";
+        // The selected camera is shown in the toolbar; keep the borderless
+        // monitor's native caption empty, including while changing streams.
 #else
         Text = $"HomeCamMonitor for Homeassistant – {camera.Name}";
 #endif
@@ -2138,6 +2152,15 @@ internal sealed class MonitorForm : Form
 #endif
     protected override void WndProc(ref Message message)
     {
+#if BETA
+        if (message.Msg == NativeMethods.WmNcPaint)
+        {
+            // Never let Windows draw a stale caption over the embedded players
+            // while the grid or its video windows are being rearranged.
+            message.Result = IntPtr.Zero;
+            return;
+        }
+#endif
         if (message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
         {
             message.Result = IntPtr.Zero;
@@ -2716,7 +2739,7 @@ internal sealed class ToolbarForm : Form
 
 internal static class NativeMethods
 {
-    public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
+    public const int WmNcCalcSize = 0x0083, WmNcHitTest = 0x0084, WmNcPaint = 0x0085, WmNcLButtonDown = 0x00A1, WmSysCommand = 0x0112, ScMove = 0xF010, HtCaption = 2;
     public const int WmEnterSizeMove = 0x0231, WmExitSizeMove = 0x0232;
     public static readonly IntPtr HwndTopMost = new(-1);
 #if BETA
