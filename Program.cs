@@ -2281,7 +2281,29 @@ internal sealed class HomeCamDarkMenuRenderer : ToolStripProfessionalRenderer
     protected override void OnRenderArrow(ToolStripArrowRenderEventArgs eventArgs)
     {
         eventArgs.ArrowColor = eventArgs.Item?.Enabled != false ? Color.White : Color.FromArgb(125, 125, 130);
-        base.OnRenderArrow(eventArgs);
+        if (eventArgs.Direction != ArrowDirection.Right)
+        {
+            base.OnRenderArrow(eventArgs);
+            return;
+        }
+        var state = eventArgs.Graphics.Save();
+        eventArgs.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        eventArgs.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+        var centerX = eventArgs.ArrowRectangle.Left + eventArgs.ArrowRectangle.Width / 2f;
+        var centerY = eventArgs.ArrowRectangle.Top + eventArgs.ArrowRectangle.Height / 2f;
+        using var pen = new Pen(eventArgs.ArrowColor, 1.6f)
+        {
+            StartCap = System.Drawing.Drawing2D.LineCap.Round,
+            EndCap = System.Drawing.Drawing2D.LineCap.Round,
+            LineJoin = System.Drawing.Drawing2D.LineJoin.Round
+        };
+        eventArgs.Graphics.DrawLines(pen, new[]
+        {
+            new PointF(centerX - 2f, centerY - 3f),
+            new PointF(centerX + 1.5f, centerY),
+            new PointF(centerX - 2f, centerY + 3f)
+        });
+        eventArgs.Graphics.Restore(state);
     }
 
     protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs eventArgs)
