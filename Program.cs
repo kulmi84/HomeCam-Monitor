@@ -1206,26 +1206,19 @@ internal sealed class MonitorForm : Form
 
     private static void ConfigureContextMenuCorners(ToolStripDropDown popup)
     {
-        popup.HandleCreated += (_, _) => ApplyContextMenuCorners(popup);
         popup.Opened += (_, _) => ApplyContextMenuCorners(popup);
     }
 
     private static void ApplyContextMenuCorners(ToolStripDropDown popup)
     {
-        popup.Region?.Dispose();
-        popup.Region = null;
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
-        {
-            // A GDI region has binary pixel edges. Windows 11 can draw a
-            // smooth, smaller radius on menu popups and their submenus.
-            var preference = (int)NativeMethods.DwmWindowCornerPreference.RoundSmall;
-            NativeMethods.DwmSetWindowAttribute(popup.Handle,
-                NativeMethods.DwmWindowAttribute.WindowCornerPreference, ref preference, sizeof(int));
-            NativeMethods.DisableDwmBorder(popup.Handle);
-            return;
-        }
-        var shape = NativeMethods.CreateRoundRectRgn(0, 0, popup.Width + 1, popup.Height + 1, 12, 12);
+        // A popup can be recreated after its items change. Apply the shape at
+        // its final size each time it opens, including for child menus.
+        var oldRegion = popup.Region;
+        var diameter = Math.Max(12, popup.DeviceDpi * 12 / 96);
+        var shape = NativeMethods.CreateRoundRectRgn(0, 0, popup.Width + 1, popup.Height + 1,
+            diameter, diameter);
         popup.Region = Region.FromHrgn(shape);
+        oldRegion?.Dispose();
         NativeMethods.DeleteObject(shape);
     }
 
@@ -2280,58 +2273,49 @@ internal sealed class MotionIndicatorForm : Form
 
 internal sealed class HomeCamRoundedContextMenuStrip : ContextMenuStrip
 {
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var parameters = base.CreateParams;
-            // Keep the popup's full client area while making it eligible for
-            // DWM's anti-aliased window corners on Windows 11.
-            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
-                parameters.Style |= 0x00C00000 | 0x00040000; // WS_CAPTION | WS_THICKFRAME
-            return parameters;
-        }
-    }
-
-    protected override void WndProc(ref Message message)
-    {
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) &&
-            message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
-        {
-            message.Result = IntPtr.Zero;
-            return;
-        }
-        base.WndProc(ref message);
-    }
 }
 
 internal sealed class HomeCamRoundedDropDownMenu : ToolStripDropDownMenu
 {
-    protected override CreateParams CreateParams
+    public HomeCamRoundedDropDownMenu()
     {
-        get
-        {
-            var parameters = base.CreateParams;
-            parameters.Style |= 0x00C00000 | 0x00040000; // WS_CAPTION | WS_THICKFRAME
-            return parameters;
-        }
-    }
-
-    protected override void WndProc(ref Message message)
-    {
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) &&
-            message.Msg == NativeMethods.WmNcCalcSize && message.WParam != IntPtr.Zero)
-        {
-            message.Result = IntPtr.Zero;
-            return;
-        }
-        base.WndProc(ref message);
+        BackColor = Color.FromArgb(28, 28, 31);
+        ForeColor = Color.White;
+        Renderer = new HomeCamDarkMenuRenderer();
+        ShowImageMargin = true;
+        Padding = new Padding(4);
     }
 }
 
 internal sealed class HomeCamDarkMenuRenderer : ToolStripProfessionalRenderer
 {
     public HomeCamDarkMenuRenderer() : base(new HomeCamDarkColorTable()) { RoundedEdges = false; }
+
+    protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs eventArgs)
+    {
+        if (eventArgs.ToolStrip is not ToolStripDropDown)
+        {
+            base.OnRenderToolStripBorder(eventArgs);
+            return;
+        }
+
+        var bounds = eventArgs.ToolStrip.ClientRectangle;
+        if (bounds.Width < 14 || bounds.Height < 14) return;
+        var graphicsState = eventArgs.Graphics.Save();
+        eventArgs.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        using var outline = new System.Drawing.Drawing2D.GraphicsPath();
+        const float radius = 6f;
+        var right = bounds.Right - 1.5f;
+        var bottom = bounds.Bottom - 1.5f;
+        outline.AddArc(0.5f, 0.5f, radius * 2, radius * 2, 180, 90);
+        outline.AddArc(right - radius * 2, 0.5f, radius * 2, radius * 2, 270, 90);
+        outline.AddArc(right - radius * 2, bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+        outline.AddArc(0.5f, bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+        outline.CloseFigure();
+        using var pen = new Pen(Color.FromArgb(78, 78, 84));
+        eventArgs.Graphics.DrawPath(pen, outline);
+        eventArgs.Graphics.Restore(graphicsState);
+    }
 
     protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs eventArgs)
     {
