@@ -51,6 +51,15 @@ internal static class Program
             if (borderedEmpty.GetPixel(2, size.Height / 2).ToArgb() != Color.Black.ToArgb() ||
                 borderedEmpty.GetPixel(size.Width / 2, 2).ToArgb() != Color.Black.ToArgb())
                 throw new InvalidOperationException("Empty tile border leaks onto interior grid edges.");
+            placeholder.SetEmpty(false, true, -1);
+            using var singleBorder = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(singleBorder, new Rectangle(Point.Empty, size));
+            singleBorder.Save(Path.Combine(output, $"empty-border-single-{size.Width}x{size.Height}.png"));
+            if (singleBorder.GetPixel(2, size.Height / 2).R < 40 ||
+                singleBorder.GetPixel(size.Width - 2, size.Height / 2).R < 40 ||
+                singleBorder.GetPixel(size.Width / 2, 2).R < 40 ||
+                singleBorder.GetPixel(size.Width / 2, size.Height - 2).R < 40)
+                throw new InvalidOperationException("Single empty field outside border is incomplete.");
             for (var gridIndex = 0; gridIndex < 4; gridIndex++)
             {
                 placeholder.SetEmpty(false, true, gridIndex);

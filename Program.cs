@@ -431,7 +431,7 @@ internal sealed class MonitorForm : Form
         if (!closing && !HasUsableCamera())
         {
             video.Hide(); standbyVideo.Hide();
-            offlinePlaceholder.SetEmpty(settings.ShowEmptyCameraLogo);
+            offlinePlaceholder.SetEmpty(settings.ShowEmptyCameraLogo, settings.ShowEmptyFourthFieldBorder, -1);
             offlinePlaceholder.Show(); offlinePlaceholder.BringToFront();
             return;
         }
@@ -2676,6 +2676,15 @@ internal sealed class CameraPlaceholderPanel : Panel
                 emptyGridIndex % 2 == 0 ? -1 : 1, 0, 0, emptyGridIndex < 2 ? -1 : 1,
                 emptyGridIndex % 2 == 0 ? Width : 0, emptyGridIndex < 2 ? Height : 0);
             outline.Transform(transform);
+            if (emptyGridIndex < 0)
+            {
+                outline.Reset();
+                outline.AddArc(inset, inset, 2 * radius, 2 * radius, 180, 90);
+                outline.AddArc(right - 2 * radius, inset, 2 * radius, 2 * radius, 270, 90);
+                outline.AddArc(right - 2 * radius, bottom - 2 * radius, 2 * radius, 2 * radius, 0, 90);
+                outline.AddArc(inset, bottom - 2 * radius, 2 * radius, 2 * radius, 90, 90);
+                outline.CloseFigure();
+            }
             using var pen = new Pen(Color.FromArgb(64, 64, 64), 2f * DeviceDpi / 96f);
             var smoothing = eventArgs.Graphics.SmoothingMode;
             eventArgs.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
