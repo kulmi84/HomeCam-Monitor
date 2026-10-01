@@ -1167,6 +1167,9 @@ internal sealed class MonitorForm : Form
 #endif
         if (!fullscreen) { windowedBounds = Bounds; fullscreen = true; Bounds = Screen.FromControl(this).Bounds; }
         else { fullscreen = false; Bounds = windowedBounds; }
+#if BETA
+        UpdateEmptyFieldBorderVisibility();
+#endif
         ApplyRoundedCorners(); PositionOverlays();
     }
 
@@ -1232,8 +1235,15 @@ internal sealed class MonitorForm : Form
         ];
     }
 
+    private void UpdateEmptyFieldBorderVisibility()
+    {
+        offlinePlaceholder.SuppressOuterBorder = fullscreen;
+        foreach (var slot in gridSlots) slot.Placeholder.SuppressOuterBorder = fullscreen;
+    }
+
     private void LayoutCameraGrid()
     {
+        UpdateEmptyFieldBorderVisibility();
         var bounds = GetCameraGridBounds(cameraGrid.ClientSize);
         for (var index = 0; index < gridSlots.Count; index++)
             gridSlots[index].Host.Bounds = bounds[index];
@@ -2626,6 +2636,12 @@ internal sealed class CameraPlaceholderPanel : Panel
     private bool showEmptyLogo;
     private bool showEmptyOuterBorder;
     private int emptyGridIndex = 3;
+    private bool suppressOuterBorder;
+    public bool SuppressOuterBorder
+    {
+        get => suppressOuterBorder;
+        set { if (suppressOuterBorder == value) return; suppressOuterBorder = value; Invalidate(); }
+    }
 
     public CameraPlaceholderPanel()
     {
@@ -2661,7 +2677,7 @@ internal sealed class CameraPlaceholderPanel : Panel
     protected override void OnPaint(PaintEventArgs eventArgs)
     {
         base.OnPaint(eventArgs);
-        if (empty && showEmptyOuterBorder && Width >= 20 && Height >= 20)
+        if (empty && showEmptyOuterBorder && !SuppressOuterBorder && Width >= 20 && Height >= 20)
         {
             // Mirror the outside corner to match this tile's position in the 2x2 grid.
             var inset = 2f * DeviceDpi / 96f;

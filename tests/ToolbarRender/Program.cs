@@ -60,6 +60,14 @@ internal static class Program
                 singleBorder.GetPixel(size.Width / 2, 2).R < 40 ||
                 singleBorder.GetPixel(size.Width / 2, size.Height - 2).R < 40)
                 throw new InvalidOperationException("Single empty field outside border is incomplete.");
+            placeholder.SuppressOuterBorder = true;
+            using var fullscreenEmpty = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(fullscreenEmpty, new Rectangle(Point.Empty, size));
+            for (var y = 0; y < size.Height; y++)
+                for (var x = 0; x < size.Width; x++)
+                    if (fullscreenEmpty.GetPixel(x, y).ToArgb() != Color.Black.ToArgb())
+                        throw new InvalidOperationException("Outside border is visible in fullscreen.");
+            placeholder.SuppressOuterBorder = false;
             for (var gridIndex = 0; gridIndex < 4; gridIndex++)
             {
                 placeholder.SetEmpty(false, true, gridIndex);
