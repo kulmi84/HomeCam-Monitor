@@ -163,6 +163,8 @@ internal sealed class MonitorForm : Form
     private readonly List<GridPlayerSlot> gridSlots = [];
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
     private CancellationTokenSource? refreshCancellation;
+    private CancellationTokenSource? initialPlayerReveal;
+    private CancellationTokenSource? initialGridReveal;
 #endif
     private Settings settings;
     private ToolbarForm? toolbar;
@@ -392,6 +394,12 @@ internal sealed class MonitorForm : Form
         Text = $"HomeCamMonitor for Homeassistant – {camera.Name}";
 #endif
         intentionalStop = false;
+#if BETA
+        // Keep mpv's native placeholder behind an opaque black surface until
+        // its first video frame is ready.
+        standbyVideo.Bounds = ClientRectangle;
+        standbyVideo.BringToFront();
+#endif
         var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe")) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
         foreach (var argument in new[]
         {
@@ -406,6 +414,13 @@ internal sealed class MonitorForm : Form
             player = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
             player.EnableRaisingEvents = true; player.Exited += PlayerExited;
 #if BETA
+            initialPlayerReveal?.Cancel();
+            initialPlayerReveal?.Dispose();
+            initialPlayerReveal = new CancellationTokenSource();
+            var startedPlayer = player;
+            _ = RevealWhenReadyAsync(startedPlayer, pipeName, initialPlayerReveal.Token,
+                () => ReferenceEquals(player, startedPlayer) && !gridMode,
+                () => video.BringToFront());
             if (TopMost && !sentToBackground)
 #endif
                 NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
@@ -427,6 +442,9 @@ internal sealed class MonitorForm : Form
     {
 #if BETA
         CancelSeamlessRefresh();
+        initialPlayerReveal?.Cancel();
+        initialPlayerReveal?.Dispose();
+        initialPlayerReveal = null;
 #endif
         intentionalStop = true; var current = player; player = null;
         if (current is null) return;
@@ -577,6 +595,26 @@ internal sealed class MonitorForm : Form
             catch { /* A failed replacement leaves this camera's original stream running. */ }
             finally { DisposePlayer(replacement); }
         }
+    }
+
+    private async Task RevealWhenReadyAsync(Process started, string ipcName,
+        CancellationToken cancellationToken, Func<bool> stillCurrent, Action reveal)
+    {
+        try
+        {
+            while (!closing && !started.HasExited && stillCurrent())
+            {
+                if (await WaitForFirstFrameAsync(started, ipcName, cancellationToken))
+                {
+                    if (!closing && !cancellationToken.IsCancellationRequested && stillCurrent())
+                        reveal();
+                    return;
+                }
+                await Task.Delay(1000, cancellationToken);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (InvalidOperationException) { }
     }
 
     private static async Task<bool> WaitForFirstFrameAsync(Process process, string ipcName,
@@ -1152,6 +1190,7 @@ internal sealed class MonitorForm : Form
     {
         if (closing || !gridMode) return;
         StopGridPlayers();
+        initialGridReveal = new CancellationTokenSource();
         var cameras = settings.Cameras
             .Select((camera, index) => (Camera: camera, Index: index))
             .Where(item => Uri.TryCreate(item.Camera.StreamUrl, UriKind.Absolute, out _))
@@ -1171,7 +1210,10 @@ internal sealed class MonitorForm : Form
             slot.CameraIndex = camera.Index;
             slot.Name.Text = camera.Camera.Name;
             slot.Name.Visible = settings.ShowGridCameraNames;
+            slot.SpareSurface.Bounds = slot.Host.ClientRectangle;
+            slot.SpareSurface.BringToFront();
             slot.ActiveSurface.CreateControl();
+            var gridPipeName = $"HomeCamMonitor-Grid-{Environment.ProcessId}-{Guid.NewGuid():N}";
             var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
             {
                 UseShellExecute = false,
@@ -1185,7 +1227,7 @@ internal sealed class MonitorForm : Form
                 "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
                 "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no",
                 "--keepaspect-window=no", "--panscan=1.0", "--keep-open=no",
-                camera.Camera.StreamUrl
+                "--input-ipc-server=" + @"\\.\pipe\" + gridPipeName, camera.Camera.StreamUrl
             }) start.ArgumentList.Add(argument);
 
             try
@@ -1193,7 +1235,17 @@ internal sealed class MonitorForm : Form
                 slot.Player = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
                 slot.Player.EnableRaisingEvents = true;
                 slot.Player.Exited += GridPlayerExited;
-                slot.Name.BringToFront();
+                var startedPlayer = slot.Player;
+                var currentIndex = camera.Index;
+                _ = RevealWhenReadyAsync(startedPlayer, gridPipeName, initialGridReveal.Token,
+                    () => gridMode && ReferenceEquals(slot.Player, startedPlayer) && slot.CameraIndex == currentIndex,
+                    () =>
+                    {
+                        slot.ActiveSurface.BringToFront();
+                        if (slot.Name.Visible) slot.Name.BringToFront();
+                        UpdateGridMotionBorders();
+                    });
+                if (slot.Name.Visible) slot.Name.BringToFront();
             }
             catch
             {
@@ -1207,6 +1259,9 @@ internal sealed class MonitorForm : Form
     private void StopGridPlayers()
     {
         CancelSeamlessRefresh();
+        initialGridReveal?.Cancel();
+        initialGridReveal?.Dispose();
+        initialGridReveal = null;
         intentionalGridStop = true;
         foreach (var slot in gridSlots)
         {
