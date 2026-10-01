@@ -129,6 +129,25 @@ internal static class Program
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
 
         using var monitor = new MonitorForm();
+        using (var drag = new DragSurfaceForm(monitor))
+        using (var grip = new ResizeGripForm(monitor, NativeMethods.HtRight, Cursors.SizeWE))
+        using (var hiddenToolbar = new ToolbarForm(monitor))
+        using (var indicator = new MotionIndicatorForm())
+        {
+            foreach (var window in new Form[] { monitor, drag, grip, hiddenToolbar, indicator })
+            {
+                window.HandleCreated += (_, _) =>
+                {
+                    var style = NativeMethods.GetWindowStyle(window.Handle, -16);
+                    if ((style & 0x00C40000) != 0 || (style & unchecked((int)0x80000000)) == 0)
+                        throw new InvalidOperationException($"{window.GetType().Name} acquired a native caption during creation.");
+                };
+                var handle = window.Handle;
+                var style = NativeMethods.GetWindowStyle(handle, -16);
+                if ((style & 0x00C40000) != 0)
+                    throw new InvalidOperationException($"Hidden {window.GetType().Name} has a native caption.");
+            }
+        }
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) &&
             (monitor.Region is not null || monitor.ClientSize != monitor.Size))
             throw new InvalidOperationException($"Rounded borderless window is inset: window {monitor.Size}, client {monitor.ClientSize}");
