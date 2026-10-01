@@ -321,12 +321,15 @@ internal sealed class MonitorForm : Form
             MessageBox.Show(this, "mpv.exe fehlt. Bitte den vollständigen Ordner aus dem GitHub-Artefakt entpacken.", "HomeCam Monitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Close(); return;
         }
-        dragSurface = new DragSurfaceForm(this); dragSurface.Show(this);
-        toolbar = new ToolbarForm(this);
+        // Set ownership and geometry before any overlay becomes visible.
+        // Showing an unpositioned layered form can flash its default window
+        // at the desktop origin before PositionOverlays runs.
+        dragSurface = new DragSurfaceForm(this) { Owner = this, Bounds = Bounds };
+        toolbar = new ToolbarForm(this) { Owner = this };
 #if BETA
         toolbar.SetSizePercent(GetToolbarSizePercent(settings, Width));
 #endif
-        toolbar.Show(this); CreateResizeGrips();
+        CreateResizeGrips();
 #if BETA
         cameraContextMenu = CreateCameraContextMenu();
         video.ContextMenuStrip = cameraContextMenu;
@@ -342,9 +345,7 @@ internal sealed class MonitorForm : Form
         dragSurface.ContextMenuStrip = cameraContextMenu;
         toolbar.ContextMenuStrip = cameraContextMenu;
         foreach (var resizeGrip in resizeGrips) resizeGrip.ContextMenuStrip = cameraContextMenu;
-        motionIndicator = new MotionIndicatorForm();
-        motionIndicator.Show(this);
-        motionIndicator.Hide();
+        motionIndicator = new MotionIndicatorForm { Owner = this };
 #endif
         if (!HasUsableCamera()) OpenSettings();
         if (closing) return;
@@ -352,7 +353,7 @@ internal sealed class MonitorForm : Form
         if (settings.StartBehavior == "Camera" && settings.Cameras.Count > 0)
             settings.SelectedCamera = Math.Clamp(settings.StartCameraIndex, 0, settings.Cameras.Count - 1);
 #endif
-        UpdateToolbar(); PositionOverlays(); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
+        UpdateToolbar(); PositionOverlays(); toolbar.Show(this); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
 #if BETA
         if ((settings.StartBehavior == "Grid" || settings.StartBehavior == "Last" && settings.LastGridMode) &&
             settings.Cameras.Count(camera => Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _)) >= 2)
@@ -1595,7 +1596,8 @@ internal sealed class MonitorForm : Form
         };
         foreach (var definition in definitions)
         {
-            var grip = new ResizeGripForm(this, definition.Hit, definition.Cursor); resizeGrips.Add(grip); grip.Show(this);
+            var grip = new ResizeGripForm(this, definition.Hit, definition.Cursor) { Owner = this };
+            resizeGrips.Add(grip);
         }
     }
 
@@ -2297,7 +2299,7 @@ internal sealed class MonitorForm : Form
 }
 
 #if BETA
-internal sealed class MotionIndicatorForm : Form
+internal sealed class MotionIndicatorForm : OverlayForm
 {
     private bool personDetected;
     public bool PersonDetected
@@ -2508,7 +2510,22 @@ internal sealed class HomeCamDarkColorTable : ProfessionalColorTable
 }
 #endif
 
-internal sealed class DragSurfaceForm : Form
+// Strip the native caption at handle creation as well as through
+// FormBorderStyle. Layered overlays must never acquire a temporary title area.
+internal abstract class OverlayForm : Form
+{
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            parameters.Style &= ~0x00C00000; // WS_CAPTION
+            return parameters;
+        }
+    }
+}
+
+internal sealed class DragSurfaceForm : OverlayForm
 {
     private Point mouseDownPosition;
     private bool dragPending;
@@ -2544,7 +2561,7 @@ internal sealed class DragSurfaceForm : Form
     }
 }
 
-internal sealed class ResizeGripForm : Form
+internal sealed class ResizeGripForm : OverlayForm
 {
     private bool resizing;
     private Rectangle startBounds;
@@ -2588,7 +2605,7 @@ internal sealed class ResizeGripForm : Form
     }
 }
 
-internal sealed class ToolbarForm : Form
+internal sealed class ToolbarForm : OverlayForm
 {
     private readonly Label name;
 #if BETA
