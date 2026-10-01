@@ -103,6 +103,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 ### Neu in 0.3.0 Beta 30
 
 - Das Rechtsklickmenü und seine Untermenüs verwenden unter Windows 11 geglättete Systemrundungen statt eines pixeligen Fensterausschnitts. Die Untermenü-Pfeile werden ebenfalls geglättet.
+- „Pause beenden“ im Untermenü schaltet nach „Bis manuell aktiviert“ die Bewegungserkennung wieder ein.
 
 ### Neu in 0.3.0 Beta 29
 
