@@ -1267,8 +1267,15 @@ internal sealed class MonitorForm : Form
         untilManual.Click += (_, _) => SetMotionDetectionEnabled(false);
         pause.DropDownItems.Add(untilManual);
         pause.DropDownItems.Add(new ToolStripSeparator());
-        var endPause = new ToolStripMenuItem("Pause beenden") { Enabled = paused };
-        endPause.Click += (_, _) => ClearMotionPause();
+        var endPause = new ToolStripMenuItem("Pause beenden")
+        {
+            Enabled = paused || !settings.MotionDetectionEnabled
+        };
+        endPause.Click += (_, _) =>
+        {
+            if (!settings.MotionDetectionEnabled) SetMotionDetectionEnabled(true);
+            else ClearMotionPause();
+        };
         pause.DropDownItems.Add(endPause);
         ConfigureContextMenuCorners(pause.DropDown);
         menu.Items.Add(pause);
