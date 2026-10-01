@@ -12,6 +12,16 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         var output = args.Length == 0 ? "toolbar-render" : args[0];
         Directory.CreateDirectory(output);
+        using (var videoHost = new Panel())
+        using (var nativeVideo = new Form { TopLevel = false, FormBorderStyle = FormBorderStyle.FixedSingle })
+        {
+            videoHost.Controls.Add(nativeVideo);
+            videoHost.CreateControl();
+            var nativeHandle = nativeVideo.Handle;
+            NativeMethods.PrepareVideoChildren(videoHost.Handle);
+            if ((NativeMethods.GetWindowStyle(nativeHandle, -16) & 0x00C40000) != 0)
+                throw new InvalidOperationException("Embedded video still has a native caption/border.");
+        }
         foreach (var size in new[] { new Size(160, 90), new Size(480, 270), new Size(1920, 1080) })
         {
             using var placeholder = new CameraPlaceholderPanel { Size = size };

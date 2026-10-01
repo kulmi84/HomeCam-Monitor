@@ -439,7 +439,7 @@ internal sealed class MonitorForm : Form
             var startedPlayer = player;
             _ = RevealWhenReadyAsync(startedPlayer, pipeName, initialPlayerReveal.Token,
                 () => ReferenceEquals(player, startedPlayer) && !gridMode,
-                () => { offlinePlaceholder.SetConnecting(); offlinePlaceholder.Hide(); video.Show(); video.BringToFront(); },
+                () => { NativeMethods.PrepareVideoChildren(video.Handle); video.Show(); video.BringToFront(); offlinePlaceholder.SetConnecting(); offlinePlaceholder.Hide(); },
                 () => { offlinePlaceholder.SetOffline(); RestartPlayer(); });
             if (TopMost && !sentToBackground)
 #endif
@@ -502,7 +502,13 @@ internal sealed class MonitorForm : Form
         CancelSeamlessRefresh();
         // Cover and paint before stopping mpv: stopping it can block the UI
         // briefly and otherwise exposes its native window during teardown.
+        offlinePlaceholder.Bounds = ClientRectangle;
+        if (HasUsableCamera()) offlinePlaceholder.Configure(settings.Cameras[settings.SelectedCamera].Name);
+        offlinePlaceholder.Show();
+        offlinePlaceholder.BringToFront();
+        offlinePlaceholder.Refresh();
         video.Hide();
+        standbyVideo.Hide();
         standbyVideo.BringToFront();
         standbyVideo.Refresh();
         if (offlinePlaceholder.Visible) offlinePlaceholder.BringToFront();
@@ -534,6 +540,7 @@ internal sealed class MonitorForm : Form
 
     private Process StartRefreshPlayer(Panel target, string streamUrl, string ipcName, bool grid)
     {
+        target.Hide();
         target.CreateControl();
         var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
         {
@@ -584,6 +591,7 @@ internal sealed class MonitorForm : Form
                 replacement.HasExited || cancellationToken.IsCancellationRequested || closing || gridMode ||
                 player != oldPlayer || settings.SelectedCamera != cameraIndex) return;
 
+            NativeMethods.PrepareVideoChildren(nextSurface.Handle);
             nextSurface.Show();
             nextSurface.BringToFront();
             video = nextSurface;
@@ -624,8 +632,9 @@ internal sealed class MonitorForm : Form
                     replacement.HasExited || cancellationToken.IsCancellationRequested || closing || !gridMode ||
                     slot.Player != oldPlayer || slot.CameraIndex != cameraIndex) continue;
 
+                NativeMethods.PrepareVideoChildren(nextSurface.Handle);
                 nextSurface.Show();
-            nextSurface.BringToFront();
+                nextSurface.BringToFront();
                 slot.ActiveSurface = nextSurface;
                 slot.SpareSurface = oldSurface;
                 slot.Player = replacement;
@@ -1360,6 +1369,7 @@ internal sealed class MonitorForm : Form
                     () =>
                     {
                         slot.Placeholder.SetConnecting();
+                        NativeMethods.PrepareVideoChildren(slot.ActiveSurface.Handle);
                         slot.ActiveSurface.Show();
                         slot.Placeholder.Hide();
                         slot.ActiveSurface.BringToFront();
@@ -3127,6 +3137,27 @@ internal static class NativeMethods
         DwmSetWindowAttribute(window, DwmWindowAttribute.BorderColor, ref noBorder, sizeof(int));
     }
 #if BETA
+    private delegate bool ChildWindowCallback(IntPtr window, IntPtr parameter);
+    [DllImport("user32.dll")] private static extern bool EnumChildWindows(IntPtr parent, ChildWindowCallback callback, IntPtr parameter);
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongW")] internal static extern int GetWindowStyle(IntPtr window, int index);
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongW")] private static extern int SetWindowStyle(IntPtr window, int index, int value);
+    internal static void PrepareVideoChildren(IntPtr parent)
+    {
+        // mpv owns these HWNDs, not WinForms. Remove native caption/border before
+        // revealing their hidden parent, including the very first camera switch.
+        EnumChildWindows(parent, (window, _) =>
+        {
+            const int styleIndex = -16;
+            var style = GetWindowStyle(window, styleIndex);
+            SetWindowStyle(window, styleIndex, style & ~0x00C40000);
+            DisableOverlayDecoration(window);
+            var dark = 1;
+            DwmSetWindowAttribute(window, (int)DwmWindowAttribute.UseImmersiveDarkMode, ref dark, sizeof(int));
+            SetWindowPos(window, IntPtr.Zero, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate | 0x0004 | 0x0020);
+            return true;
+        }, IntPtr.Zero);
+    }
+
     public static void DisableOverlayDecoration(IntPtr window)
     {
         DisableDwmBorder(window);
