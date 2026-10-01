@@ -404,6 +404,8 @@ internal sealed class MonitorForm : Form
         // its first video frame is ready.
         standbyVideo.Bounds = ClientRectangle;
         standbyVideo.BringToFront();
+        video.Hide();
+        standbyVideo.Refresh();
 #endif
         var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe")) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
         foreach (var argument in new[]
@@ -425,7 +427,7 @@ internal sealed class MonitorForm : Form
             var startedPlayer = player;
             _ = RevealWhenReadyAsync(startedPlayer, pipeName, initialPlayerReveal.Token,
                 () => ReferenceEquals(player, startedPlayer) && !gridMode,
-                () => video.BringToFront());
+                () => { video.Show(); video.BringToFront(); });
             if (TopMost && !sentToBackground)
 #endif
                 NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
@@ -471,6 +473,11 @@ internal sealed class MonitorForm : Form
 #endif
 #if BETA
         CancelSeamlessRefresh();
+        // Cover and paint before stopping mpv: stopping it can block the UI
+        // briefly and otherwise exposes its native window during teardown.
+        video.Hide();
+        standbyVideo.BringToFront();
+        standbyVideo.Refresh();
 #endif
         StopPlayer(); video.Invalidate(); restartTimer.Stop(); restartTimer.Start();
     }
@@ -842,6 +849,19 @@ internal sealed class MonitorForm : Form
         Settings? changedSettings = null;
         // Build and theme the dialog while the camera and toolbar remain visible.
         using var dialog = new SettingsForm(settings);
+#if BETA
+        // Resolve CenterParent ourselves before the dialog has a visible
+        // native window, then keep Windows from animating it out of the owner.
+        dialog.StartPosition = FormStartPosition.Manual;
+        var dialogArea = Screen.FromControl(this).WorkingArea;
+        dialog.Location = new Point(
+            Math.Clamp(Left + (Width - dialog.Width) / 2, dialogArea.Left,
+                Math.Max(dialogArea.Left, dialogArea.Right - dialog.Width)),
+            Math.Clamp(Top + (Height - dialog.Height) / 2, dialogArea.Top,
+                Math.Max(dialogArea.Top, dialogArea.Bottom - dialog.Height)));
+        var disableTransitions = 1;
+        NativeMethods.DwmSetWindowAttribute(dialog.Handle, 3, ref disableTransitions, sizeof(int));
+#endif
         suppressToolbar = true;
         toolbar?.Hide();
         dragSurface?.Hide();
