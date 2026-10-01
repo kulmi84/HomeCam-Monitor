@@ -98,7 +98,11 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.30`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.31`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 31
+
+- Haupt- und Untermenüs erhalten den für geglättete Windows-11-Rundungen nötigen Fensterstil; die halbtransparente Popup-Ebene entfällt. Der Inhalt bleibt bis an den Rand des Menüs nutzbar.
 
 ### Neu in 0.3.0 Beta 30
 
