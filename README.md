@@ -98,7 +98,13 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.28`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.3.0-beta.29`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.3.0 Beta 29
+
+- Rechtsklickmenü: „Bewegungsaktionen pausieren“ für 15 Minuten, 30 Minuten oder eine Stunde. Sensorereignisse und Aktivitätssymbole bleiben aktiv; Kamerawechsel, Vordergrundreaktion und automatische Snapshots/Aufnahmen pausieren.
+- „Bis manuell aktiviert“ schaltet den vorhandenen globalen Schalter „Bewegungserkennung aktiv“ aus. Er wird im Menü oder in den Einstellungen wieder eingeschaltet.
+- Zeitpausen bleiben nach einem Neustart bis zu ihrem Ablauf erhalten und können im Menü vorzeitig beendet werden.
 
 ### Neu in 0.3.0 Beta 28
 
