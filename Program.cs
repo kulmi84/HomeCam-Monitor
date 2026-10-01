@@ -29,6 +29,8 @@ internal sealed class Settings
     public int Width { get; set; } = 480;
     public int Height { get; set; } = 270;
 #if BETA
+    // Temporary BETA diagnostics; remove this option and its UI for v1.0.0.
+    public bool BetaWindowLoggingEnabled { get; set; }
     public string LastMonitorDeviceName { get; set; } = "";
     public int MonitorOffsetX { get; set; }
     public int MonitorOffsetY { get; set; }
@@ -132,7 +134,7 @@ internal sealed class MonitorForm : Form
     {
         base.OnHandleCreated(eventArgs);
         windowDiagnostics?.Dispose();
-        windowDiagnostics = new NativeWindowDiagnostics(Handle);
+        windowDiagnostics = settings.BetaWindowLoggingEnabled ? new NativeWindowDiagnostics(Handle) : null;
     }
 
     protected override bool ShowWithoutActivation => true;
@@ -1014,6 +1016,13 @@ internal sealed class MonitorForm : Form
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
 #if BETA
         settings.LastGridMode = gridMode;
+        if (settings.BetaWindowLoggingEnabled && windowDiagnostics is null)
+            windowDiagnostics = new NativeWindowDiagnostics(Handle);
+        else if (!settings.BetaWindowLoggingEnabled && windowDiagnostics is not null)
+        {
+            windowDiagnostics.Mark("logging disabled in settings");
+            windowDiagnostics.Dispose(); windowDiagnostics = null;
+        }
         var streamsChanged = previousSettings.SelectedCamera != settings.SelectedCamera ||
             previousSettings.Cameras.Count != settings.Cameras.Count ||
             previousSettings.Cameras.Where((camera, index) =>
@@ -3516,7 +3525,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 7 };
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 };
         table.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -3634,7 +3643,15 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(homeAssistantGroup, 0, 4);
 #endif
 #if BETA
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 5);
+        // Temporary BETA section: remove before v1.0.0.
+        var betaLogging = new CheckBox { Name = "BetaWindowLogging", Text = "Fensterprotokollierung aktivieren", AutoSize = true, Checked = current.BetaWindowLoggingEnabled };
+        var betaFields = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false };
+        betaFields.Controls.Add(betaLogging);
+        betaFields.Controls.Add(new Label { Text = "Zur Fehlersuche bei Darstellungsproblemen. Änderungen gelten nach dem Speichern.", AutoSize = true });
+        var betaGroup = new GroupBox { Name = "BetaDiagnostics", Text = "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) };
+        betaGroup.Controls.Add(betaFields);
+        table.Controls.Add(betaGroup, 0, 5);
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 6);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -3646,7 +3663,7 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 6);
+        table.Controls.Add(buttons, 0, 7);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
@@ -3720,6 +3737,7 @@ internal sealed class SettingsForm : Form
                 AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked,
                 Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
 #if BETA
+                BetaWindowLoggingEnabled = betaLogging.Checked,
                 LastMonitorDeviceName = current.LastMonitorDeviceName,
                 MonitorOffsetX = current.MonitorOffsetX, MonitorOffsetY = current.MonitorOffsetY,
                 LastGridMode = current.LastGridMode,
