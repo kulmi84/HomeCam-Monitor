@@ -373,6 +373,13 @@ internal sealed class MonitorForm : Form
     {
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
+        // Remove all visible windows before shutting down native video windows.
+        // mpv teardown can otherwise briefly expose unpainted surfaces.
+        toolbar?.Hide();
+        dragSurface?.Hide();
+        motionIndicator?.Hide();
+        foreach (var grip in resizeGrips) grip.Hide();
+        Hide();
         CancelSeamlessRefresh();
         StopRecordingForClose();
         foreach (var capture in motionProcesses.ToArray())
@@ -2783,12 +2790,26 @@ internal sealed class ToolbarForm : OverlayForm
         InitialDelay = 450,
         ReshowDelay = 100,
         AutoPopDelay = 5000,
-        ShowAlways = true
+        ShowAlways = true,
+        OwnerDraw = true,
+        BackColor = Color.FromArgb(28, 28, 31),
+        ForeColor = Color.White
     };
     protected override bool ShowWithoutActivation => true;
     public string CameraName { set => name.Text = value; }
     public ToolbarForm(MonitorForm monitor)
     {
+        toolTips.Draw += (_, eventArgs) =>
+        {
+            using var background = new SolidBrush(Color.FromArgb(28, 28, 31));
+            using var outline = new Pen(Color.FromArgb(70, 70, 78));
+            eventArgs.Graphics.FillRectangle(background, eventArgs.Bounds);
+            eventArgs.Graphics.DrawRectangle(outline, 0, 0,
+                eventArgs.Bounds.Width - 1, eventArgs.Bounds.Height - 1);
+            TextRenderer.DrawText(eventArgs.Graphics, eventArgs.ToolTipText, eventArgs.Font,
+                Rectangle.Inflate(eventArgs.Bounds, -3, -1), Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+        };
         FormBorderStyle = FormBorderStyle.None; ShowInTaskbar = false; BackColor = Color.FromArgb(20, 20, 20); Opacity = 0.78;
 #if BETA
         // The toolbar has its own pixel-based layout. WinForms font autoscaling
@@ -2906,7 +2927,7 @@ internal sealed class ToolbarForm : OverlayForm
 
     protected override void SetVisibleCore(bool value)
     {
-        if (value && !Visible && !firstPresentationComplete)
+        if (value && !Visible)
         {
             // Creating handles alone does not paint a layered window. Keep
             // its first presentation transparent until the form and every
@@ -2922,7 +2943,6 @@ internal sealed class ToolbarForm : OverlayForm
                 Refresh();
                 foreach (Control control in Controls)
                     if (control.Visible) control.Refresh();
-                firstPresentationComplete = true;
             }
             finally { Opacity = targetOpacity; }
             return;
@@ -2930,12 +2950,9 @@ internal sealed class ToolbarForm : OverlayForm
         base.SetVisibleCore(value);
     }
 
-    private bool firstPresentationComplete;
-
     protected override void OnHandleCreated(EventArgs eventArgs)
     {
         base.OnHandleCreated(eventArgs);
-        firstPresentationComplete = false;
         var darkMode = 1;
         NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.UseImmersiveDarkMode,
             ref darkMode, sizeof(int));
