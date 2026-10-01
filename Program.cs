@@ -37,6 +37,7 @@ internal sealed class Settings
     public bool LastGridMode { get; set; }
     public int ToolbarSizePercent { get; set; } = 100;
     public bool AutoScaleToolbar { get; set; }
+    public bool ShowGridCameraNames { get; set; } = true;
     public bool MotionDetectionEnabled { get; set; } = true;
     public DateTime? MotionActionsPausedUntilUtc { get; set; }
     public int MotionForegroundSeconds { get; set; } = 10;
@@ -381,7 +382,7 @@ internal sealed class MonitorForm : Form
         foreach (var argument in new[]
         {
             $"--wid={video.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
-            "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
+            "--no-border", "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
             "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
             "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no", "--window-dragging=yes", "--keep-open=no",
             $"--input-ipc-server=\\\\.\\pipe\\{pipeName}", camera.StreamUrl
@@ -469,7 +470,7 @@ internal sealed class MonitorForm : Form
         var arguments = new List<string>
         {
             $"--wid={target.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
-            "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
+            "--no-border", "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
             "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
             "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no"
         };
@@ -1123,7 +1124,7 @@ internal sealed class MonitorForm : Form
             var camera = cameras[index];
             slot.CameraIndex = camera.Index;
             slot.Name.Text = camera.Camera.Name;
-            slot.Name.Visible = true;
+            slot.Name.Visible = settings.ShowGridCameraNames;
             slot.ActiveSurface.CreateControl();
             var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
             {
@@ -1134,7 +1135,7 @@ internal sealed class MonitorForm : Form
             foreach (var argument in new[]
             {
                 $"--wid={slot.ActiveSurface.Handle.ToInt64()}", "--no-terminal", "--really-quiet", "--no-audio", "--no-osc",
-                "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
+                "--no-border", "--profile=low-latency", "--cache=no", "--demuxer-lavf-o=rtsp_transport=tcp",
                 "--hwdec=auto-safe", "--vo=gpu-next", "--gpu-api=d3d11", "--scale=ewa_lanczossharp",
                 "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no",
                 "--keepaspect-window=no", "--panscan=1.0", "--keep-open=no",
@@ -2768,6 +2769,7 @@ internal sealed class SettingsForm : Form
     private readonly ComboBox startCamera = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
     private readonly NumericUpDown toolbarSize = new() { Minimum = 50, Maximum = 100, Increment = 5, Width = 60 };
     private readonly CheckBox autoScaleToolbar = new() { Text = "Bedienleiste automatisch skalieren", AutoSize = true };
+    private readonly CheckBox showGridCameraNames = new() { Text = "Kameranamen im 4er-Raster anzeigen", AutoSize = true };
     private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
     private readonly CheckBox restorePreviousCamera = new() { Text = "Vorherige Kamera wiederherstellen", AutoSize = true };
@@ -2847,6 +2849,7 @@ internal sealed class SettingsForm : Form
             startCamera.SelectedIndex = Math.Clamp(current.StartCameraIndex, 0, startCamera.Items.Count - 1);
         toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 50, 100);
         autoScaleToolbar.Checked = current.AutoScaleToolbar;
+        showGridCameraNames.Checked = current.ShowGridCameraNames;
         toolbarSize.Enabled = !autoScaleToolbar.Checked;
         autoScaleToolbar.CheckedChanged += (_, _) => toolbarSize.Enabled = !autoScaleToolbar.Checked;
         motionDetection.Checked = current.MotionDetectionEnabled;
@@ -2963,6 +2966,7 @@ internal sealed class SettingsForm : Form
         toolbarOptions.Controls.Add(toolbarSize);
         toolbarOptions.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(autoScaleToolbar);
+        toolbarOptions.Controls.Add(showGridCameraNames);
         options.Controls.Add(toolbarOptions, 0, 1);
 #else
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
@@ -3146,6 +3150,7 @@ internal sealed class SettingsForm : Form
                 StartCameraIndex = Math.Max(0, startCamera.SelectedIndex),
                 ToolbarSizePercent = (int)toolbarSize.Value,
                 AutoScaleToolbar = autoScaleToolbar.Checked,
+                ShowGridCameraNames = showGridCameraNames.Checked,
                 MotionDetectionEnabled = motionDetection.Checked,
                 MotionActionsPausedUntilUtc = current.MotionActionsPausedUntilUtc,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
