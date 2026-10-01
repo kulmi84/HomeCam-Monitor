@@ -353,7 +353,11 @@ internal sealed class MonitorForm : Form
         if (settings.StartBehavior == "Camera" && settings.Cameras.Count > 0)
             settings.SelectedCamera = Math.Clamp(settings.StartCameraIndex, 0, settings.Cameras.Count - 1);
 #endif
-        UpdateToolbar(); PositionOverlays(); toolbar.Show(this); StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
+        UpdateToolbar(); PositionOverlays();
+#if !BETA
+        toolbar.Show(this);
+#endif
+        StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
 #if BETA
         if ((settings.StartBehavior == "Grid" || settings.StartBehavior == "Last" && settings.LastGridMode) &&
             settings.Cameras.Count(camera => Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _)) >= 2)
@@ -2744,13 +2748,18 @@ internal sealed class ToolbarForm : OverlayForm
         Invalidate(true);
     }
 
-    protected override void OnShown(EventArgs eventArgs)
+    protected override void SetVisibleCore(bool value)
     {
-        base.OnShown(eventArgs);
-        // WinForms applies a minimum form height during the first Show().
-        // Reapply the requested size once the native window exists so the
-        // background and the scaled controls have the same height on startup.
-        SetSizePercent(sizePercent, force: true);
+        if (value && !Visible)
+        {
+            // Create and size the layered window while it is still hidden.
+            // Resizing in OnShown is too late: Windows may already have
+            // composed one frame with its initial, taller window bounds.
+            _ = Handle;
+            SetSizePercent(sizePercent, force: true);
+            foreach (Control control in Controls) _ = control.Handle;
+        }
+        base.SetVisibleCore(value);
     }
 
     protected override void OnHandleCreated(EventArgs eventArgs)
