@@ -38,6 +38,7 @@ internal sealed class Settings
     public int ToolbarSizePercent { get; set; } = 100;
     public bool AutoScaleToolbar { get; set; }
     public bool MotionDetectionEnabled { get; set; } = true;
+    public DateTime? MotionActionsPausedUntilUtc { get; set; }
     public int MotionForegroundSeconds { get; set; } = 10;
     public int MotionIndicatorSeconds { get; set; } = 2;
     public bool HighlightMotionInGrid { get; set; }
@@ -187,6 +188,7 @@ internal sealed class MonitorForm : Form
     private CancellationTokenSource motionCancellation = new();
     private readonly System.Windows.Forms.Timer motionRestoreTimer = new();
     private readonly System.Windows.Forms.Timer motionIndicatorTimer = new();
+    private readonly System.Windows.Forms.Timer motionPauseTimer = new();
     private TcpListener? motionListener;
     private ClientWebSocket? homeAssistantSocket;
     private IntPtr previousForegroundWindow;
@@ -283,6 +285,8 @@ internal sealed class MonitorForm : Form
         motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
         motionIndicatorTimer.Interval = Math.Clamp(settings.MotionIndicatorSeconds, 1, 10) * 1000;
         motionIndicatorTimer.Tick += (_, _) => HideMotionIndicator();
+        motionPauseTimer.Tick += (_, _) => ScheduleMotionPauseExpiry();
+        ScheduleMotionPauseExpiry();
         cameraLayoutTimer.Tick += (_, _) =>
         {
             cameraLayoutTimer.Stop();
@@ -351,7 +355,7 @@ internal sealed class MonitorForm : Form
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
-        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
+        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionPauseTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
@@ -804,6 +808,10 @@ internal sealed class MonitorForm : Form
         }
 
         if (changedSettings is null) return;
+#if BETA
+        if (changedSettings.MotionDetectionEnabled != settings.MotionDetectionEnabled)
+            changedSettings.MotionActionsPausedUntilUtc = null;
+#endif
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
 #if BETA
         settings.LastGridMode = gridMode;
@@ -811,6 +819,7 @@ internal sealed class MonitorForm : Form
         SettingsStore.Save(settings); ConfigureAutostart(settings.StartWithWindows);
         UpdateToolbar(); PositionOverlays(); RestartPlayer();
 #if BETA
+        ScheduleMotionPauseExpiry();
         RestartMotionIntegration();
 #endif
     }
@@ -1220,6 +1229,29 @@ internal sealed class MonitorForm : Form
         };
         motionEnabled.Click += (_, _) => SetMotionDetectionEnabled(motionEnabled.Checked);
         menu.Items.Add(motionEnabled);
+
+        var paused = MotionActionsArePaused();
+        var pause = new ToolStripMenuItem(paused
+            ? $"Bewegungsaktionen pausiert bis {settings.MotionActionsPausedUntilUtc!.Value.ToLocalTime():HH:mm}"
+            : "Bewegungsaktionen pausieren");
+        foreach (var (label, minutes) in new[] { ("15 Minuten", 15), ("30 Minuten", 30), ("1 Stunde", 60) })
+        {
+            var item = new ToolStripMenuItem(label) { Enabled = settings.MotionDetectionEnabled };
+            item.Click += (_, _) => PauseMotionActions(TimeSpan.FromMinutes(minutes));
+            pause.DropDownItems.Add(item);
+        }
+        var untilManual = new ToolStripMenuItem("Bis manuell aktiviert")
+        {
+            Checked = !settings.MotionDetectionEnabled,
+            Enabled = settings.MotionDetectionEnabled
+        };
+        untilManual.Click += (_, _) => SetMotionDetectionEnabled(false);
+        pause.DropDownItems.Add(untilManual);
+        pause.DropDownItems.Add(new ToolStripSeparator());
+        var endPause = new ToolStripMenuItem("Pause beenden") { Enabled = paused };
+        endPause.Click += (_, _) => ClearMotionPause();
+        pause.DropDownItems.Add(endPause);
+        menu.Items.Add(pause);
         menu.Items.Add(new ToolStripSeparator());
 
         var duration = new ToolStripMenuItem($"Vordergrunddauer: {settings.MotionForegroundSeconds} Sekunden")
@@ -1268,11 +1300,47 @@ internal sealed class MonitorForm : Form
     private void SetMotionDetectionEnabled(bool enabled)
     {
         settings.MotionDetectionEnabled = enabled;
+        settings.MotionActionsPausedUntilUtc = null;
+        motionPauseTimer.Stop();
         motionRestoreTimer.Stop();
         cameraBeforeMotion = null;
         previousForegroundWindow = IntPtr.Zero;
         SettingsStore.Save(settings);
         RestartMotionIntegration();
+    }
+
+    private bool MotionActionsArePaused()
+    {
+        if (!settings.MotionDetectionEnabled || settings.MotionActionsPausedUntilUtc is null) return false;
+        if (settings.MotionActionsPausedUntilUtc.Value > DateTime.UtcNow) return true;
+        ClearMotionPause();
+        return false;
+    }
+
+    private void PauseMotionActions(TimeSpan duration)
+    {
+        if (!settings.MotionDetectionEnabled) return;
+        settings.MotionActionsPausedUntilUtc = DateTime.UtcNow.Add(duration);
+        SettingsStore.Save(settings);
+        ScheduleMotionPauseExpiry();
+    }
+
+    private void ClearMotionPause()
+    {
+        motionPauseTimer.Stop();
+        if (settings.MotionActionsPausedUntilUtc is null) return;
+        settings.MotionActionsPausedUntilUtc = null;
+        SettingsStore.Save(settings);
+    }
+
+    private void ScheduleMotionPauseExpiry()
+    {
+        motionPauseTimer.Stop();
+        if (settings.MotionActionsPausedUntilUtc is not DateTime until) return;
+        var remaining = until - DateTime.UtcNow;
+        if (remaining <= TimeSpan.Zero) { ClearMotionPause(); return; }
+        motionPauseTimer.Interval = (int)Math.Clamp(Math.Ceiling(remaining.TotalMilliseconds), 1, int.MaxValue);
+        motionPauseTimer.Start();
     }
 
     internal void SendToBackground()
@@ -1733,6 +1801,7 @@ internal sealed class MonitorForm : Form
         if (!settings.MotionDetectionEnabled) return;
         ShowMotionIndicator(cameraIndex: settings.Cameras.FindIndex(camera =>
             string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase)));
+        if (MotionActionsArePaused()) return;
         var motionCamera = settings.Cameras.FirstOrDefault(camera =>
             camera.MotionEnabled && string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (motionCamera is not null) StartMotionCapture(motionCamera);
@@ -1770,6 +1839,7 @@ internal sealed class MonitorForm : Form
             string.Equals(item.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (camera is null) return;
         ShowMotionIndicator(personDetected: true);
+        if (MotionActionsArePaused()) return;
         StartMotionCapture(camera, personDetected: true);
     }
 
@@ -2989,6 +3059,7 @@ internal sealed class SettingsForm : Form
                 ToolbarSizePercent = (int)toolbarSize.Value,
                 AutoScaleToolbar = autoScaleToolbar.Checked,
                 MotionDetectionEnabled = motionDetection.Checked,
+                MotionActionsPausedUntilUtc = current.MotionActionsPausedUntilUtc,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
                 MotionIndicatorSeconds = (int)indicatorSeconds.Value,
                 HighlightMotionInGrid = highlightMotionInGrid.Checked,
