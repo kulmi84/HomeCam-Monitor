@@ -22,6 +22,10 @@ internal static class Program
             if ((NativeMethods.GetWindowStyle(nativeHandle, -16) & 0x00C40000) != 0)
                 throw new InvalidOperationException("Embedded video still has a native caption/border.");
         }
+        var progress = new PlaybackProgress();
+        if (progress.Observe(1) || progress.Observe(1) || !progress.Observe(2) ||
+            progress.Observe(double.NaN) || progress.Observe(2) || !progress.Observe(0))
+            throw new InvalidOperationException("Playback progress incorrectly accepts stalled/invalid timestamps.");
         foreach (var size in new[] { new Size(160, 90), new Size(480, 270), new Size(1920, 1080) })
         {
             using var placeholder = new CameraPlaceholderPanel { Size = size };

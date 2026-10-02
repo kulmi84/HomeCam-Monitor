@@ -368,6 +368,7 @@ internal sealed class MonitorForm : Form
             slot.ActiveSurface.ContextMenuStrip = cameraContextMenu;
             slot.SpareSurface.ContextMenuStrip = cameraContextMenu;
             slot.Name.ContextMenuStrip = cameraContextMenu;
+            slot.Placeholder.ContextMenuStrip = cameraContextMenu;
         }
         dragSurface.ContextMenuStrip = cameraContextMenu;
         toolbar.ContextMenuStrip = cameraContextMenu;
@@ -732,22 +733,15 @@ internal sealed class MonitorForm : Form
         // A running process is not proof of a live stream: RTSP can stall indefinitely.
         try
         {
-            while (!closing && !token.IsCancellationRequested && stillCurrent() && !process.HasExited)
-            {
-                if (!await WaitForFirstFrameAsync(process, ipcName, token))
-                {
-                    if (!closing && !token.IsCancellationRequested && stillCurrent()) unavailable?.Invoke();
-                    return;
-                }
-                await Task.Delay(2000, token);
-            }
+            if (!await WaitForFirstFrameAsync(process, ipcName, token, monitorContinuously: true) &&
+                !closing && !token.IsCancellationRequested && stillCurrent()) unavailable?.Invoke();
         }
         catch (OperationCanceledException) { }
         catch (InvalidOperationException) { }
     }
 
     private static async Task<bool> WaitForFirstFrameAsync(Process process, string ipcName,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, bool monitorContinuously = false)
     {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromSeconds(12));
@@ -766,7 +760,7 @@ internal sealed class MonitorForm : Form
             {
                 command = new object[] { "observe_property", 1, "time-pos" }, request_id = 1
             }));
-            double? previousPosition = null;
+            var progress = new PlaybackProgress();
             while (!process.HasExited)
             {
                 var line = await reader.ReadLineAsync(timeout.Token);
@@ -780,8 +774,11 @@ internal sealed class MonitorForm : Form
                         property.GetString() == "time-pos" && root.TryGetProperty("data", out var position) &&
                         position.ValueKind == JsonValueKind.Number && position.TryGetDouble(out var value))
                     {
-                        if (previousPosition.HasValue && Math.Abs(value - previousPosition.Value) > 0.001) return true;
-                        previousPosition = value;
+                        if (progress.Observe(value))
+                        {
+                            if (!monitorContinuously) return true;
+                            timeout.CancelAfter(TimeSpan.FromSeconds(12));
+                        }
                     }
                     if (name is "end-file" or "shutdown") return false;
                 }
@@ -1546,9 +1543,41 @@ internal sealed class MonitorForm : Form
         NativeMethods.DeleteObject(shape);
     }
 
+    private void ReconnectCurrentStream(int? gridSlotIndex)
+    {
+        if (closing) return;
+        if (!gridMode) { if (HasUsableCamera()) RestartPlayer(); return; }
+        if (!gridSlotIndex.HasValue || gridSlotIndex.Value < 0 || gridSlotIndex.Value >= gridSlots.Count) return;
+        var slot = gridSlots[gridSlotIndex.Value];
+        if (slot.CameraIndex < 0) return;
+        CancelSeamlessRefresh();
+        var oldPlayer = slot.Player;
+        slot.Player = null;
+        slot.ActiveSurface.Hide(); slot.SpareSurface.Hide();
+        slot.Placeholder.SetConnecting(); slot.Placeholder.Show(); slot.Placeholder.BringToFront();
+        slot.Placeholder.Refresh();
+        DisposePlayer(oldPlayer, GridPlayerExited);
+        StartGridPlayers();
+    }
+
     private void PopulateCameraContextMenu(ContextMenuStrip menu)
     {
         menu.Items.Clear();
+        int? targetSlot = null;
+        if (gridMode)
+        {
+            var pointer = Cursor.Position;
+            for (var index = 0; index < gridSlots.Count; index++)
+                if (gridSlots[index].Host.RectangleToScreen(gridSlots[index].Host.ClientRectangle).Contains(pointer))
+                    targetSlot = index;
+        }
+        var reconnect = new ToolStripMenuItem("Aktuellen Stream neu verbinden")
+        {
+            Enabled = gridMode ? targetSlot.HasValue && gridSlots[targetSlot.Value].CameraIndex >= 0 : HasUsableCamera()
+        };
+        reconnect.Click += (_, _) => ReconnectCurrentStream(targetSlot);
+        menu.Items.Add(reconnect);
+        menu.Items.Add(new ToolStripSeparator());
         var alwaysOnTop = new ToolStripMenuItem("Immer im Vordergrund")
         {
             Checked = settings.AlwaysOnTop,
@@ -2624,6 +2653,18 @@ internal sealed class NativeWindowDiagnostics : IDisposable
     public void Dispose()
     {
         lock (sync) { disposed = true; timer.Dispose(); }
+    }
+}
+
+internal sealed class PlaybackProgress
+{
+    private double? previous;
+    internal bool Observe(double position)
+    {
+        if (!double.IsFinite(position)) return false;
+        var advanced = previous.HasValue && Math.Abs(position - previous.Value) > 0.001;
+        previous = position;
+        return advanced;
     }
 }
 
