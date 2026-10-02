@@ -51,6 +51,8 @@ internal static class BetaInstaller
             string previous = key == null ? null : key.GetValue("InstallDirectory") as string;
             if (!String.IsNullOrWhiteSpace(previous)) return previous;
         }
+        const string legacy = @"C:\github_mk\HomeCamMonitor-Beta";
+        if (File.Exists(Path.Combine(legacy, Executable))) return legacy;
         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "HomeCamMonitor-Beta");
     }
 
