@@ -290,6 +290,11 @@ internal static class Program
         });
         settingsForm.Show();
         Application.DoEvents();
+        using (var settingsImage = new Bitmap(settingsForm.Width, settingsForm.Height))
+        {
+            settingsForm.DrawToBitmap(settingsImage, new Rectangle(Point.Empty, settingsImage.Size));
+            settingsImage.Save(Path.Combine(output, "settings.png"));
+        }
         var cameraTable = AllControls(settingsForm).OfType<DataGridView>().Single();
         if (Convert.ToBoolean(cameraTable.Rows[0].Cells["MotionEnabled"].Value) ||
             !Convert.ToBoolean(cameraTable.Rows[0].Cells["PersonEnabled"].Value))
