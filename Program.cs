@@ -3777,8 +3777,8 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(options, 0, 2);
 #endif
 #if BETA
-        var snapshotPreRoll = new ComboBox { Name = "SnapshotPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 110 };
-        var videoPreRoll = new ComboBox { Name = "VideoPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 110 };
+        var snapshotPreRoll = new ComboBox { Name = "SnapshotPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
+        var videoPreRoll = new ComboBox { Name = "VideoPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
         var preRollValues = new[] { 0, 1, 3, 5 };
         snapshotPreRoll.Items.AddRange(["Aus", "1 Sekunde", "3 Sekunden", "5 Sekunden"]);
         videoPreRoll.Items.AddRange(["Aus", "1 Sekunde", "3 Sekunden", "5 Sekunden"]);
