@@ -27,12 +27,18 @@ internal static class BetaInstaller
         try
         {
             if (args.Length == 1 && args[0] == "--verify-setup") { Verify(); return 0; }
+            if (args.Length == 2 && args[0] == "--install-files") { Install(args[1]); return 0; }
             Application.Run(new SetupForm());
             return 0;
         }
         catch (Exception exception)
         {
-            if (args.Length > 0) { Console.Error.WriteLine(exception); return 1; }
+            if (args.Length > 0)
+            {
+                if (args[0] == "--install-files") MessageBox.Show(exception.Message, "HomeCamMonitor Beta Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else Console.Error.WriteLine(exception);
+                return 1;
+            }
             MessageBox.Show(exception.Message, "HomeCamMonitor Beta Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }
@@ -45,9 +51,7 @@ internal static class BetaInstaller
             string previous = key == null ? null : key.GetValue("InstallDirectory") as string;
             if (!String.IsNullOrWhiteSpace(previous)) return previous;
         }
-        const string legacy = @"C:\github_mk\HomeCamMonitor-Beta";
-        if (File.Exists(Path.Combine(legacy, Executable))) return legacy;
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "HomeCamMonitor-Beta");
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "HomeCamMonitor-Beta");
     }
 
     internal static string NormalizeDirectory(string directory)
@@ -58,6 +62,34 @@ internal static class BetaInstaller
         if (String.Equals(full, Path.GetPathRoot(full).TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("Bitte einen Programmordner wählen, nicht das Laufwerksverzeichnis.");
         return full;
+    }
+
+    internal static void InstallWithElevation(string directory)
+    {
+        directory = NormalizeDirectory(directory);
+        try
+        {
+            // Test write access before stopping or replacing the application.
+            Directory.CreateDirectory(directory);
+            string probe = Path.Combine(directory, ".homecam-write-" + Guid.NewGuid().ToString("N"));
+            using (File.Create(probe)) { }
+            File.Delete(probe);
+            Install(directory);
+            return;
+        }
+        catch (UnauthorizedAccessException) { }
+        using (Process elevated = Process.Start(new ProcessStartInfo
+        {
+            FileName = Application.ExecutablePath,
+            Arguments = "--install-files \"" + directory + "\"",
+            UseShellExecute = true,
+            Verb = "runas"
+        }))
+        {
+            if (elevated == null) throw new IOException("Installation konnte nicht gestartet werden.");
+            elevated.WaitForExit();
+            if (elevated.ExitCode != 0) throw new IOException("Installation mit Administratorrechten fehlgeschlagen.");
+        }
     }
 
     internal static void Install(string directory)
@@ -208,7 +240,7 @@ internal sealed class SetupForm : Form
             busy = true; install.Enabled = browse.Enabled = folder.Enabled = desktop.Enabled = launch.Enabled = false;
             status.Text = "Installation läuft …";
             var worker = new BackgroundWorker();
-            worker.DoWork += delegate { BetaInstaller.Install(target); BetaInstaller.FinishInstall(target, makeDesktop); };
+            worker.DoWork += delegate { BetaInstaller.InstallWithElevation(target); BetaInstaller.FinishInstall(target, makeDesktop); };
             worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs result)
             {
                 busy = false; worker.Dispose();
