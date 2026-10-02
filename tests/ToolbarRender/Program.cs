@@ -318,14 +318,11 @@ internal static class Program
             throw new InvalidOperationException($"Settings rows overlap: table={BottomOnScreen(cameraTable)}, hint={TopOnScreen(cameraHint)}..{BottomOnScreen(cameraHint)}, general={TopOnScreen(generalGroup)}..{BottomOnScreen(generalGroup)}, options={BottomOnScreen(options)}, startup={TopOnScreen(startup)}, motion={TopOnScreen(motionGroup)}");
         var selectedCamera = AllControls(motionGroup).OfType<Label>()
             .Single(label => label.Text == "Ausgewählte Kamera:");
-        var actionLabel = AllControls(motionGroup).OfType<Label>()
-            .Single(label => label.Text == "Aufzeichnung bei Bewegung:");
-        var motionFields = (TableLayoutPanel)actionLabel.Parent!;
-        if (motionFields.GetPositionFromControl(actionLabel).Column != 0 ||
-            motionFields.GetPositionFromControl(actionLabel).Row !=
-            motionFields.GetPositionFromControl(actionLabel.Parent.Controls.OfType<FlowLayoutPanel>()
-                .Single(panel => panel.Controls.OfType<ComboBox>().Any(combo => combo.Items.Contains("Snapshot + Videoaufnahme")))).Row)
-            throw new InvalidOperationException("Recording label must start the camera action row");
+        var recordingGroup = settingsForm.Controls.Find("MotionCaptureOptions", true).Single();
+        var actionLabel = AllControls(recordingGroup).OfType<Label>()
+            .Single(label => label.Text == "Für die ausgewählte Kamera");
+        if (recordingGroup.PointToScreen(Point.Empty).X <= selectedCamera.PointToScreen(Point.Empty).X)
+            throw new InvalidOperationException("Recording options must be in the right-hand column.");
         var indicatorLabel = AllControls(activityGroup).OfType<Label>()
             .Single(label => label.Text == "Aktivitätssymbole anzeigen:");
         if (!AllControls(activityGroup).OfType<CheckBox>().Any(check => check.Text == "Bewegungserkennung aktiv") ||
@@ -337,7 +334,7 @@ internal static class Program
             .Single(combo => combo.Items.Contains("30 Sekunden"));
         if (videoSeconds.Width < 110)
             throw new InvalidOperationException("The video duration selection is too narrow");
-        if (BottomOnScreen(selectedCamera) > TopOnScreen(action))
+        if (BottomOnScreen(actionLabel) > TopOnScreen(action))
             throw new InvalidOperationException("Motion action is not below the selected camera");
         var seconds = AllControls(settingsForm)
             .OfType<Label>().Single(label => label.Text == "Sekunden" &&
