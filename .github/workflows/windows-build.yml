@@ -74,9 +74,22 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or (Get-Item $snapshot).Length -lt 64) { throw 'Snapshot fehlgeschlagen.' }
           & $ffmpeg -nostdin -hide_banner -loglevel error -i $snapshot -f null NUL
           if ($LASTEXITCODE -ne 0) { throw 'Der erzeugte Snapshot ist nicht lesbar.' }
+      - name: Vorlauf-Puffer mit echter Videoquelle prüfen
+        shell: pwsh
+        run: |
+          $ffmpeg = (Resolve-Path publish-beta/ffmpeg.exe).Path
+          $testExe = Get-ChildItem tests/ToolbarRender/bin -Filter ToolbarRender.exe -Recurse | Select-Object -First 1
+          if (-not $testExe) { throw 'Vorlauf-Testprogramm fehlt.' }
+          Copy-Item $ffmpeg (Join-Path $testExe.DirectoryName 'ffmpeg.exe')
+          $source = Join-Path $env:RUNNER_TEMP 'homecam-source.mkv'
+          $output = Join-Path $env:RUNNER_TEMP 'pre-roll-check'
+          & $testExe.FullName --pre-roll-check $source $output
+          if ($LASTEXITCODE -ne 0) { throw 'Vorlauf-Integrationstest fehlgeschlagen.' }
+          & $ffmpeg -nostdin -hide_banner -loglevel error -i (Join-Path $output 'pre-roll.mkv') -f null NUL
+          if ($LASTEXITCODE -ne 0) { throw 'Vorlauf-Video ist nicht lesbar.' }
       - name: Beta-Downloads erstellen
         shell: pwsh
-        run: .github/scripts/build-beta-downloads.ps1 -Version '0.4.0-beta.1'
+        run: .github/scripts/build-beta-downloads.ps1 -Version '0.4.0-beta.2'
       - name: Downloads mit Microsoft Defender prüfen
         shell: pwsh
         run: .github/scripts/scan-downloads.ps1
@@ -86,5 +99,5 @@ jobs:
           path: publish/
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-Beta-v0.4.0-beta.1-win-x64
+          name: HomeCamMonitor-Beta-v0.4.0-beta.2-win-x64
           path: beta-downloads/

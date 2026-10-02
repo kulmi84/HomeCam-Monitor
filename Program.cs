@@ -57,6 +57,8 @@ internal sealed class Settings
     public bool IgnoreHomeAssistantCertificateErrors { get; set; }
     public bool PerCameraMotionConfigured { get; set; }
     public int MotionRetentionDays { get; set; } = 7;
+    public int SnapshotPreRollSeconds { get; set; }
+    public int VideoPreRollSeconds { get; set; }
     public int SettingsWindowWidth { get; set; } = 980;
     public int SettingsWindowHeight { get; set; } = 780;
 #endif
@@ -194,6 +196,7 @@ internal sealed class MonitorForm : Form
 #if BETA
     private bool recording;
     private int activeMotionRecordings;
+    private readonly Dictionary<CameraEntry, MotionPreRoll> preRollBuffers = [];
     private string? recordingPath;
     private Process? recordingPlayer;
     private int? cameraBeforeMotion;
@@ -392,6 +395,7 @@ internal sealed class MonitorForm : Form
             ToggleGridView();
         if (settings.StartBehavior == "Minimized") MinimizeWindow();
         RestartMotionIntegration();
+        UpdatePreRollBuffers();
 #endif
     }
 
@@ -408,6 +412,8 @@ internal sealed class MonitorForm : Form
         Hide();
         CancelSeamlessRefresh();
         StopRecordingForClose();
+        foreach (var buffer in preRollBuffers.Values) buffer.Dispose();
+        preRollBuffers.Clear();
         foreach (var capture in motionProcesses.ToArray())
             try { if (!capture.HasExited) capture.Kill(true); } catch { }
         StopGridPlayers();
@@ -1067,6 +1073,7 @@ internal sealed class MonitorForm : Form
             ConfigureAutostart(settings.StartWithWindows);
         UpdateToolbar(); PositionOverlays();
 #if BETA
+        UpdatePreRollBuffers();
         if (streamsChanged) RestartPlayer();
         ScheduleMotionPauseExpiry();
         if (reconnectMotion) RestartMotionIntegration();
@@ -1684,6 +1691,7 @@ internal sealed class MonitorForm : Form
         previousForegroundWindow = IntPtr.Zero;
         SettingsStore.Save(settings);
         RestartMotionIntegration();
+        UpdatePreRollBuffers();
     }
 
     private bool MotionActionsArePaused()
@@ -2232,6 +2240,18 @@ internal sealed class MonitorForm : Form
         StartMotionCapture(camera, personDetected: true);
     }
 
+    private void UpdatePreRollBuffers()
+    {
+        foreach (var buffer in preRollBuffers.Values) buffer.Dispose();
+        preRollBuffers.Clear();
+        if (!settings.MotionDetectionEnabled || (settings.SnapshotPreRollSeconds == 0 && settings.VideoPreRollSeconds == 0)) return;
+        foreach (var camera in settings.Cameras.Where(c =>
+            Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _) &&
+            ((settings.SnapshotPreRollSeconds > 0 && (c.PersonEnabled == true || c.MotionEnabled && c.MotionAction is "Snapshot" or "Both")) ||
+             (settings.VideoPreRollSeconds > 0 && c.MotionEnabled && c.MotionAction is "Video" or "Both"))))
+            preRollBuffers[camera] = new MotionPreRoll(camera.StreamUrl);
+    }
+
     private async void StartMotionCapture(CameraEntry camera, bool personDetected = false)
     {
         if (!personDetected && camera.MotionAction is not ("Snapshot" or "Video" or "Both")) return;
@@ -2242,6 +2262,10 @@ internal sealed class MonitorForm : Form
             DateTime.UtcNow - last < TimeSpan.FromSeconds(2)) return;
         lastMotionCapture[captureKey] = DateTime.UtcNow;
         activeMotionCapture.Add(captureKey);
+        var triggeredUtc = DateTime.UtcNow;
+        preRollBuffers.TryGetValue(camera, out var preRoll);
+        var snapshotBefore = settings.SnapshotPreRollSeconds;
+        var videoBefore = settings.VideoPreRollSeconds;
         try
         {
             var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor", "Bewegung");
@@ -2256,6 +2280,8 @@ internal sealed class MonitorForm : Form
             async Task CaptureSnapshotAsync()
             {
                 var path = Path.Combine(folder, baseName + ".png");
+                if (preRoll is not null && snapshotBefore > 0 &&
+                    await preRoll.CaptureAsync(triggeredUtc, snapshotBefore, 0, path, snapshot: true)) return;
                 var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "ffmpeg.exe"))
                 {
                     UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true
@@ -2291,6 +2317,16 @@ internal sealed class MonitorForm : Form
             async Task RecordVideoAsync()
             {
                 var path = Path.Combine(folder, baseName + ".mkv");
+                if (preRoll is not null && videoBefore > 0)
+                {
+                    activeMotionRecordings++; RefreshRecordingIndicator();
+                    try
+                    {
+                        if (await preRoll.CaptureAsync(triggeredUtc, videoBefore,
+                            camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds : 30, path, snapshot: false)) return;
+                    }
+                    finally { activeMotionRecordings--; if (!closing) RefreshRecordingIndicator(); }
+                }
                 var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "ffmpeg.exe"))
                 {
                     UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true
@@ -3739,11 +3775,18 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(options, 0, 2);
 #endif
 #if BETA
+        var snapshotPreRoll = new ComboBox { Name = "SnapshotPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 110 };
+        var videoPreRoll = new ComboBox { Name = "VideoPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 110 };
+        var preRollValues = new[] { 0, 1, 3, 5 };
+        snapshotPreRoll.Items.AddRange(["Aus", "1 Sekunde", "3 Sekunden", "5 Sekunden"]);
+        videoPreRoll.Items.AddRange(["Aus", "1 Sekunde", "3 Sekunden", "5 Sekunden"]);
+        snapshotPreRoll.SelectedIndex = Math.Max(0, Array.IndexOf(preRollValues, current.SnapshotPreRollSeconds));
+        videoPreRoll.SelectedIndex = Math.Max(0, Array.IndexOf(preRollValues, current.VideoPreRollSeconds));
         var captureOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
         captureOptions.Controls.Add(motionAction);
         captureOptions.Controls.Add(motionVideoSeconds);
         var homeAssistantGroup = new GroupBox { Text = "Bewegung pro Kamera und Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
-        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 10 };
+        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 13 };
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         homeAssistantFields.Controls.Add(directHomeAssistant, 0, 0);
@@ -3769,6 +3812,12 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(captureOptions, 1, 8);
         homeAssistantFields.Controls.Add(new Label { Text = "Aufbewahrung (alle Kameras):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 9);
         homeAssistantFields.Controls.Add(motionRetention, 1, 9);
+        homeAssistantFields.Controls.Add(new Label { Text = "Snapshot-Vorlauf (alle Kameras):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 10);
+        homeAssistantFields.Controls.Add(snapshotPreRoll, 1, 10);
+        homeAssistantFields.Controls.Add(new Label { Text = "Video-Vorlauf (alle Kameras):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 11);
+        homeAssistantFields.Controls.Add(videoPreRoll, 1, 11);
+        var preRollHint = new Label { Text = "Vorlauf puffert Kamerabilder im Hintergrund. Nach dem Start wird der Puffer kurz aufgebaut; bis dahin erfolgt die normale Aufnahme.", AutoSize = true, MaximumSize = new Size(800, 0) };
+        homeAssistantFields.Controls.Add(preRollHint, 0, 12); homeAssistantFields.SetColumnSpan(preRollHint, 2);
         homeAssistantGroup.Controls.Add(homeAssistantFields);
         table.Controls.Add(homeAssistantGroup, 0, 4);
 #endif
@@ -3891,6 +3940,8 @@ internal sealed class SettingsForm : Form
                 IgnoreHomeAssistantCertificateErrors = ignoreHomeAssistantCertificateErrors.Checked,
                 PerCameraMotionConfigured = true,
                 MotionRetentionDays = retentionValues[motionRetention.SelectedIndex],
+                SnapshotPreRollSeconds = preRollValues[snapshotPreRoll.SelectedIndex],
+                VideoPreRollSeconds = preRollValues[videoPreRoll.SelectedIndex],
                 SettingsWindowWidth = ClientSize.Width,
                 SettingsWindowHeight = ClientSize.Height
 #endif

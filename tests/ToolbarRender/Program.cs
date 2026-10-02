@@ -9,6 +9,26 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--pre-roll-check")
+        {
+            Task.Run(async () =>
+            {
+                var source = args[1]; var output = args[2]; Directory.CreateDirectory(output);
+                using var buffer = new MotionPreRoll(source);
+                await Task.Delay(8000);
+                var trigger = DateTime.UtcNow;
+                var snapshot = Path.Combine(output, "pre-roll.png");
+                if (!await buffer.CaptureAsync(trigger, 3, 0, snapshot, true))
+                    throw new InvalidOperationException("Snapshot pre-roll buffer did not warm up.");
+                using var img = Image.FromFile(snapshot);
+                if (img.Width != 320 || img.Height != 180) throw new InvalidOperationException("Buffered snapshot is invalid.");
+                if (!await buffer.CaptureAsync(trigger, 3, 2, Path.Combine(output, "pre-roll.mkv"), false))
+                    throw new InvalidOperationException("Video pre-roll buffer is missing.");
+                if (new FileInfo(Path.Combine(output, "pre-roll.mkv")).Length < 4096)
+                    throw new InvalidOperationException("Buffered video is empty.");
+            }).GetAwaiter().GetResult();
+            return;
+        }
         ApplicationConfiguration.Initialize();
         var output = args.Length == 0 ? "toolbar-render" : args[0];
         Directory.CreateDirectory(output);
@@ -22,6 +42,13 @@ internal static class Program
             if ((NativeMethods.GetWindowStyle(nativeHandle, -16) & 0x00C40000) != 0)
                 throw new InvalidOperationException("Embedded video still has a native caption/border.");
         }
+        if (new Settings().SnapshotPreRollSeconds != 0 || new Settings().VideoPreRollSeconds != 0)
+            throw new InvalidOperationException("Pre-roll must be disabled by default.");
+        var segments = new[] { new MotionPreRoll.Segment("early", DateTime.UnixEpoch, DateTime.UnixEpoch.AddSeconds(1)),
+            new MotionPreRoll.Segment("later", DateTime.UnixEpoch.AddSeconds(1), DateTime.UnixEpoch.AddSeconds(2)) };
+        if (MotionPreRoll.SnapshotSegment(segments, DateTime.UnixEpoch.AddSeconds(0.5))?.Path != "early" ||
+            MotionPreRoll.SnapshotSegment(segments, DateTime.UnixEpoch.AddSeconds(-1)) is not null)
+            throw new InvalidOperationException("Pre-roll snapshot selection does not match the requested past time.");
         var progress = new PlaybackProgress();
         if (progress.Observe(1) || progress.Observe(1) || !progress.Observe(2) ||
             progress.Observe(double.NaN) || progress.Observe(2) || !progress.Observe(0))
