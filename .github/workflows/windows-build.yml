@@ -83,7 +83,7 @@ jobs:
           Copy-Item $ffmpeg (Join-Path $testExe.DirectoryName 'ffmpeg.exe')
           $source = Join-Path $env:RUNNER_TEMP 'homecam-source.mkv'
           $output = Join-Path $env:RUNNER_TEMP 'pre-roll-check'
-          & $testExe.FullName --pre-roll-check $source $output
+          dotnet run --no-build --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- --pre-roll-check $source $output
           if ($LASTEXITCODE -ne 0) { throw 'Vorlauf-Integrationstest fehlgeschlagen.' }
           & $ffmpeg -nostdin -hide_banner -loglevel error -i (Join-Path $output 'pre-roll.mkv') -f null NUL
           if ($LASTEXITCODE -ne 0) { throw 'Vorlauf-Video ist nicht lesbar.' }
