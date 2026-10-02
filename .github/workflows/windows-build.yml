@@ -96,6 +96,7 @@ jobs:
           $setup = (Resolve-Path beta-downloads/HomeCamMonitor-Beta-Setup.exe).Path
           $check = Start-Process -FilePath $setup -ArgumentList '--verify-setup' -Wait -PassThru
           if ($check.ExitCode -ne 0) { throw 'Setup-Prüfung fehlgeschlagen.' }
+          Copy-Item (Join-Path ([IO.Path]::GetTempPath()) 'homecam-setup.png') (Join-Path $env:RUNNER_TEMP 'homecam-setup.png')
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCamMonitor-Setup-Preview
