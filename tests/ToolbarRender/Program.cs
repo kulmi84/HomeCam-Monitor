@@ -352,6 +352,11 @@ internal static class Program
             .Single(panel => panel.Controls.OfType<Button>().Any(button => button.Text == "Speichern"));
         if (buttons.Bottom <= settingsForm.ClientSize.Height && settingsForm.ClientSize.Height - buttons.Bottom > 25)
             throw new InvalidOperationException("Unused space remains below the settings buttons");
+        settingsForm.ClientSize = new Size(1260, 1000);
+        Application.DoEvents();
+        using var wideSettings = new Bitmap(settingsForm.Width, settingsForm.Height);
+        settingsForm.DrawToBitmap(wideSettings, new Rectangle(Point.Empty, wideSettings.Size));
+        wideSettings.Save(Path.Combine(output, "settings-wide.png"));
     }
 
     private static IEnumerable<Control> AllControls(Control parent)

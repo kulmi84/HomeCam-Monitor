@@ -3703,7 +3703,7 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
 #endif
 #if BETA
-        var options = new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2, Margin = new Padding(0) };
+        var options = new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) };
         options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var generalOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
@@ -3716,10 +3716,12 @@ internal sealed class SettingsForm : Form
         toolbarOptions.Controls.Add(toolbarSize);
         toolbarOptions.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(autoScaleToolbar);
-        toolbarOptions.Controls.Add(showGridCameraNames);
-        toolbarOptions.Controls.Add(showEmptyCameraLogo);
-        toolbarOptions.Controls.Add(showEmptyFourthFieldBorder);
         options.Controls.Add(toolbarOptions, 0, 1);
+        var cameraAppearance = new FlowLayoutPanel { Name = "CameraAppearance", Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) };
+        cameraAppearance.Controls.Add(showGridCameraNames);
+        cameraAppearance.Controls.Add(showEmptyCameraLogo);
+        cameraAppearance.Controls.Add(showEmptyFourthFieldBorder);
+        options.Controls.Add(cameraAppearance, 0, 2);
 #else
         var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
         options.Controls.Add(top);
