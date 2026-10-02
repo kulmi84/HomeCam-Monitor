@@ -18,7 +18,7 @@ $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 $installerSource = Join-Path $PSScriptRoot 'BetaInstaller.cs'
 $icon = Join-Path $root 'assets\HomeCamMonitor-Beta.ico'
 if (-not (Test-Path $compiler)) { throw "C#-Compiler fehlt: $compiler" }
-& $compiler /nologo /target:winexe /platform:x64 /optimize+ /reference:System.Windows.Forms.dll `
+& $compiler /nologo /target:winexe /platform:x64 /optimize+ /reference:System.Windows.Forms.dll /reference:System.Drawing.dll `
     /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll `
     "/win32icon:$icon" "/resource:$zipPath,HomeCamMonitor.Beta.zip" "/out:$setupPath" $installerSource
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path $setupPath)) { throw 'Die selbstextrahierende Beta konnte nicht erstellt werden.' }
