@@ -42,6 +42,18 @@ internal static class Program
             if ((NativeMethods.GetWindowStyle(nativeHandle, -16) & 0x00C40000) != 0)
                 throw new InvalidOperationException("Embedded video still has a native caption/border.");
         }
+        var fresh = SettingsStore.CreateForNewInstallation();
+        if (fresh.AlwaysOnTop || fresh.ToolbarSizePercent != 90 || !fresh.AutoScaleToolbar ||
+            fresh.ShowGridCameraNames || !fresh.MinimizeWhenInactive || fresh.MotionIndicatorSeconds != 1 ||
+            !fresh.DirectHomeAssistantEnabled || fresh.HomeAssistantUrl != "https://192.168.19.9:8123" ||
+            fresh.Cameras.Count != 0 || fresh.HomeAssistantToken.Length != 0 ||
+            fresh.ShowEmptyFourthFieldBorder || !fresh.ShowEmptyCameraLogo ||
+            fresh.SnapshotPreRollSeconds != 0 || fresh.VideoPreRollSeconds != 0)
+            throw new InvalidOperationException("Fresh-install defaults do not match the agreed settings.");
+        var existing = System.Text.Json.JsonSerializer.Deserialize<Settings>(
+            "{\"AlwaysOnTop\":true,\"ToolbarSizePercent\":75,\"HomeAssistantUrl\":\"http://existing:8123\"}")!;
+        if (!existing.AlwaysOnTop || existing.ToolbarSizePercent != 75 || existing.HomeAssistantUrl != "http://existing:8123")
+            throw new InvalidOperationException("Existing settings were overridden by fresh-install defaults.");
         if (new Settings().SnapshotPreRollSeconds != 0 || new Settings().VideoPreRollSeconds != 0)
             throw new InvalidOperationException("Pre-roll must be disabled by default.");
         var segments = new[] { new MotionPreRoll.Segment("early", DateTime.UnixEpoch, DateTime.UnixEpoch.AddSeconds(1)),

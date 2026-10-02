@@ -50,7 +50,7 @@ internal sealed class Settings
     public bool MinimizeWhenInactive { get; set; }
     public bool RestorePreviousCameraAfterMotion { get; set; } = true;
     public bool DirectHomeAssistantEnabled { get; set; }
-    public string HomeAssistantUrl { get; set; } = "http://192.168.9.8:8123";
+    public string HomeAssistantUrl { get; set; } = "https://192.168.19.9:8123";
     public string HomeAssistantToken { get; set; } = "";
     public string MotionEntityId { get; set; } = "binary_sensor.camera_einfahrt_bewegung";
     public string MotionCameraName { get; set; } = "Einfahrt";
@@ -111,8 +111,26 @@ internal static class SettingsStore
 #endif
         }
         catch { }
+#if BETA
+        return CreateForNewInstallation();
+#else
         return new Settings();
+#endif
     }
+#if BETA
+    // Apply revised defaults only when neither Beta nor Stable settings were loaded.
+    internal static Settings CreateForNewInstallation() => new()
+    {
+        AlwaysOnTop = false,
+        ToolbarSizePercent = 90,
+        AutoScaleToolbar = true,
+        ShowGridCameraNames = false,
+        MinimizeWhenInactive = true,
+        MotionIndicatorSeconds = 1,
+        DirectHomeAssistantEnabled = true,
+        PerCameraMotionConfigured = true
+    };
+#endif
     public static void Save(Settings value) { Directory.CreateDirectory(Folder); File.WriteAllText(FileName, JsonSerializer.Serialize(value, JsonOptions)); }
 #if BETA
     private static void MigratePerCameraMotion(Settings value)
