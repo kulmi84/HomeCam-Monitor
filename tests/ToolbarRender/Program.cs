@@ -42,13 +42,13 @@ internal static class Program
             if ((NativeMethods.GetWindowStyle(nativeHandle, -16) & 0x00C40000) != 0)
                 throw new InvalidOperationException("Embedded video still has a native caption/border.");
         }
-        var fresh = SettingsStore.CreateForNewInstallation();
-        if (fresh.AlwaysOnTop || fresh.ToolbarSizePercent != 90 || !fresh.AutoScaleToolbar ||
-            fresh.ShowGridCameraNames || !fresh.MinimizeWhenInactive || fresh.MotionIndicatorSeconds != 1 ||
-            !fresh.DirectHomeAssistantEnabled || fresh.HomeAssistantUrl != "https://192.168.19.9:8123" ||
-            fresh.Cameras.Count != 0 || fresh.HomeAssistantToken.Length != 0 ||
-            fresh.ShowEmptyFourthFieldBorder || !fresh.ShowEmptyCameraLogo ||
-            fresh.SnapshotPreRollSeconds != 0 || fresh.VideoPreRollSeconds != 0)
+        var freshDefaults = SettingsStore.CreateForNewInstallation();
+        if (freshDefaults.AlwaysOnTop || freshDefaults.ToolbarSizePercent != 90 || !freshDefaults.AutoScaleToolbar ||
+            freshDefaults.ShowGridCameraNames || !freshDefaults.MinimizeWhenInactive || freshDefaults.MotionIndicatorSeconds != 1 ||
+            !freshDefaults.DirectHomeAssistantEnabled || freshDefaults.HomeAssistantUrl != "https://192.168.19.9:8123" ||
+            freshDefaults.Cameras.Count != 0 || freshDefaults.HomeAssistantToken.Length != 0 ||
+            freshDefaults.ShowEmptyFourthFieldBorder || !freshDefaults.ShowEmptyCameraLogo ||
+            freshDefaults.SnapshotPreRollSeconds != 0 || freshDefaults.VideoPreRollSeconds != 0)
             throw new InvalidOperationException("Fresh-install defaults do not match the agreed settings.");
         var existing = System.Text.Json.JsonSerializer.Deserialize<Settings>(
             "{\"AlwaysOnTop\":true,\"ToolbarSizePercent\":75,\"HomeAssistantUrl\":\"http://existing:8123\"}")!;
