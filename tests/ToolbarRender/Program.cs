@@ -232,6 +232,8 @@ internal static class Program
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
 
         using var monitor = new MonitorForm();
+        if (!ReferenceEquals(monitor.Icon, ApplicationBranding.WindowIcon))
+            throw new InvalidOperationException("Main window does not use the HomeCamMonitor icon.");
         using (var layoutMonitor = new MonitorForm())
         {
             const System.Reflection.BindingFlags privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -300,6 +302,8 @@ internal static class Program
             Cameras = [new CameraEntry { Name = "Einfahrt", StreamUrl = "rtsp://127.0.0.1:8554/Einfahrt",
                 PersonEntityId = "binary_sensor.einfahrt_person" }]
         });
+        if (!ReferenceEquals(settingsForm.Icon, ApplicationBranding.WindowIcon))
+            throw new InvalidOperationException("Settings window does not use the HomeCamMonitor icon.");
         settingsForm.Show();
         Application.DoEvents();
         using (var settingsImage = new Bitmap(settingsForm.Width, settingsForm.Height))

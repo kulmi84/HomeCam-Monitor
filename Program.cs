@@ -18,6 +18,20 @@ internal static class Program
     private static void Main() { ApplicationConfiguration.Initialize(); Application.Run(new MonitorForm()); }
 }
 
+#if BETA
+internal static class ApplicationBranding
+{
+    internal static readonly Icon WindowIcon = LoadIcon();
+    private static Icon LoadIcon()
+    {
+        using var stream = typeof(ApplicationBranding).Assembly.GetManifestResourceStream("HomeCamMonitor.ApplicationIcon")
+            ?? throw new InvalidOperationException("HomeCamMonitor application icon is missing.");
+        using var icon = new Icon(stream);
+        return (Icon)icon.Clone();
+    }
+}
+#endif
+
 internal sealed class Settings
 {
     public List<CameraEntry> Cameras { get; set; } = [];
@@ -246,6 +260,7 @@ internal sealed class MonitorForm : Form
     {
         settings = SettingsStore.Load();
 #if BETA
+        Icon = ApplicationBranding.WindowIcon;
         DeleteExpiredMotionFiles(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor", "Bewegung"), settings.MotionRetentionDays);
         // The borderless monitor has no caption. A nonempty window title can
         // briefly be painted through embedded video surfaces on Windows.
@@ -3559,6 +3574,9 @@ internal sealed class SettingsForm : Form
     public Settings Result { get; private set; }
     public SettingsForm(Settings current)
     {
+#if BETA
+        Icon = ApplicationBranding.WindowIcon;
+#endif
         Result = current; Text = "HomeCam Monitor – Einstellungen"; StartPosition = FormStartPosition.CenterParent; MinimizeBox = false;
 #if BETA
         FormBorderStyle = FormBorderStyle.Sizable;

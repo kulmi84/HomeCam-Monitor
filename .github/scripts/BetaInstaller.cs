@@ -11,8 +11,8 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("HomeCamMonitor Beta Setup")]
 [assembly: AssemblyProduct("HomeCamMonitor Beta")]
-[assembly: AssemblyVersion("0.5.0.3")]
-[assembly: AssemblyFileVersion("0.5.0.3")]
+[assembly: AssemblyVersion("0.5.0.4")]
+[assembly: AssemblyFileVersion("0.5.0.4")]
 
 internal static class BetaInstaller
 {
