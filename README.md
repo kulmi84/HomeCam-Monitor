@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-controls-beta32-fixed.webp" alt="HomeCamMonitor mit Bedienleiste" width="390">
+  <img src="docs/screenshots/homecam-main.png" alt="HomeCam Monitor im 4-Kamera-Raster mit aktuellem Rechtsklickmenü" width="780">
 </p>
 
 HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
@@ -65,9 +65,6 @@ Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. 
 
 ## Bedienung
 
-<p align="center">
-  <img src="docs/screenshots/homecam-controls-beta32-fixed.webp" alt="HomeCam Monitor mit eingeblendeter Bedienleiste" width="390">
-</p>
 
 Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt. Bei 100 % bleibt das ursprüngliche Layout erhalten; Text und Symbole sind optisch mittig in der Leiste ausgerichtet.
 
@@ -89,14 +86,6 @@ In der Beta lässt sich die **Größe der Bedienleiste** in den Einstellungen vo
 
 ### Kontextmenü für Bewegung
 
-<p align="center">
-  <img src="docs/screenshots/homecam-grid-context-beta13-part1.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 1" width="650"><br>
-  <img src="docs/screenshots/homecam-grid-context-beta13-part2.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 2" width="650"><br>
-  <img src="docs/screenshots/homecam-grid-context-beta13-part3.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 3" width="650"><br>
-  <img src="docs/screenshots/homecam-grid-context-beta13-part4.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 4" width="650"><br>
-  <img src="docs/screenshots/homecam-grid-context-beta13-part5.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 5" width="650">
-</p>
-
 Mit **Aktuellen Stream neu verbinden** kann der sichtbare Kamerastream bei Bedarf sofort manuell neu aufgebaut werden.
 
 Über **Bewegungsaktionen pausieren** lassen sich Kamerawechsel, Vordergrundreaktion sowie automatische Snapshots und Aufnahmen für **15 Minuten**, **30 Minuten** oder **1 Stunde** aussetzen. **Bis manuell aktiviert** schaltet die Bewegungserkennung bis zum manuellen Wiedereinschalten aus. Eine laufende Zeitpause kann über **Pause beenden** vorzeitig beendet werden. Sensorereignisse und Aktivitätssymbole bleiben während einer Zeitpause aktiv.
@@ -106,10 +95,6 @@ Die **Vordergrunddauer** lässt sich im Rechtsklickmenü schnell auf **3, 5, 10,
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
 
 Im **4-Kamera-Raster** zeigt die Beta bis zu vier gültig eingerichtete Kameras gleichzeitig. Optional lassen sich **Kameranamen im 4er-Raster**, das **HomeCamMonitor-Logo in leeren Kamerafeldern** und ein **Außenrahmen** ein- oder ausschalten. Ein Doppelklick in das Raster schaltet die gesamte Rasteransicht in den Vollbildmodus und wieder zurück. Das Rastersymbol wechselt zurück zur Einzelansicht; Snapshot und Aufnahme werden dort wie gewohnt für die ausgewählte Kamera verwendet.
-
-<p align="center">
-  <img src="docs/screenshots/homecam-grid-context-beta13.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit aktuellem Rechtsklickmenü und Logo im freien Kamerafeld" width="600">
-</p>
 
 Im aktuellen Rechtsklickmenü kann außerdem der **aktuelle Stream neu verbunden** werden. Die bekannten Schalter für **Immer im Vordergrund**, **Bewegungserkennung**, das **Pausieren von Bewegungsaktionen** und die **Vordergrunddauer** bleiben direkt erreichbar.
 
@@ -316,8 +301,11 @@ Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
 
 <p align="center">
-  <img src="docs/screenshots/homecam-settings-beta13-top-anonymized.webp" alt="Anonymisierte HomeCam-Monitor-Einstellungen – oberer Bereich" width="600"><br>
-  <img src="docs/screenshots/homecam-settings-beta13-bottom-anonymized.webp" alt="Anonymisierte HomeCam-Monitor-Einstellungen – Speicherpfade sowie Sichern und Wiederherstellen" width="600">
+  <img src="docs/screenshots/homecam-settings-top.png" alt="Anonymisierte HomeCam-Monitor-Einstellungen – oberer Bereich" width="780">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/homecam-settings-bottom.png" alt="Anonymisierte HomeCam-Monitor-Einstellungen – Speicherpfade sowie Sichern und Wiederherstellen" width="780">
 </p>
 
 Die aktuellen Beta-Einstellungen enthalten zusätzlich die Darstellungsoptionen für das 4er-Raster, **Snapshot- und Video-Vorlauf**, getrennte **Speicherpfade** für manuelle und automatische Aufnahmen sowie **Einstellungen sichern und wiederherstellen**. Die Sicherung umfasst Kameras, Speicherpfade und das Home-Assistant-Token.
