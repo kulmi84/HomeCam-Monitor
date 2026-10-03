@@ -266,10 +266,10 @@ internal sealed class MonitorForm : Form
 #if BETA
         Icon = ApplicationBranding.WindowIcon;
         CleanupMotionStorage();
-        // The borderless monitor has no caption. A nonempty window title can
-        // briefly be painted through embedded video surfaces on Windows.
-        Text = string.Empty;
-        AccessibleName = "HomeCam Monitor";
+        // Windows uses the title for taskbar previews and Alt+Tab. CreateParams
+        // and non-client painting keep the camera window itself captionless.
+        Text = "HomeCamMonitor Beta";
+        AccessibleName = "HomeCamMonitor Beta";
 #else
         Text = "HomeCamMonitor for Homeassistant";
 #endif
@@ -483,8 +483,7 @@ internal sealed class MonitorForm : Form
         if (closing || !HasUsableCamera() || player is { HasExited: false }) return;
         var camera = settings.Cameras[settings.SelectedCamera];
 #if BETA
-        // The selected camera is shown in the toolbar; keep the borderless
-        // monitor's native caption empty, including while changing streams.
+        // Keep the application title stable; the selected camera is in the toolbar.
 #else
         Text = $"HomeCamMonitor for Homeassistant – {camera.Name}";
 #endif

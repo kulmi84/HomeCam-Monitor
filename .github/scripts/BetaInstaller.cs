@@ -12,8 +12,8 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("HomeCamMonitor Beta Setup")]
 [assembly: AssemblyProduct("HomeCamMonitor Beta")]
-[assembly: AssemblyVersion("0.5.0.5")]
-[assembly: AssemblyFileVersion("0.5.0.5")]
+[assembly: AssemblyVersion("0.5.0.6")]
+[assembly: AssemblyFileVersion("0.5.0.6")]
 
 internal static class BetaInstaller
 {
@@ -169,7 +169,7 @@ internal static class BetaInstaller
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(BetaUninstaller.RegistryPath))
         {
             key.SetValue("DisplayName", "HomeCamMonitor Beta");
-            key.SetValue("DisplayVersion", "0.5.0-beta.5");
+            key.SetValue("DisplayVersion", "0.5.0-beta.6");
             key.SetValue("DisplayIcon", executable + ",0");
             key.SetValue("InstallLocation", directory);
             key.SetValue("UninstallString", "\"" + uninstaller + "\"");

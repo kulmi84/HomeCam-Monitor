@@ -248,6 +248,8 @@ internal static class Program
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
 
         using var monitor = new MonitorForm();
+        if (monitor.Text != "HomeCamMonitor Beta")
+            throw new InvalidOperationException("The Windows application title is missing.");
         if (!ReferenceEquals(monitor.Icon, ApplicationBranding.WindowIcon))
             throw new InvalidOperationException("Main window does not use the HomeCamMonitor icon.");
         using (var layoutMonitor = new MonitorForm())
