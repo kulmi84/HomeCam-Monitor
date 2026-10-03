@@ -124,7 +124,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 - **Speicherpfade:** getrennte Ordner für manuelle Snapshots, manuelle Videos, Bewegungs-Snapshots und Bewegungs-Videos; auch der Einstellungsordner ist auswählbar.
 - **Einstellungen sichern und wiederherstellen:** Kameras, Speicherpfade und HA-Token können in einer Sicherung gespeichert und wieder eingelesen werden.
-- **Aufnahme-Vorlauf:** Snapshot- und Video-Vorlauf lassen sich konfigurieren. Der Video-Vorlauf benötigt nach dem Start kurz Zeit zum Aufbau des Puffers.
+- **Aufnahme-Vorlauf:** Snapshot- und Video-Vorlauf lassen sich für alle Kameras konfigurieren. Der Video-Vorlauf benötigt nach dem Start kurz Zeit zum Aufbau des Puffers; bis dahin erfolgt die normale Aufnahme.
 - **Raster-Darstellung:** Kameranamen, HomeCamMonitor-Logo in leeren Feldern und Außenrahmen sind getrennt schaltbar.
 - **Stream-Reconnect:** Das Rechtsklickmenü enthält **„Aktuellen Stream neu verbinden“**.
 - **Setup ab 0.5:** frei wählbarer Installationsordner, standardmäßig `C:\Program Files\HomeCamMonitor`; vorhandene Installationen können erkannt, aktualisiert oder deinstalliert werden.
@@ -318,7 +318,7 @@ Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und 
   <img src="docs/screenshots/homecam-settings-beta13-bottom-part4-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 4" width="650">
 </p>
 
-In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen, Snapshot-/Video-Vorlauf und eine gemeinsame Aufbewahrungsfrist konfigurieren. Unter **Speicherpfade** können die vier Aufnahmeordner sowie der Einstellungsordner gewählt werden. Der Bereich **Einstellungen sichern und wiederherstellen** exportiert bzw. importiert die gespeicherte Konfiguration einschließlich Kameras, Speicherpfaden und HA-Token.
+In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen sowie für alle Kameras die **Aufbewahrungsfrist**, der **Snapshot-Vorlauf** und der **Video-Vorlauf** konfigurieren. Die Aufbewahrungsfrist gilt nur für automatische Bewegungsaufnahmen; manuelle Aufnahmen bleiben erhalten. Unter **Speicherpfade** können die vier Aufnahmeordner sowie der Einstellungsordner gewählt werden. Der Bereich **Einstellungen sichern und wiederherstellen** exportiert bzw. importiert die gespeicherte Konfiguration einschließlich Kameras, Speicherpfaden und HA-Token. Beim Speichern wird die `settings.json` in den gewählten Sicherungsordner mitgenommen.
 
 | Feld | Beispiel |
 |---|---|
