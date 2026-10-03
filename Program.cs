@@ -3950,7 +3950,7 @@ internal sealed class SettingsForm : Form
         betaFields.Controls.Add(new Label { Text = "Zur Fehlersuche bei Darstellungsproblemen. Änderungen gelten nach dem Speichern.", AutoSize = true });
         var betaGroup = new GroupBox { Name = "BetaDiagnostics", Text = "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) };
         betaGroup.Controls.Add(betaFields);
-        table.Controls.Add(betaGroup, 0, 6);
+        table.Controls.Add(betaGroup, 0, 7);
         var backupGroup = new GroupBox { Name = "SettingsBackup", Text = "Einstellungen sichern und wiederherstellen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
         var backupFields = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false };
         var backupButtons = new FlowLayoutPanel { AutoSize = true, WrapContents = false };
@@ -3959,7 +3959,7 @@ internal sealed class SettingsForm : Form
         backupButtons.Controls.Add(exportSettings); backupButtons.Controls.Add(importSettings);
         backupFields.Controls.Add(backupButtons);
         backupFields.Controls.Add(new Label { Text = "Sichert die gespeicherten Einstellungen einschließlich Kameras, Speicherpfaden und HA-Token.", AutoSize = true, MaximumSize = new Size(700, 0) });
-        backupGroup.Controls.Add(backupFields); table.Controls.Add(backupGroup, 0, 7);
+        backupGroup.Controls.Add(backupFields); table.Controls.Add(backupGroup, 0, 6);
         exportSettings.Click += (_, _) =>
         {
             using var file = new SaveFileDialog { Filter = "HomeCamMonitor-Einstellungen (*.json)|*.json", DefaultExt = "json", AddExtension = true, FileName = $"HomeCamMonitor-Einstellungen_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json" };
