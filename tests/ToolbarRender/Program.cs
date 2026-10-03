@@ -392,6 +392,19 @@ internal static class Program
         using var wideSettings = new Bitmap(settingsForm.Width, settingsForm.Height);
         settingsForm.DrawToBitmap(wideSettings, new Rectangle(Point.Empty, wideSettings.Size));
         wideSettings.Save(Path.Combine(output, "settings-wide.png"));
+        var storageGroup = settingsForm.Controls.Find("RecordingStorage", true).Single();
+        ((ScrollableControl)storageGroup.Parent!).ScrollControlIntoView(storageGroup);
+        Application.DoEvents();
+        foreach (var field in storagePaths)
+        {
+            var row = ((TableLayoutPanel)field.Parent!).GetRow(field);
+            var browse = ((TableLayoutPanel)field.Parent!).GetControlFromPosition(2, row)!;
+            if (field.Right > browse.Left || field.Width < 200)
+                throw new InvalidOperationException("Storage path fields overlap the browse buttons.");
+        }
+        using var storageImage = new Bitmap(settingsForm.Width, settingsForm.Height);
+        settingsForm.DrawToBitmap(storageImage, new Rectangle(Point.Empty, storageImage.Size));
+        storageImage.Save(Path.Combine(output, "settings-storage.png"));
     }
 
     private static IEnumerable<Control> AllControls(Control parent)
