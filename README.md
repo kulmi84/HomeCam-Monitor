@@ -79,16 +79,17 @@ In der Beta lässt sich die **Größe der Bedienleiste** in den Einstellungen vo
 | Bildsymbol | Snapshot speichern |
 | Weißer/roter Aufnahmepunkt (Beta) | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
 | Zahnrad | Einstellungen öffnen |
-| Rechtsklick ins Bild (Beta) | Dunkles Kontextmenü mit „Immer im Vordergrund“, „Bewegungserkennung aktiv“, „Bewegungsaktionen pausieren“ und Vordergrunddauer |
+| Rechtsklick ins Bild (Beta) | Dunkles Kontextmenü mit „Aktuellen Stream neu verbinden“, „Immer im Vordergrund“, „Bewegungserkennung aktiv“, „Bewegungsaktionen pausieren“ und Vordergrunddauer |
 | `—` (Beta) | Fenster minimieren |
 | `×` | Anwendung beenden |
 
 ### Kontextmenü für Bewegung
 
 <p align="center">
-  <img src="docs/screenshots/homecam-motion-pause-beta32.webp" alt="Kontextmenü zum Pausieren der Bewegungsaktionen" width="48%">
-  <img src="docs/screenshots/homecam-foreground-duration-beta32.webp" alt="Kontextmenü zur Auswahl der Vordergrunddauer" width="48%">
+  <img src="docs/screenshots/homecam-grid-context-beta13.webp" alt="HomeCam Monitor 0.5.0-beta.13 im 4-Kamera-Raster mit Rechtsklickmenü" width="650">
 </p>
+
+Mit **Aktuellen Stream neu verbinden** kann der sichtbare Kamerastream bei Bedarf sofort manuell neu aufgebaut werden.
 
 Über **Bewegungsaktionen pausieren** lassen sich Kamerawechsel, Vordergrundreaktion sowie automatische Snapshots und Aufnahmen für **15 Minuten**, **30 Minuten** oder **1 Stunde** aussetzen. **Bis manuell aktiviert** schaltet die Bewegungserkennung bis zum manuellen Wiedereinschalten aus. Eine laufende Zeitpause kann über **Pause beenden** vorzeitig beendet werden. Sensorereignisse und Aktivitätssymbole bleiben während einer Zeitpause aktiv.
 
@@ -96,11 +97,7 @@ Die **Vordergrunddauer** lässt sich im Rechtsklickmenü schnell auf **3, 5, 10,
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
 
-Im **4-Kamera-Raster** zeigt die Beta bis zu vier gültig eingerichtete Kameras gleichzeitig. Nicht belegte Felder zeigen die schwarze **HomeCamMonitor-Platzhalterkachel**. Ein Doppelklick in das Raster schaltet die gesamte Rasteransicht in den Vollbildmodus und wieder zurück. Das Rastersymbol wechselt zurück zur Einzelansicht; Snapshot und Aufnahme werden dort wie gewohnt für die ausgewählte Kamera verwendet.
-
-<p align="center">
-  <img src="docs/screenshots/homecam-grid-beta32.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit drei Kameras und HomeCamMonitor-Platzhalterkachel" width="507">
-</p>
+Im **4-Kamera-Raster** zeigt die Beta bis zu vier gültig eingerichtete Kameras gleichzeitig. Optional lassen sich **Kameranamen im 4er-Raster**, das **HomeCamMonitor-Logo in leeren Kamerafeldern** und ein **Außenrahmen** ein- oder ausschalten. Ein Doppelklick in das Raster schaltet die gesamte Rasteransicht in den Vollbildmodus und wieder zurück. Das Rastersymbol wechselt zurück zur Einzelansicht; Snapshot und Aufnahme werden dort wie gewohnt für die ausgewählte Kamera verwendet.
 
 Videoaufnahmen der Beta werden als MKV-Dateien unter `%USERPROFILE%\Videos\HomeCam Monitor` gespeichert. Der kleine Aufnahmepunkt ist im Ruhezustand weiß und leuchtet während der Aufnahme rot. Ein erneuter Klick beendet und speichert die Aufnahme. Die Aufnahme nutzt einen eigenen mpv-Prozess, damit der für geringe Verzögerung deaktivierte Cache des Livebilds keine leeren Dateien mehr erzeugt.
 
@@ -117,7 +114,17 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.3.0-beta.32`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.5.0-beta.13`. Die stabile Ausgabe bleibt getrennt.
+
+### Neu in 0.5.0 Beta 5–13
+
+- **Speicherpfade:** getrennte Ordner für manuelle Snapshots, manuelle Videos, Bewegungs-Snapshots und Bewegungs-Videos; auch der Einstellungsordner ist auswählbar.
+- **Einstellungen sichern und wiederherstellen:** Kameras, Speicherpfade und HA-Token können in einer Sicherung gespeichert und wieder eingelesen werden.
+- **Aufnahme-Vorlauf:** Snapshot- und Video-Vorlauf lassen sich konfigurieren. Der Video-Vorlauf benötigt nach dem Start kurz Zeit zum Aufbau des Puffers.
+- **Raster-Darstellung:** Kameranamen, HomeCamMonitor-Logo in leeren Feldern und Außenrahmen sind getrennt schaltbar.
+- **Stream-Reconnect:** Das Rechtsklickmenü enthält **„Aktuellen Stream neu verbinden“**.
+- **Setup ab 0.5:** frei wählbarer Installationsordner, standardmäßig `C:\Program Files\HomeCamMonitor`; vorhandene Installationen können erkannt, aktualisiert oder deinstalliert werden.
+- **Beta 11–13:** Versionsanzeige und Speichern/Abbrechen liegen in einem festen Fußbereich; Beta 13 reduziert ihn auf eine Zeile mit Version links und Buttons rechts.
 
 ### Neu in 0.3.0 Beta 32
 
@@ -285,7 +292,7 @@ Nur in der Beta ersetzt ein schlichtes Windows-Minimieren-Symbol den Vollbild-Bu
 
 Beim ersten Start übernimmt die Beta einmalig die Kameraliste der stabilen Version. Anschließend speichert sie ihre Einstellungen getrennt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
 
-Der Beta-Build enthält nur `HomeCamMonitor-Beta-Setup.exe`. Die selbstextrahierende Datei installiert bzw. aktualisiert immer `C:\github_mk\HomeCamMonitor-Beta` und startet die Beta. Die persönlichen Einstellungen unter `%LOCALAPPDATA%\HomeCamMonitor-Beta` bleiben dabei erhalten.
+Der Beta-Build enthält `HomeCamMonitor-Beta-Setup.exe`. Das selbstextrahierende Setup bietet einen **frei wählbaren Installationsordner**; Standard ist `C:\Program Files\HomeCamMonitor`. Vorhandene Installationen werden erkannt und können aktualisiert oder deinstalliert werden. Für geschützte Zielordner fordert das Setup bei Bedarf Administratorrechte an. Die persönlichen Beta-Einstellungen bleiben standardmäßig erhalten; ein Zurücksetzen ist eine separate, bestätigungspflichtige Option.
 
 Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie nicht digital signiert ist, können Browser oder Windows trotzdem eine Reputationswarnung anzeigen. GitHub verpackt Actions-Artefakte beim Herunterladen grundsätzlich in ein ZIP; darin befindet sich nur die Setup-EXE.
 
@@ -294,10 +301,14 @@ Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
 
 <p align="center">
-  <img src="docs/screenshots/homecam-settings-anonymized-beta32-fixed.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.3.0-beta.32" width="550">
+  <img src="docs/screenshots/homecam-settings-beta13-top-anonymized.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.5.0-beta.13 – oberer Bereich" width="600">
 </p>
 
-In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen konfigurieren sowie eine gemeinsame Aufbewahrungsfrist festlegen.
+<p align="center">
+  <img src="docs/screenshots/homecam-settings-beta13-bottom-anonymized.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.5.0-beta.13 – Speicherpfade und Sicherung" width="600">
+</p>
+
+In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen, Snapshot-/Video-Vorlauf und eine gemeinsame Aufbewahrungsfrist konfigurieren. Unter **Speicherpfade** können die vier Aufnahmeordner sowie der Einstellungsordner gewählt werden. Der Bereich **Einstellungen sichern und wiederherstellen** exportiert bzw. importiert die gespeicherte Konfiguration einschließlich Kameras, Speicherpfaden und HA-Token.
 
 | Feld | Beispiel |
 |---|---|
@@ -306,7 +317,7 @@ In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert
 | Bewegungs-Entität | beispielsweise `binary_sensor.camera_einfahrt_bewegung` |
 | Personen-Entität | beispielsweise `binary_sensor.camera_einfahrt_person` |
 
-Meldet eine aktivierte Entität Bewegung, wechselt HomeCam Monitor automatisch auf die zugehörige Kamera und holt deren Bild nach vorn. Die Personenerkennung kann separat pro Kamera aktiviert werden und wird unter anderem für den Personen-Snapshot verwendet. So können Einfahrt, Garten und Garage unabhängig voneinander eingerichtet werden. **Bewegungserkennung aktiv** bleibt der globale Hauptschalter für alle Kameras. Die Einstellungen enthalten außerdem die automatische Bedienleistenskalierung, das Startverhalten, die Dauer der Aktivitätssymbole und die optionale Hervorhebung im 4er-Raster.
+Meldet eine aktivierte Entität Bewegung, wechselt HomeCam Monitor automatisch auf die zugehörige Kamera und holt deren Bild nach vorn. Die Personenerkennung kann separat pro Kamera aktiviert werden und wird unter anderem für den Personen-Snapshot verwendet. So können Einfahrt, Garten und Garage unabhängig voneinander eingerichtet werden. **Bewegungserkennung aktiv** bleibt der globale Hauptschalter für alle Kameras. Die Einstellungen enthalten außerdem die automatische Bedienleistenskalierung, das Startverhalten, die Dauer der Aktivitätssymbole, die optionale Hervorhebung im 4er-Raster sowie die Darstellungsoptionen für Kameranamen, Logo und Außenrahmen.
 
 Das Langzeit-Token wird in Home Assistant im eigenen Benutzerprofil unter **Sicherheit → Langzeit-Zugriffstoken** erstellt. Es wird nur lokal in `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json` gespeichert; diese Datei darf nicht weitergegeben oder veröffentlicht werden.
 
