@@ -21,3 +21,5 @@ In Beta 11 liegen Version, Speichern und Abbrechen in einem festen Fußbereich d
 Beta 12 trennt das Scrollfenster vom automatisch bemessenen Inhalt. Damit umfasst die Scrollstrecke auch die gesamte letzte BETA-Gruppe und deren unteren Abstand. Eine Windows-Prüfung scrollt bei normaler und kleiner Fensterhöhe bis zur letzten Gruppe und kontrolliert deren vollständige Sichtbarkeit.
 
 Eine dezente dunkelgraue Trennlinie kennzeichnet den festen Fußbereich.
+
+Beta 13 verkleinert den festen Fußbereich auf eine Zeile: Version links, Abbrechen und Speichern rechts auf gleicher Höhe. Die Trennlinie und der vollständige Scrollbereich bleiben erhalten.

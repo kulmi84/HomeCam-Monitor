@@ -453,7 +453,7 @@ internal static class Program
             .Single(panel => panel.Controls.OfType<Button>().Any(button => button.Text == "Speichern"));
         var buttonPosition = settingsForm.PointToClient(buttons.PointToScreen(Point.Empty));
         var bottomGap = settingsForm.ClientSize.Height - buttonPosition.Y - buttons.Height;
-        if (bottomGap < 10 || bottomGap > 25 || buttons.Parent?.Name != "SettingsFooter")
+        if (bottomGap < 6 || bottomGap > 14 || buttons.Parent?.Name != "SettingsFooter")
             throw new InvalidOperationException("Settings buttons are clipped or missing their fixed bottom spacing.");
         var screenArea = Screen.FromControl(settingsForm).WorkingArea;
         if (!screenArea.Contains(settingsForm.Bounds))
@@ -484,7 +484,7 @@ internal static class Program
         scrollArea.ScrollControlIntoView(storageGroup);
         Application.DoEvents();
         buttonPosition = settingsForm.PointToClient(buttons.PointToScreen(Point.Empty));
-        if (buttonPosition.Y < 0 || buttonPosition.Y + buttons.Height > settingsForm.ClientSize.Height - 10)
+        if (buttonPosition.Y < 0 || buttonPosition.Y + buttons.Height > settingsForm.ClientSize.Height - 6)
             throw new InvalidOperationException("Scrolling settings moved the save/cancel buttons out of view.");
         foreach (var field in storagePaths)
         {
