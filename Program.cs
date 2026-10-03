@@ -3810,7 +3810,10 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Name = "SettingsScrollArea", Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 };
+        var scrollArea = new Panel { Name = "SettingsScrollArea", Dock = DockStyle.Fill, AutoScroll = true };
+        var table = new TableLayoutPanel { Name = "SettingsContent", Dock = DockStyle.Top, AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 };
+        scrollArea.Controls.Add(table);
         table.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -4027,6 +4030,11 @@ internal sealed class SettingsForm : Form
         };
         var footer = new TableLayoutPanel { Name = "SettingsFooter", Dock = DockStyle.Bottom, AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14, 6, 14, 14), ColumnCount = 1, RowCount = 2 };
+        footer.Paint += (_, paint) =>
+        {
+            using var separator = new Pen(Color.FromArgb(65, 65, 69));
+            paint.Graphics.DrawLine(separator, 0, 0, footer.ClientSize.Width - 1, 0);
+        };
         footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         footer.RowStyles.Add(new RowStyle(SizeType.AutoSize)); footer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         footer.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true,
@@ -4046,11 +4054,14 @@ internal sealed class SettingsForm : Form
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
-        Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
 #if BETA
+        Controls.Add(scrollArea);
         Controls.Add(footer);
         ApplyDarkTheme(this);
+#else
+        Controls.Add(table);
 #endif
+        AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
 #if BETA
         testHomeAssistant.Click += async (_, _) =>
         {

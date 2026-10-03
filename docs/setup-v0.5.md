@@ -17,3 +17,7 @@ Beta 10 enthält keinen fest eingebauten persönlichen Entwicklungsordner mehr. 
 Beta 11 zeigt unten links die Programmversion als reine Information an. Die Anzeige verwendet denselben Versionswert wie der Windows-Deinstallationseintrag.
 
 In Beta 11 liegen Version, Speichern und Abbrechen in einem festen Fußbereich des Einstellungsfensters. Nur die Einstellungsgruppen scrollen. Beim Öffnen bleibt das gesamte Fenster innerhalb der Arbeitsfläche des jeweiligen Bildschirms, einschließlich Abstand zur Taskleiste.
+
+Beta 12 trennt das Scrollfenster vom automatisch bemessenen Inhalt. Damit umfasst die Scrollstrecke auch die gesamte letzte BETA-Gruppe und deren unteren Abstand. Eine Windows-Prüfung scrollt bei normaler und kleiner Fensterhöhe bis zur letzten Gruppe und kontrolliert deren vollständige Sichtbarkeit.
+
+Eine dezente dunkelgraue Trennlinie kennzeichnet den festen Fußbereich.

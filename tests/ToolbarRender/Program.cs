@@ -458,13 +458,30 @@ internal static class Program
         var screenArea = Screen.FromControl(settingsForm).WorkingArea;
         if (!screenArea.Contains(settingsForm.Bounds))
             throw new InvalidOperationException("Settings window extends beyond the screen working area.");
+        var scrollArea = (ScrollableControl)settingsForm.Controls.Find("SettingsScrollArea", true).Single();
+        var betaGroup = settingsForm.Controls.Find("BetaDiagnostics", true).Single();
+        foreach (var height in new[] { settingsForm.ClientSize.Height, 610 })
+        {
+            settingsForm.ClientSize = new Size(settingsForm.ClientSize.Width, height);
+            Application.DoEvents();
+            scrollArea.AutoScrollPosition = new Point(0, scrollArea.VerticalScroll.Maximum);
+            Application.DoEvents();
+            var betaBounds = new Rectangle(scrollArea.PointToClient(betaGroup.PointToScreen(Point.Empty)), betaGroup.Size);
+            if (!scrollArea.ClientRectangle.Contains(betaBounds) || betaBounds.Bottom > scrollArea.ClientSize.Height - 8)
+                throw new InvalidOperationException("The bottom BETA settings group cannot be scrolled fully into view.");
+        }
+        using (var bottomImage = new Bitmap(settingsForm.Width, settingsForm.Height))
+        {
+            settingsForm.DrawToBitmap(bottomImage, new Rectangle(Point.Empty, bottomImage.Size));
+            bottomImage.Save(Path.Combine(output, "settings-bottom.png"));
+        }
         settingsForm.ClientSize = new Size(1260, 1000);
         Application.DoEvents();
         using var wideSettings = new Bitmap(settingsForm.Width, settingsForm.Height);
         settingsForm.DrawToBitmap(wideSettings, new Rectangle(Point.Empty, wideSettings.Size));
         wideSettings.Save(Path.Combine(output, "settings-wide.png"));
         var storageGroup = settingsForm.Controls.Find("RecordingStorage", true).Single();
-        ((ScrollableControl)storageGroup.Parent!).ScrollControlIntoView(storageGroup);
+        scrollArea.ScrollControlIntoView(storageGroup);
         Application.DoEvents();
         buttonPosition = settingsForm.PointToClient(buttons.PointToScreen(Point.Empty));
         if (buttonPosition.Y < 0 || buttonPosition.Y + buttons.Height > settingsForm.ClientSize.Height - 10)
@@ -480,7 +497,7 @@ internal static class Program
         settingsForm.DrawToBitmap(storageImage, new Rectangle(Point.Empty, storageImage.Size));
         storageImage.Save(Path.Combine(output, "settings-storage.png"));
         var backupGroup = settingsForm.Controls.Find("SettingsBackup", true).Single();
-        ((ScrollableControl)backupGroup.Parent!).ScrollControlIntoView(backupGroup);
+        scrollArea.ScrollControlIntoView(backupGroup);
         Application.DoEvents();
         if (backupGroup.Controls.Find("ExportSettings", true).Length != 1 || backupGroup.Controls.Find("ImportSettings", true).Length != 1)
             throw new InvalidOperationException("Backup and restore controls are missing.");
