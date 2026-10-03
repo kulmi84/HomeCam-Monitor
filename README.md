@@ -33,6 +33,10 @@ HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11.
 - Aktivitätssymbole und optionale Hervorhebung der auslösenden Kamera im 4er-Raster (Beta)
 - automatische Bewegungsaktionen pro Kamera: Snapshot, Video oder beides mit Aufbewahrungsfrist (Beta)
 - Bewegungsaktionen zeitweise direkt im Rechtsklickmenü pausieren (Beta)
+- Darstellungsoptionen für das 4er-Raster: Kameranamen, Logo in leeren Feldern und Außenrahmen (Beta)
+- frei wählbare Speicherpfade sowie Snapshot-/Video-Vorlauf für Aufnahmen (Beta)
+- Einstellungen einschließlich Kameras, Speicherpfaden und HA-Token sichern und wiederherstellen (Beta)
+- aktuellen Stream bei Bedarf direkt über das Rechtsklickmenü neu verbinden (Beta)
 - optional „Immer im Vordergrund“ und Windows-Autostart
 
 ## Installation
@@ -102,6 +106,12 @@ Die **Vordergrunddauer** lässt sich im Rechtsklickmenü schnell auf **3, 5, 10,
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
 
 Im **4-Kamera-Raster** zeigt die Beta bis zu vier gültig eingerichtete Kameras gleichzeitig. Optional lassen sich **Kameranamen im 4er-Raster**, das **HomeCamMonitor-Logo in leeren Kamerafeldern** und ein **Außenrahmen** ein- oder ausschalten. Ein Doppelklick in das Raster schaltet die gesamte Rasteransicht in den Vollbildmodus und wieder zurück. Das Rastersymbol wechselt zurück zur Einzelansicht; Snapshot und Aufnahme werden dort wie gewohnt für die ausgewählte Kamera verwendet.
+
+<p align="center">
+  <img src="docs/screenshots/homecam-grid-context-beta13.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit aktuellem Rechtsklickmenü und Logo im freien Kamerafeld" width="600">
+</p>
+
+Im aktuellen Rechtsklickmenü kann außerdem der **aktuelle Stream neu verbunden** werden. Die bekannten Schalter für **Immer im Vordergrund**, **Bewegungserkennung**, das **Pausieren von Bewegungsaktionen** und die **Vordergrunddauer** bleiben direkt erreichbar.
 
 Videoaufnahmen der Beta werden als MKV-Dateien unter `%USERPROFILE%\Videos\HomeCam Monitor` gespeichert. Der kleine Aufnahmepunkt ist im Ruhezustand weiß und leuchtet während der Aufnahme rot. Ein erneuter Klick beendet und speichert die Aufnahme. Die Aufnahme nutzt einen eigenen mpv-Prozess, damit der für geringe Verzögerung deaktivierte Cache des Livebilds keine leeren Dateien mehr erzeugt.
 
@@ -306,17 +316,11 @@ Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
 
 <p align="center">
-  <img src="docs/screenshots/homecam-settings-beta13-top-part1-anonymized.webp" alt="Anonymisierte Einstellungen – oberer Bereich, Teil 1" width="650"><br>
-  <img src="docs/screenshots/homecam-settings-beta13-top-part2-anonymized.webp" alt="Anonymisierte Einstellungen – oberer Bereich, Teil 2" width="650"><br>
-  <img src="docs/screenshots/homecam-settings-beta13-top-part3-anonymized.webp" alt="Anonymisierte Einstellungen – oberer Bereich, Teil 3" width="650">
+  <img src="docs/screenshots/homecam-settings-beta13-top-anonymized.webp" alt="Anonymisierte HomeCam-Monitor-Einstellungen – oberer Bereich" width="600"><br>
+  <img src="docs/screenshots/homecam-settings-beta13-bottom-anonymized.webp" alt="Anonymisierte HomeCam-Monitor-Einstellungen – Speicherpfade sowie Sichern und Wiederherstellen" width="600">
 </p>
 
-<p align="center">
-  <img src="docs/screenshots/homecam-settings-beta13-bottom-part1-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 1" width="650"><br>
-  <img src="docs/screenshots/homecam-settings-beta13-bottom-part2-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 2" width="650"><br>
-  <img src="docs/screenshots/homecam-settings-beta13-bottom-part3-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 3" width="650"><br>
-  <img src="docs/screenshots/homecam-settings-beta13-bottom-part4-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 4" width="650">
-</p>
+Die aktuellen Beta-Einstellungen enthalten zusätzlich die Darstellungsoptionen für das 4er-Raster, **Snapshot- und Video-Vorlauf**, getrennte **Speicherpfade** für manuelle und automatische Aufnahmen sowie **Einstellungen sichern und wiederherstellen**. Die Sicherung umfasst Kameras, Speicherpfade und das Home-Assistant-Token.
 
 In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen sowie für alle Kameras die **Aufbewahrungsfrist**, der **Snapshot-Vorlauf** und der **Video-Vorlauf** konfigurieren. Die Aufbewahrungsfrist gilt nur für automatische Bewegungsaufnahmen; manuelle Aufnahmen bleiben erhalten. Unter **Speicherpfade** können die vier Aufnahmeordner sowie der Einstellungsordner gewählt werden. Der Bereich **Einstellungen sichern und wiederherstellen** exportiert bzw. importiert die gespeicherte Konfiguration einschließlich Kameras, Speicherpfaden und HA-Token. Beim Speichern wird die `settings.json` in den gewählten Sicherungsordner mitgenommen.
 
