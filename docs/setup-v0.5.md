@@ -8,6 +8,8 @@ Für geschützte Zielordner fordert das Setup bei der Installation Administrator
 
 CI prüft Entpacken in einen Pfad mit Leerzeichen, Wiederholungsinstallation, Erhalt fremder Dateien, Programm-Icon und Verknüpfungsziel. Eine Setup-Vorschau wird als Build-Artefakt gespeichert.
 
-Beta 9 erkennt vorhandene Installationen anhand gespeicherter Setup-/Deinstallationseinträge und der Programmdatei im ausgewählten, Standard- oder früheren Beta-Ordner. Das Setup bietet Aktualisieren und Deinstallieren an. Bei alten Paketen ohne sichere Installationsliste muss zunächst aktualisiert werden.
+Beta 9 erkennt vorhandene Installationen anhand gespeicherter Setup-/Deinstallationseinträge und der Programmdatei im ausgewählten, Standardordner. Das Setup bietet Aktualisieren und Deinstallieren an. Bei alten Paketen ohne sichere Installationsliste muss zunächst aktualisiert werden.
 
 „Einstellungen zurücksetzen“ ist standardmäßig aus und benötigt eine Bestätigung. Nach erfolgreicher Installation werden nur Beta-Einstellungen gelöscht; vorhandene Aufnahmen, Sicherungsdateien und die Aufbewahrungsdateiliste bleiben erhalten. Beim nächsten Programmstart werden frische Voreinstellungen erzeugt, ohne alte Stable-Einstellungen erneut zu importieren. Eine Deinstallation bietet das Löschen der Einstellungen ebenfalls separat an.
+
+Beta 10 enthält keinen fest eingebauten persönlichen Entwicklungsordner mehr. Die Erkennung nutzt nur das ausgewählte Ziel, vorhandene Registry-Einträge und den Standardordner. Bei der Deinstallation werden beide Installationsvermerke immer entfernt, unabhängig davon, ob Einstellungen behalten werden. Ein vorhandener benutzerdefinierter Einstellungsordner bleibt bei deaktiviertem Löschen der Einstellungen erhalten.

@@ -12,8 +12,8 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("HomeCamMonitor Beta Setup")]
 [assembly: AssemblyProduct("HomeCamMonitor Beta")]
-[assembly: AssemblyVersion("0.5.0.9")]
-[assembly: AssemblyFileVersion("0.5.0.9")]
+[assembly: AssemblyVersion("0.5.0.10")]
+[assembly: AssemblyFileVersion("0.5.0.10")]
 
 internal static class BetaInstaller
 {
@@ -70,7 +70,7 @@ internal static class BetaInstaller
         string registered;
         using (RegistryKey key = Registry.CurrentUser.OpenSubKey(BetaUninstaller.RegistryPath))
             registered = key == null ? null : key.GetValue("InstallLocation") as string;
-        return FindInstallation(new[] { selected, saved, registered, FreshInstallDirectory(), @"C:\github_mk\HomeCamMonitor-Beta" });
+        return FindInstallation(new[] { selected, saved, registered, FreshInstallDirectory() });
     }
 
     internal static string FindInstallation(IEnumerable<string> candidates)
@@ -205,7 +205,7 @@ internal static class BetaInstaller
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(BetaUninstaller.RegistryPath))
         {
             key.SetValue("DisplayName", "HomeCamMonitor Beta");
-            key.SetValue("DisplayVersion", "0.5.0-beta.9");
+            key.SetValue("DisplayVersion", "0.5.0-beta.10");
             key.SetValue("DisplayIcon", executable + ",0");
             key.SetValue("InstallLocation", directory);
             key.SetValue("UninstallString", "\"" + uninstaller + "\"");
@@ -296,6 +296,20 @@ internal static class BetaInstaller
             BetaUninstaller.DeleteSettingsFiles(resetFolder, false);
             if (File.Exists(Path.Combine(resetFolder, "settings.json")) || Directory.GetFiles(resetFolder).Length != 3)
                 throw new Exception("Settings reset removed recording files or the retention ledger.");
+            string testRegistry = @"Software\HomeCamMonitor-Uninstall-Test-" + Guid.NewGuid().ToString("N");
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(testRegistry + @"\Setup")) key.SetValue("InstallDirectory", target);
+                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(testRegistry + @"\Uninstall")) key.SetValue("InstallLocation", target);
+                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(testRegistry)) key.SetValue("SettingsFolder", resetFolder);
+                BetaUninstaller.RemoveInstallRegistration(testRegistry + @"\Setup", testRegistry + @"\Uninstall");
+                using (RegistryKey setup = Registry.CurrentUser.OpenSubKey(testRegistry + @"\Setup"))
+                using (RegistryKey uninstall = Registry.CurrentUser.OpenSubKey(testRegistry + @"\Uninstall"))
+                using (RegistryKey settings = Registry.CurrentUser.OpenSubKey(testRegistry))
+                    if (setup != null || uninstall != null || (string)settings.GetValue("SettingsFolder") != resetFolder)
+                        throw new Exception("Uninstall left its install path behind or removed retained settings.");
+            }
+            finally { Registry.CurrentUser.DeleteSubKeyTree(testRegistry, false); }
             File.WriteAllText(Path.Combine(target, "keep-video.mkv"), "user video");
             File.WriteAllText(Path.Combine(target, "settings.json"), "user settings");
             BetaUninstaller.RemoveFiles(target);

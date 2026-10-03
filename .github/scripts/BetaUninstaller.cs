@@ -117,11 +117,16 @@ internal static class BetaUninstaller
         if (Directory.Exists(menu) && !Directory.EnumerateFileSystemEntries(menu).Any()) Directory.Delete(menu);
         string desktop = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "HomeCamMonitor Beta.lnk");
         if (File.Exists(desktop)) File.Delete(desktop);
-        Registry.CurrentUser.DeleteSubKeyTree(RegistryPath, false);
-        Registry.CurrentUser.DeleteSubKeyTree(@"Software\HomeCamMonitor-Beta\Setup", false);
+        RemoveInstallRegistration(@"Software\HomeCamMonitor-Beta\Setup", RegistryPath);
         using (RegistryKey run = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true))
             if (run != null) run.DeleteValue("HomeCamMonitor-Beta", false);
         if (deleteSettings) DeleteSettings(true);
+    }
+    internal static void RemoveInstallRegistration(string setupPath, string uninstallPath)
+    {
+        // Install-location records are always removed, even when settings are kept.
+        Registry.CurrentUser.DeleteSubKeyTree(setupPath, false);
+        Registry.CurrentUser.DeleteSubKeyTree(uninstallPath, false);
     }
     internal static void DeleteSettings(bool includeDiagnostics)
     {
