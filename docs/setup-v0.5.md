@@ -15,3 +15,5 @@ Beta 9 erkennt vorhandene Installationen anhand gespeicherter Setup-/Deinstallat
 Beta 10 enthält keinen fest eingebauten persönlichen Entwicklungsordner mehr. Die Erkennung nutzt nur das ausgewählte Ziel, vorhandene Registry-Einträge und den Standardordner. Bei der Deinstallation werden beide Installationsvermerke immer entfernt, unabhängig davon, ob Einstellungen behalten werden. Ein vorhandener benutzerdefinierter Einstellungsordner bleibt bei deaktiviertem Löschen der Einstellungen erhalten.
 
 Beta 11 zeigt unten links die Programmversion als reine Information an. Die Anzeige verwendet denselben Versionswert wie der Windows-Deinstallationseintrag.
+
+In Beta 11 liegen Version, Speichern und Abbrechen in einem festen Fußbereich des Einstellungsfensters. Nur die Einstellungsgruppen scrollen. Beim Öffnen bleibt das gesamte Fenster innerhalb der Arbeitsfläche des jeweiligen Bildschirms, einschließlich Abstand zur Taskleiste.

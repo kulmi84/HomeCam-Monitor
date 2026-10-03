@@ -3679,7 +3679,16 @@ internal sealed class SettingsForm : Form
             NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.UseImmersiveDarkMode,
                 ref darkTitleBar, sizeof(int));
         };
-        Shown += (_, _) => { Activate(); BringToFront(); };
+        Shown += (_, _) =>
+        {
+            var available = Screen.FromControl(Owner ?? this).WorkingArea;
+            MinimumSize = new Size(Math.Min(MinimumSize.Width, available.Width), Math.Min(MinimumSize.Height, available.Height));
+            var width = Math.Min(Width, available.Width);
+            var height = Math.Min(Height, available.Height);
+            Bounds = new Rectangle(Math.Clamp(Left, available.Left, available.Right - width),
+                Math.Clamp(Top, available.Top, available.Bottom - height), width, height);
+            Activate(); BringToFront();
+        };
 #else
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -3801,7 +3810,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 10 };
+        var table = new TableLayoutPanel { Name = "SettingsScrollArea", Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 };
         table.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -4016,7 +4025,12 @@ internal sealed class SettingsForm : Form
             }
             catch (Exception error) { MessageBox.Show(this, error.Message, "Wiederherstellung fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         };
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 8);
+        var footer = new TableLayoutPanel { Name = "SettingsFooter", Dock = DockStyle.Bottom, AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14, 6, 14, 14), ColumnCount = 1, RowCount = 2 };
+        footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        footer.RowStyles.Add(new RowStyle(SizeType.AutoSize)); footer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        footer.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true,
+            ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left, Margin = new Padding(3, 0, 3, 6) }, 0, 0);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -4028,12 +4042,13 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 9);
+        footer.Controls.Add(buttons, 0, 1);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
         Controls.Add(table); AcceptButton = ok; CancelButton = buttons.Controls[1] as Button;
 #if BETA
+        Controls.Add(footer);
         ApplyDarkTheme(this);
 #endif
 #if BETA

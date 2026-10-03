@@ -451,8 +451,13 @@ internal static class Program
             throw new InvalidOperationException("Grid highlighting must be disabled and indicators shown for two seconds by default");
         var buttons = AllControls(settingsForm).OfType<FlowLayoutPanel>()
             .Single(panel => panel.Controls.OfType<Button>().Any(button => button.Text == "Speichern"));
-        if (buttons.Bottom <= settingsForm.ClientSize.Height && settingsForm.ClientSize.Height - buttons.Bottom > 25)
-            throw new InvalidOperationException("Unused space remains below the settings buttons");
+        var buttonPosition = settingsForm.PointToClient(buttons.PointToScreen(Point.Empty));
+        var bottomGap = settingsForm.ClientSize.Height - buttonPosition.Y - buttons.Height;
+        if (bottomGap < 10 || bottomGap > 25 || buttons.Parent?.Name != "SettingsFooter")
+            throw new InvalidOperationException("Settings buttons are clipped or missing their fixed bottom spacing.");
+        var screenArea = Screen.FromControl(settingsForm).WorkingArea;
+        if (!screenArea.Contains(settingsForm.Bounds))
+            throw new InvalidOperationException("Settings window extends beyond the screen working area.");
         settingsForm.ClientSize = new Size(1260, 1000);
         Application.DoEvents();
         using var wideSettings = new Bitmap(settingsForm.Width, settingsForm.Height);
@@ -461,6 +466,9 @@ internal static class Program
         var storageGroup = settingsForm.Controls.Find("RecordingStorage", true).Single();
         ((ScrollableControl)storageGroup.Parent!).ScrollControlIntoView(storageGroup);
         Application.DoEvents();
+        buttonPosition = settingsForm.PointToClient(buttons.PointToScreen(Point.Empty));
+        if (buttonPosition.Y < 0 || buttonPosition.Y + buttons.Height > settingsForm.ClientSize.Height - 10)
+            throw new InvalidOperationException("Scrolling settings moved the save/cancel buttons out of view.");
         foreach (var field in storagePaths)
         {
             var row = ((TableLayoutPanel)field.Parent!).GetRow(field);
