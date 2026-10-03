@@ -379,6 +379,15 @@ internal static class Program
         var storagePaths = AllControls(settingsForm).OfType<TextBox>().Where(field => field.Name.StartsWith("StoragePath")).ToArray();
         if (storagePaths.Length != 4 || storagePaths.Any(field => string.IsNullOrWhiteSpace(field.Text)))
             throw new InvalidOperationException("Four independent storage path controls are missing.");
+        var expectedMotionSnapshots = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "HomeCam Monitor", "Bewegung");
+        if (settingsForm.Controls.Find("StoragePath2", true).OfType<TextBox>().Single().Text != expectedMotionSnapshots ||
+            RecordingStorage.ResolveMotionSnapshots("") != expectedMotionSnapshots ||
+            RecordingStorage.ResolveMotionSnapshots(RecordingStorage.MotionDefault + Path.DirectorySeparatorChar) != expectedMotionSnapshots)
+            throw new InvalidOperationException("Movement snapshots still use the old Videos default.");
+        var customMotionSnapshots = Path.Combine(Path.GetTempPath(), "HomeCam-custom-snapshots");
+        if (RecordingStorage.ResolveMotionSnapshots(customMotionSnapshots) != customMotionSnapshots ||
+            settingsForm.Controls.Find("StoragePath3", true).OfType<TextBox>().Single().Text != RecordingStorage.MotionDefault)
+            throw new InvalidOperationException("Correcting snapshot defaults changed a custom folder or the video default.");
         var settingsStoragePath = settingsForm.Controls.Find("SettingsStoragePath", true).OfType<TextBox>().Single();
         if (settingsStoragePath.Text != SettingsStore.Folder)
             throw new InvalidOperationException("The current settings storage folder is not displayed.");

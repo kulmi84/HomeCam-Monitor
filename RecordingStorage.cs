@@ -7,7 +7,15 @@ internal static class RecordingStorage
 {
     internal static string ManualSnapshots => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "HomeCam Monitor");
     internal static string ManualVideos => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor");
+    internal static string MotionSnapshots => Path.Combine(ManualSnapshots, "Bewegung");
     internal static string MotionDefault => Path.Combine(ManualVideos, "Bewegung");
+    internal static string ResolveMotionSnapshots(string value)
+    {
+        var folder = Resolve(value, MotionSnapshots);
+        // Earlier Betas also saved the incorrect video default as an explicit path.
+        return string.Equals(Path.TrimEndingDirectorySeparator(folder), Path.TrimEndingDirectorySeparator(MotionDefault), StringComparison.OrdinalIgnoreCase)
+            ? MotionSnapshots : folder;
+    }
     private static string Ledger => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta", "motion-recordings.json");
     internal static string Resolve(string value, string fallback)
     {

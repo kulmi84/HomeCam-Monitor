@@ -12,8 +12,8 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("HomeCamMonitor Beta Setup")]
 [assembly: AssemblyProduct("HomeCamMonitor Beta")]
-[assembly: AssemblyVersion("0.5.0.8")]
-[assembly: AssemblyFileVersion("0.5.0.8")]
+[assembly: AssemblyVersion("0.5.0.9")]
+[assembly: AssemblyFileVersion("0.5.0.9")]
 
 internal static class BetaInstaller
 {
@@ -52,9 +52,12 @@ internal static class BetaInstaller
             string previous = key == null ? null : key.GetValue("InstallDirectory") as string;
             if (!String.IsNullOrWhiteSpace(previous)) return previous;
         }
-        const string legacy = @"C:\github_mk\HomeCamMonitor-Beta";
-        if (File.Exists(Path.Combine(legacy, Executable))) return legacy;
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "HomeCamMonitor-Beta");
+        return FreshInstallDirectory();
+    }
+
+    internal static string FreshInstallDirectory()
+    {
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "HomeCamMonitor");
     }
 
     internal static string NormalizeDirectory(string directory)
@@ -169,7 +172,7 @@ internal static class BetaInstaller
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(BetaUninstaller.RegistryPath))
         {
             key.SetValue("DisplayName", "HomeCamMonitor Beta");
-            key.SetValue("DisplayVersion", "0.5.0-beta.8");
+            key.SetValue("DisplayVersion", "0.5.0-beta.9");
             key.SetValue("DisplayIcon", executable + ",0");
             key.SetValue("InstallLocation", directory);
             key.SetValue("UninstallString", "\"" + uninstaller + "\"");
@@ -180,6 +183,8 @@ internal static class BetaInstaller
 
     private static void Verify()
     {
+        if (FreshInstallDirectory() != Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "HomeCamMonitor"))
+            throw new Exception("Fresh install directory is incorrect.");
         string temp = Path.Combine(Path.GetTempPath(), "HomeCam-Setup-Test-" + Guid.NewGuid().ToString("N"));
         try
         {

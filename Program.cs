@@ -2351,7 +2351,7 @@ internal sealed class MonitorForm : Form
         var videoBefore = settings.VideoPreRollSeconds;
         try
         {
-            var snapshotFolder = RecordingStorage.Resolve(settings.MotionSnapshotFolder, RecordingStorage.MotionDefault);
+            var snapshotFolder = RecordingStorage.ResolveMotionSnapshots(settings.MotionSnapshotFolder);
             var videoFolder = RecordingStorage.Resolve(settings.MotionVideoFolder, RecordingStorage.MotionDefault);
             CleanupMotionStorage();
             var safeName = string.Concat(camera.Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
@@ -3959,7 +3959,7 @@ internal sealed class SettingsForm : Form
         }
         var manualSnapshotPath = AddStoragePath("Manuelle Snapshots:", current.ManualSnapshotFolder, RecordingStorage.ManualSnapshots, 0);
         var manualVideoPath = AddStoragePath("Manuelle Videos:", current.ManualVideoFolder, RecordingStorage.ManualVideos, 1);
-        var motionSnapshotPath = AddStoragePath("Snapshots bei Bewegung:", current.MotionSnapshotFolder, RecordingStorage.MotionDefault, 2);
+        var motionSnapshotPath = AddStoragePath("Snapshots bei Bewegung:", RecordingStorage.ResolveMotionSnapshots(current.MotionSnapshotFolder), RecordingStorage.MotionSnapshots, 2);
         var motionVideoPath = AddStoragePath("Videos bei Bewegung:", current.MotionVideoFolder, RecordingStorage.MotionDefault, 3);
         var settingsPath = AddStoragePath("Einstellungen:", SettingsStore.Folder, SettingsLocation.DefaultFolder, 4);
         settingsPath.Name = "SettingsStoragePath";

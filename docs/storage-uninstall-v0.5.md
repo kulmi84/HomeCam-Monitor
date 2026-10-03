@@ -4,9 +4,10 @@ Unter **Speicherpfade** sind vier Ziele unabhängig einstellbar, jeweils mit Pfa
 
 - manuelle Snapshots: bisheriger Bilder-Ordner;
 - manuelle Videos: bisheriger Videos-Ordner;
-- Bewegungssnapshots und Bewegungsvideos: bisheriger Unterordner Bewegung.
+- Bewegungssnapshots: Bilder\HomeCam Monitor\Bewegung.
+- Bewegungsvideos: Videos\HomeCam Monitor\Bewegung.
 
-Leere Felder verwenden die bisherigen Standardordner. Vollständige lokale und UNC-Pfade sind möglich. Vorhandene Aufnahmen werden nicht verschoben; laufende Aufnahmen behalten ihr ursprüngliches Ziel. Die Aufbewahrung verfolgt automatische Aufnahmen über eine lokale Dateiliste und löscht keine manuellen oder fremden Dateien in gemeinsam genutzten Ordnern. Alte automatische Aufnahmen im bisherigen Bewegungsordner bleiben über ihr eindeutiges Dateinamensschema erkennbar.
+Leere Felder verwenden die Standardordner. Seit Beta 9 wird auch ein gespeicherter alter Snapshot-Standardpfad unter Videos automatisch auf Bilder korrigiert; andere selbst gewählte Pfade bleiben erhalten. Vollständige lokale und UNC-Pfade sind möglich. Vorhandene Aufnahmen werden nicht verschoben; laufende Aufnahmen behalten ihr ursprüngliches Ziel. Die Aufbewahrung verfolgt automatische Aufnahmen über eine lokale Dateiliste und löscht keine manuellen oder fremden Dateien in gemeinsam genutzten Ordnern. Alte automatische Aufnahmen im bisherigen Bewegungsordner bleiben über ihr eindeutiges Dateinamensschema erkennbar.
 
 Das Setup registriert **HomeCamMonitor Beta** unter den installierten Windows-Apps, mit unserem Icon und einem Deinstallationsprogramm. Im Startmenü gibt es zusätzlich **Deinstallieren**.
 
