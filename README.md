@@ -86,7 +86,11 @@ In der Beta lässt sich die **Größe der Bedienleiste** in den Einstellungen vo
 ### Kontextmenü für Bewegung
 
 <p align="center">
-  <img src="docs/screenshots/homecam-grid-context-beta13.webp" alt="HomeCam Monitor 0.5.0-beta.13 im 4-Kamera-Raster mit Rechtsklickmenü" width="650">
+  <img src="docs/screenshots/homecam-grid-context-beta13-part1.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 1" width="650"><br>
+  <img src="docs/screenshots/homecam-grid-context-beta13-part2.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 2" width="650"><br>
+  <img src="docs/screenshots/homecam-grid-context-beta13-part3.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 3" width="650"><br>
+  <img src="docs/screenshots/homecam-grid-context-beta13-part4.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 4" width="650"><br>
+  <img src="docs/screenshots/homecam-grid-context-beta13-part5.webp" alt="HomeCam Monitor im 4-Kamera-Raster mit Rechtsklickmenü – Teil 5" width="650">
 </p>
 
 Mit **Aktuellen Stream neu verbinden** kann der sichtbare Kamerastream bei Bedarf sofort manuell neu aufgebaut werden.
@@ -114,9 +118,9 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 
 ## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.5.0-beta.13`. Die stabile Ausgabe bleibt getrennt.
+> **Aktueller Entwicklungsstand:** `0.5.0-beta.14`. Die stabile Ausgabe bleibt getrennt.
 
-### Neu in 0.5.0 Beta 5–13
+### Neu in 0.5.0 Beta 5–14
 
 - **Speicherpfade:** getrennte Ordner für manuelle Snapshots, manuelle Videos, Bewegungs-Snapshots und Bewegungs-Videos; auch der Einstellungsordner ist auswählbar.
 - **Einstellungen sichern und wiederherstellen:** Kameras, Speicherpfade und HA-Token können in einer Sicherung gespeichert und wieder eingelesen werden.
@@ -125,6 +129,7 @@ Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird
 - **Stream-Reconnect:** Das Rechtsklickmenü enthält **„Aktuellen Stream neu verbinden“**.
 - **Setup ab 0.5:** frei wählbarer Installationsordner, standardmäßig `C:\Program Files\HomeCamMonitor`; vorhandene Installationen können erkannt, aktualisiert oder deinstalliert werden.
 - **Beta 11–13:** Versionsanzeige und Speichern/Abbrechen liegen in einem festen Fußbereich; Beta 13 reduziert ihn auf eine Zeile mit Version links und Buttons rechts.
+- **Beta 14:** Beim Sichern der Einstellungen wird der Rechnername in den vorgeschlagenen Dateinamen aufgenommen; der Name bleibt im Speichern-Dialog frei änderbar.
 
 ### Neu in 0.3.0 Beta 32
 
@@ -301,11 +306,16 @@ Die EXE wird im GitHub-Build zusätzlich mit Microsoft Defender geprüft. Da sie
 Die dauerhafte Lösung benötigt keine Notebook-IP, keinen eingehenden Port und keinen `rest_command` mehr. HomeCam Monitor baut selbst eine ausgehende WebSocket-Verbindung zu Home Assistant auf und überwacht den Bewegungssensor.
 
 <p align="center">
-  <img src="docs/screenshots/homecam-settings-beta13-top-anonymized.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.5.0-beta.13 – oberer Bereich" width="600">
+  <img src="docs/screenshots/homecam-settings-beta13-top-part1-anonymized.webp" alt="Anonymisierte Einstellungen – oberer Bereich, Teil 1" width="650"><br>
+  <img src="docs/screenshots/homecam-settings-beta13-top-part2-anonymized.webp" alt="Anonymisierte Einstellungen – oberer Bereich, Teil 2" width="650"><br>
+  <img src="docs/screenshots/homecam-settings-beta13-top-part3-anonymized.webp" alt="Anonymisierte Einstellungen – oberer Bereich, Teil 3" width="650">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/homecam-settings-beta13-bottom-anonymized.webp" alt="Anonymisierte Einstellungen von HomeCam Monitor 0.5.0-beta.13 – Speicherpfade und Sicherung" width="600">
+  <img src="docs/screenshots/homecam-settings-beta13-bottom-part1-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 1" width="650"><br>
+  <img src="docs/screenshots/homecam-settings-beta13-bottom-part2-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 2" width="650"><br>
+  <img src="docs/screenshots/homecam-settings-beta13-bottom-part3-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 3" width="650"><br>
+  <img src="docs/screenshots/homecam-settings-beta13-bottom-part4-anonymized.webp" alt="Anonymisierte Einstellungen – Speicherpfade und Sicherung, Teil 4" width="650">
 </p>
 
 In den Beta-Einstellungen wird **Direkt mit Home Assistant verbinden** aktiviert. Jede Kamera besitzt in der Kameratabelle eigene Checkboxen für **Bewegung** und **Person**. Nach dem Anklicken einer Kamerazeile werden darunter die zugehörige **Bewegungs-Entität** und – falls gewünscht – die **Personen-Entität** eingetragen. Zusätzlich lassen sich pro Kamera automatische Bewegungsaufzeichnungen, Snapshot-/Video-Vorlauf und eine gemeinsame Aufbewahrungsfrist konfigurieren. Unter **Speicherpfade** können die vier Aufnahmeordner sowie der Einstellungsordner gewählt werden. Der Bereich **Einstellungen sichern und wiederherstellen** exportiert bzw. importiert die gespeicherte Konfiguration einschließlich Kameras, Speicherpfaden und HA-Token.
