@@ -13,6 +13,10 @@ internal static class BetaUninstaller
     [STAThread]
     private static int Main(string[] args)
     {
+        return Run(args);
+    }
+    internal static int Run(string[] args)
+    {
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
         try
@@ -62,7 +66,7 @@ internal static class BetaUninstaller
         }
         catch (Exception error) { MessageBox.Show(error.Message, "HomeCamMonitor Beta", MessageBoxButtons.OK, MessageBoxIcon.Error); return 1; }
     }
-    private static void StopApp(string directory)
+    internal static void StopApp(string directory)
     {
         string executable = Path.GetFullPath(Path.Combine(directory, "HomeCamMonitor-Beta.exe"));
         foreach (Process process in Process.GetProcessesByName("HomeCamMonitor-Beta"))
@@ -117,8 +121,10 @@ internal static class BetaUninstaller
         Registry.CurrentUser.DeleteSubKeyTree(@"Software\HomeCamMonitor-Beta\Setup", false);
         using (RegistryKey run = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true))
             if (run != null) run.DeleteValue("HomeCamMonitor-Beta", false);
-        if (deleteSettings)
-        {
+        if (deleteSettings) DeleteSettings(true);
+    }
+    internal static void DeleteSettings(bool includeDiagnostics)
+    {
             using (RegistryKey location = Registry.CurrentUser.OpenSubKey(@"Software\HomeCamMonitor-Beta", true))
             {
                 string customFolder = location == null ? null : location.GetValue("SettingsFolder") as string;
@@ -129,9 +135,21 @@ internal static class BetaUninstaller
                 }
                 if (location != null) location.DeleteValue("SettingsFolder", false);
             }
-            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta");
-            foreach (string name in new[] { "settings.json", "window-diagnostics.log", "motion-recordings.json", "motion-recordings.json.tmp" })
-            { string path = Path.Combine(folder, name); if (File.Exists(path)) File.Delete(path); }
+            DeleteSettingsFiles(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta"), includeDiagnostics);
+    }
+    internal static void DeleteSettingsFiles(string folder, bool includeDiagnostics)
+    {
+        foreach (string name in includeDiagnostics ? new[] { "settings.json", "window-diagnostics.log", "motion-recordings.json", "motion-recordings.json.tmp" } : new[] { "settings.json" })
+        { string path = Path.Combine(folder, name); if (File.Exists(path)) File.Delete(path); }
+    }
+    internal static bool HasSettings()
+    {
+        string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta");
+        using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\HomeCamMonitor-Beta"))
+        {
+            string custom = key == null ? null : key.GetValue("SettingsFolder") as string;
+            if (!String.IsNullOrWhiteSpace(custom) && Path.IsPathRooted(custom) && File.Exists(Path.Combine(custom, "settings.json"))) return true;
         }
+        return File.Exists(Path.Combine(folder, "settings.json")) || File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor", "settings.json"));
     }
 }

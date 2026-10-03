@@ -121,6 +121,16 @@ internal static class SettingsStore
     public static Settings Load()
     {
 #if BETA
+        using (var reset = Registry.CurrentUser.OpenSubKey(SettingsLocation.RegistryPath, true))
+        {
+            if (reset?.GetValue("ResetSettings") is int requested && requested == 1)
+            {
+                var fresh = CreateForNewInstallation();
+                Save(fresh);
+                reset.DeleteValue("ResetSettings", false);
+                return fresh;
+            }
+        }
         if (!SettingsLocation.SameFolder(Folder, SettingsLocation.DefaultFolder) && !File.Exists(FileName))
             throw new IOException($"Die Einstellungsdatei ist nicht erreichbar: {FileName}\nBitte den gewählten Ordner bzw. die Netzwerkverbindung prüfen.");
 #endif

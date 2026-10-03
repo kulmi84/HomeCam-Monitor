@@ -97,10 +97,11 @@ jobs:
           $check = Start-Process -FilePath $setup -ArgumentList '--verify-setup' -Wait -PassThru
           if ($check.ExitCode -ne 0) { throw 'Setup-Prüfung fehlgeschlagen.' }
           Copy-Item (Join-Path ([IO.Path]::GetTempPath()) 'homecam-setup.png') (Join-Path $env:RUNNER_TEMP 'homecam-setup.png')
+          Copy-Item (Join-Path ([IO.Path]::GetTempPath()) 'homecam-setup-existing.png') (Join-Path $env:RUNNER_TEMP 'homecam-setup-existing.png')
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCamMonitor-Setup-Preview
-          path: ${{ runner.temp }}/homecam-setup.png
+          path: ${{ runner.temp }}/homecam-setup*.png
       - name: Downloads mit Microsoft Defender prüfen
         shell: pwsh
         run: .github/scripts/scan-downloads.ps1
