@@ -4009,7 +4009,7 @@ internal sealed class SettingsForm : Form
         backupGroup.Controls.Add(backupFields); table.Controls.Add(backupGroup, 0, 6);
         exportSettings.Click += (_, _) =>
         {
-            using var file = new SaveFileDialog { Filter = "HomeCamMonitor-Einstellungen (*.json)|*.json", DefaultExt = "json", AddExtension = true, FileName = $"HomeCamMonitor-Einstellungen_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json" };
+            using var file = new SaveFileDialog { Filter = "HomeCamMonitor-Einstellungen (*.json)|*.json", DefaultExt = "json", AddExtension = true, FileName = $"HomeCamMonitor-Einstellungen_{Environment.MachineName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json" };
             if (file.ShowDialog(this) != DialogResult.OK) return;
             try { SettingsBackup.Write(file.FileName, current); MessageBox.Show(this, "Einstellungen wurden gesichert.", "Einstellungen sichern", MessageBoxButtons.OK, MessageBoxIcon.Information); }
             catch (Exception error) { MessageBox.Show(this, error.Message, "Sicherung fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }

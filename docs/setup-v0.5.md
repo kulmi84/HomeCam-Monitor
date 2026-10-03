@@ -23,3 +23,5 @@ Beta 12 trennt das Scrollfenster vom automatisch bemessenen Inhalt. Damit umfass
 Eine dezente dunkelgraue Trennlinie kennzeichnet den festen Fußbereich.
 
 Beta 13 verkleinert den festen Fußbereich auf eine Zeile: Version links, Abbrechen und Speichern rechts auf gleicher Höhe. Die Trennlinie und der vollständige Scrollbereich bleiben erhalten.
+
+Beta 14 ergänzt beim Sichern der Einstellungen den Rechnernamen im vorgeschlagenen Dateinamen, zum Beispiel `HomeCamMonitor-Einstellungen_PC-NAME_2026-10-03_15-35-00.json`. Der Name bleibt im Speichern-Dialog frei änderbar. Inhalt und Wiederherstellung bestehender Sicherungen bleiben unverändert.
