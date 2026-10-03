@@ -12,12 +12,13 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("HomeCamMonitor Beta Setup")]
 [assembly: AssemblyProduct("HomeCamMonitor Beta")]
-[assembly: AssemblyVersion("0.5.0.10")]
-[assembly: AssemblyFileVersion("0.5.0.10")]
+[assembly: AssemblyVersion("0.5.0.11")]
+[assembly: AssemblyFileVersion("0.5.0.11")]
 
 internal static class BetaInstaller
 {
     internal const string Executable = "HomeCamMonitor-Beta.exe";
+    internal const string ApplicationVersion = "0.5.0-beta.11";
     private const string RegistryPath = @"Software\HomeCamMonitor-Beta\Setup";
 
     [STAThread]
@@ -205,7 +206,7 @@ internal static class BetaInstaller
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(BetaUninstaller.RegistryPath))
         {
             key.SetValue("DisplayName", "HomeCamMonitor Beta");
-            key.SetValue("DisplayVersion", "0.5.0-beta.10");
+            key.SetValue("DisplayVersion", ApplicationVersion);
             key.SetValue("DisplayIcon", executable + ",0");
             key.SetValue("InstallLocation", directory);
             key.SetValue("UninstallString", "\"" + uninstaller + "\"");
@@ -343,8 +344,10 @@ internal sealed class SetupForm : Form
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(690, 390); MinimumSize = new Size(706, 429);
         MaximizeBox = false;
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(20), ColumnCount = 2, RowCount = 11 };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(20), ColumnCount = 2, RowCount = 12 };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        for (int row = 0; row < 11; row++) layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         var title = new Label { Text = "HomeCamMonitor Beta installieren", Font = new Font("Segoe UI", 14), AutoSize = true };
         layout.Controls.Add(title, 0, 0); layout.SetColumnSpan(title, 2);
         layout.Controls.Add(new Label { Text = "Installationsverzeichnis", AutoSize = true, Margin = new Padding(3, 14, 3, 6) }, 0, 1);
@@ -358,6 +361,9 @@ internal sealed class SetupForm : Form
         layout.Controls.Add(new Label { Text = "Snapshots und Videoaufnahmen bleiben erhalten.", AutoSize = true }, 0, 8); layout.SetColumnSpan(layout.GetControlFromPosition(0, 8), 2);
         layout.Controls.Add(uninstall, 0, 9); layout.Controls.Add(install, 1, 9);
         layout.Controls.Add(status, 0, 10); layout.SetColumnSpan(status, 2);
+        var version = new Label { Name = "SetupVersion", Text = "Version " + BetaInstaller.ApplicationVersion,
+            AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+        layout.Controls.Add(version, 0, 11); layout.SetColumnSpan(version, 2);
         Controls.Add(layout); AcceptButton = install;
         folder.TextChanged += delegate { RefreshExisting(); };
         RefreshExisting();
