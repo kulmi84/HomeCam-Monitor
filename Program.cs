@@ -15,7 +15,18 @@ namespace HomeCamMonitor;
 internal static class Program
 {
     [STAThread]
-    private static void Main() { ApplicationConfiguration.Initialize(); Application.Run(new MonitorForm()); }
+    private static void Main()
+    {
+        ApplicationConfiguration.Initialize();
+#if BETA
+        MonitorForm form;
+        try { form = new MonitorForm(); }
+        catch (Exception error) { MessageBox.Show(error.Message, "HomeCamMonitor Beta", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+        Application.Run(form);
+#else
+        Application.Run(new MonitorForm());
+#endif
+    }
 }
 
 #if BETA
@@ -100,15 +111,19 @@ internal sealed class CameraEntry
 internal static class SettingsStore
 {
 #if BETA
-    private static readonly string Folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta");
+    internal static string Folder => SettingsLocation.CurrentFolder;
     private static readonly string StableFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor", "settings.json");
 #else
     private static readonly string Folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor");
 #endif
-    private static readonly string FileName = Path.Combine(Folder, "settings.json");
+    private static string FileName => Path.Combine(Folder, "settings.json");
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
     public static Settings Load()
     {
+#if BETA
+        if (!SettingsLocation.SameFolder(Folder, SettingsLocation.DefaultFolder) && !File.Exists(FileName))
+            throw new IOException($"Die Einstellungsdatei ist nicht erreichbar: {FileName}\nBitte den gewählten Ordner bzw. die Netzwerkverbindung prüfen.");
+#endif
         try
         {
             if (File.Exists(FileName))
@@ -128,7 +143,13 @@ internal static class SettingsStore
             }
 #endif
         }
-        catch { }
+        catch
+        {
+#if BETA
+            if (!SettingsLocation.SameFolder(Folder, SettingsLocation.DefaultFolder))
+                throw new IOException($"Die Einstellungen im gewählten Ordner konnten nicht geladen werden: {FileName}");
+#endif
+        }
 #if BETA
         return CreateForNewInstallation();
 #else
@@ -3940,8 +3961,12 @@ internal sealed class SettingsForm : Form
         var manualVideoPath = AddStoragePath("Manuelle Videos:", current.ManualVideoFolder, RecordingStorage.ManualVideos, 1);
         var motionSnapshotPath = AddStoragePath("Snapshots bei Bewegung:", current.MotionSnapshotFolder, RecordingStorage.MotionDefault, 2);
         var motionVideoPath = AddStoragePath("Videos bei Bewegung:", current.MotionVideoFolder, RecordingStorage.MotionDefault, 3);
+        var settingsPath = AddStoragePath("Einstellungen:", SettingsStore.Folder, SettingsLocation.DefaultFolder, 4);
+        settingsPath.Name = "SettingsStoragePath";
         var storageHint = new Label { Text = "Die Aufbewahrungsfrist gilt nur für automatische Bewegungsaufnahmen. Manuelle Aufnahmen bleiben erhalten.", AutoSize = true, MaximumSize = new Size(700, 0) };
-        storageFields.Controls.Add(storageHint, 0, 4); storageFields.SetColumnSpan(storageHint, 3);
+        storageFields.Controls.Add(storageHint, 0, 5); storageFields.SetColumnSpan(storageHint, 3);
+        var settingsPathHint = new Label { Text = "Beim Speichern wird die settings.json in den gewählten Ordner mitgenommen.", AutoSize = true, MaximumSize = new Size(700, 0) };
+        storageFields.Controls.Add(settingsPathHint, 0, 6); storageFields.SetColumnSpan(settingsPathHint, 3);
         storageGroup.Controls.Add(storageFields); table.Controls.Add(storageGroup, 0, 5);
         // Temporary BETA section: remove before v1.0.0.
         var betaLogging = new CheckBox { Name = "BetaWindowLogging", Text = "Fensterprotokollierung aktivieren", AutoSize = true, Checked = current.BetaWindowLoggingEnabled };
@@ -4038,7 +4063,11 @@ internal sealed class SettingsForm : Form
             StoreSelectedCameraMotion();
 #endif
             var entries = ReadCameras();
+#if BETA
+            if (entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _)))
+#else
             if (entries.Count == 0 || entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _)))
+#endif
             {
                 MessageBox.Show(this, "Bitte gültige Streamadressen eintragen.", "Ungültige Kamera", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 DialogResult = DialogResult.None; return;
@@ -4066,6 +4095,7 @@ internal sealed class SettingsForm : Form
             {
                 foreach (var field in new[] { manualSnapshotPath, manualVideoPath, motionSnapshotPath, motionVideoPath })
                     _ = RecordingStorage.Resolve(field.Text, RecordingStorage.MotionDefault);
+                _ = SettingsLocation.Normalize(settingsPath.Text);
             }
             catch (ArgumentException error)
             {
@@ -4075,7 +4105,7 @@ internal sealed class SettingsForm : Form
             #endif
             Result = new Settings
             {
-                Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, entries.Count - 1),
+                Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, Math.Max(0, entries.Count - 1)),
                 AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked,
                 Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
 #if BETA
@@ -4113,6 +4143,22 @@ internal sealed class SettingsForm : Form
                 SettingsWindowHeight = ClientSize.Height
 #endif
             };
+#if BETA
+            try
+            {
+                var target = SettingsLocation.Normalize(settingsPath.Text);
+                var changingFolder = !SettingsLocation.SameFolder(target, SettingsStore.Folder);
+                var exists = changingFolder && File.Exists(Path.Combine(target, "settings.json"));
+                if (exists && MessageBox.Show(this, "Im Zielordner existiert bereits eine settings.json. Diese durch die aktuellen Einstellungen ersetzen?", "Einstellungsordner wechseln", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                { DialogResult = DialogResult.None; return; }
+                SettingsLocation.Move(Result, target, exists);
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show(this, error.Message, "Einstellungen konnten nicht gespeichert werden", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None;
+            }
+#endif
         };
     }
     private List<CameraEntry> ReadCameras()

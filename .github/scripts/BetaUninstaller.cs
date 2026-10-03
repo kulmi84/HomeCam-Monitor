@@ -119,6 +119,16 @@ internal static class BetaUninstaller
             if (run != null) run.DeleteValue("HomeCamMonitor-Beta", false);
         if (deleteSettings)
         {
+            using (RegistryKey location = Registry.CurrentUser.OpenSubKey(@"Software\HomeCamMonitor-Beta", true))
+            {
+                string customFolder = location == null ? null : location.GetValue("SettingsFolder") as string;
+                if (!String.IsNullOrWhiteSpace(customFolder) && Path.IsPathRooted(customFolder))
+                {
+                    string customSettings = Path.Combine(Path.GetFullPath(customFolder), "settings.json");
+                    if (File.Exists(customSettings)) File.Delete(customSettings);
+                }
+                if (location != null) location.DeleteValue("SettingsFolder", false);
+            }
             string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta");
             foreach (string name in new[] { "settings.json", "window-diagnostics.log", "motion-recordings.json", "motion-recordings.json.tmp" })
             { string path = Path.Combine(folder, name); if (File.Exists(path)) File.Delete(path); }

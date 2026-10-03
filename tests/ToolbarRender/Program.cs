@@ -59,6 +59,31 @@ internal static class Program
         Directory.CreateDirectory(storageTest);
         try
         {
+            var locationKey = @"Software\HomeCamMonitor-Test-" + Guid.NewGuid().ToString("N");
+            try
+            {
+                var oldSettingsFile = Path.Combine(storageTest, "source-settings.json");
+                var newSettingsFile = Path.Combine(storageTest, "new folder", "settings.json");
+                File.WriteAllText(oldSettingsFile, "original");
+                SettingsLocation.Relocate(oldSettingsFile, newSettingsFile, System.Text.Json.JsonSerializer.Serialize(backupFixture), () =>
+                {
+                    if (!File.Exists(oldSettingsFile) || !File.Exists(newSettingsFile)) throw new InvalidOperationException("Source removed before destination committed.");
+                    using var location = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(locationKey);
+                    location.SetValue("SettingsFolder", Path.GetDirectoryName(newSettingsFile)!);
+                }, false);
+                if (File.Exists(oldSettingsFile) || SettingsLocation.ReadFolder(locationKey) != Path.GetDirectoryName(newSettingsFile) ||
+                    SettingsBackup.Read(newSettingsFile).HomeAssistantToken != "test-token")
+                    throw new InvalidOperationException("Settings migration or persisted location did not survive reloading.");
+                var failedTarget = Path.Combine(storageTest, "failed", "settings.json");
+                Directory.CreateDirectory(Path.GetDirectoryName(failedTarget)!); File.WriteAllText(failedTarget, "existing target");
+                var failedAsExpected = false;
+                try { SettingsLocation.Relocate(newSettingsFile, failedTarget, "replacement", () => throw new IOException("test failure"), true); }
+                catch (IOException) { failedAsExpected = true; }
+                if (!failedAsExpected || !File.Exists(newSettingsFile) || File.ReadAllText(failedTarget) != "existing target" ||
+                    SettingsLocation.ReadFolder(locationKey) != Path.GetDirectoryName(newSettingsFile))
+                    throw new InvalidOperationException("Failed settings migration changed the original or target configuration.");
+            }
+            finally { Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree(locationKey, false); }
             var backupFile = Path.Combine(storageTest, "settings-backup.json");
             SettingsBackup.Write(backupFile, backupFixture);
             if (SettingsBackup.Read(backupFile).MotionVideoFolder != backupFixture.MotionVideoFolder || Directory.GetFiles(storageTest, "*.tmp").Length != 0)
@@ -354,6 +379,9 @@ internal static class Program
         var storagePaths = AllControls(settingsForm).OfType<TextBox>().Where(field => field.Name.StartsWith("StoragePath")).ToArray();
         if (storagePaths.Length != 4 || storagePaths.Any(field => string.IsNullOrWhiteSpace(field.Text)))
             throw new InvalidOperationException("Four independent storage path controls are missing.");
+        var settingsStoragePath = settingsForm.Controls.Find("SettingsStoragePath", true).OfType<TextBox>().Single();
+        if (settingsStoragePath.Text != SettingsStore.Folder)
+            throw new InvalidOperationException("The current settings storage folder is not displayed.");
         using (var settingsImage = new Bitmap(settingsForm.Width, settingsForm.Height))
         {
             settingsForm.DrawToBitmap(settingsImage, new Rectangle(Point.Empty, settingsImage.Size));
