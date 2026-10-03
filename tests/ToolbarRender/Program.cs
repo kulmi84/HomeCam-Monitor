@@ -30,12 +30,39 @@ internal static class Program
             return;
         }
         ApplicationConfiguration.Initialize();
+        var backupFixture = SettingsStore.CreateForNewInstallation();
+        backupFixture.Cameras.Add(new CameraEntry { Name = "Testkamera", StreamUrl = "rtsp://127.0.0.1/Test", MotionEnabled = true, PersonEnabled = true,
+            MotionEntityId = "binary_sensor.test_motion", PersonEntityId = "binary_sensor.test_person", MotionAction = "Both", MotionVideoSeconds = 60 });
+        backupFixture.HomeAssistantToken = "test-token";
+        backupFixture.ManualSnapshotFolder = Path.Combine(Path.GetTempPath(), "manual photos");
+        backupFixture.MotionVideoFolder = @"\\nas\share\motion";
+        backupFixture.MotionRetentionDays = 14;
+        backupFixture.SnapshotPreRollSeconds = 3;
+        var roundtrip = SettingsBackup.Parse(SettingsBackup.Serialize(backupFixture));
+        if (System.Text.Json.JsonSerializer.Serialize(roundtrip) != System.Text.Json.JsonSerializer.Serialize(backupFixture))
+            throw new InvalidOperationException("Backup round trip changed configuration fields.");
+        var legacySettings = SettingsBackup.Parse(System.Text.Json.JsonSerializer.Serialize(backupFixture));
+        if (legacySettings.Cameras[0].PersonEntityId != "binary_sensor.test_person" || legacySettings.HomeAssistantToken != "test-token")
+            throw new InvalidOperationException("Existing settings.json import lost camera/token configuration.");
+        foreach (var invalid in new[] { "{}", "[]", "{\"Cameras\":null}", "{\"Cameras\":[null]}",
+            "{\"Format\":\"Other\",\"Version\":1,\"Settings\":{\"Cameras\":[]}}", "{\"Cameras\":[],\"ToolbarSizePercent\":10000}" })
+        {
+            var rejected = false;
+            try { SettingsBackup.Parse(invalid); } catch { rejected = true; }
+            if (!rejected) throw new InvalidOperationException("Invalid backup was accepted.");
+        }
+        if (SettingsBackup.Parse(SettingsBackup.Serialize(SettingsStore.CreateForNewInstallation())).Cameras.Count != 0)
+            throw new InvalidOperationException("Empty-camera backup cannot be restored.");
         if (RecordingStorage.Resolve("", RecordingStorage.ManualSnapshots) != RecordingStorage.ManualSnapshots)
             throw new InvalidOperationException("Default snapshot storage changed.");
         var storageTest = Path.Combine(Path.GetTempPath(), "HomeCam-Storage-Test-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(storageTest);
         try
         {
+            var backupFile = Path.Combine(storageTest, "settings-backup.json");
+            SettingsBackup.Write(backupFile, backupFixture);
+            if (SettingsBackup.Read(backupFile).MotionVideoFolder != backupFixture.MotionVideoFolder || Directory.GetFiles(storageTest, "*.tmp").Length != 0)
+                throw new InvalidOperationException("Backup file write/read did not preserve the storage path.");
             var automaticCapture = Path.Combine(storageTest, "Test_2026-01-01_00-00-00-000_" + new string('a', 32) + ".png");
             var manual = Path.Combine(storageTest, "Test_2026-01-01_00-00-00.png");
             var foreign = Path.Combine(storageTest, "other.mkv");
@@ -407,6 +434,14 @@ internal static class Program
         using var storageImage = new Bitmap(settingsForm.Width, settingsForm.Height);
         settingsForm.DrawToBitmap(storageImage, new Rectangle(Point.Empty, storageImage.Size));
         storageImage.Save(Path.Combine(output, "settings-storage.png"));
+        var backupGroup = settingsForm.Controls.Find("SettingsBackup", true).Single();
+        ((ScrollableControl)backupGroup.Parent!).ScrollControlIntoView(backupGroup);
+        Application.DoEvents();
+        if (backupGroup.Controls.Find("ExportSettings", true).Length != 1 || backupGroup.Controls.Find("ImportSettings", true).Length != 1)
+            throw new InvalidOperationException("Backup and restore controls are missing.");
+        using var backupImage = new Bitmap(settingsForm.Width, settingsForm.Height);
+        settingsForm.DrawToBitmap(backupImage, new Rectangle(Point.Empty, backupImage.Size));
+        backupImage.Save(Path.Combine(output, "settings-backup.png"));
     }
 
     private static IEnumerable<Control> AllControls(Control parent)

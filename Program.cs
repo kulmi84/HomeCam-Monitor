@@ -149,7 +149,17 @@ internal static class SettingsStore
         PerCameraMotionConfigured = true
     };
 #endif
-    public static void Save(Settings value) { Directory.CreateDirectory(Folder); File.WriteAllText(FileName, JsonSerializer.Serialize(value, JsonOptions)); }
+    public static void Save(Settings value)
+    {
+        Directory.CreateDirectory(Folder);
+#if BETA
+        var temporary = FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try { File.WriteAllText(temporary, JsonSerializer.Serialize(value, JsonOptions)); File.Move(temporary, FileName, true); }
+        finally { if (File.Exists(temporary)) File.Delete(temporary); }
+#else
+        File.WriteAllText(FileName, JsonSerializer.Serialize(value, JsonOptions));
+#endif
+    }
 #if BETA
     private static void MigratePerCameraMotion(Settings value)
     {
@@ -1018,6 +1028,7 @@ internal sealed class MonitorForm : Form
         // Build and theme the dialog while the camera and toolbar remain visible.
         using var dialog = new SettingsForm(settings);
 #if BETA
+        dialog.CanRestore = () => !recording && activeMotionCapture.Count == 0;
         windowDiagnostics?.Mark("settings constructed");
         dialog.Shown += (_, _) => windowDiagnostics?.Mark("settings shown");
 #endif
@@ -1064,13 +1075,13 @@ internal sealed class MonitorForm : Form
 
         if (changedSettings is null) return;
 #if BETA
-        if (changedSettings.MotionDetectionEnabled != settings.MotionDetectionEnabled)
+        if (!dialog.RestoredFromFile && changedSettings.MotionDetectionEnabled != settings.MotionDetectionEnabled)
             changedSettings.MotionActionsPausedUntilUtc = null;
 #endif
         var previousSettings = settings;
-        settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, settings.Cameras.Count - 1);
+        settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, Math.Max(0, settings.Cameras.Count - 1));
 #if BETA
-        settings.LastGridMode = gridMode;
+        if (!dialog.RestoredFromFile) settings.LastGridMode = gridMode;
         if (settings.BetaWindowLoggingEnabled && windowDiagnostics is null)
             windowDiagnostics = new NativeWindowDiagnostics(Handle);
         else if (!settings.BetaWindowLoggingEnabled && windowDiagnostics is not null)
@@ -1118,6 +1129,16 @@ internal sealed class MonitorForm : Form
         if (streamsChanged) RestartPlayer();
         ScheduleMotionPauseExpiry();
         if (reconnectMotion) RestartMotionIntegration();
+        if (dialog.RestoredFromFile)
+        {
+            var restoredBounds = RestoreWindowBounds(settings, Screen.AllScreens.Select(screen => (screen.DeviceName, screen.WorkingArea)).ToArray());
+            var restoredGrid = settings.LastGridMode;
+            if (fullscreen) ToggleFullscreen();
+            WindowState = FormWindowState.Normal;
+            Bounds = restoredBounds;
+            if (gridMode != restoredGrid) { if (gridMode) ExitGridView(); else ToggleGridView(); }
+            SaveWindow();
+        }
 #else
         RestartPlayer();
 #endif
@@ -3592,6 +3613,10 @@ internal sealed class SettingsForm : Form
     private readonly Label homeAssistantStatus = new() { AutoSize = true, MaximumSize = new Size(600, 0), Margin = new Padding(10, 6, 3, 0) };
 #endif
     public Settings Result { get; private set; }
+#if BETA
+    public bool RestoredFromFile { get; private set; }
+    public Func<bool>? CanRestore { get; set; }
+#endif
     public SettingsForm(Settings current)
     {
 #if BETA
@@ -3745,7 +3770,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 9 };
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 10 };
         table.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -3926,7 +3951,37 @@ internal sealed class SettingsForm : Form
         var betaGroup = new GroupBox { Name = "BetaDiagnostics", Text = "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) };
         betaGroup.Controls.Add(betaFields);
         table.Controls.Add(betaGroup, 0, 6);
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 7);
+        var backupGroup = new GroupBox { Name = "SettingsBackup", Text = "Einstellungen sichern und wiederherstellen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
+        var backupFields = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false };
+        var backupButtons = new FlowLayoutPanel { AutoSize = true, WrapContents = false };
+        var exportSettings = new Button { Name = "ExportSettings", Text = "Einstellungen sichern …", AutoSize = true };
+        var importSettings = new Button { Name = "ImportSettings", Text = "Einstellungen wiederherstellen …", AutoSize = true };
+        backupButtons.Controls.Add(exportSettings); backupButtons.Controls.Add(importSettings);
+        backupFields.Controls.Add(backupButtons);
+        backupFields.Controls.Add(new Label { Text = "Sichert die gespeicherten Einstellungen einschließlich Kameras, Speicherpfaden und HA-Token.", AutoSize = true, MaximumSize = new Size(700, 0) });
+        backupGroup.Controls.Add(backupFields); table.Controls.Add(backupGroup, 0, 7);
+        exportSettings.Click += (_, _) =>
+        {
+            using var file = new SaveFileDialog { Filter = "HomeCamMonitor-Einstellungen (*.json)|*.json", DefaultExt = "json", AddExtension = true, FileName = $"HomeCamMonitor-Einstellungen_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json" };
+            if (file.ShowDialog(this) != DialogResult.OK) return;
+            try { SettingsBackup.Write(file.FileName, current); MessageBox.Show(this, "Einstellungen wurden gesichert.", "Einstellungen sichern", MessageBoxButtons.OK, MessageBoxIcon.Information); }
+            catch (Exception error) { MessageBox.Show(this, error.Message, "Sicherung fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+        };
+        importSettings.Click += (_, _) =>
+        {
+            using var file = new OpenFileDialog { Filter = "HomeCamMonitor-Einstellungen (*.json)|*.json", CheckFileExists = true };
+            if (file.ShowDialog(this) != DialogResult.OK) return;
+            try
+            {
+                var restored = SettingsBackup.Read(file.FileName);
+                if (MessageBox.Show(this, $"Die aktuellen Einstellungen durch diese Sicherung mit {restored.Cameras.Count} Kameras ersetzen?\nUngespeicherte Änderungen werden verworfen. Aufnahmen bleiben erhalten.", "Einstellungen wiederherstellen", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+                if (CanRestore?.Invoke() == false) throw new InvalidOperationException("Bitte laufende Aufnahmen zuerst beenden und danach die Einstellungen wiederherstellen.");
+                SettingsStore.Save(restored);
+                Result = restored; RestoredFromFile = true; DialogResult = DialogResult.OK; Close();
+            }
+            catch (Exception error) { MessageBox.Show(this, error.Message, "Wiederherstellung fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+        };
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 8);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -3938,7 +3993,7 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 8);
+        table.Controls.Add(buttons, 0, 9);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif

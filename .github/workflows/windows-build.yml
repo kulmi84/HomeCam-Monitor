@@ -89,7 +89,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Vorlauf-Video ist nicht lesbar.' }
       - name: Beta-Downloads erstellen
         shell: pwsh
-        run: .github/scripts/build-beta-downloads.ps1 -Version '0.5.0-beta.6'
+        run: .github/scripts/build-beta-downloads.ps1 -Version '0.5.0-beta.7'
       - name: Setup und Startmenü-Verknüpfung prüfen
         shell: pwsh
         run: |
@@ -110,5 +110,5 @@ jobs:
           path: publish/
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-Beta-v0.5.0-beta.6-win-x64
+          name: HomeCamMonitor-Beta-v0.5.0-beta.7-win-x64
           path: beta-downloads/
