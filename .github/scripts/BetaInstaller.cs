@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -11,8 +12,8 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("HomeCamMonitor Beta Setup")]
 [assembly: AssemblyProduct("HomeCamMonitor Beta")]
-[assembly: AssemblyVersion("0.5.0.4")]
-[assembly: AssemblyFileVersion("0.5.0.4")]
+[assembly: AssemblyVersion("0.5.0.5")]
+[assembly: AssemblyFileVersion("0.5.0.5")]
 
 internal static class BetaInstaller
 {
@@ -98,6 +99,7 @@ internal static class BetaInstaller
     {
         directory = NormalizeDirectory(directory);
         string executable = Path.Combine(directory, Executable);
+        var installedFiles = new List<string> { "HomeCamMonitor-Beta/v1" };
         foreach (Process process in Process.GetProcessesByName("HomeCamMonitor-Beta"))
         {
             try
@@ -126,9 +128,11 @@ internal static class BetaInstaller
                     Directory.CreateDirectory(Path.GetDirectoryName(destination));
                     using (Stream source = entry.Open())
                     using (FileStream output = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.None)) source.CopyTo(output);
+                    installedFiles.Add(entry.FullName);
                 }
         }
         if (!File.Exists(executable)) throw new IOException("Die Programmdatei fehlt im Paket.");
+        File.WriteAllLines(Path.Combine(directory, BetaUninstaller.Manifest), installedFiles);
     }
 
     internal static void CreateShortcut(string shortcutPath, string target, string directory, string icon)
@@ -158,8 +162,20 @@ internal static class BetaInstaller
         string startMenu = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "HomeCamMonitor Beta");
         CreateShortcut(Path.Combine(startMenu, "HomeCamMonitor Beta.lnk"), executable, directory, executable);
         CreateShortcut(Path.Combine(startMenu, "Installationsordner.lnk"), directory, directory, executable);
+        string uninstaller = Path.Combine(directory, "HomeCamMonitor-Beta-Uninstall.exe");
+        CreateShortcut(Path.Combine(startMenu, "Deinstallieren.lnk"), uninstaller, directory, executable);
         if (desktop) CreateShortcut(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "HomeCamMonitor Beta.lnk"), executable, directory, executable);
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryPath)) key.SetValue("InstallDirectory", directory);
+        using (RegistryKey key = Registry.CurrentUser.CreateSubKey(BetaUninstaller.RegistryPath))
+        {
+            key.SetValue("DisplayName", "HomeCamMonitor Beta");
+            key.SetValue("DisplayVersion", "0.5.0-beta.5");
+            key.SetValue("DisplayIcon", executable + ",0");
+            key.SetValue("InstallLocation", directory);
+            key.SetValue("UninstallString", "\"" + uninstaller + "\"");
+            key.SetValue("NoModify", 1, RegistryValueKind.DWord);
+            key.SetValue("NoRepair", 1, RegistryValueKind.DWord);
+        }
     }
 
     private static void Verify()
@@ -194,6 +210,12 @@ internal static class BetaInstaller
                 }
                 form.Close();
             }
+            File.WriteAllText(Path.Combine(target, "keep-video.mkv"), "user video");
+            File.WriteAllText(Path.Combine(target, "settings.json"), "user settings");
+            BetaUninstaller.RemoveFiles(target);
+            if (File.Exists(Path.Combine(target, Executable))) throw new Exception("Uninstall left executable behind.");
+            if (!File.Exists(Path.Combine(target, "keep-video.mkv")) || !File.Exists(Path.Combine(target, "settings.json")) || !File.Exists(Path.Combine(target, "user-file.txt")))
+                throw new Exception("Uninstall removed user files.");
         }
         finally { if (Directory.Exists(temp)) Directory.Delete(temp, true); }
     }

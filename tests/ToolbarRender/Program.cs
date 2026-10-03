@@ -30,6 +30,22 @@ internal static class Program
             return;
         }
         ApplicationConfiguration.Initialize();
+        if (RecordingStorage.Resolve("", RecordingStorage.ManualSnapshots) != RecordingStorage.ManualSnapshots)
+            throw new InvalidOperationException("Default snapshot storage changed.");
+        var storageTest = Path.Combine(Path.GetTempPath(), "HomeCam-Storage-Test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(storageTest);
+        try
+        {
+            var automaticCapture = Path.Combine(storageTest, "Test_2026-01-01_00-00-00-000_" + new string('a', 32) + ".png");
+            var manual = Path.Combine(storageTest, "Test_2026-01-01_00-00-00.png");
+            var foreign = Path.Combine(storageTest, "other.mkv");
+            foreach (var file in new[] { automaticCapture, manual, foreign }) { File.WriteAllText(file, "test"); File.SetLastWriteTimeUtc(file, DateTime.UtcNow.AddDays(-30)); }
+            var tracked = new HashSet<string> { automaticCapture, manual, foreign };
+            RecordingStorage.CleanupPaths(tracked, DateTime.UtcNow.AddDays(-7));
+            if (File.Exists(automaticCapture) || !File.Exists(manual) || !File.Exists(foreign))
+                throw new InvalidOperationException("Retention deleted manual/foreign recordings or missed automatic recordings.");
+        }
+        finally { Directory.Delete(storageTest, true); }
         var output = args.Length == 0 ? "toolbar-render" : args[0];
         Directory.CreateDirectory(output);
         using (var videoHost = new Panel())
@@ -306,6 +322,9 @@ internal static class Program
             throw new InvalidOperationException("Settings window does not use the HomeCamMonitor icon.");
         settingsForm.Show();
         Application.DoEvents();
+        var storagePaths = AllControls(settingsForm).OfType<TextBox>().Where(field => field.Name.StartsWith("StoragePath")).ToArray();
+        if (storagePaths.Length != 4 || storagePaths.Any(field => string.IsNullOrWhiteSpace(field.Text)))
+            throw new InvalidOperationException("Four independent storage path controls are missing.");
         using (var settingsImage = new Bitmap(settingsForm.Width, settingsForm.Height))
         {
             settingsForm.DrawToBitmap(settingsImage, new Rectangle(Point.Empty, settingsImage.Size));

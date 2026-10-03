@@ -73,6 +73,10 @@ internal sealed class Settings
     public int MotionRetentionDays { get; set; } = 7;
     public int SnapshotPreRollSeconds { get; set; }
     public int VideoPreRollSeconds { get; set; }
+    public string ManualSnapshotFolder { get; set; } = "";
+    public string ManualVideoFolder { get; set; } = "";
+    public string MotionSnapshotFolder { get; set; } = "";
+    public string MotionVideoFolder { get; set; } = "";
     public int SettingsWindowWidth { get; set; } = 980;
     public int SettingsWindowHeight { get; set; } = 780;
 #endif
@@ -261,7 +265,7 @@ internal sealed class MonitorForm : Form
         settings = SettingsStore.Load();
 #if BETA
         Icon = ApplicationBranding.WindowIcon;
-        DeleteExpiredMotionFiles(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor", "Bewegung"), settings.MotionRetentionDays);
+        CleanupMotionStorage();
         // The borderless monitor has no caption. A nonempty window title can
         // briefly be painted through embedded video surfaces on Windows.
         Text = string.Empty;
@@ -851,7 +855,12 @@ internal sealed class MonitorForm : Form
         string? path = null;
         try
         {
-            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "HomeCam Monitor"); Directory.CreateDirectory(folder);
+#if BETA
+            var folder = RecordingStorage.Resolve(settings.ManualSnapshotFolder, RecordingStorage.ManualSnapshots);
+#else
+            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "HomeCam Monitor");
+#endif
+            Directory.CreateDirectory(folder);
             var cameraName = string.Concat(settings.Cameras[settings.SelectedCamera].Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
             path = Path.Combine(folder, $"{cameraName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
 
@@ -898,7 +907,7 @@ internal sealed class MonitorForm : Form
             }
 
             if (!HasUsableCamera()) return;
-            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor");
+            var folder = RecordingStorage.Resolve(settings.ManualVideoFolder, RecordingStorage.ManualVideos);
             Directory.CreateDirectory(folder);
             var cameraName = string.Concat(settings.Cameras[settings.SelectedCamera].Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
             recordingPath = Path.Combine(folder, $"{cameraName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.mkv");
@@ -2301,9 +2310,9 @@ internal sealed class MonitorForm : Form
         var videoBefore = settings.VideoPreRollSeconds;
         try
         {
-            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor", "Bewegung");
-            Directory.CreateDirectory(folder);
-            DeleteExpiredMotionFiles(folder, settings.MotionRetentionDays);
+            var snapshotFolder = RecordingStorage.Resolve(settings.MotionSnapshotFolder, RecordingStorage.MotionDefault);
+            var videoFolder = RecordingStorage.Resolve(settings.MotionVideoFolder, RecordingStorage.MotionDefault);
+            CleanupMotionStorage();
             var safeName = string.Concat(camera.Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
             var baseName = $"{safeName}_{(personDetected ? "Person_" : "")}{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}_{Guid.NewGuid():N}";
             var captureSnapshot = (personDetected || camera.MotionAction is "Snapshot" or "Both") ? CaptureSnapshotAsync() : Task.CompletedTask;
@@ -2312,9 +2321,10 @@ internal sealed class MonitorForm : Form
 
             async Task CaptureSnapshotAsync()
             {
-                var path = Path.Combine(folder, baseName + ".png");
+                Directory.CreateDirectory(snapshotFolder);
+                var path = Path.Combine(snapshotFolder, baseName + ".png");
                 if (preRoll is not null && snapshotBefore > 0 &&
-                    await preRoll.CaptureAsync(triggeredUtc, snapshotBefore, 0, path, snapshot: true)) return;
+                    await preRoll.CaptureAsync(triggeredUtc, snapshotBefore, 0, path, snapshot: true)) { RecordingStorage.Track(path); return; }
                 var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "ffmpeg.exe"))
                 {
                     UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true
@@ -2343,20 +2353,22 @@ internal sealed class MonitorForm : Form
                         throw new IOException("Kein Bild vom Stream: " + (await errors).Trim());
                     using var image = Image.FromFile(path);
                     if (image.Width < 1 || image.Height < 1) throw new IOException("Das Einzelbild ist leer.");
+                    RecordingStorage.Track(path);
                 }
                 catch { if (File.Exists(path)) File.Delete(path); throw; }
                 finally { motionProcesses.Remove(process); }
             }
             async Task RecordVideoAsync()
             {
-                var path = Path.Combine(folder, baseName + ".mkv");
+                Directory.CreateDirectory(videoFolder);
+                var path = Path.Combine(videoFolder, baseName + ".mkv");
                 if (preRoll is not null && videoBefore > 0)
                 {
                     activeMotionRecordings++; RefreshRecordingIndicator();
                     try
                     {
                         if (await preRoll.CaptureAsync(triggeredUtc, videoBefore,
-                            camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds : 30, path, snapshot: false)) return;
+                            camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds : 30, path, snapshot: false)) { RecordingStorage.Track(path); return; }
                     }
                     finally { activeMotionRecordings--; if (!closing) RefreshRecordingIndicator(); }
                 }
@@ -2389,6 +2401,7 @@ internal sealed class MonitorForm : Form
                     }
                     if (process.ExitCode != 0 || !File.Exists(path) || new FileInfo(path).Length < 4096)
                         throw new IOException("Kein gültiges Video: " + (await errors).Trim());
+                    RecordingStorage.Track(path);
                 }
                 catch { if (File.Exists(path)) File.Delete(path); throw; }
                 finally
@@ -2406,6 +2419,13 @@ internal sealed class MonitorForm : Form
         finally { activeMotionCapture.Remove(captureKey); }
     }
 
+    private void CleanupMotionStorage()
+    {
+        // Legacy cleanup only recognizes our uniquely named automatic captures.
+        DeleteExpiredMotionFiles(RecordingStorage.MotionDefault, settings.MotionRetentionDays);
+        RecordingStorage.Cleanup(settings.MotionRetentionDays);
+    }
+
     internal static void DeleteExpiredMotionFiles(string folder, int days)
     {
         if (days <= 0 || !Directory.Exists(folder)) return; // 0 means unlimited.
@@ -2413,6 +2433,7 @@ internal sealed class MonitorForm : Form
         foreach (var file in Directory.EnumerateFiles(folder))
         {
             if (Path.GetExtension(file) is not (".png" or ".mkv")) continue;
+            if (!RecordingStorage.IsMotionFile(file)) continue;
             try { if (File.GetLastWriteTimeUtc(file) < cutoff) File.Delete(file); }
             catch (IOException) { } catch (UnauthorizedAccessException) { }
         }
@@ -3725,7 +3746,7 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 };
+        var table = new TableLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(14), ColumnCount = 1, RowCount = 9 };
         table.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
@@ -3873,6 +3894,31 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(homeAssistantGroup, 0, 4);
 #endif
 #if BETA
+        var storageGroup = new GroupBox { Name = "RecordingStorage", Text = "Speicherpfade", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
+        var storageFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 3 };
+        storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        TextBox AddStoragePath(string label, string value, string fallback, int row)
+        {
+            var field = new TextBox { Name = "StoragePath" + row, Dock = DockStyle.Fill, Text = RecordingStorage.Resolve(value, fallback) };
+            var browse = new Button { Text = "Durchsuchen …", AutoSize = true };
+            browse.Click += (_, _) =>
+            {
+                using var dialog = new FolderBrowserDialog { SelectedPath = field.Text, Description = label };
+                if (dialog.ShowDialog(this) == DialogResult.OK) field.Text = dialog.SelectedPath;
+            };
+            storageFields.Controls.Add(new Label { Text = label, AutoSize = true, Anchor = AnchorStyles.Left }, 0, row);
+            storageFields.Controls.Add(field, 1, row); storageFields.Controls.Add(browse, 2, row);
+            return field;
+        }
+        var manualSnapshotPath = AddStoragePath("Manuelle Snapshots:", current.ManualSnapshotFolder, RecordingStorage.ManualSnapshots, 0);
+        var manualVideoPath = AddStoragePath("Manuelle Videos:", current.ManualVideoFolder, RecordingStorage.ManualVideos, 1);
+        var motionSnapshotPath = AddStoragePath("Snapshots bei Bewegung:", current.MotionSnapshotFolder, RecordingStorage.MotionDefault, 2);
+        var motionVideoPath = AddStoragePath("Videos bei Bewegung:", current.MotionVideoFolder, RecordingStorage.MotionDefault, 3);
+        var storageHint = new Label { Text = "Die Aufbewahrungsfrist gilt nur für automatische Bewegungsaufnahmen. Manuelle Aufnahmen bleiben erhalten.", AutoSize = true, MaximumSize = new Size(700, 0) };
+        storageFields.Controls.Add(storageHint, 0, 4); storageFields.SetColumnSpan(storageHint, 3);
+        storageGroup.Controls.Add(storageFields); table.Controls.Add(storageGroup, 0, 5);
         // Temporary BETA section: remove before v1.0.0.
         var betaLogging = new CheckBox { Name = "BetaWindowLogging", Text = "Fensterprotokollierung aktivieren", AutoSize = true, Checked = current.BetaWindowLoggingEnabled };
         var betaFields = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false };
@@ -3880,8 +3926,8 @@ internal sealed class SettingsForm : Form
         betaFields.Controls.Add(new Label { Text = "Zur Fehlersuche bei Darstellungsproblemen. Änderungen gelten nach dem Speichern.", AutoSize = true });
         var betaGroup = new GroupBox { Name = "BetaDiagnostics", Text = "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) };
         betaGroup.Controls.Add(betaFields);
-        table.Controls.Add(betaGroup, 0, 5);
-        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 6);
+        table.Controls.Add(betaGroup, 0, 6);
+        table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 7);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -3893,7 +3939,7 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
 #if BETA
-        table.Controls.Add(buttons, 0, 7);
+        table.Controls.Add(buttons, 0, 8);
 #else
         table.Controls.Add(buttons, 0, 4);
 #endif
@@ -3961,6 +4007,18 @@ internal sealed class SettingsForm : Form
                 DialogResult = DialogResult.None; return;
             }
 #endif
+            #if BETA
+            try
+            {
+                foreach (var field in new[] { manualSnapshotPath, manualVideoPath, motionSnapshotPath, motionVideoPath })
+                    _ = RecordingStorage.Resolve(field.Text, RecordingStorage.MotionDefault);
+            }
+            catch (ArgumentException error)
+            {
+                MessageBox.Show(this, error.Message, "Ungültiger Speicherpfad", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None; return;
+            }
+            #endif
             Result = new Settings
             {
                 Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, entries.Count - 1),
@@ -3993,6 +4051,10 @@ internal sealed class SettingsForm : Form
                 MotionRetentionDays = retentionValues[motionRetention.SelectedIndex],
                 SnapshotPreRollSeconds = preRollValues[snapshotPreRoll.SelectedIndex],
                 VideoPreRollSeconds = preRollValues[videoPreRoll.SelectedIndex],
+                ManualSnapshotFolder = manualSnapshotPath.Text.Trim(),
+                ManualVideoFolder = manualVideoPath.Text.Trim(),
+                MotionSnapshotFolder = motionSnapshotPath.Text.Trim(),
+                MotionVideoFolder = motionVideoPath.Text.Trim(),
                 SettingsWindowWidth = ClientSize.Width,
                 SettingsWindowHeight = ClientSize.Height
 #endif
