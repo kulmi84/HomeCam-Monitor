@@ -12,13 +12,13 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("HomeCamMonitor Beta Setup")]
 [assembly: AssemblyProduct("HomeCamMonitor Beta")]
-[assembly: AssemblyVersion("0.5.0.19")]
-[assembly: AssemblyFileVersion("0.5.0.19")]
+[assembly: AssemblyVersion("0.5.0.20")]
+[assembly: AssemblyFileVersion("0.5.0.20")]
 
 internal static class BetaInstaller
 {
     internal const string Executable = "HomeCamMonitor-Beta.exe";
-    internal const string ApplicationVersion = "0.5.0-beta.19";
+    internal const string ApplicationVersion = "0.5.0-beta.20";
     private const string RegistryPath = @"Software\HomeCamMonitor-Beta\Setup";
 
     [STAThread]

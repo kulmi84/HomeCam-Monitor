@@ -3681,19 +3681,6 @@ internal static class NativeMethods
 
 internal sealed class SettingsForm : Form
 {
-#if BETA
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var parameters = base.CreateParams;
-            // Paint the settings dialog and its child controls as one frame.
-            // This prevents white child-control placeholders while opening.
-            parameters.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
-            return parameters;
-        }
-    }
-#endif
     private readonly DataGridView cameras = new() { Dock = DockStyle.Fill, AllowUserToAddRows = true, AllowUserToDeleteRows = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
@@ -3735,6 +3722,7 @@ internal sealed class SettingsForm : Form
 #if BETA
         var constructionTimer = Stopwatch.StartNew();
         void Measure(string stage) { ConstructionTimings[stage] = constructionTimer.ElapsedMilliseconds; constructionTimer.Restart(); }
+        DoubleBuffered = true;
         SuspendLayout();
         cameras.SuspendLayout();
         var layoutBatches = new List<Control>();

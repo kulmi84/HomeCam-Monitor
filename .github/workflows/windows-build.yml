@@ -103,7 +103,7 @@ jobs:
           path: ${{ runner.temp }}/toolbar-render/taskbar-stream-preview.png
       - name: Beta-Downloads erstellen
         shell: pwsh
-        run: .github/scripts/build-beta-downloads.ps1 -Version '0.5.0-beta.19'
+        run: .github/scripts/build-beta-downloads.ps1 -Version '0.5.0-beta.20'
       - name: Setup und Startmenü-Verknüpfung prüfen
         shell: pwsh
         run: |
@@ -125,5 +125,5 @@ jobs:
           path: publish/
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-Beta-v0.5.0-beta.19-win-x64
+          name: HomeCamMonitor-Beta-v0.5.0-beta.20-win-x64
           path: beta-downloads/
