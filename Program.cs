@@ -3749,10 +3749,9 @@ internal sealed class SettingsForm : Form
             "MonitorOffsetX", "MonitorOffsetY", "LastGridMode", "MotionActionsPausedUntilUtc" }) node.Remove(key);
         return node.ToJsonString() + "|" + SettingsStore.Folder;
     }
-    internal void PrepareForDisplay()
+    private List<Control>? displayLayouts;
+    private List<Control> CollectDisplayControls()
     {
-        // Build native controls while their ancestor is still hidden. Do not
-        // call Show, change opacity, or run the visible/Shown lifecycle.
         var controls = new List<Control>();
         void Collect(Control parent)
         {
@@ -3760,6 +3759,37 @@ internal sealed class SettingsForm : Form
             foreach (Control child in parent.Controls) Collect(child);
         }
         Collect(this);
+        return controls;
+    }
+    protected override void SetVisibleCore(bool value)
+    {
+        if (value && !Visible)
+        {
+            displayLayouts = CollectDisplayControls();
+            foreach (var control in displayLayouts) control.SuspendLayout();
+        }
+        try { base.SetVisibleCore(value); }
+        finally { FinishDisplayLayout(); }
+    }
+    protected override void OnLoad(EventArgs eventArgs)
+    {
+        try { base.OnLoad(eventArgs); }
+        finally { FinishDisplayLayout(); }
+    }
+    private void FinishDisplayLayout()
+    {
+        if (displayLayouts is not { } controls) return;
+        displayLayouts = null;
+        for (var index = controls.Count - 1; index >= 0; index--) controls[index].ResumeLayout(false);
+        // OnLoad runs after child creation, before the native window is shown.
+        // One pass now replaces repeated nested AutoSize passes during creation.
+        PerformLayout();
+    }
+    internal void PrepareForDisplay()
+    {
+        // Build native controls while their ancestor is still hidden. Do not
+        // call Show, change opacity, or run the visible/Shown lifecycle.
+        var controls = CollectDisplayControls();
         foreach (var control in controls) control.SuspendLayout();
         try { foreach (var control in controls) _ = control.Handle; }
         finally
