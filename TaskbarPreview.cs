@@ -52,7 +52,7 @@ internal sealed class TaskbarPreview : IDisposable
             // Reply synchronously; waiting for IPC here makes Windows time out.
             using var source = frame is null ? fallback(new Size(480, 270)) : null;
             using var bitmap = Scale(frame ?? source!, size);
-            var handle = bitmap.GetHbitmap(Color.Black);
+            var handle = CreateDib(bitmap);
             try
             {
                 if (live) LastSubmissionResult = DwmSetIconicLivePreviewBitmap(window, handle, IntPtr.Zero, 0);
@@ -120,6 +120,44 @@ internal sealed class TaskbarPreview : IDisposable
         }
         finally { try { File.Delete(path); } catch (IOException) { } }
     }
+
+    // DWM requires a 32-bit device-independent bitmap, not a GDI+ DDB.
+    internal static IntPtr CreateDib(Bitmap bitmap)
+    {
+        var info = new BitmapInfoHeader { Size = 40, Width = bitmap.Width, Height = -bitmap.Height,
+            Planes = 1, BitCount = 32, SizeImage = (uint)(bitmap.Width * bitmap.Height * 4) };
+        var handle = CreateDIBSection(IntPtr.Zero, ref info, 0, out var bits, IntPtr.Zero, 0);
+        if (handle == IntPtr.Zero) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+        try
+        {
+            var data = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            try
+            {
+                var row = new byte[bitmap.Width * 4];
+                for (var y = 0; y < bitmap.Height; y++)
+                {
+                    Marshal.Copy(IntPtr.Add(data.Scan0, y * data.Stride), row, 0, row.Length);
+                    Marshal.Copy(row, 0, IntPtr.Add(bits, y * row.Length), row.Length);
+                }
+            }
+            finally { bitmap.UnlockBits(data); }
+            return handle;
+        }
+        catch { NativeMethods.DeleteObject(handle); throw; }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct BitmapInfoHeader
+    {
+        public uint Size;
+        public int Width, Height;
+        public ushort Planes, BitCount;
+        public uint Compression, SizeImage;
+        public int XPelsPerMeter, YPelsPerMeter;
+        public uint ClrUsed, ClrImportant;
+    }
+    [DllImport("gdi32.dll", SetLastError = true)]
+    private static extern IntPtr CreateDIBSection(IntPtr device, ref BitmapInfoHeader info, uint usage, out IntPtr bits, IntPtr section, uint offset);
 
     public void Dispose()
     {
