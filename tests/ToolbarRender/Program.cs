@@ -498,6 +498,7 @@ internal static class Program
                 throw new InvalidOperationException("Camera window grew while moving");
         }
 
+        var settingsOpenTimer = System.Diagnostics.Stopwatch.StartNew();
         using var settingsForm = new SettingsForm(new Settings
         {
             Cameras = [new CameraEntry { Name = "Einfahrt", StreamUrl = "rtsp://127.0.0.1:8554/Einfahrt",
@@ -507,6 +508,12 @@ internal static class Program
             throw new InvalidOperationException("Settings window does not use the HomeCamMonitor icon.");
         settingsForm.Show();
         Application.DoEvents();
+        settingsOpenTimer.Stop();
+        Console.WriteLine($"Settings construction and first show: {settingsOpenTimer.ElapsedMilliseconds} ms");
+        if (settingsOpenTimer.Elapsed > TimeSpan.FromSeconds(3))
+            throw new InvalidOperationException("Opening the settings still takes more than three seconds.");
+        if (!settingsForm.Controls.Find("PersonCaptureHint", true).Single().Text.Contains("Snapshot je Ereignis"))
+            throw new InvalidOperationException("Person snapshots are not distinguished from motion actions.");
         var storagePaths = AllControls(settingsForm).OfType<TextBox>().Where(field => field.Name.StartsWith("StoragePath")).ToArray();
         if (storagePaths.Length != 4 || storagePaths.Any(field => string.IsNullOrWhiteSpace(field.Text)))
             throw new InvalidOperationException("Four independent storage path controls are missing.");
@@ -552,12 +559,12 @@ internal static class Program
             .Single(label => label.Text == "Ausgewählte Kamera:");
         var recordingGroup = settingsForm.Controls.Find("MotionCaptureOptions", true).Single();
         var actionLabel = AllControls(recordingGroup).OfType<Label>()
-            .Single(label => label.Text == "Für die ausgewählte Kamera");
+            .Single(label => label.Text == "Bei Bewegung (ausgewählte Kamera)");
         if (recordingGroup.PointToScreen(Point.Empty).X <= selectedCamera.PointToScreen(Point.Empty).X)
             throw new InvalidOperationException("Recording options must be in the right-hand column.");
         var indicatorLabel = AllControls(activityGroup).OfType<Label>()
             .Single(label => label.Text == "Aktivitätssymbole anzeigen:");
-        if (!AllControls(activityGroup).OfType<CheckBox>().Any(check => check.Text == "Bewegungserkennung aktiv") ||
+        if (!AllControls(activityGroup).OfType<CheckBox>().Any(check => check.Name == "DetectionEnabled") ||
             indicatorLabel.Parent is null)
             throw new InvalidOperationException("Activity controls must be grouped together");
         var minimizedStart = settingsForm.Controls.Find("MinimizedStart", true).OfType<CheckBox>().Single();
@@ -572,7 +579,7 @@ internal static class Program
         if (!minimizedStart.Checked) throw new InvalidOperationException("Startup selection did not update the minimized start checkbox.");
         startBehavior.SelectedIndex = 3;
         if (minimizedStart.Checked) throw new InvalidOperationException("Grid startup left minimized start checked.");
-        var detection = AllControls(activityGroup).OfType<CheckBox>().Single(check => check.Text == "Bewegungserkennung aktiv");
+        var detection = AllControls(activityGroup).OfType<CheckBox>().Single(check => check.Name == "DetectionEnabled");
         detection.Checked = false;
         if (!minimizedStart.Enabled) throw new InvalidOperationException("Minimized start must remain available without motion detection.");
         detection.Checked = true;

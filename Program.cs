@@ -3705,7 +3705,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox showEmptyFourthFieldBorder = new() { Text = "Außenrahmen", AutoSize = true };
     private readonly CheckBox showEmptyCameraLogo = new() { Text = "Logo in leeren Kamerafeldern anzeigen", AutoSize = true };
     private readonly CheckBox showGridCameraNames = new() { Text = "Kameranamen im 4er-Raster anzeigen", AutoSize = true };
-    private readonly CheckBox motionDetection = new() { Text = "Bewegungserkennung aktiv", AutoSize = true };
+    private readonly CheckBox motionDetection = new() { Name = "DetectionEnabled", Text = "Bewegungs- und Personenerkennung aktiv", AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = "Bei Inaktivität minimieren", AutoSize = true };
     private readonly CheckBox restorePreviousCamera = new() { Text = "Vorherige Kamera wiederherstellen", AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
@@ -3731,6 +3731,18 @@ internal sealed class SettingsForm : Form
 #endif
     public SettingsForm(Settings current)
     {
+#if BETA
+        SuspendLayout();
+        cameras.SuspendLayout();
+        var layoutBatches = new List<Control>();
+#endif
+        T Batch<T>(T control) where T : Control
+        {
+#if BETA
+            control.SuspendLayout(); layoutBatches.Add(control);
+#endif
+            return control;
+        }
 #if BETA
         Icon = ApplicationBranding.WindowIcon;
 #endif
@@ -3779,7 +3791,7 @@ internal sealed class SettingsForm : Form
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "StreamUrl", HeaderText = "RTSP-/HTTP-Streamadresse", FillWeight = 64 });
 #if BETA
         cameras.Columns.Add(new DataGridViewCheckBoxColumn { Name = "MotionEnabled", HeaderText = "Bewegung", FillWeight = 12 });
-        cameras.Columns.Add(new DataGridViewCheckBoxColumn { Name = "PersonEnabled", HeaderText = "Person", FillWeight = 12 });
+        cameras.Columns.Add(new DataGridViewCheckBoxColumn { Name = "PersonEnabled", HeaderText = "Person", ToolTipText = "Speichert einen Snapshot je Personen-Ereignis. Unabhängig von der Aufnahmeaktion bei Bewegung.", FillWeight = 12 });
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionEntityId", Visible = false });
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionAction", Visible = false });
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionVideoSeconds", Visible = false });
@@ -3891,14 +3903,14 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var scrollArea = new Panel { Name = "SettingsScrollArea", Dock = DockStyle.Fill, AutoScroll = true };
-        var table = new TableLayoutPanel { Name = "SettingsContent", Dock = DockStyle.Top, AutoSize = true,
-            AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 };
+        var scrollArea = Batch(new Panel { Name = "SettingsScrollArea", Dock = DockStyle.Fill, AutoScroll = true });
+        var table = Batch(new TableLayoutPanel { Name = "SettingsContent", Dock = DockStyle.Top, AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 });
         scrollArea.Controls.Add(table);
         table.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
-        var table = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 };
+        var table = Batch(new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 });
         table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 #endif
         table.Controls.Add(cameras, 0, 0);
@@ -3908,32 +3920,32 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
 #endif
 #if BETA
-        var options = new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) };
+        var options = Batch(new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) });
         options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        var generalOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        var generalOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         generalOptions.Controls.Add(top);
         generalOptions.Controls.Add(autostart);
         options.Controls.Add(generalOptions, 0, 0);
 
-        var toolbarOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        var toolbarOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         toolbarOptions.Controls.Add(new Label { Text = "Bedienleiste:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(toolbarSize);
         toolbarOptions.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(autoScaleToolbar);
         options.Controls.Add(toolbarOptions, 0, 1);
-        var cameraAppearance = new FlowLayoutPanel { Name = "CameraAppearance", Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) };
+        var cameraAppearance = Batch(new FlowLayoutPanel { Name = "CameraAppearance", Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
         cameraAppearance.Controls.Add(showGridCameraNames);
         cameraAppearance.Controls.Add(showEmptyCameraLogo);
         cameraAppearance.Controls.Add(showEmptyFourthFieldBorder);
         options.Controls.Add(cameraAppearance, 0, 2);
 #else
-        var options = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true };
+        var options = Batch(new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true });
         options.Controls.Add(top);
         options.Controls.Add(autostart);
 #endif
 #if BETA
-        var startupOptions = new FlowLayoutPanel { Name = "StartupOptions", Dock = DockStyle.Fill, AutoSize = true };
+        var startupOptions = Batch(new FlowLayoutPanel { Name = "StartupOptions", Dock = DockStyle.Fill, AutoSize = true });
         startupOptions.Controls.Add(new Label { Text = "Beim Start:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         startupOptions.Controls.Add(startBehavior);
         var startCameraLabel = new Label { Text = "Kamera:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) };
@@ -3946,8 +3958,8 @@ internal sealed class SettingsForm : Form
         }
         startBehavior.SelectedIndexChanged += (_, _) => UpdateStartCameraOption();
         UpdateStartCameraOption();
-        var generalGroup = new GroupBox { Text = "Allgemeine Einstellungen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
-        var generalFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2 };
+        var generalGroup = Batch(new GroupBox { Text = "Allgemeine Einstellungen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
+        var generalFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2 });
         generalFields.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         generalFields.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         generalFields.Controls.Add(options, 0, 0);
@@ -3955,7 +3967,7 @@ internal sealed class SettingsForm : Form
         generalGroup.Controls.Add(generalFields);
         table.Controls.Add(generalGroup, 0, 2);
 
-        var activityOptions = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3 };
+        var activityOptions = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3 });
         for (var row = 0; row < activityOptions.RowCount; row++)
             activityOptions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var minimizedStart = new CheckBox { Name = "MinimizedStart", Text = "Minimiert starten", AutoSize = true,
@@ -3977,12 +3989,12 @@ internal sealed class SettingsForm : Form
             try { startBehavior.SelectedIndex = minimizedStart.Checked ? 1 : lastNormalStart; }
             finally { syncingStart = false; }
         };
-        var activityStartOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) };
+        var activityStartOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
         activityStartOptions.Controls.Add(motionDetection);
         activityStartOptions.Controls.Add(minimizedStart);
         activityOptions.Controls.Add(activityStartOptions, 0, 0);
 
-        var motionOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        var motionOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         motionOptions.Controls.Add(minimizeWhenInactive);
         motionOptions.Controls.Add(restorePreviousCamera);
         motionOptions.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
@@ -3990,14 +4002,14 @@ internal sealed class SettingsForm : Form
         motionOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         activityOptions.Controls.Add(motionOptions, 0, 1);
 
-        var indicatorOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        var indicatorOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         indicatorOptions.Controls.Add(new Label { Text = "Aktivitätssymbole anzeigen:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         indicatorOptions.Controls.Add(indicatorSeconds);
         indicatorOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 12, 0) });
         indicatorOptions.Controls.Add(highlightMotionInGrid);
         activityOptions.Controls.Add(indicatorOptions, 0, 2);
 
-        var activityGroup = new GroupBox { Text = "Bewegung und Aktivitätsanzeige", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
+        var activityGroup = Batch(new GroupBox { Text = "Bewegung und Aktivitätsanzeige", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
         activityGroup.Controls.Add(activityOptions);
         table.Controls.Add(activityGroup, 0, 3);
 #else
@@ -4011,11 +4023,11 @@ internal sealed class SettingsForm : Form
         videoPreRoll.Items.AddRange(["Aus", "1 Sekunde", "3 Sekunden", "5 Sekunden"]);
         snapshotPreRoll.SelectedIndex = Math.Max(0, Array.IndexOf(preRollValues, current.SnapshotPreRollSeconds));
         videoPreRoll.SelectedIndex = Math.Max(0, Array.IndexOf(preRollValues, current.VideoPreRollSeconds));
-        var captureOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
+        var captureOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         captureOptions.Controls.Add(motionAction);
         captureOptions.Controls.Add(motionVideoSeconds);
-        var homeAssistantGroup = new GroupBox { Text = "Bewegung pro Kamera und Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
-        var homeAssistantFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 8 };
+        var homeAssistantGroup = Batch(new GroupBox { Text = "Bewegung pro Kamera und Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
+        var homeAssistantFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 8 });
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         homeAssistantFields.Controls.Add(directHomeAssistant, 0, 0);
@@ -4026,7 +4038,7 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(homeAssistantToken, 1, 2);
         homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 3);
         homeAssistantFields.SetColumnSpan(ignoreHomeAssistantCertificateErrors, 2);
-        var testRow = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false };
+        var testRow = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false });
         testRow.Controls.Add(testHomeAssistant);
         testRow.Controls.Add(homeAssistantStatus);
         homeAssistantFields.Controls.Add(testRow, 0, 4);
@@ -4037,25 +4049,28 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(motionEntityId, 1, 6);
         homeAssistantFields.Controls.Add(new Label { Text = "Personen-Entität (Snapshot):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 7);
         homeAssistantFields.Controls.Add(personEntityId, 1, 7);
-        var recordingGroup = new GroupBox { Name = "MotionCaptureOptions", Text = "Aufnahmen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) };
-        var recordingFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 7 };
+        var recordingGroup = Batch(new GroupBox { Name = "MotionCaptureOptions", Text = "Aufnahmen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
+        var recordingFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 8 });
         recordingFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         recordingFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        var selectedCaptureHint = new Label { Text = "Für die ausgewählte Kamera", AutoSize = true };
+        var selectedCaptureHint = new Label { Name = "MotionActionHint", Text = "Bei Bewegung (ausgewählte Kamera)", AutoSize = true };
         recordingFields.Controls.Add(selectedCaptureHint, 0, 0); recordingFields.SetColumnSpan(selectedCaptureHint, 2);
         recordingFields.Controls.Add(captureOptions, 0, 1); recordingFields.SetColumnSpan(captureOptions, 2);
-        var globalCaptureHint = new Label { Text = "Für alle Kameras", AutoSize = true, Margin = new Padding(3, 14, 3, 6) };
-        recordingFields.Controls.Add(globalCaptureHint, 0, 2); recordingFields.SetColumnSpan(globalCaptureHint, 2);
-        recordingFields.Controls.Add(new Label { Text = "Aufbewahrung:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 3);
-        recordingFields.Controls.Add(motionRetention, 1, 3);
-        recordingFields.Controls.Add(new Label { Text = "Snapshot-Vorlauf:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
-        recordingFields.Controls.Add(snapshotPreRoll, 1, 4);
-        recordingFields.Controls.Add(new Label { Text = "Video-Vorlauf:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 5);
-        recordingFields.Controls.Add(videoPreRoll, 1, 5);
+        var personCaptureHint = new Label { Name = "PersonCaptureHint", Text = "Person: Snapshot je Ereignis (Haken oben).", AutoSize = true,
+            MaximumSize = new Size(340, 0), Margin = new Padding(3, 8, 3, 3) };
+        recordingFields.Controls.Add(personCaptureHint, 0, 2); recordingFields.SetColumnSpan(personCaptureHint, 2);
+        var globalCaptureHint = new Label { Text = "Automatische Aufnahmen (alle Kameras)", AutoSize = true, Margin = new Padding(3, 14, 3, 6) };
+        recordingFields.Controls.Add(globalCaptureHint, 0, 3); recordingFields.SetColumnSpan(globalCaptureHint, 2);
+        recordingFields.Controls.Add(new Label { Text = "Aufbewahrung:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 4);
+        recordingFields.Controls.Add(motionRetention, 1, 4);
+        recordingFields.Controls.Add(new Label { Text = "Snapshot-Vorlauf:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 5);
+        recordingFields.Controls.Add(snapshotPreRoll, 1, 5);
+        recordingFields.Controls.Add(new Label { Text = "Video-Vorlauf:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 6);
+        recordingFields.Controls.Add(videoPreRoll, 1, 6);
         var preRollHint = new Label { Text = "Der Vorlauf benötigt einen kurzen Pufferaufbau. Bis dahin erfolgt die normale Aufnahme.", AutoSize = true, MaximumSize = new Size(340, 0), Margin = new Padding(3, 10, 3, 3) };
-        recordingFields.Controls.Add(preRollHint, 0, 6); recordingFields.SetColumnSpan(preRollHint, 2);
+        recordingFields.Controls.Add(preRollHint, 0, 7); recordingFields.SetColumnSpan(preRollHint, 2);
         recordingGroup.Controls.Add(recordingFields);
-        var motionColumns = new TableLayoutPanel { Name = "MotionSettingsColumns", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 1, Margin = new Padding(0) };
+        var motionColumns = Batch(new TableLayoutPanel { Name = "MotionSettingsColumns", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 1, Margin = new Padding(0) });
         motionColumns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
         motionColumns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
         motionColumns.Controls.Add(homeAssistantFields, 0, 0);
@@ -4064,8 +4079,8 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(homeAssistantGroup, 0, 4);
 #endif
 #if BETA
-        var storageGroup = new GroupBox { Name = "RecordingStorage", Text = "Speicherpfade", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
-        var storageFields = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 3 };
+        var storageGroup = Batch(new GroupBox { Name = "RecordingStorage", Text = "Speicherpfade", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
+        var storageFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 3 });
         storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -4095,15 +4110,15 @@ internal sealed class SettingsForm : Form
         storageGroup.Controls.Add(storageFields); table.Controls.Add(storageGroup, 0, 5);
         // Temporary BETA section: remove before v1.0.0.
         var betaLogging = new CheckBox { Name = "BetaWindowLogging", Text = "Fensterprotokollierung aktivieren", AutoSize = true, Checked = current.BetaWindowLoggingEnabled };
-        var betaFields = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false };
+        var betaFields = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false });
         betaFields.Controls.Add(betaLogging);
         betaFields.Controls.Add(new Label { Text = "Zur Fehlersuche bei Darstellungsproblemen. Änderungen gelten nach dem Speichern.", AutoSize = true });
-        var betaGroup = new GroupBox { Name = "BetaDiagnostics", Text = "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) };
+        var betaGroup = Batch(new GroupBox { Name = "BetaDiagnostics", Text = "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
         betaGroup.Controls.Add(betaFields);
         table.Controls.Add(betaGroup, 0, 7);
-        var backupGroup = new GroupBox { Name = "SettingsBackup", Text = "Einstellungen sichern und wiederherstellen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) };
-        var backupFields = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false };
-        var backupButtons = new FlowLayoutPanel { AutoSize = true, WrapContents = false };
+        var backupGroup = Batch(new GroupBox { Name = "SettingsBackup", Text = "Einstellungen sichern und wiederherstellen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
+        var backupFields = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false });
+        var backupButtons = Batch(new FlowLayoutPanel { AutoSize = true, WrapContents = false });
         var exportSettings = new Button { Name = "ExportSettings", Text = "Einstellungen sichern …", AutoSize = true };
         var importSettings = new Button { Name = "ImportSettings", Text = "Einstellungen wiederherstellen …", AutoSize = true };
         backupButtons.Controls.Add(exportSettings); backupButtons.Controls.Add(importSettings);
@@ -4131,8 +4146,8 @@ internal sealed class SettingsForm : Form
             }
             catch (Exception error) { MessageBox.Show(this, error.Message, "Wiederherstellung fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         };
-        var footer = new TableLayoutPanel { Name = "SettingsFooter", Dock = DockStyle.Bottom, AutoSize = true,
-            AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14, 6, 14, 6), ColumnCount = 2, RowCount = 1 };
+        var footer = Batch(new TableLayoutPanel { Name = "SettingsFooter", Dock = DockStyle.Bottom, AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14, 6, 14, 6), ColumnCount = 2, RowCount = 1 });
         footer.Paint += (_, paint) =>
         {
             using var separator = new Pen(Color.FromArgb(65, 65, 69));
@@ -4147,10 +4162,10 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
 #if BETA
-        var buttons = new FlowLayoutPanel { Anchor = AnchorStyles.Right, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Margin = Padding.Empty, WrapContents = false, FlowDirection = FlowDirection.RightToLeft };
+        var buttons = Batch(new FlowLayoutPanel { Anchor = AnchorStyles.Right, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Margin = Padding.Empty, WrapContents = false, FlowDirection = FlowDirection.RightToLeft });
 #else
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft };
+        var buttons = Batch(new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft });
 #endif
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
@@ -4301,6 +4316,11 @@ internal sealed class SettingsForm : Form
             }
 #endif
         };
+#if BETA
+        cameras.ResumeLayout(false);
+        for (var index = layoutBatches.Count - 1; index >= 0; index--) layoutBatches[index].ResumeLayout(true);
+        ResumeLayout(true);
+#endif
     }
     private List<CameraEntry> ReadCameras()
     {
