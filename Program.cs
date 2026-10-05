@@ -299,6 +299,10 @@ internal sealed class MonitorForm : Form
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
     private NativeWindowDiagnostics? windowDiagnostics;
     private TaskbarPreview? startupTaskbarPreview;
+    private SettingsForm? preparedSettingsDialog;
+    private Settings? preparedSettingsSource;
+    private string? preparedSettingsFingerprint;
+    private readonly System.Windows.Forms.Timer settingsPreparationTimer = new() { Interval = 1000 };
     private readonly System.Windows.Forms.Timer videoDecorationTimer = new() { Interval = 50 };
     private CancellationTokenSource? refreshCancellation;
     private CancellationTokenSource? initialPlayerReveal;
@@ -468,6 +472,9 @@ internal sealed class MonitorForm : Form
         };
         videoDecorationTimer.Start();
 #endif
+#if BETA
+        settingsPreparationTimer.Tick += (_, _) => PrepareSettingsWhenIdle();
+#endif
         FormClosing += (_, _) => CloseMonitor();
 #if BETA
         // Set the native startup state before the first handle/show. Minimizing
@@ -538,6 +545,7 @@ internal sealed class MonitorForm : Form
         if (settings.StartBehavior == "Minimized" && WindowState != FormWindowState.Minimized) MinimizeWindow();
         RestartMotionIntegration();
         UpdatePreRollBuffers();
+        settingsPreparationTimer.Start();
 #endif
     }
 
@@ -545,6 +553,8 @@ internal sealed class MonitorForm : Form
     {
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
+        settingsPreparationTimer.Stop(); settingsPreparationTimer.Dispose();
+        preparedSettingsDialog?.Dispose(); preparedSettingsDialog = null;
         startupTaskbarPreview?.Dispose(); startupTaskbarPreview = null;
         // Remove all visible windows before shutting down native video windows.
         // mpv teardown can otherwise briefly expose unpainted surfaces.
@@ -1112,6 +1122,39 @@ internal sealed class MonitorForm : Form
         await pipe.WriteAsync(bytes); await pipe.FlushAsync();
     }
 
+#if BETA
+    private void PrepareSettingsWhenIdle()
+    {
+        if (closing || activeSettingsDialog is not null || nativeMoveOrResize ||
+            motionRestoreTimer.Enabled || NativeMethods.GetIdleMilliseconds() < 1500) return;
+        settingsPreparationTimer.Stop();
+        preparedSettingsDialog?.Dispose(); preparedSettingsDialog = null;
+        try
+        {
+            var dialog = new SettingsForm(settings);
+            preparedSettingsDialog = dialog;
+            dialog.PrepareForDisplay();
+            preparedSettingsSource = settings;
+            preparedSettingsFingerprint = SettingsForm.GetDisplayFingerprint(settings);
+        }
+        catch
+        {
+            preparedSettingsDialog?.Dispose(); preparedSettingsDialog = null;
+            // Opening remains available through the normal construction path.
+        }
+    }
+
+    private SettingsForm TakeSettingsDialog()
+    {
+        var dialog = preparedSettingsDialog;
+        preparedSettingsDialog = null;
+        if (dialog is not null && !dialog.IsDisposed && ReferenceEquals(preparedSettingsSource, settings) &&
+            preparedSettingsFingerprint == SettingsForm.GetDisplayFingerprint(settings)) return dialog;
+        dialog?.Dispose();
+        return new SettingsForm(settings);
+    }
+#endif
+
     internal void OpenSettings()
     {
 #if BETA
@@ -1122,7 +1165,12 @@ internal sealed class MonitorForm : Form
 #endif
         Settings? changedSettings = null;
         // Build and theme the dialog while the camera and toolbar remain visible.
+#if BETA
+        settingsPreparationTimer.Stop();
+        using var dialog = TakeSettingsDialog();
+#else
         using var dialog = new SettingsForm(settings);
+#endif
 #if BETA
         dialog.CanRestore = () => !recording && activeMotionCapture.Count == 0;
         windowDiagnostics?.Mark("settings constructed");
@@ -1162,6 +1210,7 @@ internal sealed class MonitorForm : Form
         {
 #if BETA
             activeSettingsDialog = null;
+            settingsPreparationTimer.Start();
 #endif
             suppressToolbar = false;
             TopMost = changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop;
@@ -3617,6 +3666,13 @@ internal static class NativeMethods
 #if BETA
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern IntPtr GetFocus();
+    [StructLayout(LayoutKind.Sequential)] private struct LastInputInfo { public uint Size; public uint Time; }
+    [DllImport("user32.dll")] private static extern bool GetLastInputInfo(ref LastInputInfo info);
+    internal static uint GetIdleMilliseconds()
+    {
+        var info = new LastInputInfo { Size = 8 };
+        return GetLastInputInfo(ref info) ? unchecked((uint)Environment.TickCount - info.Time) : 0;
+    }
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr window);
     [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr window, int command);
     [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, int attribute, ref int value, int valueSize);
@@ -3681,6 +3737,39 @@ internal static class NativeMethods
 
 internal sealed class SettingsForm : Form
 {
+#if BETA
+    protected override CreateParams CreateParams
+    {
+        get { var parameters = base.CreateParams; parameters.ExStyle |= 0x02000000; return parameters; }
+    }
+    internal static string GetDisplayFingerprint(Settings value)
+    {
+        var node = System.Text.Json.Nodes.JsonNode.Parse(JsonSerializer.Serialize(value))!.AsObject();
+        foreach (var key in new[] { "SelectedCamera", "Left", "Top", "Width", "Height", "LastMonitorDeviceName",
+            "MonitorOffsetX", "MonitorOffsetY", "LastGridMode", "MotionActionsPausedUntilUtc" }) node.Remove(key);
+        return node.ToJsonString() + "|" + SettingsStore.Folder;
+    }
+    internal void PrepareForDisplay()
+    {
+        // Build native controls while their ancestor is still hidden. Do not
+        // call Show, change opacity, or run the visible/Shown lifecycle.
+        var controls = new List<Control>();
+        void Collect(Control parent)
+        {
+            controls.Add(parent);
+            foreach (Control child in parent.Controls) Collect(child);
+        }
+        Collect(this);
+        foreach (var control in controls) control.SuspendLayout();
+        try { foreach (var control in controls) _ = control.Handle; }
+        finally
+        {
+            for (var index = controls.Count - 1; index >= 0; index--) controls[index].ResumeLayout(false);
+            PerformLayout();
+        }
+    }
+#endif
+
     private readonly DataGridView cameras = new() { Dock = DockStyle.Fill, AllowUserToAddRows = true, AllowUserToDeleteRows = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
