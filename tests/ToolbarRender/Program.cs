@@ -29,6 +29,56 @@ internal static class Program
             }).GetAwaiter().GetResult();
             return;
         }
+        if (args.Length > 0 && args[0] == "--preview-check")
+        {
+            ApplicationConfiguration.Initialize();
+            var previewSettings = new Settings { StartBehavior = "Minimized", MotionDetectionEnabled = false,
+                Width = 640, Height = 360, Cameras = [new CameraEntry { Name = "Vorschau-Test", StreamUrl = new Uri(Path.GetFullPath(args[1])).AbsoluteUri }] };
+            using var previewMonitor = new MonitorForm(previewSettings);
+            using var checkTimer = new System.Windows.Forms.Timer { Interval = 500 };
+            var attempts = 0; var checking = false; Exception? failure = null;
+            checkTimer.Tick += async (_, _) =>
+            {
+                if (checking) return;
+                checking = true;
+                try
+                {
+                    const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                    if (previewMonitor.WindowState != FormWindowState.Minimized)
+                        throw new InvalidOperationException("Preview restored the startup window.");
+                    var capture = (Task<Bitmap?>)typeof(MonitorForm).GetMethod("CaptureStartupPreviewAsync", hidden)!
+                        .Invoke(previewMonitor, new object[] { CancellationToken.None })!;
+                    using var bitmap = await capture;
+                    if (bitmap is null && ++attempts < 20) return;
+                    if (bitmap is null) throw new InvalidOperationException("Minimized mpv startup produced no preview frame.");
+                    Directory.CreateDirectory(args[2]);
+                    bitmap.Save(Path.Combine(args[2], "taskbar-stream-preview.png"));
+                    if (bitmap.Width < 100 || bitmap.Height < 50) throw new InvalidOperationException("Stream preview is too small.");
+                    using var scaled = TaskbarPreview.Scale(bitmap, new Size(211, 117));
+                    if (scaled.Width > 211 || scaled.Height > 117 || scaled.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                        throw new InvalidOperationException("Taskbar thumbnail does not obey DWM bitmap constraints.");
+                    NativeMethods.SendMessage(previewMonitor.Handle, TaskbarPreview.ThumbnailMessage, IntPtr.Zero, (IntPtr)((211 << 16) | 117));
+                    if (previewMonitor.WindowState != FormWindowState.Minimized)
+                        throw new InvalidOperationException("DWM preview request showed the monitor.");
+                    var provider = (TaskbarPreview?)typeof(MonitorForm).GetField("startupTaskbarPreview", hidden)!.GetValue(previewMonitor);
+                    if (provider is null || provider.LastSubmissionResult < 0)
+                        throw new InvalidOperationException($"DWM rejected the startup thumbnail: {provider?.LastSubmissionResult:X8}.");
+                    previewMonitor.WindowState = FormWindowState.Normal;
+                    Application.DoEvents();
+                    if (typeof(MonitorForm).GetField("startupTaskbarPreview", hidden)!.GetValue(previewMonitor) is not null)
+                        throw new InvalidOperationException("Normal restore did not return to native Windows previews.");
+                    checkTimer.Stop(); previewMonitor.Close();
+                }
+                catch (Exception exception) { failure = exception; checkTimer.Stop(); previewMonitor.Close(); }
+                finally { checking = false; }
+            };
+            previewMonitor.Shown += (_, _) => checkTimer.Start();
+            Application.Run(previewMonitor);
+            if (failure is not null) throw failure;
+            if (attempts == 0 && !File.Exists(Path.Combine(args[2], "taskbar-stream-preview.png")))
+                throw new InvalidOperationException("Preview test closed without producing a frame.");
+            return;
+        }
         ApplicationConfiguration.Initialize();
         var backupFixture = SettingsStore.CreateForNewInstallation();
         backupFixture.Cameras.Add(new CameraEntry { Name = "Testkamera", StreamUrl = "rtsp://127.0.0.1/Test", MotionEnabled = true, PersonEnabled = true,

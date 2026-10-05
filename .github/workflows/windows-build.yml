@@ -87,9 +87,23 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Vorlauf-Integrationstest fehlgeschlagen.' }
           & $ffmpeg -nostdin -hide_banner -loglevel error -i (Join-Path $output 'pre-roll.mkv') -f null NUL
           if ($LASTEXITCODE -ne 0) { throw 'Vorlauf-Video ist nicht lesbar.' }
+      - name: Taskleisten-Vorschau bei minimiertem Start mit mpv prüfen
+        shell: pwsh
+        run: |
+          $testExe = Get-ChildItem tests/ToolbarRender/bin -Filter ToolbarRender.exe -Recurse | Select-Object -First 1
+          Copy-Item publish-beta/mpv.exe (Join-Path $testExe.DirectoryName 'mpv.exe')
+          $source = Join-Path $env:RUNNER_TEMP 'homecam-preview-source.mkv'
+          & publish-beta/ffmpeg.exe -nostdin -hide_banner -loglevel error -f lavfi -i 'testsrc=size=320x180:rate=10' -t 20 -c:v mpeg4 -y $source
+          if ($LASTEXITCODE -ne 0) { throw 'Vorschau-Testquelle fehlgeschlagen.' }
+          dotnet run --no-build --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- --preview-check $source "${{ runner.temp }}/toolbar-render"
+          if ($LASTEXITCODE -ne 0) { throw 'Minimierte Stream-Vorschau fehlgeschlagen.' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-Taskbar-Preview
+          path: ${{ runner.temp }}/toolbar-render/taskbar-stream-preview.png
       - name: Beta-Downloads erstellen
         shell: pwsh
-        run: .github/scripts/build-beta-downloads.ps1 -Version '0.5.0-beta.16'
+        run: .github/scripts/build-beta-downloads.ps1 -Version '0.5.0-beta.17'
       - name: Setup und Startmenü-Verknüpfung prüfen
         shell: pwsh
         run: |
@@ -111,5 +125,5 @@ jobs:
           path: publish/
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-Beta-v0.5.0-beta.16-win-x64
+          name: HomeCamMonitor-Beta-v0.5.0-beta.17-win-x64
           path: beta-downloads/

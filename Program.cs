@@ -214,6 +214,8 @@ internal sealed class MonitorForm : Form
     protected override void OnHandleCreated(EventArgs eventArgs)
     {
         base.OnHandleCreated(eventArgs);
+        if (WindowState == FormWindowState.Minimized && settings.StartBehavior == "Minimized" && HasUsableCamera())
+            startupTaskbarPreview ??= new TaskbarPreview(this, CaptureStartupPreviewAsync, size => offlinePlaceholder.CreatePreview(size));
         windowDiagnostics?.Dispose();
         windowDiagnostics = settings.BetaWindowLoggingEnabled ? new NativeWindowDiagnostics(Handle) : null;
     }
@@ -254,6 +256,7 @@ internal sealed class MonitorForm : Form
     private readonly List<GridPlayerSlot> gridSlots = [];
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
     private NativeWindowDiagnostics? windowDiagnostics;
+    private TaskbarPreview? startupTaskbarPreview;
     private readonly System.Windows.Forms.Timer videoDecorationTimer = new() { Interval = 50 };
     private CancellationTokenSource? refreshCancellation;
     private CancellationTokenSource? initialPlayerReveal;
@@ -368,6 +371,9 @@ internal sealed class MonitorForm : Form
                 wasMinimized = true;
                 return;
             }
+#endif
+#if BETA
+            startupTaskbarPreview?.Dispose(); startupTaskbarPreview = null;
 #endif
             KeepCameraAspectRatio();
             ApplyRoundedCorners();
@@ -498,6 +504,7 @@ internal sealed class MonitorForm : Form
     {
         closing = true; latencyTimer.Stop(); restartTimer.Stop(); controlsTimer.Stop();
 #if BETA
+        startupTaskbarPreview?.Dispose(); startupTaskbarPreview = null;
         // Remove all visible windows before shutting down native video windows.
         // mpv teardown can otherwise briefly expose unpainted surfaces.
         toolbar?.Hide();
@@ -1868,6 +1875,19 @@ internal sealed class MonitorForm : Form
         WindowState = FormWindowState.Minimized;
     }
 
+    private async Task<Bitmap?> CaptureStartupPreviewAsync(CancellationToken token)
+    {
+        if (closing || WindowState != FormWindowState.Minimized || player is null || offlinePlaceholder.Visible) return null;
+        var currentPlayer = player;
+        var currentPipe = pipeName;
+        var cameraIndex = settings.SelectedCamera;
+        var frame = await TaskbarPreview.CaptureFrameAsync(currentPipe, token);
+        if (closing || token.IsCancellationRequested || !ReferenceEquals(player, currentPlayer) ||
+            pipeName != currentPipe || settings.SelectedCamera != cameraIndex || offlinePlaceholder.Visible)
+        { frame?.Dispose(); return null; }
+        return frame;
+    }
+
     private void RestoreWindowAfterMinimize()
     {
         if (closing || WindowState != FormWindowState.Normal) return;
@@ -2663,6 +2683,7 @@ internal sealed class MonitorForm : Form
     protected override void WndProc(ref Message message)
     {
 #if BETA
+        if (startupTaskbarPreview?.HandleMessage(ref message) == true) return;
         if (message.Msg == NativeMethods.WmNcPaint)
         {
             // Never let Windows draw a stale caption over the embedded players
@@ -2873,6 +2894,16 @@ internal sealed class CameraPlaceholderPanel : Panel
 
     public void SetOffline() { offline = true; Invalidate(); }
     public void SetConnecting() { offline = false; Invalidate(); }
+
+    internal Bitmap CreatePreview(Size size)
+    {
+        using var copy = new CameraPlaceholderPanel { Size = size };
+        copy.cameraName = cameraName; copy.offline = offline; copy.empty = empty;
+        copy.showEmptyLogo = showEmptyLogo;
+        var bitmap = new Bitmap(size.Width, size.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        copy.DrawToBitmap(bitmap, new Rectangle(Point.Empty, size));
+        return bitmap;
+    }
 
     protected override void OnPaint(PaintEventArgs eventArgs)
     {
