@@ -299,6 +299,7 @@ internal sealed class MonitorForm : Form
     private readonly System.Windows.Forms.Timer cameraLayoutTimer = new() { Interval = 250 };
     private NativeWindowDiagnostics? windowDiagnostics;
     private TaskbarPreview? startupTaskbarPreview;
+    private readonly StreamDiagnostics streamDiagnostics = new();
     private SettingsForm? preparedSettingsDialog;
     private Settings? preparedSettingsSource;
     private string? preparedSettingsFingerprint;
@@ -633,10 +634,12 @@ internal sealed class MonitorForm : Form
             initialPlayerReveal?.Dispose();
             initialPlayerReveal = new CancellationTokenSource();
             var startedPlayer = player;
+            var diagnosticCameraIndex = settings.SelectedCamera;
+            streamDiagnostics.Record(diagnosticCameraIndex, "start");
             _ = RevealWhenReadyAsync(startedPlayer, pipeName, initialPlayerReveal.Token,
                 () => ReferenceEquals(player, startedPlayer) && !gridMode,
-                () => { NativeMethods.PrepareVideoChildren(video.Handle); video.Show(); video.BringToFront(); offlinePlaceholder.SetConnecting(); offlinePlaceholder.Hide(); },
-                () => { offlinePlaceholder.SetOffline(); RestartPlayer(); });
+                () => { streamDiagnostics.Record(diagnosticCameraIndex, "ready"); NativeMethods.PrepareVideoChildren(video.Handle); video.Show(); video.BringToFront(); offlinePlaceholder.SetConnecting(); offlinePlaceholder.Hide(); },
+                () => { offlinePlaceholder.SetOffline(); RestartPlayer(); }, diagnosticCameraIndex);
             if (TopMost && !sentToBackground)
 #endif
                 NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
@@ -645,6 +648,7 @@ internal sealed class MonitorForm : Form
         catch (Exception exception)
         {
 #if BETA
+            streamDiagnostics.Record(settings.SelectedCamera, "start-failed");
             offlinePlaceholder.SetOffline();
             restartTimer.Start();
 #else
@@ -660,6 +664,7 @@ internal sealed class MonitorForm : Form
         {
             if (closing || !ReferenceEquals(sender, player)) return;
 #if BETA
+            streamDiagnostics.Record(settings.SelectedCamera, "exited");
             offlinePlaceholder.SetOffline();
             offlinePlaceholder.Show();
             offlinePlaceholder.BringToFront();
@@ -797,9 +802,10 @@ internal sealed class MonitorForm : Form
             replacement.EnableRaisingEvents = true;
             replacement.Exited += PlayerExited;
             var watchedPlayer = replacement;
+            var watchedCameraIndex = settings.SelectedCamera;
             _ = WatchPlaybackAsync(watchedPlayer, newPipeName, initialPlayerReveal?.Token ?? CancellationToken.None,
                 () => ReferenceEquals(player, watchedPlayer) && !gridMode,
-                () => { offlinePlaceholder.SetOffline(); offlinePlaceholder.Show(); offlinePlaceholder.BringToFront(); RestartPlayer(); });
+                () => { offlinePlaceholder.SetOffline(); offlinePlaceholder.Show(); offlinePlaceholder.BringToFront(); RestartPlayer(); }, watchedCameraIndex);
             replacement = null;
             DisposePlayer(oldPlayer, PlayerExited);
             oldSurface.Invalidate();
@@ -844,7 +850,7 @@ internal sealed class MonitorForm : Form
                         slot.ActiveSurface.Hide(); slot.SpareSurface.Hide();
                         slot.Placeholder.SetOffline(); slot.Placeholder.Show(); slot.Placeholder.BringToFront();
                         DisposePlayer(slot.Player, GridPlayerExited); slot.Player = null; restartTimer.Start();
-                    });
+                    }, cameraIndex);
                 replacement = null;
                 slot.Name.BringToFront();
                 UpdateGridMotionBorders();
@@ -858,7 +864,7 @@ internal sealed class MonitorForm : Form
     }
 
     private async Task RevealWhenReadyAsync(Process started, string ipcName,
-        CancellationToken cancellationToken, Func<bool> stillCurrent, Action reveal, Action? unavailable = null)
+        CancellationToken cancellationToken, Func<bool> stillCurrent, Action reveal, Action? unavailable = null, int cameraIndex = -1)
     {
         try
         {
@@ -869,12 +875,13 @@ internal sealed class MonitorForm : Form
                     if (!closing && !cancellationToken.IsCancellationRequested && stillCurrent())
                     {
                         reveal();
-                        await WatchPlaybackAsync(started, ipcName, cancellationToken, stillCurrent, unavailable);
+                        await WatchPlaybackAsync(started, ipcName, cancellationToken, stillCurrent, unavailable, cameraIndex);
                     }
                     return;
                 }
                 if (!closing && !cancellationToken.IsCancellationRequested && stillCurrent())
                 {
+                    streamDiagnostics.Record(cameraIndex, "connect-failed");
                     unavailable?.Invoke();
                     if (unavailable is not null) return;
                 }
@@ -886,13 +893,17 @@ internal sealed class MonitorForm : Form
     }
 
     private async Task WatchPlaybackAsync(Process process, string ipcName, CancellationToken token,
-        Func<bool> stillCurrent, Action? unavailable)
+        Func<bool> stillCurrent, Action? unavailable, int cameraIndex = -1)
     {
         // A running process is not proof of a live stream: RTSP can stall indefinitely.
         try
         {
             if (!await WaitForFirstFrameAsync(process, ipcName, token, monitorContinuously: true) &&
-                !closing && !token.IsCancellationRequested && stillCurrent()) unavailable?.Invoke();
+                !closing && !token.IsCancellationRequested && stillCurrent())
+            {
+                streamDiagnostics.Record(cameraIndex, "stalled-or-disconnected");
+                unavailable?.Invoke();
+            }
         }
         catch (OperationCanceledException) { }
         catch (InvalidOperationException) { }
@@ -1173,6 +1184,13 @@ internal sealed class MonitorForm : Form
 #endif
 #if BETA
         dialog.CanRestore = () => !recording && activeMotionCapture.Count == 0;
+        dialog.BuildDiagnostics = () => DiagnosticExport.Serialize(settings, streamDiagnostics.Snapshot(), new
+        {
+            GridMode = gridMode, Fullscreen = fullscreen, WindowState = WindowState.ToString(),
+            Recording = recording, MotionCaptures = activeMotionCapture.Count, ReconnectPending = restartTimer.Enabled,
+            Players = gridMode ? gridSlots.Select(slot => new { CameraIndex = slot.CameraIndex, Running = IsPlayerRunning(slot.Player) }).ToArray()
+                : new[] { new { CameraIndex = settings.SelectedCamera, Running = IsPlayerRunning(player) } }
+        });
         windowDiagnostics?.Mark("settings constructed");
         dialog.Shown += (_, _) => windowDiagnostics?.Mark("settings shown");
 #endif
@@ -1272,17 +1290,21 @@ internal sealed class MonitorForm : Form
 #if BETA
         UpdatePreRollBuffers();
         if (streamsChanged) RestartPlayer();
+        else if (!gridMode && !HasUsableCamera()) StartPlayer();
         ScheduleMotionPauseExpiry();
         if (reconnectMotion) RestartMotionIntegration();
-        if (dialog.RestoredFromFile)
+        var restoredGrid = settings.LastGridMode;
+        if (dialog.RestoredFromFile && dialog.ApplyWindowState)
         {
             var restoredBounds = RestoreWindowBounds(settings, Screen.AllScreens.Select(screen => (screen.DeviceName, screen.WorkingArea)).ToArray());
-            var restoredGrid = settings.LastGridMode;
             if (fullscreen) ToggleFullscreen();
             WindowState = FormWindowState.Normal;
             Bounds = restoredBounds;
-            if (gridMode != restoredGrid) { if (gridMode) ExitGridView(); else ToggleGridView(); }
             SaveWindow();
+        }
+        if (dialog.RestoredFromFile && dialog.ApplyViewState && gridMode != restoredGrid)
+        {
+            if (gridMode) ExitGridView(); else ToggleGridView();
         }
 #else
         RestartPlayer();
@@ -1642,10 +1664,12 @@ internal sealed class MonitorForm : Form
                 slot.Player.Exited += GridPlayerExited;
                 var startedPlayer = slot.Player;
                 var currentIndex = camera.Index;
+                streamDiagnostics.Record(currentIndex, "start");
                 _ = RevealWhenReadyAsync(startedPlayer, gridPipeName, initialGridReveal.Token,
                     () => gridMode && ReferenceEquals(slot.Player, startedPlayer) && slot.CameraIndex == currentIndex,
                     () =>
                     {
+                        streamDiagnostics.Record(currentIndex, "ready");
                         slot.Placeholder.SetConnecting();
                         NativeMethods.PrepareVideoChildren(slot.ActiveSurface.Handle);
                         slot.ActiveSurface.Show();
@@ -1664,11 +1688,12 @@ internal sealed class MonitorForm : Form
                         DisposePlayer(slot.Player, GridPlayerExited);
                         slot.Player = null;
                         restartTimer.Start();
-                    });
+                    }, currentIndex);
                 if (slot.Name.Visible) slot.Name.BringToFront();
             }
             catch
             {
+                streamDiagnostics.Record(camera.Index, "start-failed");
                 slot.Player?.Dispose();
                 slot.Player = null;
                 slot.Placeholder.SetOffline();
@@ -1709,6 +1734,7 @@ internal sealed class MonitorForm : Form
             if (closing || !gridMode) return;
             var slot = gridSlots.FirstOrDefault(item => ReferenceEquals(item.Player, sender));
             if (slot is null) return;
+            streamDiagnostics.Record(slot.CameraIndex, "exited");
             slot.ActiveSurface.Hide();
             slot.SpareSurface.Hide();
             slot.Placeholder.SetOffline();
@@ -1757,13 +1783,19 @@ internal sealed class MonitorForm : Form
         NativeMethods.DeleteObject(shape);
     }
 
+    private static bool IsPlayerRunning(Process? process)
+    {
+        try { return process is not null && !process.HasExited; } catch { return false; }
+    }
+
     private void ReconnectCurrentStream(int? gridSlotIndex)
     {
         if (closing) return;
-        if (!gridMode) { if (HasUsableCamera()) RestartPlayer(); return; }
+        if (!gridMode) { if (HasUsableCamera()) { streamDiagnostics.Record(settings.SelectedCamera, "manual-reconnect"); RestartPlayer(); } return; }
         if (!gridSlotIndex.HasValue || gridSlotIndex.Value < 0 || gridSlotIndex.Value >= gridSlots.Count) return;
         var slot = gridSlots[gridSlotIndex.Value];
         if (slot.CameraIndex < 0) return;
+        streamDiagnostics.Record(slot.CameraIndex, "manual-reconnect");
         CancelSeamlessRefresh();
         var oldPlayer = slot.Player;
         slot.Player = null;
@@ -3835,6 +3867,9 @@ internal sealed class SettingsForm : Form
     internal Dictionary<string, long> ConstructionTimings { get; } = [];
     public bool RestoredFromFile { get; private set; }
     public Func<bool>? CanRestore { get; set; }
+    public Func<string>? BuildDiagnostics { get; set; }
+    public bool ApplyWindowState { get; private set; } = true;
+    public bool ApplyViewState { get; private set; } = true;
 #endif
     public SettingsForm(Settings current)
     {
@@ -4239,6 +4274,53 @@ internal sealed class SettingsForm : Form
         backupFields.Controls.Add(backupButtons);
         backupFields.Controls.Add(new Label { Text = "Sichert die gespeicherten Einstellungen einschließlich Kameras, Speicherpfaden und HA-Token.", AutoSize = true, MaximumSize = new Size(700, 0) });
         backupGroup.Controls.Add(backupFields); table.Controls.Add(backupGroup, 0, 6);
+        var maintenanceButtons = Batch(new FlowLayoutPanel { AutoSize = true, WrapContents = false });
+        var resetScope = new ComboBox { Name = "SettingsResetScope", DropDownStyle = ComboBoxStyle.DropDownList, Width = 235 };
+        resetScope.Items.AddRange(["Fensterposition und Größe", "Anzeige und Bedienung", "Kameraeinstellungen", "Alle Einstellungen"]);
+        resetScope.SelectedIndex = 0;
+        var resetSettings = new Button { Name = "ResetSettings", Text = "Zurücksetzen …", AutoSize = true };
+        var exportDiagnostics = new Button { Name = "ExportDiagnostics", Text = "Diagnose exportieren …", AutoSize = true };
+        maintenanceButtons.Controls.AddRange([resetScope, resetSettings, exportDiagnostics]);
+        backupFields.Controls.Add(maintenanceButtons);
+        backupFields.Controls.Add(new Label { Text = "Zurücksetzen gilt sofort nach Bestätigung. Aufnahmedateien und der gewählte Einstellungsordner bleiben erhalten.", AutoSize = true, MaximumSize = new Size(700, 0) });
+        backupFields.Controls.Add(new Label { Text = "Diagnose: Versionen, bereinigte Einstellungen und Stream-Ereignisse der laufenden Sitzung, ohne Zugangsdaten.", AutoSize = true, MaximumSize = new Size(700, 0) });
+        backupGroup.Text = "Einstellungen sichern, zurücksetzen und Diagnose";
+        resetSettings.Click += (_, _) =>
+        {
+            var scope = (SettingsResetScope)resetScope.SelectedIndex;
+            var explanation = scope switch
+            {
+                SettingsResetScope.Window => "Fensterposition und Größe werden auf die Standardwerte zurückgesetzt.",
+                SettingsResetScope.Display => "Anzeige, Bedienleiste, Startverhalten und Autostart werden auf die Standardwerte zurückgesetzt. Kameras, Sensoren, Aufnahmen und Speicherpfade bleiben erhalten.",
+                SettingsResetScope.Cameras => "Alle Kameras, zugehörigen Sensoren und Home-Assistant-Zugangsdaten werden entfernt. Anschließend müssen die Kameras neu eingerichtet werden.",
+                _ => "Alle Programmeinstellungen einschließlich Kameras und Home-Assistant-Zugangsdaten werden auf die Standardwerte zurückgesetzt."
+            };
+            if (MessageBox.Show(this, explanation + "\n\nUngespeicherte Änderungen werden verworfen. Aufnahmedateien bleiben erhalten.\nJetzt zurücksetzen?", "Einstellungen zurücksetzen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+            try
+            {
+                if (CanRestore?.Invoke() == false) throw new InvalidOperationException("Bitte laufende Aufnahmen zuerst beenden und danach zurücksetzen.");
+                var reset = SettingsReset.Apply(current, scope);
+                SettingsStore.Save(reset);
+                Result = reset; RestoredFromFile = true;
+                ApplyWindowState = scope is SettingsResetScope.Window or SettingsResetScope.All;
+                ApplyViewState = scope is SettingsResetScope.Cameras or SettingsResetScope.All;
+                DialogResult = DialogResult.OK; Close();
+            }
+            catch (Exception error) { MessageBox.Show(this, error.Message, "Zurücksetzen fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+        };
+        exportDiagnostics.Click += (_, _) =>
+        {
+            using var file = new SaveFileDialog { Filter = "HomeCamMonitor-Diagnose (*.json)|*.json", DefaultExt = "json", AddExtension = true,
+                FileName = $"HomeCamMonitor-Diagnose_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json" };
+            if (file.ShowDialog(this) != DialogResult.OK) return;
+            try
+            {
+                var report = BuildDiagnostics?.Invoke() ?? DiagnosticExport.Serialize(current, new StreamDiagnostics().Snapshot(), new { });
+                DiagnosticExport.Write(file.FileName, report);
+                MessageBox.Show(this, "Diagnose wurde exportiert.", "Diagnose exportieren", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception error) { MessageBox.Show(this, error.Message, "Diagnoseexport fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+        };
         exportSettings.Click += (_, _) =>
         {
             using var file = new SaveFileDialog { Filter = "HomeCamMonitor-Einstellungen (*.json)|*.json", DefaultExt = "json", AddExtension = true, FileName = $"HomeCamMonitor-Einstellungen_{Environment.MachineName}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json" };

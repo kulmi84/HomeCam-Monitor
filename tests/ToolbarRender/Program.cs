@@ -161,6 +161,53 @@ internal static class Program
         backupFixture.MotionVideoFolder = @"\\nas\share\motion";
         backupFixture.MotionRetentionDays = 14;
         backupFixture.SnapshotPreRollSeconds = 3;
+        var resetFixture = System.Text.Json.JsonSerializer.Deserialize<Settings>(System.Text.Json.JsonSerializer.Serialize(backupFixture))!;
+        resetFixture.Left = 875; resetFixture.Top = 324; resetFixture.Width = 750;
+        resetFixture.ToolbarSizePercent = 60; resetFixture.StartWithWindows = true;
+        resetFixture.LastGridMode = true; resetFixture.StartBehavior = "Grid";
+        var beforeReset = System.Text.Json.JsonSerializer.Serialize(resetFixture);
+        var windowReset = SettingsReset.Apply(resetFixture, SettingsResetScope.Window);
+        if (windowReset.Left != -1 || windowReset.Width != 480 || windowReset.Cameras.Count != 1 ||
+            windowReset.HomeAssistantToken != "test-token" || windowReset.ToolbarSizePercent != 60 || !windowReset.LastGridMode)
+            throw new InvalidOperationException("Window reset changed unrelated settings.");
+        var displayReset = SettingsReset.Apply(resetFixture, SettingsResetScope.Display);
+        if (displayReset.ToolbarSizePercent != 90 || displayReset.StartWithWindows || displayReset.Left != 875 ||
+            displayReset.HomeAssistantToken != "test-token" || displayReset.Cameras.Count != 1 || displayReset.SnapshotPreRollSeconds != 3)
+            throw new InvalidOperationException("Display reset changed cameras, window or capture settings.");
+        var cameraReset = SettingsReset.Apply(resetFixture, SettingsResetScope.Cameras);
+        if (cameraReset.Cameras.Count != 0 || cameraReset.HomeAssistantToken != "" || cameraReset.LastGridMode ||
+            cameraReset.StartBehavior != "Last" || cameraReset.Left != 875 || cameraReset.ToolbarSizePercent != 60 ||
+            cameraReset.MotionVideoFolder != resetFixture.MotionVideoFolder)
+            throw new InvalidOperationException("Camera reset lost unrelated settings or retained credentials.");
+        var allReset = SettingsReset.Apply(resetFixture, SettingsResetScope.All);
+        if (System.Text.Json.JsonSerializer.Serialize(allReset) != System.Text.Json.JsonSerializer.Serialize(SettingsStore.CreateForNewInstallation()) ||
+            System.Text.Json.JsonSerializer.Serialize(resetFixture) != beforeReset)
+            throw new InvalidOperationException("Reset mutated existing settings or did not restore installation defaults.");
+        displayReset.Cameras[0].Name = "Changed";
+        if (resetFixture.Cameras[0].Name != "Testkamera") throw new InvalidOperationException("Reset shares mutable camera entries.");
+        var privateFixture = System.Text.Json.JsonSerializer.Deserialize<Settings>(beforeReset)!;
+        privateFixture.HomeAssistantUrl = "https://hauser:hapassword@192.0.2.1:8123/secret-ha-path?token=ha-query#ha-fragment";
+        privateFixture.Cameras[0].StreamUrl = "rtsp://camuser:cam%40password@192.0.2.2:8554/secret-camera-path?password=query-secret#camera-fragment";
+        privateFixture.Cameras[0].Name = "private-camera-name";
+        var telemetry = new StreamDiagnostics();
+        for (var i = 0; i < 250; i++) telemetry.Record(0, "manual-reconnect");
+        telemetry.Record(0, "start-failed");
+        var diagnostic = DiagnosticExport.Serialize(privateFixture, telemetry.Snapshot(), new { GridMode = false });
+        foreach (var secret in new[] { "test-token", "hauser", "hapassword", "secret-ha-path", "ha-query", "ha-fragment", "camuser", "cam%40password", "cam@password", "secret-camera-path", "query-secret", "camera-fragment", "private-camera-name", "manual photos", "nas", "share" })
+            if (diagnostic.Contains(secret, StringComparison.Ordinal)) throw new InvalidOperationException("Diagnostic export leaked private configuration: " + secret);
+        using (var report = System.Text.Json.JsonDocument.Parse(diagnostic))
+        {
+            var root = report.RootElement;
+            if (root.GetProperty("Streams").GetProperty("Events").GetArrayLength() != 200 ||
+                root.GetProperty("Streams").GetProperty("Counts").GetProperty("manual-reconnect").GetInt32() != 250 ||
+                root.GetProperty("Cameras")[0].GetProperty("StreamAddress").GetString() != "rtsp://192.0.2.2:8554" ||
+                root.GetProperty("HomeAssistantAddress").GetString() != "https://192.0.2.1:8123")
+                throw new InvalidOperationException("Diagnostic history bounds or safe address export failed.");
+        }
+        if (DiagnosticExport.SafeAddress("invalid private text").Contains("private") ||
+            DiagnosticExport.SafeAddress("file:///C:/private/video.mp4").Contains("private"))
+            throw new InvalidOperationException("Invalid or file addresses leaked text.");
+        Console.WriteLine("Selective reset, deep copy, diagnostic credential removal and bounded stream history passed.");
         var roundtrip = SettingsBackup.Parse(SettingsBackup.Serialize(backupFixture));
         if (System.Text.Json.JsonSerializer.Serialize(roundtrip) != System.Text.Json.JsonSerializer.Serialize(backupFixture))
             throw new InvalidOperationException("Backup round trip changed configuration fields.");
@@ -684,7 +731,9 @@ internal static class Program
         var backupGroup = settingsForm.Controls.Find("SettingsBackup", true).Single();
         scrollArea.ScrollControlIntoView(backupGroup);
         Application.DoEvents();
-        if (backupGroup.Controls.Find("ExportSettings", true).Length != 1 || backupGroup.Controls.Find("ImportSettings", true).Length != 1)
+        if (backupGroup.Controls.Find("ExportSettings", true).Length != 1 || backupGroup.Controls.Find("ImportSettings", true).Length != 1 ||
+            backupGroup.Controls.Find("ResetSettings", true).Length != 1 || backupGroup.Controls.Find("ExportDiagnostics", true).Length != 1 ||
+            ((ComboBox)backupGroup.Controls.Find("SettingsResetScope", true).Single()).Items.Count != 4)
             throw new InvalidOperationException("Backup and restore controls are missing.");
         using var backupImage = new Bitmap(settingsForm.Width, settingsForm.Height);
         settingsForm.DrawToBitmap(backupImage, new Rectangle(Point.Empty, backupImage.Size));

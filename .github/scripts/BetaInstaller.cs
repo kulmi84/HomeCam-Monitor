@@ -18,7 +18,7 @@ using Microsoft.Win32;
 internal static class BetaInstaller
 {
     internal const string Executable = "HomeCamMonitor-Beta.exe";
-    internal const string ApplicationVersion = "0.5.0-beta.20";
+    internal const string ApplicationVersion = "0.5.0-beta.21";
     private const string RegistryPath = @"Software\HomeCamMonitor-Beta\Setup";
 
     [STAThread]

@@ -17,6 +17,7 @@
     <Compile Include="../../MotionPreRoll.cs" />
     <Compile Include="../../RecordingStorage.cs" />
     <Compile Include="../../SettingsBackup.cs" />
+    <Compile Include="../../SettingsMaintenance.cs" />
     <Compile Include="../../SettingsLocation.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
