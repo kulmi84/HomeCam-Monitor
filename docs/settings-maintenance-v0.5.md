@@ -1,4 +1,4 @@
-# Einstellungen zurücksetzen und Diagnose – V0.5.0 Beta 21
+# Einstellungen zurücksetzen und Diagnose – V0.5.0 Beta 22
 
 Im Einstellungsbereich „Einstellungen sichern, zurücksetzen und Diagnose“ stehen zwei neue Funktionen bereit.
 
@@ -10,6 +10,8 @@ Die Auswahlliste bietet:
 - **Anzeige und Bedienung:** Bedienleiste, Beschriftungen, Logo, Außenrahmen, Startverhalten/Autostart und Darstellung bei Bewegung auf Installationsvorgaben zurücksetzen. Kameras, Sensoren und Aufnahmeoptionen bleiben erhalten.
 - **Kameraeinstellungen:** Kameraliste, Sensorzuordnung und Home-Assistant-Verbindung einschließlich Token entfernen; Kameraauswahl und Raster/Startkamera zurücksetzen. Speicherpfade und Aufnahmevorgaben bleiben erhalten.
 - **Alle Einstellungen:** dieselben Standardwerte wie bei einer neuen Installation.
+
+Ab Beta 22 erklärt ein Hinweis direkt unter der Auswahl den aktuell gewählten Bereich. Er wechselt beim Auswählen; dieselbe Erklärung erscheint als Quickinfo an der Auswahl und an „Zurücksetzen …“ sowie in der Sicherheitsabfrage.
 
 Eine Sicherheitsabfrage erklärt die Auswahl. Standardantwort ist „Nein“. Nach Bestätigung gelten die Werte sofort; ungespeicherte Änderungen im Dialog werden verworfen. Während einer manuellen oder automatischen Aufnahme ist das Zurücksetzen gesperrt. Bereits vorhandene Aufnahmedateien und der extern gewählte Einstellungsordner werden bei keiner Auswahl gelöscht. Vorher kann die vorhandene Sicherungsfunktion verwendet werden.
 

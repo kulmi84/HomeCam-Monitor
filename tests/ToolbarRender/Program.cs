@@ -735,6 +735,11 @@ internal static class Program
             backupGroup.Controls.Find("ResetSettings", true).Length != 1 || backupGroup.Controls.Find("ExportDiagnostics", true).Length != 1 ||
             ((ComboBox)backupGroup.Controls.Find("SettingsResetScope", true).Single()).Items.Count != 4)
             throw new InvalidOperationException("Backup and restore controls are missing.");
+        // Capture the longest reset explanation to verify wrapping in the real settings layout.
+        ((ComboBox)backupGroup.Controls.Find("SettingsResetScope", true).Single()).SelectedIndex = 2;
+        Application.DoEvents();
+        scrollArea.ScrollControlIntoView(backupGroup);
+        Application.DoEvents();
         using var backupImage = new Bitmap(settingsForm.Width, settingsForm.Height);
         settingsForm.DrawToBitmap(backupImage, new Rectangle(Point.Empty, backupImage.Size));
         backupImage.Save(Path.Combine(output, "settings-backup.png"));

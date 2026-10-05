@@ -4282,19 +4282,27 @@ internal sealed class SettingsForm : Form
         var exportDiagnostics = new Button { Name = "ExportDiagnostics", Text = "Diagnose exportieren …", AutoSize = true };
         maintenanceButtons.Controls.AddRange([resetScope, resetSettings, exportDiagnostics]);
         backupFields.Controls.Add(maintenanceButtons);
+        var resetHint = new Label { Name = "SettingsResetHint", AutoSize = true, MaximumSize = new Size(700, 0),
+            Margin = new Padding(3, 4, 3, 5) };
+        backupFields.Controls.Add(resetHint);
+        var resetTips = new ToolTip { AutoPopDelay = 15000, InitialDelay = 500, ReshowDelay = 100, ShowAlways = true };
+        Disposed += (_, _) => resetTips.Dispose();
+        void UpdateResetHint()
+        {
+            var explanation = SettingsReset.Describe((SettingsResetScope)resetScope.SelectedIndex);
+            resetHint.Text = explanation;
+            resetTips.SetToolTip(resetScope, explanation);
+            resetTips.SetToolTip(resetSettings, explanation);
+        }
+        resetScope.SelectedIndexChanged += (_, _) => UpdateResetHint();
+        UpdateResetHint();
         backupFields.Controls.Add(new Label { Text = "Zurücksetzen gilt sofort nach Bestätigung. Aufnahmedateien und der gewählte Einstellungsordner bleiben erhalten.", AutoSize = true, MaximumSize = new Size(700, 0) });
         backupFields.Controls.Add(new Label { Text = "Diagnose: Versionen, bereinigte Einstellungen und Stream-Ereignisse der laufenden Sitzung, ohne Zugangsdaten.", AutoSize = true, MaximumSize = new Size(700, 0) });
         backupGroup.Text = "Einstellungen sichern, zurücksetzen und Diagnose";
         resetSettings.Click += (_, _) =>
         {
             var scope = (SettingsResetScope)resetScope.SelectedIndex;
-            var explanation = scope switch
-            {
-                SettingsResetScope.Window => "Fensterposition und Größe werden auf die Standardwerte zurückgesetzt.",
-                SettingsResetScope.Display => "Anzeige, Bedienleiste, Startverhalten und Autostart werden auf die Standardwerte zurückgesetzt. Kameras, Sensoren, Aufnahmen und Speicherpfade bleiben erhalten.",
-                SettingsResetScope.Cameras => "Alle Kameras, zugehörigen Sensoren und Home-Assistant-Zugangsdaten werden entfernt. Anschließend müssen die Kameras neu eingerichtet werden.",
-                _ => "Alle Programmeinstellungen einschließlich Kameras und Home-Assistant-Zugangsdaten werden auf die Standardwerte zurückgesetzt."
-            };
+            var explanation = SettingsReset.Describe(scope);
             if (MessageBox.Show(this, explanation + "\n\nUngespeicherte Änderungen werden verworfen. Aufnahmedateien bleiben erhalten.\nJetzt zurücksetzen?", "Einstellungen zurücksetzen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
             try
             {

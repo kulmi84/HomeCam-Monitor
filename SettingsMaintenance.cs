@@ -7,6 +7,15 @@ internal enum SettingsResetScope { Window, Display, Cameras, All }
 
 internal static class SettingsReset
 {
+    internal static string Describe(SettingsResetScope scope) => scope switch
+    {
+        SettingsResetScope.Window => "Setzt Position und Größe des Kamerafensters sowie die Größe des Einstellungsfensters zurück. Kameraauswahl und Raster bleiben erhalten.",
+        SettingsResetScope.Display => "Setzt Anzeige, Bedienleiste, Startverhalten, Windows-Autostart und Darstellung bei Bewegung zurück. Kameras, Sensoren, Aufnahmeoptionen und Speicherpfade bleiben erhalten.",
+        SettingsResetScope.Cameras => "Entfernt alle Kameras, Sensorzuordnungen und die Home-Assistant-Verbindung einschließlich Token. Die Kameras müssen danach neu eingerichtet werden. Speicherpfade und Aufnahmevorgaben bleiben erhalten.",
+        SettingsResetScope.All => "Setzt alle Programmeinstellungen einschließlich Kameras und Home-Assistant-Zugangsdaten auf die Vorgaben einer neuen Installation zurück.",
+        _ => throw new ArgumentOutOfRangeException(nameof(scope))
+    };
+
     internal static Settings Apply(Settings current, SettingsResetScope scope)
     {
         var result = JsonSerializer.Deserialize<Settings>(JsonSerializer.Serialize(current))!;
