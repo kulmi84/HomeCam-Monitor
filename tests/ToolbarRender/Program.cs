@@ -429,6 +429,26 @@ internal static class Program
         if (!AllControls(activityGroup).OfType<CheckBox>().Any(check => check.Text == "Bewegungserkennung aktiv") ||
             indicatorLabel.Parent is null)
             throw new InvalidOperationException("Activity controls must be grouped together");
+        var minimizedStart = settingsForm.Controls.Find("MinimizedStart", true).OfType<CheckBox>().Single();
+        var startBehavior = AllControls(settingsForm).OfType<ComboBox>().Single(combo => combo.Items.Contains("Wie zuletzt"));
+        if (minimizedStart.Checked) throw new InvalidOperationException("Minimized start must be disabled by default.");
+        startBehavior.SelectedIndex = 2;
+        minimizedStart.Checked = true;
+        if (startBehavior.SelectedIndex != 1) throw new InvalidOperationException("Minimized start checkbox did not update the startup selection.");
+        minimizedStart.Checked = false;
+        if (startBehavior.SelectedIndex != 2) throw new InvalidOperationException("Disabling minimized start did not restore the previous camera startup choice.");
+        startBehavior.SelectedIndex = 1;
+        if (!minimizedStart.Checked) throw new InvalidOperationException("Startup selection did not update the minimized start checkbox.");
+        startBehavior.SelectedIndex = 3;
+        if (minimizedStart.Checked) throw new InvalidOperationException("Grid startup left minimized start checked.");
+        var detection = AllControls(activityGroup).OfType<CheckBox>().Single(check => check.Text == "Bewegungserkennung aktiv");
+        detection.Checked = false;
+        if (!minimizedStart.Enabled) throw new InvalidOperationException("Minimized start must remain available without motion detection.");
+        detection.Checked = true;
+        startBehavior.SelectedIndex = 0;
+        using (var savedMinimized = new SettingsForm(new Settings { StartBehavior = "Minimized" }))
+            if (!savedMinimized.Controls.Find("MinimizedStart", true).OfType<CheckBox>().Single().Checked)
+                throw new InvalidOperationException("Previously saved minimized startup was not shown as checked.");
         var action = AllControls(motionGroup).OfType<ComboBox>()
             .Single(combo => combo.Items.Contains("Snapshot + Videoaufnahme"));
         var videoSeconds = AllControls(motionGroup).OfType<ComboBox>()

@@ -3877,7 +3877,29 @@ internal sealed class SettingsForm : Form
         var activityOptions = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3 };
         for (var row = 0; row < activityOptions.RowCount; row++)
             activityOptions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        activityOptions.Controls.Add(motionDetection, 0, 0);
+        var minimizedStart = new CheckBox { Name = "MinimizedStart", Text = "Minimiert starten", AutoSize = true,
+            Checked = startBehavior.SelectedIndex == 1 };
+        var lastNormalStart = startBehavior.SelectedIndex == 1 ? 0 : startBehavior.SelectedIndex;
+        var syncingStart = false;
+        startBehavior.SelectedIndexChanged += (_, _) =>
+        {
+            if (syncingStart) return;
+            if (startBehavior.SelectedIndex != 1) lastNormalStart = startBehavior.SelectedIndex;
+            syncingStart = true;
+            try { minimizedStart.Checked = startBehavior.SelectedIndex == 1; }
+            finally { syncingStart = false; }
+        };
+        minimizedStart.CheckedChanged += (_, _) =>
+        {
+            if (syncingStart) return;
+            syncingStart = true;
+            try { startBehavior.SelectedIndex = minimizedStart.Checked ? 1 : lastNormalStart; }
+            finally { syncingStart = false; }
+        };
+        var activityStartOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) };
+        activityStartOptions.Controls.Add(motionDetection);
+        activityStartOptions.Controls.Add(minimizedStart);
+        activityOptions.Controls.Add(activityStartOptions, 0, 0);
 
         var motionOptions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) };
         motionOptions.Controls.Add(minimizeWhenInactive);
