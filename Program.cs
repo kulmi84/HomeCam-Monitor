@@ -219,6 +219,7 @@ internal sealed class MonitorForm : Form
     }
 
     protected override bool ShowWithoutActivation => true;
+    protected override int ShowParams => WindowState == FormWindowState.Minimized ? 7 : base.ShowParams; // SW_SHOWMINNOACTIVE
     protected override CreateParams CreateParams
     {
         get
@@ -301,9 +302,16 @@ internal sealed class MonitorForm : Form
     private IntPtr previousForegroundWindow;
 #endif
 
+#if BETA
+    public MonitorForm() : this(SettingsStore.Load()) { }
+    internal MonitorForm(Settings initialSettings)
+    {
+        settings = initialSettings;
+#else
     public MonitorForm()
     {
         settings = SettingsStore.Load();
+#endif
 #if BETA
         Icon = ApplicationBranding.WindowIcon;
         CleanupMotionStorage();
@@ -415,6 +423,16 @@ internal sealed class MonitorForm : Form
         videoDecorationTimer.Start();
 #endif
         FormClosing += (_, _) => CloseMonitor();
+#if BETA
+        // Set the native startup state before the first handle/show. Minimizing
+        // from Shown briefly displays the normal camera window on the desktop.
+        if (settings.StartBehavior == "Minimized" && HasUsableCamera())
+        {
+            TopMost = false;
+            wasMinimized = true;
+            WindowState = FormWindowState.Minimized;
+        }
+#endif
         ApplyRoundedCorners();
     }
 
@@ -471,7 +489,7 @@ internal sealed class MonitorForm : Form
         if ((settings.StartBehavior == "Grid" || settings.StartBehavior == "Last" && settings.LastGridMode) &&
             settings.Cameras.Count(camera => Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _)) >= 2)
             ToggleGridView();
-        if (settings.StartBehavior == "Minimized") MinimizeWindow();
+        if (settings.StartBehavior == "Minimized" && WindowState != FormWindowState.Minimized) MinimizeWindow();
         RestartMotionIntegration();
         UpdatePreRollBuffers();
 #endif
@@ -1915,6 +1933,7 @@ internal sealed class MonitorForm : Form
     {
 #if BETA
         if (toolbar is null || toolbar.IsDisposed || suppressToolbar || sentToBackground) return;
+        if (WindowState == FormWindowState.Minimized) { toolbar.Hide(); return; }
 #else
         if (toolbar is null || toolbar.IsDisposed || suppressToolbar) return;
 #endif
@@ -1956,7 +1975,7 @@ internal sealed class MonitorForm : Form
     {
         if (toolbar is null || toolbar.IsDisposed) return;
 #if BETA
-        if (activeSettingsDialog is not null)
+        if (activeSettingsDialog is not null || WindowState == FormWindowState.Minimized)
         {
             toolbar.Hide();
             dragSurface?.Hide();

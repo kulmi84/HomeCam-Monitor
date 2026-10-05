@@ -299,6 +299,30 @@ internal static class Program
         if (MonitorForm.RestoreWindowBounds(savedWindow, [displays[0]]) != new Rectangle(720, 385, 480, 270))
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
 
+        var minimizedSettings = new Settings { StartBehavior = "Minimized", Width = 640, Height = 360,
+            Cameras = [new CameraEntry { Name = "Testkamera", StreamUrl = "rtsp://127.0.0.1/Test" }] };
+        using (var minimized = new MonitorForm(minimizedSettings))
+        using (var startupToolbar = new ToolbarForm(minimized))
+        using (var startupDragSurface = new DragSurfaceForm(minimized))
+        {
+            const System.Reflection.BindingFlags privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var style = NativeMethods.GetWindowStyle(minimized.Handle, -16);
+            var showCommand = (int)typeof(Form).GetProperty("ShowParams", privateInstance)!.GetValue(minimized)!;
+            if (minimized.Visible || minimized.WindowState != FormWindowState.Minimized || minimized.TopMost ||
+                (style & 0x20000000) == 0 || showCommand is not (2 or 7))
+                throw new InvalidOperationException("Minimized startup would first show a normal desktop window.");
+            typeof(MonitorForm).GetField("toolbar", privateInstance)!.SetValue(minimized, startupToolbar);
+            typeof(MonitorForm).GetField("dragSurface", privateInstance)!.SetValue(minimized, startupDragSurface);
+            typeof(MonitorForm).GetMethod("PositionOverlays", privateInstance)!.Invoke(minimized, null);
+            if (startupToolbar.Visible || startupDragSurface.Visible)
+                throw new InvalidOperationException("Minimized startup showed a toolbar or drag overlay.");
+            minimized.WindowState = FormWindowState.Normal;
+            Application.DoEvents();
+            var expectedBounds = MonitorForm.RestoreWindowBounds(minimizedSettings,
+                Screen.AllScreens.Select(screen => (screen.DeviceName, screen.WorkingArea)).ToArray());
+            if (minimized.Bounds != expectedBounds || !minimized.TopMost)
+                throw new InvalidOperationException("Restoring a minimized startup lost window geometry or foreground settings.");
+        }
         using var monitor = new MonitorForm();
         if (monitor.Text != "HomeCamMonitor Beta")
             throw new InvalidOperationException("The Windows application title is missing.");
