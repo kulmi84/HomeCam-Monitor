@@ -6,6 +6,48 @@ namespace ToolbarRender;
 
 internal static class Program
 {
+    private static async Task CheckMotionFocusAsync(MonitorForm monitor, Settings settings)
+    {
+        const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        settings.MotionDetectionEnabled = true; settings.AlwaysOnTop = false; settings.MinimizeWhenInactive = false;
+        using var editor = new Form { Text = "Typing focus fixture", Width = 300, Height = 180, StartPosition = FormStartPosition.Manual,
+            Location = new Point(10, 10) };
+        using var text = new TextBox { Dock = DockStyle.Fill, Multiline = true };
+        editor.Controls.Add(text); editor.Show();
+        NativeMethods.SetForegroundWindow(editor.Handle); text.Focus();
+        if (NativeMethods.GetForegroundWindow() != editor.Handle || NativeMethods.GetFocus() != text.Handle)
+            throw new InvalidOperationException("Focus fixture could not acquire keyboard focus.");
+        var activations = 0;
+        monitor.Activated += (_, _) => activations++;
+        foreach (var minimized in new[] { false, true })
+        {
+            if (minimized) monitor.MinimizeWindow();
+            for (var repeat = 0; repeat < 2; repeat++)
+            {
+                typeof(MonitorForm).GetMethod("HandleMotion", hidden)!.Invoke(monitor, new object[] { "Vorschau-Test" });
+                await Task.Delay(200);
+                if (NativeMethods.GetForegroundWindow() != editor.Handle || NativeMethods.GetFocus() != text.Handle || activations != 0)
+                    throw new InvalidOperationException($"Motion interrupted typing (minimized={minimized}, activations={activations}).");
+                if (monitor.WindowState != FormWindowState.Normal || (NativeMethods.GetWindowStyle(monitor.Handle, -20) & 8) == 0)
+                    throw new InvalidOperationException("Motion no longer displays the camera above other windows.");
+                NativeMethods.SendMessage(NativeMethods.GetFocus(), 0x0102, (IntPtr)'x', IntPtr.Zero);
+            }
+            // Expiry must leave the currently used application active, even if
+            // the user switched to a different editor after the motion event.
+            using var other = new Form { Text = "Different application fixture", Width = 200, Height = 120 };
+            other.Show(); NativeMethods.SetForegroundWindow(other.Handle);
+            typeof(MonitorForm).GetMethod("SendToBackground", hidden)!.Invoke(monitor, null);
+            await Task.Delay(100);
+            if (NativeMethods.GetForegroundWindow() != other.Handle)
+                throw new InvalidOperationException("Motion expiry reactivated the previously used application.");
+            NativeMethods.SetForegroundWindow(editor.Handle); text.Focus();
+        }
+        if (text.Text != "xxxx") throw new InvalidOperationException("Typing did not reach the original editor.");
+        NativeMethods.SetForegroundWindow(monitor.Handle);
+        if (NativeMethods.GetForegroundWindow() != monitor.Handle)
+            throw new InvalidOperationException("The monitor can no longer be activated manually.");
+    }
+
     [STAThread]
     private static void Main(string[] args)
     {
@@ -77,6 +119,7 @@ internal static class Program
                     Application.DoEvents();
                     if (typeof(MonitorForm).GetField("startupTaskbarPreview", hidden)!.GetValue(previewMonitor) is not null)
                         throw new InvalidOperationException("Normal restore did not return to native Windows previews.");
+                    await CheckMotionFocusAsync(previewMonitor, previewSettings);
                     checkTimer.Stop(); previewMonitor.Close();
                 }
                 catch (Exception exception) { failure = exception; checkTimer.Stop(); previewMonitor.Close(); }

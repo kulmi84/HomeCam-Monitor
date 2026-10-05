@@ -208,7 +208,43 @@ internal static class SettingsStore
 #endif
 }
 
+#if BETA
+// WinForms TopMost and BringToFront call SetWindowPos without NOACTIVATE.
+// Keep the native z-order separate from keyboard activation for automatic UI.
+internal abstract class NonActivatingForm : Form
+{
+    private bool topMost;
+    public new bool TopMost
+    {
+        get => topMost;
+        set
+        {
+            topMost = value;
+            if (IsHandleCreated)
+                NativeMethods.SetWindowPos(Handle, value ? NativeMethods.HwndTopMost : new IntPtr(-2), 0, 0, 0, 0,
+                    NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
+        }
+    }
+    public new void BringToFront()
+    {
+        if (IsHandleCreated)
+            NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0,
+                NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
+    }
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var parameters = base.CreateParams;
+            parameters.ExStyle = topMost ? parameters.ExStyle | 8 : parameters.ExStyle & ~8;
+            return parameters;
+        }
+    }
+}
+internal sealed class MonitorForm : NonActivatingForm
+#else
 internal sealed class MonitorForm : Form
+#endif
 {
 #if BETA
     protected override void OnHandleCreated(EventArgs eventArgs)
@@ -307,7 +343,6 @@ internal sealed class MonitorForm : Form
     private readonly System.Windows.Forms.Timer motionPauseTimer = new();
     private TcpListener? motionListener;
     private ClientWebSocket? homeAssistantSocket;
-    private IntPtr previousForegroundWindow;
 #endif
 
 #if BETA
@@ -1788,7 +1823,6 @@ internal sealed class MonitorForm : Form
         if (!motionRestoreTimer.Enabled) return;
         motionRestoreTimer.Stop();
         cameraBeforeMotion = null;
-        previousForegroundWindow = IntPtr.Zero;
         TopMost = settings.AlwaysOnTop;
         PositionOverlays();
     }
@@ -1811,7 +1845,6 @@ internal sealed class MonitorForm : Form
         motionPauseTimer.Stop();
         motionRestoreTimer.Stop();
         cameraBeforeMotion = null;
-        previousForegroundWindow = IntPtr.Zero;
         SettingsStore.Save(settings);
         RestartMotionIntegration();
         UpdatePreRollBuffers();
@@ -1856,22 +1889,18 @@ internal sealed class MonitorForm : Form
         sentToBackground = true;
         sentToBackgroundAt = DateTime.UtcNow;
         motionRestoreTimer.Stop();
-        var previous = previousForegroundWindow;
-        previousForegroundWindow = IntPtr.Zero;
         toolbar?.Hide(); dragSurface?.Hide();
         HideMotionIndicator();
         foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
         TopMost = false;
         NativeMethods.SetWindowPos(Handle, NativeMethods.HwndBottom, 0, 0, 0, 0,
             NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
-        if (previous != IntPtr.Zero && previous != Handle) NativeMethods.SetForegroundWindow(previous);
     }
 
     internal void MinimizeWindow()
     {
         RegisterUserInteraction();
         sentToBackground = false;
-        previousForegroundWindow = IntPtr.Zero;
         toolbar?.Hide();
         dragSurface?.Hide();
         HideMotionIndicator();
@@ -1899,7 +1928,7 @@ internal sealed class MonitorForm : Form
         if (closing || WindowState != FormWindowState.Normal) return;
         sentToBackground = false;
         nativeMoveOrResize = false;
-        TopMost = settings.AlwaysOnTop;
+        TopMost = settings.AlwaysOnTop || motionRestoreTimer.Enabled;
         lastCursorPosition = Cursor.Position;
         lastCursorMovement = DateTime.UtcNow;
         if (toolbar is not null && !toolbar.IsDisposed && Bounds.Contains(Cursor.Position)) toolbar.Show(this);
@@ -2342,7 +2371,6 @@ internal sealed class MonitorForm : Form
         if (settings.AlwaysOnTop) return;
         var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (cameraIndex < 0) { toolbar?.Flash($"{cameraName} fehlt"); return; }
-        if (!motionRestoreTimer.Enabled) previousForegroundWindow = NativeMethods.GetForegroundWindow();
         if (gridMode)
         {
             cameraBeforeMotion = null;
@@ -2558,18 +2586,12 @@ internal sealed class MonitorForm : Form
 
     private void ForceToForeground()
     {
-        var activeBeforeShow = NativeMethods.GetForegroundWindow();
         sentToBackground = false;
         NativeMethods.ShowWindowAsync(Handle, NativeMethods.SwShowNoActivate);
         TopMost = true;
         NativeMethods.SetWindowPos(Handle, NativeMethods.HwndTopMost, 0, 0, 0, 0,
             NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate | NativeMethods.SwpShowWindow);
         PositionOverlays();
-        BeginInvoke(new Action(() =>
-        {
-            if (activeBeforeShow != IntPtr.Zero && activeBeforeShow != Handle && NativeMethods.GetForegroundWindow() == Handle)
-                NativeMethods.SetForegroundWindow(activeBeforeShow);
-        }));
     }
 
     private void RestoreAfterMotion()
@@ -2602,7 +2624,6 @@ internal sealed class MonitorForm : Form
     {
         sentToBackground = true;
         sentToBackgroundAt = DateTime.UtcNow;
-        previousForegroundWindow = IntPtr.Zero;
         toolbar?.Hide(); dragSurface?.Hide();
         HideMotionIndicator();
         foreach (var resizeGrip in resizeGrips) resizeGrip.Hide();
@@ -3195,7 +3216,11 @@ internal sealed class HomeCamDarkColorTable : ProfessionalColorTable
 
 // Strip the native caption at handle creation as well as through
 // FormBorderStyle. Layered overlays must never acquire a temporary title area.
+#if BETA
+internal abstract class OverlayForm : NonActivatingForm
+#else
 internal abstract class OverlayForm : Form
+#endif
 {
 #if BETA
     protected override void WndProc(ref Message message)
@@ -3591,6 +3616,7 @@ internal static class NativeMethods
     [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr window, IntPtr insertAfter, int x, int y, int width, int height, uint flags);
 #if BETA
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] public static extern IntPtr GetFocus();
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr window);
     [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr window, int command);
     [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr window, int attribute, ref int value, int valueSize);
