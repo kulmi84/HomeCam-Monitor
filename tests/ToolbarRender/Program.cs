@@ -61,8 +61,18 @@ internal static class Program
                     if (previewMonitor.WindowState != FormWindowState.Minimized)
                         throw new InvalidOperationException("DWM preview request showed the monitor.");
                     var provider = (TaskbarPreview?)typeof(MonitorForm).GetField("startupTaskbarPreview", hidden)!.GetValue(previewMonitor);
-                    if (provider is null || provider.LastSubmissionResult < 0)
-                        throw new InvalidOperationException($"DWM rejected the startup thumbnail: {provider?.LastSubmissionResult:X8}.");
+                    if (provider is null || !provider.IsRegistered) throw new InvalidOperationException("Minimized startup did not register a preview provider with DWM.");
+                    // This SendMessage tests our callback, not a compositor request.
+                    // DWM validates bitmaps against its own most recent size request,
+                    // which cannot be manufactured by sending a Windows message.
+                    var nativeBitmap = TaskbarPreview.CreateDib(scaled);
+                    try
+                    {
+                        using var nativeImage = Image.FromHbitmap(nativeBitmap);
+                        if (nativeImage.Width != scaled.Width || nativeImage.Height != scaled.Height)
+                            throw new InvalidOperationException("Native preview bitmap lost its dimensions.");
+                    }
+                    finally { NativeMethods.DeleteObject(nativeBitmap); }
                     previewMonitor.WindowState = FormWindowState.Normal;
                     Application.DoEvents();
                     if (typeof(MonitorForm).GetField("startupTaskbarPreview", hidden)!.GetValue(previewMonitor) is not null)

@@ -25,14 +25,16 @@ internal sealed class TaskbarPreview : IDisposable
     private DateTime lastRequest;
     private DateTime lastUpdate;
     internal int LastSubmissionResult { get; private set; }
+    internal bool IsRegistered { get; }
 
     internal TaskbarPreview(Form owner, Func<CancellationToken, Task<Bitmap?>> capture, Func<Size, Bitmap> fallback)
     {
         this.owner = owner; window = owner.Handle;
         this.capture = capture; this.fallback = fallback;
         var enabled = 1;
-        NativeMethods.DwmSetWindowAttribute(window, 7, ref enabled, sizeof(int)); // FORCE_ICONIC_REPRESENTATION
-        NativeMethods.DwmSetWindowAttribute(window, 10, ref enabled, sizeof(int)); // HAS_ICONIC_BITMAP
+        var forceResult = NativeMethods.DwmSetWindowAttribute(window, 7, ref enabled, sizeof(int)); // FORCE_ICONIC_REPRESENTATION
+        var bitmapResult = NativeMethods.DwmSetWindowAttribute(window, 10, ref enabled, sizeof(int)); // HAS_ICONIC_BITMAP
+        IsRegistered = forceResult >= 0 && bitmapResult >= 0;
         timer.Tick += async (_, _) =>
         {
             if (DateTime.UtcNow - lastRequest > TimeSpan.FromSeconds(3)) { timer.Stop(); return; }

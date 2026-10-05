@@ -220,6 +220,12 @@ internal sealed class MonitorForm : Form
         windowDiagnostics = settings.BetaWindowLoggingEnabled ? new NativeWindowDiagnostics(Handle) : null;
     }
 
+    protected override void OnHandleDestroyed(EventArgs eventArgs)
+    {
+        startupTaskbarPreview?.Dispose(); startupTaskbarPreview = null;
+        base.OnHandleDestroyed(eventArgs);
+    }
+
     protected override bool ShowWithoutActivation => true;
     protected override CreateParams CreateParams
     {
