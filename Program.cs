@@ -4050,13 +4050,13 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(new Label { Text = "Personen-Entität (Snapshot):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 7);
         homeAssistantFields.Controls.Add(personEntityId, 1, 7);
         var recordingGroup = Batch(new GroupBox { Name = "MotionCaptureOptions", Text = "Aufnahmen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
-        var recordingFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 8 });
+        var recordingFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 9 });
         recordingFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         recordingFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         var selectedCaptureHint = new Label { Name = "MotionActionHint", Text = "Bei Bewegung (ausgewählte Kamera)", AutoSize = true };
         recordingFields.Controls.Add(selectedCaptureHint, 0, 0); recordingFields.SetColumnSpan(selectedCaptureHint, 2);
         recordingFields.Controls.Add(captureOptions, 0, 1); recordingFields.SetColumnSpan(captureOptions, 2);
-        var personCaptureHint = new Label { Name = "PersonCaptureHint", Text = "Person: Snapshot je Ereignis (Haken oben).", AutoSize = true,
+        var personCaptureHint = new Label { Name = "PersonCaptureHint", Text = "Bei Personenerkennung: Snapshot je Ereignis – aktiviert durch „Person“ oben.", AutoSize = true,
             MaximumSize = new Size(340, 0), Margin = new Padding(3, 8, 3, 3) };
         recordingFields.Controls.Add(personCaptureHint, 0, 2); recordingFields.SetColumnSpan(personCaptureHint, 2);
         var globalCaptureHint = new Label { Text = "Automatische Aufnahmen (alle Kameras)", AutoSize = true, Margin = new Padding(3, 14, 3, 6) };
@@ -4065,10 +4065,14 @@ internal sealed class SettingsForm : Form
         recordingFields.Controls.Add(motionRetention, 1, 4);
         recordingFields.Controls.Add(new Label { Text = "Snapshot-Vorlauf:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 5);
         recordingFields.Controls.Add(snapshotPreRoll, 1, 5);
-        recordingFields.Controls.Add(new Label { Text = "Video-Vorlauf:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 6);
-        recordingFields.Controls.Add(videoPreRoll, 1, 6);
+        var snapshotPreRollHint = new Label { Name = "SnapshotPreRollHint",
+            Text = "Gilt für Snapshots bei Bewegung und bei Personenerkennung. „Keine“ deaktiviert nur Aufnahmen bei Bewegung.",
+            AutoSize = true, MaximumSize = new Size(340, 0), Margin = new Padding(3, 4, 3, 8) };
+        recordingFields.Controls.Add(snapshotPreRollHint, 0, 6); recordingFields.SetColumnSpan(snapshotPreRollHint, 2);
+        recordingFields.Controls.Add(new Label { Text = "Video-Vorlauf:", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 7);
+        recordingFields.Controls.Add(videoPreRoll, 1, 7);
         var preRollHint = new Label { Text = "Der Vorlauf benötigt einen kurzen Pufferaufbau. Bis dahin erfolgt die normale Aufnahme.", AutoSize = true, MaximumSize = new Size(340, 0), Margin = new Padding(3, 10, 3, 3) };
-        recordingFields.Controls.Add(preRollHint, 0, 7); recordingFields.SetColumnSpan(preRollHint, 2);
+        recordingFields.Controls.Add(preRollHint, 0, 8); recordingFields.SetColumnSpan(preRollHint, 2);
         recordingGroup.Controls.Add(recordingFields);
         var motionColumns = Batch(new TableLayoutPanel { Name = "MotionSettingsColumns", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 1, Margin = new Padding(0) });
         motionColumns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
