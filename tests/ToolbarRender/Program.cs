@@ -316,12 +316,16 @@ internal static class Program
             typeof(MonitorForm).GetMethod("PositionOverlays", privateInstance)!.Invoke(minimized, null);
             if (startupToolbar.Visible || startupDragSurface.Visible)
                 throw new InvalidOperationException("Minimized startup showed a toolbar or drag overlay.");
-            minimized.WindowState = FormWindowState.Normal;
-            Application.DoEvents();
             var expectedBounds = MonitorForm.RestoreWindowBounds(minimizedSettings,
                 Screen.AllScreens.Select(screen => (screen.DeviceName, screen.WorkingArea)).ToArray());
-            if (minimized.Bounds != expectedBounds || !minimized.TopMost)
-                throw new InvalidOperationException("Restoring a minimized startup lost window geometry or foreground settings.");
+            if (minimized.RestoreBounds != expectedBounds)
+                throw new InvalidOperationException($"Minimized startup lost restore geometry: {minimized.RestoreBounds}, expected {expectedBounds}.");
+            // This harness keeps the form hidden (mpv is installed later in CI).
+            // Hidden forms do not receive the visible restore/Resize lifecycle.
+            minimized.WindowState = FormWindowState.Normal;
+            typeof(MonitorForm).GetMethod("RestoreWindowAfterMinimize", privateInstance)!.Invoke(minimized, null);
+            if (!minimized.TopMost)
+                throw new InvalidOperationException("Restoring a minimized startup lost foreground settings.");
         }
         using var monitor = new MonitorForm();
         if (monitor.Text != "HomeCamMonitor Beta")
