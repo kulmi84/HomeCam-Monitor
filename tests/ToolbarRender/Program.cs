@@ -307,7 +307,7 @@ internal static class Program
         {
             const System.Reflection.BindingFlags privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
             var style = NativeMethods.GetWindowStyle(minimized.Handle, -16);
-            var showCommand = (int)typeof(Form).GetProperty("ShowParams", privateInstance)!.GetValue(minimized)!;
+            var showCommand = Convert.ToInt32(typeof(Form).GetProperty("ShowParams", privateInstance)!.GetValue(minimized));
             if (minimized.Visible || minimized.WindowState != FormWindowState.Minimized || minimized.TopMost ||
                 (style & 0x20000000) == 0 || showCommand is not (2 or 7))
                 throw new InvalidOperationException("Minimized startup would first show a normal desktop window.");

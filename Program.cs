@@ -219,7 +219,6 @@ internal sealed class MonitorForm : Form
     }
 
     protected override bool ShowWithoutActivation => true;
-    protected override int ShowParams => WindowState == FormWindowState.Minimized ? 7 : base.ShowParams; // SW_SHOWMINNOACTIVE
     protected override CreateParams CreateParams
     {
         get
