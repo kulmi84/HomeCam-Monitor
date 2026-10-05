@@ -506,8 +506,16 @@ internal static class Program
         });
         if (!ReferenceEquals(settingsForm.Icon, ApplicationBranding.WindowIcon))
             throw new InvalidOperationException("Settings window does not use the HomeCamMonitor icon.");
+        Console.WriteLine($"Settings constructor total: {settingsOpenTimer.ElapsedMilliseconds} ms; stages: {string.Join(", ", settingsForm.ConstructionTimings.Select(pair => $"{pair.Key}={pair.Value} ms"))}");
+        var settingsShowTimer = System.Diagnostics.Stopwatch.StartNew();
+        _ = settingsForm.Handle;
+        Console.WriteLine($"Settings handle: {settingsShowTimer.ElapsedMilliseconds} ms");
+        settingsShowTimer.Restart();
         settingsForm.Show();
+        Console.WriteLine($"Settings Show: {settingsShowTimer.ElapsedMilliseconds} ms");
+        settingsShowTimer.Restart();
         Application.DoEvents();
+        Console.WriteLine($"Settings first message pump: {settingsShowTimer.ElapsedMilliseconds} ms");
         settingsOpenTimer.Stop();
         Console.WriteLine($"Settings construction and first show: {settingsOpenTimer.ElapsedMilliseconds} ms");
         if (settingsOpenTimer.Elapsed > TimeSpan.FromSeconds(3))

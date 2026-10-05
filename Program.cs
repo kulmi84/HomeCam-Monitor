@@ -3726,12 +3726,15 @@ internal sealed class SettingsForm : Form
 #endif
     public Settings Result { get; private set; }
 #if BETA
+    internal Dictionary<string, long> ConstructionTimings { get; } = [];
     public bool RestoredFromFile { get; private set; }
     public Func<bool>? CanRestore { get; set; }
 #endif
     public SettingsForm(Settings current)
     {
 #if BETA
+        var constructionTimer = Stopwatch.StartNew();
+        void Measure(string stage) { ConstructionTimings[stage] = constructionTimer.ElapsedMilliseconds; constructionTimer.Restart(); }
         SuspendLayout();
         cameras.SuspendLayout();
         var layoutBatches = new List<Control>();
@@ -4181,7 +4184,9 @@ internal sealed class SettingsForm : Form
 #if BETA
         Controls.Add(scrollArea);
         Controls.Add(footer);
+        Measure("controls");
         ApplyDarkTheme(this);
+        Measure("theme");
 #else
         Controls.Add(table);
 #endif
@@ -4321,9 +4326,11 @@ internal sealed class SettingsForm : Form
 #endif
         };
 #if BETA
+        Measure("events");
         cameras.ResumeLayout(false);
         for (var index = layoutBatches.Count - 1; index >= 0; index--) layoutBatches[index].ResumeLayout(true);
         ResumeLayout(true);
+        Measure("layout");
 #endif
     }
     private List<CameraEntry> ReadCameras()
