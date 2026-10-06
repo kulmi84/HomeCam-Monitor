@@ -1,20 +1,46 @@
-# HomeCam Monitor – proprietäre Freeware-Lizenz (Prüffassung für V1.0.0)
-
-Status: vorbereiteter Entwurf vom 03.10.2026 mit der abgestimmten Zustimmungspflicht für Paketweitergabe. Noch keine endgültige Freigabe. 
+HomeCam Monitor – proprietäre Freeware-Lizenz
+Version 1.0.0
 
 Rechteinhaber: Marcin Kulmaczewski (GitHub: kulmi84).
+Alle Rechte an den eigenen geschützten HomeCam-Bestandteilen bleiben vorbehalten,
+soweit diese Lizenz oder zwingendes Recht keine Erlaubnis einräumt.
 
-Die nachfolgenden Regeln sind ein Arbeitsentwurf, keine fertige rechtsverbindliche EULA:
+1. Die unveränderte offizielle HomeCam-Monitor-Anwendung darf kostenlos
+   installiert und genutzt werden.
 
-1. Die unveränderte offizielle HomeCam-Monitor-Anwendung darf kostenlos installiert und genutzt werden.
-2. An geschützten eigenen HomeCam-Bestandteilen werden keine allgemeinen Rechte zur Bearbeitung, Einbindung in andere Produkte oder Veröffentlichung bearbeiteter Versionen eingeräumt. Solche Rechte bedürfen vorheriger ausdrücklicher Zustimmung des Rechteinhabers, soweit nicht zwingendes Recht etwas anderes erlaubt.
-3. Das Ändern der vorgesehenen Benutzereinstellungen, Kameraadressen und Konfiguration ist ausdrücklich erlaubt und keine zustimmungspflichtige Programmbearbeitung.
-4. mpv, FFmpeg, .NET und weitere Fremdbestandteile sind nicht Eigentum des HomeCam-Rechteinhabers. Für diese Bestandteile gelten ausschließlich die jeweils einschlägigen Fremdlizenzen; dort eingeräumte Rechte werden durch die HomeCam-Lizenz nicht eingeschränkt.
-5. Zwingende gesetzliche Rechte bleiben unberührt. Ein pauschales, ausnahmsloses Änderungs- oder Reverse-Engineering-Verbot ist nicht vorgesehen.
-6. Die Weitergabe oder das eigene Bereitstellen von HomeCam-Installationspaketen, auch unverändert und kostenlos, bedarf der vorherigen ausdrücklichen Zustimmung des Rechteinhabers, soweit nicht zwingendes Recht etwas anderes erlaubt. Links zum offiziellen Download dürfen ohne Zustimmung geteilt werden. Diese Einschränkung gilt nicht für die separat lizenzierten Fremdbestandteile und deren Quellen; deren Lizenzrechte bleiben vollständig erhalten.
-7. Keine Zusage eines Wartungs-, Update- oder Supportanspruchs. Haftungs-/Gewährleistungsregelungen erst nach Prüfung aufnehmen; kein pauschaler Ausschluss gesetzlich zwingender Haftung.
+2. An geschützten eigenen HomeCam-Bestandteilen werden keine allgemeinen Rechte
+   zur Bearbeitung, Einbindung in andere Produkte oder Veröffentlichung
+   bearbeiteter Versionen eingeräumt. Änderungen, Forks, Weiterentwicklung und
+   Verwendung des geschützten HomeCam-Codes für eigene Projekte bedürfen der
+   vorherigen ausdrücklichen Zustimmung des Rechteinhabers, soweit nicht
+   zwingendes Recht etwas anderes erlaubt.
 
+3. Das Ändern der vorgesehenen Benutzereinstellungen, Kameraadressen und
+   Konfiguration ist ausdrücklich erlaubt und keine zustimmungspflichtige
+   Programmbearbeitung.
 
-Ergänzung zur ausdrücklichen Klarstellung des abgestimmten Lizenzmodells: Forks, Weiterentwicklung und Verwendung des geschützten HomeCam-Codes für eigene Projekte bedürfen ebenfalls der vorherigen ausdrücklichen Zustimmung des Rechteinhabers, soweit nicht zwingendes Recht etwas anderes erlaubt. Rechte aus den Bedingungen einer verwendeten Hosting-Plattform bleiben unberührt; die HomeCam-Lizenz erteilt darüber hinaus keine allgemeinen Bearbeitungs- oder Weiterverwendungsrechte.
+4. mpv, FFmpeg, .NET und weitere Fremdbestandteile sind nicht Eigentum des
+   HomeCam-Rechteinhabers. Für diese Bestandteile gelten ausschließlich die
+   jeweils einschlägigen Fremdlizenzen. Dort eingeräumte Rechte zum Nutzen,
+   Bearbeiten und Weitergeben sowie zum Zugriff auf deren Quellen werden durch
+   die HomeCam-Lizenz nicht eingeschränkt. Einzelheiten stehen in
+   THIRD-PARTY-NOTICES.md und im Verzeichnis licenses.
 
-Zustimmung kann über https://github.com/kulmi84 angefragt werden. Weitere Komponenten und offene Nachweise: THIRD-PARTY-NOTICES.md.
+5. Zwingende gesetzliche Rechte bleiben unberührt. Ein pauschales,
+   ausnahmsloses Änderungs- oder Reverse-Engineering-Verbot ist nicht vorgesehen.
+   Rechte aus den Bedingungen einer verwendeten Hosting-Plattform bleiben
+   ebenfalls unberührt; darüber hinaus erteilt diese Lizenz keine allgemeinen
+   Bearbeitungs- oder Weiterverwendungsrechte.
+
+6. Die Weitergabe oder das eigene Bereitstellen von HomeCam-Installationspaketen,
+   auch unverändert und kostenlos, bedarf der vorherigen ausdrücklichen
+   Zustimmung des Rechteinhabers, soweit nicht zwingendes Recht etwas anderes
+   erlaubt. Links zum offiziellen Download dürfen ohne Zustimmung geteilt werden.
+   Diese Einschränkung gilt nicht für die separat lizenzierten Fremdbestandteile
+   und deren Quellen; deren Lizenzrechte bleiben vollständig erhalten.
+
+7. Die kostenlose Bereitstellung enthält keine Zusage eines Wartungs-, Update-
+   oder Supportanspruchs. Zwingende gesetzliche Rechte, insbesondere Haftungs-
+   und Gewährleistungsansprüche, bleiben unberührt.
+
+Anfragen zur Zustimmung: https://github.com/kulmi84

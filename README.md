@@ -16,7 +16,7 @@ HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11.
 
 ## Stand V1.0.0
 
-Der Funktionsumfang für V1.0.0 ist festgelegt. Diese Dokumentation bereitet den zuletzt erfolgreichen Stand `0.5.0-beta.22` (Commit `7041045392c17e8677bee127b3a76e1b8a9b1cfb`) für die Veröffentlichung vor. Ein finaler V1.0.0-Download ist noch nicht veröffentlicht. Versionierung, Lizenzunterlagen und abschließende Paketprüfung stehen noch aus; siehe [Release-Prüfliste](docs/release-v1.0.0.md).
+V1.0.0 übernimmt den festgelegten Funktionsumfang von `0.5.0-beta.22`. Anwendung, Setup und Paketnamen sind auf 1.0.0 gebracht. Der [Windows-Prüflauf](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37451607976) hat bestanden. Ein finaler Download wird erst nach Abschluss der Fremdquellen-Prüfung und Freigabe veröffentlicht; siehe [Release-Prüfliste](docs/release-v1.0.0.md).
 
 ## Funktionen
 
@@ -45,14 +45,14 @@ Der Funktionsumfang für V1.0.0 ist festgelegt. Diese Dokumentation bereitet den
 
 ## Installation
 
-Bis zur Freigabe von V1.0.0 steht der geprüfte Vorabstand als Actions-Artefakt bereit:
+Bis zur Freigabe von V1.0.0 bleibt der bisherige Vorabstand als Actions-Artefakt verfügbar:
 
 1. Den [erfolgreichen Beta-22-Build](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37339036318) öffnen (GitHub-Anmeldung erforderlich; Artefakte sind zeitlich begrenzt verfügbar).
 2. Unter **Artifacts** `HomeCamMonitor-Beta-v0.5.0-beta.22-win-x64` herunterladen.
 3. Das ZIP entpacken und `HomeCamMonitor-Beta-Setup.exe` starten.
 4. Installationsordner wählen; Standard ist `C:\Program Files\HomeCamMonitor`. Startmenü-Einträge sind standardmäßig aktiviert.
 
-Das Setup unterstützt Aktualisieren und Deinstallieren. Das Löschen der Einstellungen ist eine separate Option mit Bestätigung. Die Details stehen in der [Setup-Dokumentation](docs/setup-v0.5.md). Den offiziellen V1.0.0-Installer verlinken wir erst nach der Release-Prüfung.
+Das Setup unterstützt Aktualisieren und Deinstallieren. Das Löschen der Einstellungen ist eine separate Option mit Bestätigung. Die Details stehen in der [Setup-Dokumentation](docs/setup-v0.5.md). V1.0.0 verwendet `HomeCamMonitor.exe` und `HomeCamMonitor-v1.0.0-Setup.exe`; lokale Prüfpakete tragen zusätzlich `-Review`. Die Lizenz ist im Setup über **Lizenz anzeigen …** lesbar. Den offiziellen Installer verlinken wir erst nach Freigabe.
 
 > Wichtig: Nicht nur die EXE kopieren. Der komplette entpackte Ordner einschließlich `mpv.exe` wird benötigt.
 
@@ -112,11 +112,11 @@ Videoaufnahmen werden als MKV-Dateien unter `%USERPROFILE%\Videos\HomeCam Monito
 Voraussetzung: .NET 8 SDK.
 
 ```powershell
-dotnet restore HomeCamMonitor.Beta.csproj
-dotnet publish HomeCamMonitor.Beta.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-beta
+dotnet restore HomeCamMonitor.csproj
+dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
 ```
 
-Der aktuelle Funktionsstand wird noch mit dem Beta-Projekt gebaut; das ältere `HomeCamMonitor.csproj` enthält nicht alle vorgesehenen V1-Funktionen. Für den Programmstart werden zusätzlich `mpv.exe` und `ffmpeg.exe` benötigt. Der bestehende Windows-Build stellt das Paket zusammen. Vor der endgültigen Veröffentlichung müssen die [Fremdkomponenten-Nachweise](THIRD-PARTY-NOTICES.md) ergänzt werden.
+`HomeCamMonitor.csproj` baut V1.0.0 einschließlich aller festgelegten Funktionen. Das Beta-Projekt bleibt als Vorablinie vorhanden. Für den Programmstart werden zusätzlich `mpv.exe` und `ffmpeg.exe` benötigt. Der bestehende Windows-Build stellt das Paket zusammen. Vor der endgültigen Veröffentlichung müssen die [Fremdkomponenten-Nachweise](THIRD-PARTY-NOTICES.md) ergänzt werden.
 
 
 ## Einstellungen, Diagnose und Home Assistant
@@ -127,7 +127,7 @@ Die aktuelle Anleitung zu [Voreinstellungen, Speicherpfaden, Sicherungen, geziel
 
 HomeCam Monitor ist als proprietäre Freeware vorgesehen. Die unveränderte offizielle Anwendung darf kostenlos genutzt werden. Änderungen, Weitergabe von Paketen, Forks, Weiterentwicklung und Verwendung des geschützten HomeCam-Codes für eigene Projekte erfordern die vorherige Zustimmung des Rechteinhabers, soweit keine zwingenden Rechte entgegenstehen. Benutzerkonfiguration und Links zu offiziellen Downloads dürfen frei geändert bzw. geteilt werden.
 
-Der [vorbereitete Lizenztext](LICENSE.txt) liegt als Prüffassung vor. Die Rechte an mpv, FFmpeg, .NET und anderen Fremdkomponenten richten sich ausschließlich nach ihren eigenen Lizenzen; siehe [Fremdkomponenten-Hinweise](THIRD-PARTY-NOTICES.md). Das derzeit öffentliche Quellcode-Repository ist noch nicht in private Entwicklung und öffentliche Downloads getrennt.
+Der [vorbereitete Lizenztext](LICENSE.txt) nennt Marcin Kulmaczewski als Rechteinhaber und liegt zur abschließenden Prüfung vor. Die Rechte an mpv, FFmpeg, .NET und anderen Fremdkomponenten richten sich ausschließlich nach ihren eigenen Lizenzen; siehe [Fremdkomponenten-Hinweise](THIRD-PARTY-NOTICES.md). Das derzeit öffentliche Quellcode-Repository ist noch nicht in private Entwicklung und öffentliche Downloads getrennt.
 
 ## Historische Beta-Dokumentation und Entwicklung
 

@@ -17,6 +17,9 @@ if (-not $ReviewOnly) {
         -not $manifest.includesAllDependencies -or -not $manifest.includesBuildScripts -or
         -not $manifest.archives) { throw 'Quellennachweise sind unvollständig oder passen nicht zu den Binaries.' }
     foreach ($archive in $manifest.archives) {
+        if ([IO.Path]::IsPathRooted($archive.path) -or $archive.path.Split('/', '\') -contains '..') {
+            throw 'Quellenpaket muss innerhalb des Repository-Arbeitsordners liegen.'
+        }
         $source = Join-Path $root $archive.path
         if (-not (Test-Path -LiteralPath $source) -or (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ne $archive.sha256) {
             throw "Quellenpaket fehlt oder hat falsche Prüfsumme: $($archive.path)"

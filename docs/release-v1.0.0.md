@@ -1,38 +1,48 @@
 # Release-Prüfung HomeCam Monitor V1.0.0
 
-Stand: 06.10.2026. Noch kein finaler GitHub Release und kein V1.0.0-Tag.
+Stand: 06.10.2026. Kein finaler GitHub Release und kein V1.0.0-Tag veröffentlicht.
 
-## Geprüfte Ausgangsbasis
+## Ausgangsbasis und Vorschlag
 
-- `main`: `f48fe064e4bfab4feba44b28d6724d50f0432506`, Stable-Projekt 0.1.2, Beta-Projekt 0.2.0-beta.45. README beschreibt bereits neuere Funktionen.
-- Vorgesehener V1-Funktionsstand: `feature/setup-v0.5.0`, `7041045392c17e8677bee127b3a76e1b8a9b1cfb`, 0.5.0-beta.22.
-- [Windows-Build 37339036318](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37339036318) hat für diesen Commit den Status **success**. Dieser Befund betrifft den Vorabstand und ist kein Nachweis eines fertigen V1.0.0-Pakets.
-- Keine GitHub Releases in der abgefragten Release-Liste vorhanden.
-- Keine neuen Funktionen und keine Änderung des funktionierenden Anwendungscodes in diesem Dokumentationsvorschlag.
+Die V1.0.0-Vorbereitung liegt in [PR #2](https://github.com/kulmi84/HomeCam-Monitor/pull/2) auf Basis von Beta 22, Commit `7041045392c17e8677bee127b3a76e1b8a9b1cfb`. Der ältere `main`-Stand enthält weiterhin Stable 0.1.2 und eine ältere Beta. Er wurde nicht verändert.
 
-## Vorbereitete Dokumente
+Das Stable-Projekt baut jetzt den vollständigen festgelegten V1-Funktionsumfang. Das interne Compilerkennzeichen `BETA` aktiviert dabei den vorhandenen Code; `RELEASE_V1` wählt die neutrale Produktbezeichnung und das Stable-Icon. Bestehende Funktionen und die Beta-Projektdatei bleiben erhalten. Neue Funktionen gehören zur V2/Beta-Linie.
 
-- README auf V1.0.0-Vorbereitung ausgerichtet; vorhandene Beta-Historie erhalten.
-- CHANGELOG mit festgelegtem Funktionsumfang, ohne vorgetäuschtes Veröffentlichungsdatum.
-- LICENSE.txt aus dem vorhandenen Entwurf vom 03.10.2026 mit der später abgestimmten Zustimmungspflicht für Paketweitergabe; Forks/Weiterentwicklung/Codeverwendung ausdrücklich klargestellt.
-- Rechteinhaber nach Bestätigung: **Marcin Kulmaczewski** (kulmi84).
-- Aktuelle Anleitung und Fremdkomponenten-Befund ergänzt.
+## Erledigt und geprüft
 
-## Noch offene Release-Hindernisse
+- [x] Anwendung, Assembly- und Dateiversion: 1.0.0 / 1.0.0.0.
+- [x] Anwendung: `HomeCamMonitor.exe`; Setup: `HomeCamMonitor-v1.0.0-Setup.exe`; portable ZIP: `HomeCamMonitor-v1.0.0-win-x64.zip`.
+- [x] Vollständige Beta-22-Funktionen im V1-Projekt; Stable-Icon als Fenster- und Setup-Icon.
+- [x] Persönliche HA-Vorgabe entfernt; neue Einstellungen enthalten eine leere HA-Adresse. Gespeicherte Adressen bleiben erhalten.
+- [x] Bestehende Beta-Installationen erkannt; alte Installationslisten beim Update berücksichtigt. Eigene Dateien und Einstellungen bleiben erhalten. Die bisherigen internen Settings-/Registry-Pfade dienen weiter der Kompatibilität.
+- [x] Proprietären Lizenztext aus dem abgestimmten Entwurf vervollständigt, Rechteinhaber **Marcin Kulmaczewski**. Keine erfundene pauschale Haftungsfreistellung. Lizenz vor Installation über **Lizenz anzeigen …** lesbar.
+- [x] README, Anleitung und CHANGELOG auf den aktuellen V1-Stand gebracht; historische Beta-Inhalte erhalten.
+- [x] mpv und FFmpeg auf feste Downloads mit SHA-256 und Versionsprüfung festgelegt; kein `latest` im neuen Release-Paketbau.
+- [x] Hauptlizenztexte, FFmpeg-Binary-Lizenzreport und Lizenz-/Hinweisdateien der tatsächlich verwendeten .NET-Runtime 8.0.31 im Prüfpaket enthalten.
+- [x] Lokaler Self-contained-V1-Build erfolgreich.
+- [x] Lokale Setup-Prüfung erfolgreich: Neuinstallation, Wiederholung, Beta-Upgrade, Icon/Verknüpfungen, Erhalt eigener Dateien und sichere Deinstallation.
+- [x] [GitHub-Windows-Prüflauf 37451607976](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37451607976) erfolgreich: Oberfläche, Voreinstellungen, Sicherung/Zurücksetzen/Diagnose, Vorlauf, Taskleisten-Vorschau und Setup.
+- [x] SHA-256 für lokales Prüfpaket erzeugt.
+- [x] Finaler Paketbau scheitert ausdrücklich, solange korrespondierende Quellen nicht vollständig geprüft sind. Nur `-ReviewOnly` erzeugt ein entsprechend gekennzeichnetes Prüfpaket.
 
-- [ ] Den Beta-22-Funktionsstand als Basis der finalen V1.0.0-Version integrieren. Nicht lediglich das ältere Stable-Projekt auf 1.0.0 umnummerieren: Viele V1-Funktionen stehen noch unter `BETA`.
-- [ ] Programm-, Assembly-, Datei- und Setupversionen sowie Paketnamen konsistent auf V1.0.0 setzen; vorhandene Einstellungen und Installationen beim Übergang erhalten.
-- [ ] Persönliche HA-Beispieladresse durch neutrale Vorgabe ersetzen und Neuinstallation prüfen.
-- [ ] Lizenz-Prüffassung abschließend prüfen/freigeben; keine erfundene Haftungsregel einsetzen. Rechtekette von eigenem Code, Snippets und Grafiken sowie frühere Lizenzzusagen prüfen.
-- [ ] mpv-/FFmpeg-Binaries fixieren und vollständige Lizenztexte, Copyrights, exakte Quellen sowie Buildinformationen bereitstellen; Details in [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md).
-- [ ] Lizenzunterlagen in sämtliche Downloadpakete aufnehmen und Paketinhalt prüfen.
-- [ ] Vorgehen für privaten Quellcode und öffentliche Downloads abstimmen/umsetzen. Derzeit ist das gesamte Quellcode-Repository öffentlich. GitHub erlaubt dort Ansehen und Forken gemäß seinen [Nutzungsbedingungen](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#d-user-generated-content); eine eigene Lizenz kann diese Plattformrechte nicht pauschal ausschließen. Quelldateien nur im Hauptbranch zu löschen entfernt sie nicht aus der Historie.
-- [ ] Finale Windows-Build-, UI-, Aufnahme-/Vorlauf- und Setupprüfungen auf dem endgültigen Commit erfolgreich ausführen.
-- [ ] Neuinstallation auf einem sauberen Windows-PC prüfen: erster Start, Icons, Startmenü, Standardpfade, Update, Erhalt von Einstellungen und Aufnahmen, Deinstallation.
-- [ ] SHA-256-Prüfsummen für Installer, portable ZIP und Quellenpakete erstellen; Paketinhalt und Downloadlinks prüfen.
-- [ ] Änderungen und Pakete durch den Rechteinhaber prüfen lassen.
-- [ ] Erst nach Freigabe den finalen GitHub Release V1.0.0 veröffentlichen und offizielle Downloads in README eintragen.
+## Fremdquellen und abschließende Freigabe
 
-## Review-Umfang
+- [ ] Eigenen mpv-/FFmpeg-Build mit allen tatsächlichen Quellen, Revisionen, Patches und Buildskripten abschließen. Der Quellen-Workflow archiviert den verwendeten Stand; upstream-Bereinigung wird dafür deaktiviert.
+- [ ] Eigene Fremdbinaries inklusive Quelleninventar auf Lizenzkompatibilität prüfen. Das neue Cross-Build-Rezept verwendet GPL-Komponenten; das bisherige FFmpeg-Prüfpaket ist LGPLv3. Diese Varianten dürfen nicht verwechselt werden.
+- [ ] Neu gebaute Fremdprogramme auf Windows mit den vorhandenen Aufnahme-/Vorlauf-/Vorschautests prüfen, anschließend feste Binär- und Quellenprüfsummen übernehmen.
+- [ ] Vollständige Dependency-Copyrights und -Lizenztexte aus dem Quelleninventar in die finalen Downloadpakete aufnehmen.
+- [ ] Finale Pakete zusammen mit korrespondierenden Quellenarchiven und Quellenmanifest erstellen; alle Prüfsummen kontrollieren.
+- [ ] Gegebenenfalls private Entwicklung und öffentliche Downloads trennen. Das aktuelle Repository ist öffentlich; GitHub gestattet Ansehen und Forken im Rahmen seiner [Nutzungsbedingungen](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#d-user-generated-content). Sichtbarkeit/Namen werden in diesem PR nicht verändert. Nur Quelldateien aus dem Hauptbranch zu löschen entfernt sie nicht aus der Historie.
+- [ ] Rechtekette für eigenen Code und Grafiken sowie frühere Lizenzzusagen bestätigen; Änderungen und konkrete Downloadpakete durch den Rechteinhaber prüfen lassen.
+- [ ] Installation mit echten Kameras und gegebenenfalls Home Assistant auf dem vorgesehenen Windows-PC abschließend prüfen.
+- [ ] Erst nach Prüfung/Freigabe finalen GitHub Release veröffentlichen und offizielle Downloadlinks eintragen.
 
-Dieser Vorschlag ändert ausschließlich Dokumentation und den Lizenzentwurf auf Basis des aktuellen Setup-Branches. Er verändert weder `main` noch den Anwendungscode oder bestehende Installer. Er enthält noch keine fertig geprüften V1.0.0-Binaries. Historische Dokumente behalten ihre Versionsbezeichnungen; die neue Anleitung verlinkt sie als Referenz.
+## Buildbefehle
+
+```powershell
+dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
+.github/scripts/prepare-release-components.ps1
+.github/scripts/build-release-downloads.ps1 -ReviewOnly
+```
+
+Ohne `-ReviewOnly` verlangt der Paketbau geprüfte korrespondierende Quellen und ein passendes `sources-manifest.json`. Es werden weder Tags erstellt noch Releases automatisch veröffentlicht. Der Quellen-Build stellt Fremdbinaries und die zugehörigen Quellen gemeinsam als Prüfmaterial bereit; er ersetzt noch keine finale Freigabe.

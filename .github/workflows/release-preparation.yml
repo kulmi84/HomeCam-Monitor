@@ -67,6 +67,9 @@ jobs:
             if (-not $blocked) { throw 'Finaler Paketbau muss ohne vollständige Quellen blockiert sein.' }
             'Quellennachweis ausstehend; kein finaler Download veröffentlicht.' | Add-Content $env:GITHUB_STEP_SUMMARY
           } else { .github/scripts/build-release-downloads.ps1 }
+      - name: Prüfpaket mit Microsoft Defender prüfen
+        shell: pwsh
+        run: .github/scripts/scan-downloads.ps1 -DownloadsDirectory release-downloads -ReportName HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
       - name: Prüfbilder speichern
         if: always()
         uses: actions/upload-artifact@v4
