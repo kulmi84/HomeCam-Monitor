@@ -1,0 +1,64 @@
+name: Fremdprogramme-mit-Quellen
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [release/v1.0.0-documentation]
+    paths:
+      - '.github/workflows/media-sources-build.yml'
+      - '.github/scripts/collect-media-sources.py'
+
+permissions:
+  contents: read
+
+jobs:
+  media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    container:
+      image: ghcr.io/shinchiro/archlinux:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: shinchiro/mpv-winbuild-cmake
+          ref: 05a60b3cfd04e3e3b89918f4a27f3dde2935dff2
+          path: media-build
+      - name: Fremdquellen laden und Hauptprojekte fixieren
+        run: |
+          git config --global --add safe.directory '*'
+          cd media-build
+          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DGCC_ARCH=x86-64 -DSINGLE_SOURCE_LOCATION="$PWD/src_packages" -DRUSTUP_LOCATION="$PWD/rustup" -G Ninja -B build -S .
+          ninja -C build download
+          git -C src_packages/mpv checkout 6c092d978b
+          git -C src_packages/ffmpeg checkout a35c879992
+          git -C src_packages/ffmpeg sparse-checkout disable
+          pacman -Q > build-environment.txt
+      - name: Windows-Toolchain bauen
+        run: ninja -C media-build/build gcc
+      - name: mpv und FFmpeg mit Abhängigkeiten bauen
+        run: ninja -C media-build/build mpv
+      - name: Tatsächliche Quellen, Revisionen und Lizenztexte sammeln
+        run: python3 .github/scripts/collect-media-sources.py media-build media-output
+      - name: Quellen und Binaries gemeinsam zur Prüfung bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: HomeCam-Media-Build-mit-Quellen
+          path: media-output/
+          retention-days: 30
+          compression-level: 0
+      - name: Buildprotokolle speichern
+        if: always()
+        run: |
+          mkdir -p media-logs
+          find media-build/build -type f -name '*.log' -exec cp --parents {} media-logs/ \;
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HomeCam-Media-Buildprotokolle
+          path: media-logs/
+          if-no-files-found: ignore
+

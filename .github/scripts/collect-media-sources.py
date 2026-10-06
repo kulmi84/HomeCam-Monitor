@@ -1,0 +1,84 @@
+"""Archive the actual build inputs; never infer dependency revisions from latest."""
+import hashlib
+import json
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+root, output = (Path(arg).resolve() for arg in sys.argv[1:3])
+output.mkdir(parents=True, exist_ok=True)
+source = output / 'corresponding-source'
+source.mkdir(exist_ok=True)
+records = []
+inputs = [p for p in root.iterdir() if p.name not in ('.git', 'build')]
+toolchain_sources = root / 'build/toolchain'
+if toolchain_sources.exists():
+    inputs.append(toolchain_sources)
+if not (root / 'src_packages/mpv').is_dir() or not (root / 'src_packages/ffmpeg').is_dir():
+    raise RuntimeError('Primary media sources missing')
+
+for git_dir in (root / 'src_packages').rglob('.git'):
+    repo = git_dir.parent
+    revision = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
+    remote = subprocess.check_output(['git', '-C', str(repo), 'remote', 'get-url', 'origin'], text=True).strip()
+    records.append({'path': str(repo.relative_to(root)), 'revision': revision, 'upstream': remote})
+    diff = subprocess.check_output(['git', '-C', str(repo), 'diff', '--binary', 'HEAD'])
+    if diff:
+        patch = source / (str(repo.relative_to(root)).replace('/', '_') + '.patch')
+        patch.write_bytes(diff)
+
+licenses = output / 'licenses'
+licenses.mkdir(exist_ok=True)
+license_records = []
+for item in (root / 'src_packages').rglob('*'):
+    if not item.is_file() or '.git' in item.parts:
+        continue
+    if item.name.upper().startswith(('LICENSE', 'COPYING', 'COPYRIGHT', 'NOTICE', 'AUTHORS')):
+        destination = licenses / item.relative_to(root / 'src_packages')
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(item, destination)
+        license_records.append(str(destination.relative_to(output)))
+
+build_revision = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+inventory = {
+    'buildSystemRevision': build_revision,
+    'dependencies': records,
+    'licenseFiles': license_records,
+    'licenseCompatibilityVerified': False,
+    'note': 'Actual sources are archived. Binary license compatibility and Windows behavior still require review.'
+}
+(output / 'source-inventory.json').write_text(json.dumps(inventory, indent=2), encoding='utf-8')
+shutil.copyfile(__file__, source / 'collect-media-sources.py')
+workflow = Path(__file__).resolve().parents[1] / 'workflows/media-sources-build.yml'
+shutil.copyfile(workflow, source / 'media-sources-build.yml')
+for name in ('CMakeLists.txt', 'README.md'):
+    shutil.copyfile(root / name, source / name)
+shutil.copytree(root / '.github/workflows', source / 'upstream-workflows', dirs_exist_ok=True)
+config = root / 'build/CMakeCache.txt'
+shutil.copyfile(config, source / 'CMakeCache.txt')
+for filename in ('meson_cross.txt',):
+    path = root / 'build' / filename
+    if path.exists():
+        shutil.copyfile(path, source / filename)
+
+# The archive contains the checked-out source trees, submodules, source tarballs,
+# patches and build recipes. Preserve any generated source files as well.
+archive = output / 'HomeCam-Media-corresponding-source.tar.zst'
+subprocess.run(['tar', '--zstd', '--exclude=.git', '-cf', str(archive),
+                '-C', str(root), *[str(p.relative_to(root)) for p in inputs],
+                '-C', str(output), 'corresponding-source'], check=True)
+for filename in ('mpv.exe', 'ffmpeg.exe'):
+    candidates = [p for p in (root / 'build').rglob(filename) if p.is_file()]
+    if not candidates:
+        raise RuntimeError(f'{filename} missing after build')
+    # Prefer installed FFmpeg and the built mpv executable.
+    preferred = [p for p in candidates if '/install/' in str(p)] or candidates
+    shutil.copyfile(preferred[0], output / filename)
+
+with (output / 'SHA256SUMS.txt').open('w', encoding='ascii') as manifest:
+    for item in sorted(output.iterdir()):
+        if item.is_file() and item.name != 'SHA256SUMS.txt':
+            with item.open('rb') as stream:
+                digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+            manifest.write(f'{digest}  {item.name}\n')
