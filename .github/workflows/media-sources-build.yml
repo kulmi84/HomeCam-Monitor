@@ -42,6 +42,10 @@ jobs:
           p = Path('cmake/custom_steps.cmake')
           s = p.read_text().replace('function(cleanup _name _last_step)', 'function(cleanup _name _last_step)\n    return() # preserve actual corresponding sources')
           p.write_text(s)
+          # ftp.gnu.org is unreachable from this runner; the mirror supplies
+          # the same tarball, still checked against upstream's SHA-256.
+          p = Path('packages/libiconv.cmake')
+          p.write_text(p.read_text().replace('https://ftp.gnu.org/pub/gnu/', 'https://mirrors.kernel.org/gnu/'))
           for project, revision in [('mpv', '6c092d978b'), ('ffmpeg', 'a35c879992')]:
               p = Path(f'packages/{project}.cmake')
               s = p.read_text().replace('SOURCE_DIR ${SOURCE_LOCATION}', f'GIT_TAG {revision}\n    GIT_RESET {revision}\n    ' + 'SOURCE_DIR ${SOURCE_LOCATION}')
