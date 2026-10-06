@@ -44,7 +44,7 @@ jobs:
           p.write_text(s)
           for project, revision in [('mpv', '6c092d978b'), ('ffmpeg', 'a35c879992')]:
               p = Path(f'packages/{project}.cmake')
-              s = p.read_text().replace(f'SOURCE_DIR ${SOURCE_LOCATION}', f'GIT_TAG {revision}\n    GIT_RESET {revision}\n    SOURCE_DIR ${SOURCE_LOCATION}')
+              s = p.read_text().replace('SOURCE_DIR ${SOURCE_LOCATION}', f'GIT_TAG {revision}\n    GIT_RESET {revision}\n    SOURCE_DIR ${{SOURCE_LOCATION}}')
               p.write_text(s)
           PY
           cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DGCC_ARCH=x86-64 -DSINGLE_SOURCE_LOCATION="$PWD/src_packages" -DRUSTUP_LOCATION="$PWD/rustup" -G Ninja -B build -S .
@@ -70,7 +70,7 @@ jobs:
         if: always()
         run: |
           mkdir -p media-logs
-          find media-build/build -type f -name '*.log' -exec cp --parents {} media-logs/ \;
+          [ ! -d media-build/build ] || find media-build/build -type f -name '*.log' -exec cp --parents {} media-logs/ \;
       - uses: actions/upload-artifact@v4
         if: always()
         with:
