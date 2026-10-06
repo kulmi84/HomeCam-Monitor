@@ -23,6 +23,7 @@ Das Stable-Projekt baut jetzt den vollständigen festgelegten V1-Funktionsumfang
 - [x] Lokale Setup-Prüfung erfolgreich: Neuinstallation, Wiederholung, Beta-Upgrade, Icon/Verknüpfungen, Erhalt eigener Dateien und sichere Deinstallation.
 - [x] [GitHub-Windows-Prüflauf 37451607976](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37451607976) erfolgreich: Oberfläche, Voreinstellungen, Sicherung/Zurücksetzen/Diagnose, Vorlauf, Taskleisten-Vorschau und Setup.
 - [x] SHA-256 für lokales Prüfpaket erzeugt.
+- [x] [Aktualisierter Windows-Prüflauf 37453224921](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37453224921) einschließlich Microsoft Defender erfolgreich.
 - [x] Finaler Paketbau scheitert ausdrücklich, solange korrespondierende Quellen nicht vollständig geprüft sind. Nur `-ReviewOnly` erzeugt ein entsprechend gekennzeichnetes Prüfpaket.
 
 ## Fremdquellen und abschließende Freigabe

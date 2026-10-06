@@ -48,8 +48,10 @@ foreach ($file in @('LICENSE.txt', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md', 'th
     Copy-Item -LiteralPath (Join-Path $root $file) -Destination $publishPath
 }
 # Read the exact runtime-pack versions used by this published application.
-New-Item -ItemType Directory -Force -Path (Join-Path $publishPath 'docs') | Out-Null
-Copy-Item -LiteralPath (Join-Path $root 'docs/v1.0.0.md') -Destination (Join-Path $publishPath 'docs/v1.0.0.md')
+Copy-Item -LiteralPath (Join-Path $root 'README.md') -Destination $publishPath
+Copy-Item -LiteralPath (Join-Path $root 'docs') -Destination $publishPath -Recurse -Force
+New-Item -ItemType Directory -Force -Path (Join-Path $publishPath 'assets') | Out-Null
+Copy-Item -LiteralPath (Join-Path $root 'assets/homecam-monitor-logo.png') -Destination (Join-Path $publishPath 'assets')
 $runtimeVersionsPath = Join-Path $publishPath 'licenses/runtime-versions.txt'
 [IO.File]::WriteAllText($runtimeVersionsPath, '')
 $deps = Get-Content (Join-Path $publishPath 'HomeCamMonitor.deps.json') -Raw | ConvertFrom-Json
