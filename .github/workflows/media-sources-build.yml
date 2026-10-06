@@ -34,6 +34,9 @@ jobs:
       - name: Fremdquellen laden und Hauptprojekte fixieren
         run: |
           git config --global --add safe.directory '*'
+          # git am creates local patch commits; use a technical runner identity.
+          git config --global user.name 'HomeCam Media Build'
+          git config --global user.email 'homecam-media-build@users.noreply.github.com'
           cd media-build
           # Upstream cleanup resets patched source trees after installation.
           # Keep those exact trees so the archived sources match our binaries.
