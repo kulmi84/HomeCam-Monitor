@@ -8,8 +8,8 @@ Der V1-Paketbau verwendet feste Bezugsadressen und SHA-256 aus `third-party.lock
 
 | Komponente | Konkret verwendeter Stand | Lizenz und Nachweis |
 |---|---|---|
-| mpv | shinchiro, Asset `mpv-x86_64-20261006-git-6c092d978b.7z`; Quellrevision `6c092d978b` | mpv-Haupttexte unter `licenses/mpv/`. Die tatsächliche Gesamtvariante hängt von Buildoptionen und eingebauten Bibliotheken ab; deren vollständiger Quell- und Lizenznachweis ist noch offen. |
-| FFmpeg | BtbN, Asset `ffmpeg-N-127203-ga35c879992-win64-lgpl.zip` vom 05.10.2026 | Die konkrete EXE meldet **LGPL Version 3 oder später**. Volltexte unter `licenses/ffmpeg/`; die Ausgabe von `ffmpeg -L` wird mitgeliefert. Nicht pauschal als LGPLv2.1 bezeichnen. |
+| mpv | shinchiro, Asset `mpv-x86_64-20261006-git-6c092d978b.7z`; Quellrevision `6c092d978b` | mpv-Haupttexte unter `licenses/mpv-*.txt`. Die tatsächliche Gesamtvariante hängt von Buildoptionen und eingebauten Bibliotheken ab; deren vollständiger Quell- und Lizenznachweis ist noch offen. |
+| FFmpeg | BtbN, Asset `ffmpeg-N-127203-ga35c879992-win64-lgpl.zip` vom 05.10.2026 | Die konkrete EXE meldet **LGPL Version 3 oder später**. Volltexte unter `licenses/FFmpeg-*.txt`; die Ausgabe von `ffmpeg -L` wird mitgeliefert. Nicht pauschal als LGPLv2.1 bezeichnen. |
 | .NET / Windows Desktop Runtime | Self-contained Windows x64; im geprüften Build Runtime **8.0.31**, SDK **8.0.425** | Die tatsächlichen Paketversionen werden aus Projektassets und Runtimeabhängigkeiten ermittelt. LICENSE, THIRD-PARTY-NOTICES und Versionsliste aus den passenden NuGet-Runtimepaketen werden dem Download beigefügt. |
 | Eingebaute Bibliotheken | Abhängigkeiten der jeweiligen mpv-/FFmpeg-Binaries | Eigene Copyrights und Lizenztexte erforderlich. Die HomeCam-Lizenz beansprucht keine Rechte an ihnen. |
 

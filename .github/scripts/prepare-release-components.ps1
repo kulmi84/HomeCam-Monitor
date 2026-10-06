@@ -38,7 +38,7 @@ foreach ($name in @('mpv', 'ffmpeg')) {
         if ($copyright.Count -ne 1) { throw 'FFmpeg-Lizenz fehlt oder ist mehrdeutig.' }
         Copy-Item -LiteralPath $copyright[0].FullName -Destination (Join-Path $publishPath 'licenses/FFmpeg-binary-LICENSE.txt')
         $licenseOutput = & $exe[0].FullName -L 2>&1
-        if (($licenseOutput -join "`n") -notmatch 'Lesser General Public License' -or
+        if ($LASTEXITCODE -ne 0 -or ($licenseOutput -join "`n") -notmatch 'Lesser General Public License' -or
             ($licenseOutput -join "`n") -notmatch 'version 3') { throw 'FFmpeg-Lizenz stimmt nicht mit der geprüften LGPLv3-Variante überein.' }
         $licenseOutput | Set-Content (Join-Path $publishPath 'licenses/FFmpeg-binary-license-report.txt') -Encoding utf8
     }
@@ -48,6 +48,10 @@ foreach ($file in @('LICENSE.txt', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md', 'th
     Copy-Item -LiteralPath (Join-Path $root $file) -Destination $publishPath
 }
 # Read the exact runtime-pack versions used by this published application.
+New-Item -ItemType Directory -Force -Path (Join-Path $publishPath 'docs') | Out-Null
+Copy-Item -LiteralPath (Join-Path $root 'docs/v1.0.0.md') -Destination (Join-Path $publishPath 'docs/v1.0.0.md')
+$runtimeVersionsPath = Join-Path $publishPath 'licenses/runtime-versions.txt'
+[IO.File]::WriteAllText($runtimeVersionsPath, '')
 $deps = Get-Content (Join-Path $publishPath 'HomeCamMonitor.deps.json') -Raw | ConvertFrom-Json
 $assets = Get-Content (Join-Path $root 'obj/project.assets.json') -Raw | ConvertFrom-Json
 $packageRoots = @($assets.packageFolders.PSObject.Properties.Name)
@@ -64,5 +68,5 @@ foreach ($pack in $runtimePacks) {
     foreach ($notice in Get-ChildItem -LiteralPath $folder -File | Where-Object { $_.Name -match 'THIRD-PARTY|versions\.txt$' }) {
         Copy-Item -LiteralPath $notice.FullName -Destination (Join-Path $publishPath "licenses/$package-$version-$($notice.Name)")
     }
-    "$package $version" | Add-Content (Join-Path $publishPath 'licenses/runtime-versions.txt') -Encoding utf8
+    "$package $version" | Add-Content $runtimeVersionsPath -Encoding utf8
 }
