@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO.Pipes;
 #if BETA
 using System.Net;
@@ -21,7 +21,7 @@ internal static class Program
 #if BETA
         MonitorForm form;
         try { form = new MonitorForm(); }
-        catch (Exception error) { MessageBox.Show(error.Message, "HomeCamMonitor Beta", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+        catch (Exception error) { MessageBox.Show(error.Message, ApplicationBranding.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
         Application.Run(form);
 #else
         Application.Run(new MonitorForm());
@@ -32,6 +32,11 @@ internal static class Program
 #if BETA
 internal static class ApplicationBranding
 {
+    #if RELEASE_V1
+    internal const string ProductName = "HomeCam Monitor";
+#else
+    internal const string ProductName = "HomeCamMonitor Beta";
+#endif
     internal static readonly Icon WindowIcon = LoadIcon();
     private static Icon LoadIcon()
     {
@@ -54,7 +59,7 @@ internal sealed class Settings
     public int Width { get; set; } = 480;
     public int Height { get; set; } = 270;
 #if BETA
-    // Temporary BETA diagnostics; remove this option and its UI for v1.0.0.
+    // Retained serialized field for compatibility with existing settings.
     public bool BetaWindowLoggingEnabled { get; set; }
     public string LastMonitorDeviceName { get; set; } = "";
     public int MonitorOffsetX { get; set; }
@@ -75,7 +80,7 @@ internal sealed class Settings
     public bool MinimizeWhenInactive { get; set; }
     public bool RestorePreviousCameraAfterMotion { get; set; } = true;
     public bool DirectHomeAssistantEnabled { get; set; }
-    public string HomeAssistantUrl { get; set; } = "https://192.168.19.9:8123";
+    public string HomeAssistantUrl { get; set; } = "";
     public string HomeAssistantToken { get; set; } = "";
     public string MotionEntityId { get; set; } = "binary_sensor.camera_einfahrt_bewegung";
     public string MotionCameraName { get; set; } = "Einfahrt";
@@ -365,8 +370,8 @@ internal sealed class MonitorForm : Form
         CleanupMotionStorage();
         // Windows uses the title for taskbar previews and Alt+Tab. CreateParams
         // and non-client painting keep the camera window itself captionless.
-        Text = "HomeCamMonitor Beta";
-        AccessibleName = "HomeCamMonitor Beta";
+        Text = ApplicationBranding.ProductName;
+        AccessibleName = ApplicationBranding.ProductName;
 #else
         Text = "HomeCamMonitor for Homeassistant";
 #endif
@@ -4257,12 +4262,12 @@ internal sealed class SettingsForm : Form
         var settingsPathHint = new Label { Text = "Beim Speichern wird die settings.json in den gewählten Ordner mitgenommen.", AutoSize = true, MaximumSize = new Size(700, 0) };
         storageFields.Controls.Add(settingsPathHint, 0, 6); storageFields.SetColumnSpan(settingsPathHint, 3);
         storageGroup.Controls.Add(storageFields); table.Controls.Add(storageGroup, 0, 5);
-        // Temporary BETA section: remove before v1.0.0.
+        // Existing diagnostics remain available; the release uses a neutral heading.
         var betaLogging = new CheckBox { Name = "BetaWindowLogging", Text = "Fensterprotokollierung aktivieren", AutoSize = true, Checked = current.BetaWindowLoggingEnabled };
         var betaFields = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false });
         betaFields.Controls.Add(betaLogging);
         betaFields.Controls.Add(new Label { Text = "Zur Fehlersuche bei Darstellungsproblemen. Änderungen gelten nach dem Speichern.", AutoSize = true });
-        var betaGroup = Batch(new GroupBox { Name = "BetaDiagnostics", Text = "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
+        var betaGroup = Batch(new GroupBox { Name = "BetaDiagnostics", Text = ApplicationBranding.ProductName == "HomeCam Monitor" ? "Darstellungsdiagnose" : "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
         betaGroup.Controls.Add(betaFields);
         table.Controls.Add(betaGroup, 0, 7);
         var backupGroup = Batch(new GroupBox { Name = "SettingsBackup", Text = "Einstellungen sichern und wiederherstellen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });

@@ -1,0 +1,77 @@
+name: V1.0.0-Release-Pruefung
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [release/v1.0.0-documentation]
+  pull_request:
+    branches: [feature/setup-v0.5.0]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.425'
+      - name: V1.0.0 mit vollständigem Funktionsumfang bauen
+        run: dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
+      - name: Vorhandene Windows- und Einstellungsprüfungen ausführen
+        run: dotnet run --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- "${{ runner.temp }}/release-ui"
+      - name: Festgelegte Fremdprogramme und Lizenzunterlagen vorbereiten
+        shell: pwsh
+        run: .github/scripts/prepare-release-components.ps1
+      - name: Snapshot, Aufnahme und Vorlauf prüfen
+        shell: pwsh
+        run: |
+          $ffmpeg = (Resolve-Path publish/ffmpeg.exe).Path
+          $source = Join-Path $env:RUNNER_TEMP 'homecam-source.mkv'
+          & $ffmpeg -nostdin -hide_banner -loglevel error -f lavfi -i 'testsrc=size=320x180:rate=10' -t 20 -c:v mpeg4 -y $source
+          if ($LASTEXITCODE -ne 0) { throw 'Testquelle fehlgeschlagen.' }
+          $testExe = Get-ChildItem tests/ToolbarRender/bin -Filter ToolbarRender.exe -Recurse | Select-Object -First 1
+          Copy-Item $ffmpeg (Join-Path $testExe.DirectoryName 'ffmpeg.exe')
+          Copy-Item publish/mpv.exe (Join-Path $testExe.DirectoryName 'mpv.exe')
+          $output = Join-Path $env:RUNNER_TEMP 'release-pre-roll'
+          dotnet run --no-build --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- --pre-roll-check $source $output
+          if ($LASTEXITCODE -ne 0) { throw 'Vorlaufprüfung fehlgeschlagen.' }
+          & $ffmpeg -nostdin -hide_banner -loglevel error -i (Join-Path $output 'pre-roll.mkv') -f null NUL
+          if ($LASTEXITCODE -ne 0) { throw 'Vorlaufaufnahme ist nicht lesbar.' }
+          dotnet run --no-build --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- --preview-check $source "${{ runner.temp }}/release-ui"
+          if ($LASTEXITCODE -ne 0) { throw 'Minimierte Stream-Vorschau fehlgeschlagen.' }
+      - name: Prüfpaket und Installer testen
+        shell: pwsh
+        run: |
+          .github/scripts/build-release-downloads.ps1 -ReviewOnly
+          $setup = (Resolve-Path release-downloads/HomeCamMonitor-v1.0.0-Setup-Review.exe).Path
+          $check = Start-Process -FilePath $setup -ArgumentList '--verify-setup' -WindowStyle Hidden -Wait -PassThru
+          if ($check.ExitCode -ne 0) { throw 'Setup- oder Beta-Updateprüfung fehlgeschlagen.' }
+          Copy-Item (Join-Path ([IO.Path]::GetTempPath()) 'homecam-setup*.png') "${{ runner.temp }}/release-ui/"
+          $env:RUNNER_TEMP | Out-Null
+          # Binaries remain internal review inputs until source obligations are cleared.
+          Get-Content release-downloads/SHA256SUMS.txt | Add-Content $env:GITHUB_STEP_SUMMARY
+      - name: Finale Paketsperre prüfen
+        shell: pwsh
+        run: |
+          $lock = Get-Content third-party.lock.json -Raw | ConvertFrom-Json
+          if (-not $lock.mpv.sourceCoverageVerified -or -not $lock.ffmpeg.sourceCoverageVerified) {
+            $blocked = $false
+            try { .github/scripts/build-release-downloads.ps1 }
+            catch {
+              if ($_.Exception.Message -notmatch 'Finales Paket gesperrt') { throw }
+              $blocked = $true
+            }
+            if (-not $blocked) { throw 'Finaler Paketbau muss ohne vollständige Quellen blockiert sein.' }
+            'Quellennachweis ausstehend; kein finaler Download veröffentlicht.' | Add-Content $env:GITHUB_STEP_SUMMARY
+          } else { .github/scripts/build-release-downloads.ps1 }
+      - name: Prüfbilder speichern
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-v1.0.0-Pruefbilder
+          path: ${{ runner.temp }}/release-ui/
+          if-no-files-found: ignore
+

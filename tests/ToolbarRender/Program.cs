@@ -283,7 +283,7 @@ internal static class Program
         var freshDefaults = SettingsStore.CreateForNewInstallation();
         if (freshDefaults.AlwaysOnTop || freshDefaults.ToolbarSizePercent != 90 || !freshDefaults.AutoScaleToolbar ||
             freshDefaults.ShowGridCameraNames || !freshDefaults.MinimizeWhenInactive || freshDefaults.MotionIndicatorSeconds != 1 ||
-            !freshDefaults.DirectHomeAssistantEnabled || freshDefaults.HomeAssistantUrl != "https://192.168.19.9:8123" ||
+            !freshDefaults.DirectHomeAssistantEnabled || freshDefaults.HomeAssistantUrl != "" ||
             freshDefaults.Cameras.Count != 0 || freshDefaults.HomeAssistantToken.Length != 0 ||
             freshDefaults.ShowEmptyFourthFieldBorder || !freshDefaults.ShowEmptyCameraLogo ||
             freshDefaults.SnapshotPreRollSeconds != 0 || freshDefaults.VideoPreRollSeconds != 0)
@@ -498,7 +498,7 @@ internal static class Program
                 throw new InvalidOperationException("Restoring a minimized startup lost foreground settings.");
         }
         using var monitor = new MonitorForm();
-        if (monitor.Text != "HomeCamMonitor Beta")
+        if (monitor.Text != ApplicationBranding.ProductName)
             throw new InvalidOperationException("The Windows application title is missing.");
         if (!ReferenceEquals(monitor.Icon, ApplicationBranding.WindowIcon))
             throw new InvalidOperationException("Main window does not use the HomeCamMonitor icon.");
