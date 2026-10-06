@@ -11,10 +11,13 @@ output.mkdir(parents=True, exist_ok=True)
 source = output / 'corresponding-source'
 source.mkdir(exist_ok=True)
 records = []
-inputs = [p for p in root.iterdir() if p.name not in ('.git', 'build')]
-toolchain_sources = root / 'build/toolchain'
-if toolchain_sources.exists():
-    inputs.append(toolchain_sources)
+inputs = [p for p in root.iterdir() if p.name not in ('.git', 'build', 'rustup')]
+# Cargo sources, when used, are corresponding source; compiler binary caches
+# are not. Preserve all downloaded source crates and git checkouts.
+for name in ('.cargo/registry', '.cargo/git', '.cargo/config'):
+    candidate = root / 'rustup' / name
+    if candidate.exists():
+        inputs.append(candidate)
 if not (root / 'src_packages/mpv').is_dir() or not (root / 'src_packages/ffmpeg').is_dir():
     raise RuntimeError('Primary media sources missing')
 
@@ -41,6 +44,8 @@ for item in (root / 'src_packages').rglob('*'):
         license_records.append(str(destination.relative_to(output)))
 
 build_revision = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+build_patch = subprocess.check_output(['git', '-C', str(root), 'diff', '--binary', 'HEAD'])
+(source / 'build-system.patch').write_bytes(build_patch)
 inventory = {
     'buildSystemRevision': build_revision,
     'dependencies': records,
