@@ -69,6 +69,10 @@ jobs:
           PY
           cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DGCC_ARCH=x86-64 -DSINGLE_SOURCE_LOCATION="$PWD/src_packages" -DRUSTUP_LOCATION="$PWD/rustup" -G Ninja -B build -S .
           ninja -C build download
+          # Upstream excludes curl from the aggregate download target.
+          # Fetch it explicitly before applying our source corrections.
+          ninja -C build curl-download
+          git -C src_packages/curl sparse-checkout disable
           git -C src_packages/mpv checkout 6c092d978b
           git -C src_packages/ffmpeg checkout a35c879992
           git -C src_packages/ffmpeg sparse-checkout disable
