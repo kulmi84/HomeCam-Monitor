@@ -1,4 +1,4 @@
-# HomeCamMonitor for Homeassistant
+# HomeCam Monitor V1.0.0 – Veröffentlichungsvorbereitung
 
 <p align="center">
   <img src="assets/homecam-monitor-logo.png" alt="HomeCam Monitor Logo" width="128">
@@ -14,6 +14,10 @@
 
 HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
 
+## Stand V1.0.0
+
+Der Funktionsumfang für V1.0.0 ist festgelegt. Diese Dokumentation bereitet den zuletzt erfolgreichen Stand `0.5.0-beta.22` (Commit `7041045392c17e8677bee127b3a76e1b8a9b1cfb`) für die Veröffentlichung vor. Ein finaler V1.0.0-Download ist noch nicht veröffentlicht. Versionierung, Lizenzunterlagen und abschließende Paketprüfung stehen noch aus; siehe [Release-Prüfliste](docs/release-v1.0.0.md).
+
 ## Funktionen
 
 - rahmenloses Kamerafenster mit abgerundeten Ecken
@@ -24,28 +28,31 @@ HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11.
 - Doppelklick zum Wechsel zwischen Fenster und Vollbild
 - mehrere RTSP-, HTTP- oder HTTPS-Kameras
 - Snapshot direkt im Windows-Bilderordner
-- Videoaufnahme direkt im Windows-Videosordner (Beta)
+- Videoaufnahme direkt im Windows-Videosordner
 - automatische Wiederverbindung nach einem Stream- oder Playerabbruch
 - nahtloser Stream-Refresh nach fünf Minuten per Double Buffering: ein neuer mpv-Stream übernimmt erst nach dem ersten Bild
 - Fensterposition und Fenstergröße werden nach dem Verschieben oder Ändern sofort gespeichert und beim nächsten Start exakt wiederhergestellt
 - gespeicherte Kameraauswahl
-- direkter Home-Assistant-WebSocket mit Bewegungs- und Personen-Sensoren pro Kamera (Beta)
-- Aktivitätssymbole und optionale Hervorhebung der auslösenden Kamera im 4er-Raster (Beta)
-- automatische Bewegungsaktionen pro Kamera: Snapshot, Video oder beides mit Aufbewahrungsfrist (Beta)
-- Bewegungsaktionen zeitweise direkt im Rechtsklickmenü pausieren (Beta)
-- Darstellungsoptionen für das 4er-Raster: Kameranamen, Logo in leeren Feldern und Außenrahmen (Beta)
-- frei wählbare Speicherpfade sowie Snapshot-/Video-Vorlauf für Aufnahmen (Beta)
-- Einstellungen einschließlich Kameras, Speicherpfaden und HA-Token sichern und wiederherstellen (Beta)
-- aktuellen Stream bei Bedarf direkt über das Rechtsklickmenü neu verbinden (Beta)
+- direkter Home-Assistant-WebSocket mit Bewegungs- und Personen-Sensoren pro Kamera
+- Aktivitätssymbole und optionale Hervorhebung der auslösenden Kamera im 4er-Raster
+- automatische Bewegungsaktionen pro Kamera: Snapshot, Video oder beides mit Aufbewahrungsfrist
+- Bewegungsaktionen zeitweise direkt im Rechtsklickmenü pausieren
+- Darstellungsoptionen für das 4er-Raster: Kameranamen, Logo in leeren Feldern und Außenrahmen
+- frei wählbare Speicherpfade sowie Snapshot-/Video-Vorlauf für Aufnahmen
+- Einstellungen einschließlich Kameras, Speicherpfaden und HA-Token sichern und wiederherstellen
+- aktuellen Stream bei Bedarf direkt über das Rechtsklickmenü neu verbinden
 - optional „Immer im Vordergrund“ und Windows-Autostart
 
 ## Installation
 
-1. In GitHub **Actions → Windows-Build** öffnen.
-2. Den neuesten erfolgreichen Lauf auswählen.
-3. Unter **Artifacts** die Datei `HomeCamMonitor-win-x64` herunterladen.
-4. Das ZIP vollständig entpacken.
-5. `HomeCamMonitor.exe` starten.
+Bis zur Freigabe von V1.0.0 steht der geprüfte Vorabstand als Actions-Artefakt bereit:
+
+1. Den [erfolgreichen Beta-22-Build](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37339036318) öffnen (GitHub-Anmeldung erforderlich; Artefakte sind zeitlich begrenzt verfügbar).
+2. Unter **Artifacts** `HomeCamMonitor-Beta-v0.5.0-beta.22-win-x64` herunterladen.
+3. Das ZIP entpacken und `HomeCamMonitor-Beta-Setup.exe` starten.
+4. Installationsordner wählen; Standard ist `C:\Program Files\HomeCamMonitor`. Startmenü-Einträge sind standardmäßig aktiviert.
+
+Das Setup unterstützt Aktualisieren und Deinstallieren. Das Löschen der Einstellungen ist eine separate Option mit Bestätigung. Die Details stehen in der [Setup-Dokumentation](docs/setup-v0.5.md). Den offiziellen V1.0.0-Installer verlinken wir erst nach der Release-Prüfung.
 
 > Wichtig: Nicht nur die EXE kopieren. Der komplette entpackte Ordner einschließlich `mpv.exe` wird benötigt.
 
@@ -61,14 +68,14 @@ Beim ersten Start öffnet sich die Kameraliste. Für jede Kamera werden ein frei
 
 Die Beispiele verwenden den RTSP-Ausgang von go2rtc auf Port `8554`. Eine `onvif://`-Adresse gehört in die go2rtc-Konfiguration und ist keine direkt abspielbare Adresse für HomeCam Monitor.
 
-Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. Die lokale Konfiguration liegt unter `%LOCALAPPDATA%\HomeCamMonitor\settings.json`.
+Kameras lassen sich später über das Zahnrad ergänzen, ändern oder löschen. Die lokale Konfiguration liegt unter `%LOCALAPPDATA%\HomeCamMonitor-Beta\settings.json`.
 
 ## Bedienung
 
 
 Die Bedienleiste erscheint bei einer Mausbewegung und verschwindet nach kurzer Zeit wieder. Die Kamera-Pfeile werden geglättet, größer und exakt mittig gezeichnet. Auch die Rundungen der Leiste werden unter Windows 11 nativ geglättet dargestellt. Bei 100 % bleibt das ursprüngliche Layout erhalten; Text und Symbole sind optisch mittig in der Leiste ausgerichtet.
 
-In der Beta lässt sich die **Größe der Bedienleiste** in den Einstellungen von 50 bis 100 % wählen, beispielsweise 75 %. Die gesamte Leiste mit Symbolen und Klickflächen wird proportional verkleinert und bleibt mittig am unteren Fensterrand. Symbole und Text sind innerhalb der Leiste vertikal zentriert. Der Wechsel wirkt sofort und bleibt auch nach einem Neustart erhalten. Vorhandene Einstellungen bleiben standardmäßig bei 100 %.
+Im vorgesehenen V1.0.0-Funktionsstand lässt sich die **Größe der Bedienleiste** in den Einstellungen von 50 bis 100 % wählen, beispielsweise 75 %. Die gesamte Leiste mit Symbolen und Klickflächen wird proportional verkleinert und bleibt mittig am unteren Fensterrand. Symbole und Text sind innerhalb der Leiste vertikal zentriert. Der Wechsel wirkt sofort und bleibt auch nach einem Neustart erhalten. Gespeicherte Einstellungen bleiben erhalten; die Vorgaben für neue Installationen stehen in [V1.0.0-Dokumentation](docs/v1.0.0.md).
 
 | Bedienung | Funktion |
 |---|---|
@@ -76,12 +83,12 @@ In der Beta lässt sich die **Größe der Bedienleiste** in den Einstellungen vo
 | Kante oder Ecke ziehen | Fenstergröße ändern |
 | Doppelklick ins Bild | Vollbild ein/aus |
 | `‹` / `›` | vorherige/nächste Kamera |
-| Rastersymbol (Beta) | 2×2-Ansicht mit bis zu vier Kameras ein-/ausschalten |
+| Rastersymbol | 2×2-Ansicht mit bis zu vier Kameras ein-/ausschalten |
 | Bildsymbol | Snapshot speichern |
-| Weißer/roter Aufnahmepunkt (Beta) | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
+| Weißer/roter Aufnahmepunkt | Aufnahme starten; erneut anklicken zum Beenden und Speichern |
 | Zahnrad | Einstellungen öffnen |
-| Rechtsklick ins Bild (Beta) | Dunkles Kontextmenü mit „Aktuellen Stream neu verbinden“, „Immer im Vordergrund“, „Bewegungserkennung aktiv“, „Bewegungsaktionen pausieren“ und Vordergrunddauer |
-| `—` (Beta) | Fenster minimieren |
+| Rechtsklick ins Bild | Dunkles Kontextmenü mit „Aktuellen Stream neu verbinden“, „Immer im Vordergrund“, „Bewegungserkennung aktiv“, „Bewegungsaktionen pausieren“ und Vordergrunddauer |
+| `—` | Fenster minimieren |
 | `×` | Anwendung beenden |
 
 ### Kontextmenü für Bewegung
@@ -94,26 +101,37 @@ Die **Vordergrunddauer** lässt sich im Rechtsklickmenü schnell auf **3, 5, 10,
 
 Snapshots werden automatisch unter `%USERPROFILE%\Pictures\HomeCam Monitor` gespeichert. Im deutschen Windows-Explorer wird der Ordner als **Bilder → HomeCam Monitor** angezeigt.
 
-Im **4-Kamera-Raster** zeigt die Beta bis zu vier gültig eingerichtete Kameras gleichzeitig. Optional lassen sich **Kameranamen im 4er-Raster**, das **HomeCamMonitor-Logo in leeren Kamerafeldern** und ein **Außenrahmen** ein- oder ausschalten. Ein Doppelklick in das Raster schaltet die gesamte Rasteransicht in den Vollbildmodus und wieder zurück. Das Rastersymbol wechselt zurück zur Einzelansicht; Snapshot und Aufnahme werden dort wie gewohnt für die ausgewählte Kamera verwendet.
+Im **4-Kamera-Raster** zeigt HomeCam Monitor bis zu vier gültig eingerichtete Kameras gleichzeitig. Optional lassen sich **Kameranamen im 4er-Raster**, das **HomeCamMonitor-Logo in leeren Kamerafeldern** und ein **Außenrahmen** ein- oder ausschalten. Ein Doppelklick in das Raster schaltet die gesamte Rasteransicht in den Vollbildmodus und wieder zurück. Das Rastersymbol wechselt zurück zur Einzelansicht; Snapshot und Aufnahme werden dort wie gewohnt für die ausgewählte Kamera verwendet.
 
 Im aktuellen Rechtsklickmenü kann außerdem der **aktuelle Stream neu verbunden** werden. Die bekannten Schalter für **Immer im Vordergrund**, **Bewegungserkennung**, das **Pausieren von Bewegungsaktionen** und die **Vordergrunddauer** bleiben direkt erreichbar.
 
-Videoaufnahmen der Beta werden als MKV-Dateien unter `%USERPROFILE%\Videos\HomeCam Monitor` gespeichert. Der kleine Aufnahmepunkt ist im Ruhezustand weiß und leuchtet während der Aufnahme rot. Ein erneuter Klick beendet und speichert die Aufnahme. Die Aufnahme nutzt einen eigenen mpv-Prozess, damit der für geringe Verzögerung deaktivierte Cache des Livebilds keine leeren Dateien mehr erzeugt.
+Videoaufnahmen werden als MKV-Dateien unter `%USERPROFILE%\Videos\HomeCam Monitor` gespeichert. Der kleine Aufnahmepunkt ist im Ruhezustand weiß und leuchtet während der Aufnahme rot. Ein erneuter Klick beendet und speichert die Aufnahme. Die Aufnahme nutzt einen eigenen mpv-Prozess, damit der für geringe Verzögerung deaktivierte Cache des Livebilds keine leeren Dateien mehr erzeugt.
 
 ## Lokaler Build
 
 Voraussetzung: .NET 8 SDK.
 
 ```powershell
-dotnet restore
-dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
+dotnet restore HomeCamMonitor.Beta.csproj
+dotnet publish HomeCamMonitor.Beta.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-beta
 ```
 
-Danach `publish\HomeCamMonitor.exe` starten. Der komplette Ordner `publish` wird benötigt.
+Der aktuelle Funktionsstand wird noch mit dem Beta-Projekt gebaut; das ältere `HomeCamMonitor.csproj` enthält nicht alle vorgesehenen V1-Funktionen. Für den Programmstart werden zusätzlich `mpv.exe` und `ffmpeg.exe` benötigt. Der bestehende Windows-Build stellt das Paket zusammen. Vor der endgültigen Veröffentlichung müssen die [Fremdkomponenten-Nachweise](THIRD-PARTY-NOTICES.md) ergänzt werden.
 
-## Beta: Bewegungserkennung über Home Assistant
 
-> **Aktueller Entwicklungsstand:** `0.5.0-beta.14`. Die stabile Ausgabe bleibt getrennt.
+## Einstellungen, Diagnose und Home Assistant
+
+Die aktuelle Anleitung zu [Voreinstellungen, Speicherpfaden, Sicherungen, gezieltem Zurücksetzen und Diagnose](docs/v1.0.0.md) beschreibt den vorgesehenen V1.0.0-Stand. Bewegungs- und Personenerkennung verwenden Home-Assistant-Sensoren; ein Livebild benötigt nur eine gültige Streamadresse. Die direkte Reolink-Ereignisanbindung gehört zur späteren V2-Linie.
+
+## Lizenz
+
+HomeCam Monitor ist als proprietäre Freeware vorgesehen. Die unveränderte offizielle Anwendung darf kostenlos genutzt werden. Änderungen, Weitergabe von Paketen, Forks, Weiterentwicklung und Verwendung des geschützten HomeCam-Codes für eigene Projekte erfordern die vorherige Zustimmung des Rechteinhabers, soweit keine zwingenden Rechte entgegenstehen. Benutzerkonfiguration und Links zu offiziellen Downloads dürfen frei geändert bzw. geteilt werden.
+
+Der [vorbereitete Lizenztext](LICENSE.txt) liegt als Prüffassung vor. Die Rechte an mpv, FFmpeg, .NET und anderen Fremdkomponenten richten sich ausschließlich nach ihren eigenen Lizenzen; siehe [Fremdkomponenten-Hinweise](THIRD-PARTY-NOTICES.md). Das derzeit öffentliche Quellcode-Repository ist noch nicht in private Entwicklung und öffentliche Downloads getrennt.
+
+## Historische Beta-Dokumentation und Entwicklung
+
+> Die folgenden Beta-Notizen bleiben als Entwicklungshistorie erhalten. Sie enthalten ältere Bezeichnungen, Vorgaben und Downloadhinweise. Maßgeblich für die V1.0.0-Vorbereitung ist die oben verlinkte aktuelle Dokumentation; letzter geprüfter Funktionsstand: `0.5.0-beta.22`.
 
 ### Neu in 0.5.0 Beta 5–14
 
