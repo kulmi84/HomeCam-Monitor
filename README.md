@@ -1,22 +1,24 @@
-# HomeCam Monitor V1.0.0 – Veröffentlichungsvorbereitung
+# HomeCam Monitor – IP-Kamera-Monitor und RTSP-Player für Windows
 
 <p align="center">
   <img src="assets/homecam-monitor-logo.png" alt="HomeCam Monitor Logo" width="128">
 </p>
 
 <p align="center">
-  Ein rahmenloser Windows-Kameramonitor für stabile RTSP-Livestreams – unabhängig vom Home-Assistant-Dashboard.
+  Kostenloser Windows-Kameramonitor für IP-Kameras und RTSP-Livestreams – mit optionaler Home-Assistant-Integration.
 </p>
 
 <p align="center">
   <img src="docs/screenshots/homecam-main.png" alt="HomeCam Monitor im 4-Kamera-Raster mit aktuellem Rechtsklickmenü" width="780">
 </p>
 
-HomeCamMonitor for Homeassistant verwendet die mpv-Video-Engine mit Direct3D 11. Das Fenster bleibt auf Wunsch im Vordergrund, verbindet einen abgebrochenen Stream automatisch neu und kann zwischen mehreren Kameras umschalten.
+HomeCam Monitor ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Windows. Er zeigt Livestreams von Netzwerk- und Überwachungskameras in einem rahmenlosen Fenster oder einer 4-Kamera-Ansicht. Snapshots, Videoaufnahmen und optional Home Assistant ergänzen den Kameramonitor. Die mpv-Video-Engine verwendet Direct3D 11; das Fenster bleibt auf Wunsch im Vordergrund und verbindet abgebrochene Streams automatisch neu.
+
+**English:** Free Windows IP camera viewer and RTSP camera monitor with a four-camera view, snapshots, video recording, pre-recording and optional Home Assistant motion/person sensor integration. Home Assistant is not required to view camera streams.
 
 ## Stand V1.0.0
 
-V1.0.0 übernimmt den festgelegten Funktionsumfang von `0.5.0-beta.22`. Anwendung, Setup und Paketnamen sind auf 1.0.0 gebracht. Der [Windows-Prüflauf](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37451607976) hat bestanden. Ein finaler Download wird erst nach Abschluss der Fremdquellen-Prüfung und Freigabe veröffentlicht; siehe [Release-Prüfliste](docs/release-v1.0.0.md).
+V1.0.0 übernimmt den festgelegten Funktionsumfang von `0.5.0-beta.22`. Anwendung, Setup und Paketnamen sind auf 1.0.0 gebracht. Der [aktuelle Windows- und Paketprüflauf](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37669838943) hat bestanden. Der korrigierte Installer und das ursprüngliche HomeCam-Icon sind auch vom Nutzer geprüft. Ein finaler Download wird erst nach Abschluss der Fremdquellen-Prüfung und Freigabe veröffentlicht; siehe [Release-Prüfliste](docs/release-v1.0.0.md).
 
 ## Funktionen
 
