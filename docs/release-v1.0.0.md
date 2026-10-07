@@ -1,6 +1,6 @@
 # Release-Prüfung HomeCam Monitor V1.0.0
 
-Stand: 06.10.2026. Kein finaler GitHub Release und kein V1.0.0-Tag veröffentlicht.
+Stand: 07.10.2026. Kein finaler GitHub Release und kein V1.0.0-Tag veröffentlicht.
 
 ## Ausgangsbasis und Vorschlag
 
@@ -28,10 +28,10 @@ Das Stable-Projekt baut jetzt den vollständigen festgelegten V1-Funktionsumfang
 
 ## Fremdquellen und abschließende Freigabe
 
-- [ ] Eigenen mpv-/FFmpeg-Build mit allen tatsächlichen Quellen, Revisionen, Patches und Buildskripten abschließen. Der Quellen-Workflow archiviert den verwendeten Stand; upstream-Bereinigung wird dafür deaktiviert.
+- [x] Eigenen mpv-/FFmpeg-Build mit allen tatsächlichen Quellen, Revisionen, Patches und Buildskripten abschließen. Der Quellen-Workflow archiviert den verwendeten Stand; upstream-Bereinigung wird dafür deaktiviert.
 - [ ] Eigene Fremdbinaries inklusive Quelleninventar auf Lizenzkompatibilität prüfen. Das neue Cross-Build-Rezept verwendet GPL-Komponenten; das bisherige FFmpeg-Prüfpaket ist LGPLv3. Diese Varianten dürfen nicht verwechselt werden.
-- [ ] Neu gebaute Fremdprogramme auf Windows mit den vorhandenen Aufnahme-/Vorlauf-/Vorschautests prüfen, anschließend feste Binär- und Quellenprüfsummen übernehmen.
-- [ ] Vollständige Dependency-Copyrights und -Lizenztexte aus dem Quelleninventar in die finalen Downloadpakete aufnehmen.
+- [x] Neu gebaute Fremdprogramme unter Windows mit Aufnahme-/Vorlauf-/Vorschautests geprüft; Binär- und Quellenprüfsummen im gemeinsamen Prüfpaket enthalten.
+- [x] Dependency-Copyrights und -Lizenztexte aus dem Quelleninventar in das neue Prüfpaket aufgenommen. Die endgültige Freigabe bleibt ausstehend.
 - [ ] Finale Pakete zusammen mit korrespondierenden Quellenarchiven und Quellenmanifest erstellen; alle Prüfsummen kontrollieren.
 - [ ] Gegebenenfalls private Entwicklung und öffentliche Downloads trennen. Das aktuelle Repository ist öffentlich; GitHub gestattet Ansehen und Forken im Rahmen seiner [Nutzungsbedingungen](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#d-user-generated-content). Sichtbarkeit/Namen werden in diesem PR nicht verändert. Nur Quelldateien aus dem Hauptbranch zu löschen entfernt sie nicht aus der Historie.
 - [ ] Rechtekette für eigenen Code und Grafiken sowie frühere Lizenzzusagen bestätigen; Änderungen und konkrete Downloadpakete durch den Rechteinhaber prüfen lassen.
@@ -47,3 +47,11 @@ dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true
 ```
 
 Ohne `-ReviewOnly` verlangt der Paketbau geprüfte korrespondierende Quellen und ein passendes `sources-manifest.json`. Es werden weder Tags erstellt noch Releases automatisch veröffentlicht. Der Quellen-Build stellt Fremdbinaries und die zugehörigen Quellen gemeinsam als Prüfmaterial bereit; er ersetzt noch keine finale Freigabe.
+
+## Erfolgreiches gemeinsames Prüfpaket vom 07.10.2026
+
+[Quellen-Build und Windows-Prüfung 37641796309](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37641796309) sind erfolgreich abgeschlossen. Der Lauf baut die Fremdprogramme, archiviert die verwendeten Quellen und prüft anschließend deren Prüfsummen, Lizenzdateien und die GPLv3-Ausgabe von FFmpeg unter Windows. Vorlauf, minimierte Vorschau, V1-Oberfläche, Installer, Beta-Upgrade und Microsoft Defender sind erfolgreich geprüft.
+
+[Prüfpaket mit Installer, portabler ZIP, korrespondierenden Quellen, Quelleninventar, Prüfsummen und Defender-Bericht](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37641796309/artifacts/11498278035). Dieses Paket verwendet die selbst gebauten GPLv3-Fremdprogramme. Es bleibt als Review gekennzeichnet; ein erfolgreicher technischer Test ersetzt nicht die abschließende Lizenzkompatibilitäts- und Rechteprüfung oder den Test mit echten Kameras.
+
+Für eine erneute Paketprüfung kann der erfolgreiche Quellen-Lauf wiederverwendet werden. Ein erneuter vollständiger Fremdprogramme-Build ist dafür nicht nötig. Finaler Release, V1-Tag und Merge bleiben ausstehend.
