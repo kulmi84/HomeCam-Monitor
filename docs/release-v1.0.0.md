@@ -52,6 +52,15 @@ Ohne `-ReviewOnly` verlangt der Paketbau geprüfte korrespondierende Quellen und
 
 [Quellen-Build und Windows-Prüfung 37641796309](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37641796309) sind erfolgreich abgeschlossen. Der Lauf baut die Fremdprogramme, archiviert die verwendeten Quellen und prüft anschließend deren Prüfsummen, Lizenzdateien und die GPLv3-Ausgabe von FFmpeg unter Windows. Vorlauf, minimierte Vorschau, V1-Oberfläche, Installer, Beta-Upgrade und Microsoft Defender sind erfolgreich geprüft.
 
-[Prüfpaket mit Installer, portabler ZIP, korrespondierenden Quellen, Quelleninventar, Prüfsummen und Defender-Bericht](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37641796309/artifacts/11498278035). Dieses Paket verwendet die selbst gebauten GPLv3-Fremdprogramme. Es bleibt als Review gekennzeichnet; ein erfolgreicher technischer Test ersetzt nicht die abschließende Lizenzkompatibilitäts- und Rechteprüfung oder den Test mit echten Kameras.
+[Prüfpaket mit Installer, portabler ZIP, korrespondierenden Quellen, Quelleninventar, Prüfsummen und Defender-Bericht](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37656738717/artifacts/11498617848). Dieses Paket verwendet die selbst gebauten GPLv3-Fremdprogramme. Es bleibt als Review gekennzeichnet; ein erfolgreicher technischer Test ersetzt nicht die abschließende Lizenzkompatibilitäts- und Rechteprüfung oder den Test mit echten Kameras.
 
 Für eine erneute Paketprüfung kann der erfolgreiche Quellen-Lauf wiederverwendet werden. Ein erneuter vollständiger Fremdprogramme-Build ist dafür nicht nötig. Finaler Release, V1-Tag und Merge bleiben ausstehend.
+Die abschließende [Windows- und Paketprüfung 37656738717](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37656738717) ist erfolgreich. Die Versions- und Quellrevisionen im Paket stammen aus den tatsächlichen Binaries und dem Quelleninventar; der Defender-Bericht ist im Download enthalten (Exitcode 0, keine Bedrohungen). 276 Lizenz- und Hinweisdateien sind enthalten. [Kompakte Lizenz- und Prüfnachweise](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37656738717/artifacts/11499226131) stehen zusätzlich bereit.
+
+SHA-256 des abschließenden Prüfpakets:
+
+- Installer: `cebafe012878e27c8e07a7c8dae935f3a7a99501bfe66aa8e628321e4a6b11c5`
+- Portable ZIP: `fad51c21ff1743b3f0a9e5bc222d37daabed0a434d99db0e994cd407227546e9`
+- Quellenarchiv: `d4ae852e6f5048e6918a597c538724fb60385eb658f1c93d5ad9ac910acf9d6f`
+
+Die Quellenarchiv-Prüfung bestätigt 1.020 mpv-Einträge, 10.965 FFmpeg-Einträge, 71 graphengine-Einträge und 22 Buildnachweise. `libzimg/graphengine` verweist relativ auf `../graphengine`; der absolute Runner-Pfad wird nicht benötigt. Review-Kennzeichnung und abschließende Freigabepunkte bleiben erhalten.
