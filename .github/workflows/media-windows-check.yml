@@ -149,3 +149,15 @@ jobs:
             media-artifact/FFmpeg-license-report.txt
             release-downloads/HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
             release-downloads/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-v1.0.0-Installer
+          path: release-downloads/HomeCamMonitor-v1.0.0-Setup-Review.exe
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-v1.0.0-Portable
+          path: release-downloads/HomeCamMonitor-v1.0.0-win-x64-Review.zip
+          compression-level: 0
+          retention-days: 30
