@@ -52,7 +52,7 @@ jobs:
               for prefix in ('https://ftp.gnu.org/pub/gnu/', 'https://ftp.gnu.org/gnu/'):
                   s = s.replace(prefix, 'https://mirrors.kernel.org/gnu/')
               p.write_text(s)
-          for project, revision in [('mpv', '6c092d978b'), ('ffmpeg', 'a35c879992'), ('curl', '318bd978ea2d36ace36b42da2174b79c3abd89a3')]:
+          for project, revision in [('mpv', '6c092d978b'), ('ffmpeg', 'a35c879992'), ('curl', '318bd978ea2d36ace36b42da2174b79c3abd89a3'), ('libaribcaption', '6c3b4f361bc8f65b34497ba0d123c5aea6f9ed84')]:
               p = Path(f'packages/{project}.cmake')
               s = p.read_text().replace('SOURCE_DIR ${SOURCE_LOCATION}', f'GIT_TAG {revision}\n    GIT_RESET {revision}\n    ' + 'SOURCE_DIR ${SOURCE_LOCATION}')
               p.write_text(s)
@@ -65,6 +65,16 @@ jobs:
           p = Path('packages/curl.cmake')
           s = p.read_text()
           s = s.replace(' -lz -lbrotlienc -lbrotlidec -lbrotlicommon -lzstd -lcrypt32 -lsecur32', '')
+          p.write_text(s)
+          # libaribcaption calls its own aribcc_md5_* functions. HAVE_OPENSSL
+          # suppresses their implementation without providing replacements.
+          p = Path('packages/libaribcaption.cmake')
+          s = p.read_text()
+          flag_lines = [line for line in s.splitlines(True) if '-DHAVE_OPENSSL=1' in line]
+          if len(flag_lines) != 2:
+              raise RuntimeError('Review libaribcaption compiler flags before changing them')
+          for line in flag_lines:
+              s = s.replace(line, '')
           p.write_text(s)
           PY
           cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DGCC_ARCH=x86-64 -DSINGLE_SOURCE_LOCATION="$PWD/src_packages" -DRUSTUP_LOCATION="$PWD/rustup" -G Ninja -B build -S .
