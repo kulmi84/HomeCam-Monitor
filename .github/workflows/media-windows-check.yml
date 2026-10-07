@@ -128,6 +128,7 @@ jobs:
           $check = Start-Process -FilePath $setup -ArgumentList '--verify-setup' -WindowStyle Hidden -Wait -PassThru
           if ($check.ExitCode -ne 0) { throw 'Setup- oder Beta-Updateprüfung fehlgeschlagen.' }
           .github/scripts/scan-downloads.ps1 -DownloadsDirectory release-downloads -ReportName HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
+          Copy-Item (Join-Path $env:RUNNER_TEMP 'HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt') release-downloads
           Get-ChildItem release-downloads -File | Where-Object Name -ne SHA256SUMS.txt |
             ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName).Hash.ToLowerInvariant(), $_.Name } |
             Set-Content release-downloads/SHA256SUMS.txt -Encoding ascii
