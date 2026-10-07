@@ -1,6 +1,7 @@
 """Archive the actual build inputs; never infer dependency revisions from latest."""
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -21,12 +22,22 @@ for name in ('.cargo/registry', '.cargo/git', '.cargo/config'):
 if not (root / 'src_packages/mpv').is_dir() or not (root / 'src_packages/ffmpeg').is_dir():
     raise RuntimeError('Primary media sources missing')
 
+# Build recipes can replace submodules with links to separately checked-out
+# dependencies. Keep their targets, but make absolute runner paths relocatable.
+for link in (root / 'src_packages').rglob('*'):
+    if link.is_symlink() and os.path.isabs(os.readlink(link)):
+        target = link.resolve(strict=True)
+        target.relative_to(root)  # Refuse sources outside the archived build tree.
+        relative = os.path.relpath(target, link.parent)
+        link.unlink()
+        link.symlink_to(relative, target_is_directory=target.is_dir())
+
 for git_dir in (root / 'src_packages').rglob('.git'):
     repo = git_dir.parent
     revision = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
     remote = subprocess.check_output(['git', '-C', str(repo), 'remote', 'get-url', 'origin'], text=True).strip()
     records.append({'path': str(repo.relative_to(root)), 'revision': revision, 'upstream': remote})
-    diff = subprocess.check_output(['git', '-C', str(repo), 'diff', '--binary', 'HEAD'])
+    diff = subprocess.check_output(['git', '-C', str(repo), 'diff', '--binary', '--ignore-submodules=all', 'HEAD'])
     if diff:
         patch = source / (str(repo.relative_to(root)).replace('/', '_') + '.patch')
         patch.write_bytes(diff)
@@ -44,7 +55,7 @@ for item in (root / 'src_packages').rglob('*'):
         license_records.append(str(destination.relative_to(output)))
 
 build_revision = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
-build_patch = subprocess.check_output(['git', '-C', str(root), 'diff', '--binary', 'HEAD'])
+build_patch = subprocess.check_output(['git', '-C', str(root), 'diff', '--binary', '--ignore-submodules=all', 'HEAD'])
 (source / 'build-system.patch').write_bytes(build_patch)
 inventory = {
     'buildSystemRevision': build_revision,
