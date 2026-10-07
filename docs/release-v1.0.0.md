@@ -6,13 +6,13 @@ Stand: 07.10.2026. Kein finaler GitHub Release und kein V1.0.0-Tag veröffentlic
 
 Die V1.0.0-Vorbereitung liegt in [PR #2](https://github.com/kulmi84/HomeCam-Monitor/pull/2) auf Basis von Beta 22, Commit `7041045392c17e8677bee127b3a76e1b8a9b1cfb`. Der ältere `main`-Stand enthält weiterhin Stable 0.1.2 und eine ältere Beta. Er wurde nicht verändert.
 
-Das Stable-Projekt baut jetzt den vollständigen festgelegten V1-Funktionsumfang. Das interne Compilerkennzeichen `BETA` aktiviert dabei den vorhandenen Code; `RELEASE_V1` wählt die neutrale Produktbezeichnung und das Stable-Icon. Bestehende Funktionen und die Beta-Projektdatei bleiben erhalten. Neue Funktionen gehören zur V2/Beta-Linie.
+Das Stable-Projekt baut jetzt den vollständigen festgelegten V1-Funktionsumfang. Das interne Compilerkennzeichen `BETA` aktiviert dabei den vorhandenen Code; `RELEASE_V1` wählt die neutrale Produktbezeichnung und das originale HomeCam-Icon aus der Beta. Bestehende Funktionen und die Beta-Projektdatei bleiben erhalten. Neue Funktionen gehören zur V2/Beta-Linie.
 
 ## Erledigt und geprüft
 
 - [x] Anwendung, Assembly- und Dateiversion: 1.0.0 / 1.0.0.0.
 - [x] Anwendung: `HomeCamMonitor.exe`; Setup: `HomeCamMonitor-v1.0.0-Setup.exe`; portable ZIP: `HomeCamMonitor-v1.0.0-win-x64.zip`.
-- [x] Vollständige Beta-22-Funktionen im V1-Projekt; Stable-Icon als Fenster- und Setup-Icon.
+- [x] Vollständige Beta-22-Funktionen im V1-Projekt; Originales HomeCam-Icon aus der Beta als Fenster- und Setup-Icon.
 - [x] Persönliche HA-Vorgabe entfernt; neue Einstellungen enthalten eine leere HA-Adresse. Gespeicherte Adressen bleiben erhalten.
 - [x] Bestehende Beta-Installationen erkannt; alte Installationslisten beim Update berücksichtigt. Eigene Dateien und Einstellungen bleiben erhalten. Die bisherigen internen Settings-/Registry-Pfade dienen weiter der Kompatibilität.
 - [x] Proprietären Lizenztext aus dem abgestimmten Entwurf vervollständigt, Rechteinhaber **Marcin Kulmaczewski**. Keine erfundene pauschale Haftungsfreistellung. Lizenz vor Installation über **Lizenz anzeigen …** lesbar.
@@ -64,3 +64,4 @@ SHA-256 des abschließenden Prüfpakets:
 - Quellenarchiv: `d4ae852e6f5048e6918a597c538724fb60385eb658f1c93d5ad9ac910acf9d6f`
 
 Die Quellenarchiv-Prüfung bestätigt 1.020 mpv-Einträge, 10.965 FFmpeg-Einträge, 71 graphengine-Einträge und 22 Buildnachweise. `libzimg/graphengine` verweist relativ auf `../graphengine`; der absolute Runner-Pfad wird nicht benötigt. Review-Kennzeichnung und abschließende Freigabepunkte bleiben erhalten.
+Das V1-Icon verwendet unverändert die vorhandene Datei HomeCamMonitor-Beta.ico unter dem Stable-Dateinamen. Damit sind Motiv und belegte Fläche in allen Icon-Größen identisch zur Beta; Anwendung, Fenster, Setup, Deinstallation und Verknüpfungen übernehmen dieses Icon.
