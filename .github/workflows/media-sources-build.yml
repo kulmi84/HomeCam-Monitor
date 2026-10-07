@@ -144,3 +144,117 @@ jobs:
           path: media-logs/
           if-no-files-found: ignore
 
+
+  windows:
+    needs: media
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.425'
+      - uses: actions/download-artifact@v4
+        with:
+          name: HomeCam-Media-Build-mit-Quellen
+          path: media-artifact
+          run-id: ${{ github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Prüfsummen, Quelleninventar und Binary-Lizenz prüfen
+        shell: pwsh
+        run: |
+          foreach ($line in Get-Content media-artifact/SHA256SUMS.txt) {
+            if ($line -notmatch '^([a-f0-9]{64})  ([^/\\]+)$') { throw 'Ungültige SHA-256-Liste.' }
+            $expected = $Matches[1]
+            $file = Join-Path media-artifact $Matches[2]
+            if ((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw "Prüfsumme falsch: $file" }
+          }
+          $inventory = Get-Content media-artifact/source-inventory.json -Raw | ConvertFrom-Json
+          if (-not $inventory.dependencies -or -not $inventory.licenseFiles) { throw 'Quellen- oder Lizenzinventar fehlt.' }
+          foreach ($license in $inventory.licenseFiles) {
+            if (-not (Test-Path -LiteralPath (Join-Path media-artifact $license))) { throw "Lizenzdatei fehlt: $license" }
+          }
+          $ffmpeg = (Resolve-Path media-artifact/ffmpeg.exe).Path
+          $license = & $ffmpeg -L 2>&1
+          if ($LASTEXITCODE -ne 0 -or ($license -join "`n") -notmatch 'GNU General Public License' -or
+              ($license -join "`n") -notmatch 'version 3' -or ($license -join "`n") -match 'enable-nonfree') {
+            throw 'Erwartete GPLv3-Binary-Lizenz ist nicht bestätigt.'
+          }
+          $license | Set-Content media-artifact/FFmpeg-license-report.txt
+      - name: Vorhandene Oberfläche mit V1 bauen und prüfen
+        run: |
+          dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
+          dotnet run --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- "${{ runner.temp }}/media-ui"
+      - name: Neue Fremdbinaries unter Windows prüfen
+        shell: pwsh
+        run: |
+          $ffmpeg = (Resolve-Path media-artifact/ffmpeg.exe).Path
+          $source = Join-Path $env:RUNNER_TEMP 'homecam-source.mkv'
+          & $ffmpeg -nostdin -hide_banner -loglevel error -f lavfi -i 'testsrc=size=320x180:rate=10' -t 20 -c:v mpeg4 -y $source
+          if ($LASTEXITCODE -ne 0) { throw 'Testquelle fehlgeschlagen.' }
+          $testExe = Get-ChildItem tests/ToolbarRender/bin -Filter ToolbarRender.exe -Recurse | Select-Object -First 1
+          Copy-Item media-artifact/ffmpeg.exe $testExe.DirectoryName
+          Copy-Item media-artifact/mpv.exe $testExe.DirectoryName
+          $output = Join-Path $env:RUNNER_TEMP 'media-pre-roll'
+          dotnet run --no-build --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- --pre-roll-check $source $output
+          if ($LASTEXITCODE -ne 0) { throw 'Vorlaufprüfung fehlgeschlagen.' }
+          & $ffmpeg -nostdin -hide_banner -loglevel error -i (Join-Path $output 'pre-roll.mkv') -f null NUL
+          if ($LASTEXITCODE -ne 0) { throw 'Vorlaufaufnahme nicht lesbar.' }
+          dotnet run --no-build --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- --preview-check $source "${{ runner.temp }}/media-ui"
+          if ($LASTEXITCODE -ne 0) { throw 'Minimierte Vorschau fehlgeschlagen.' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HomeCam-Media-Windows-Pruefergebnisse
+          path: |
+            ${{ runner.temp }}/media-ui/
+            media-artifact/FFmpeg-license-report.txt
+          if-no-files-found: ignore
+
+      - name: Geprüfte Fremdbinaries und vollständige Lizenzunterlagen ins Prüfpaket übernehmen
+        shell: pwsh
+        run: |
+          .github/scripts/prepare-release-components.ps1
+          Copy-Item media-artifact/mpv.exe, media-artifact/ffmpeg.exe publish -Force
+          Copy-Item media-artifact/licenses publish/licenses/media-dependencies -Recurse -Force
+          Copy-Item media-artifact/source-inventory.json publish/licenses/source-inventory.json
+          foreach ($name in @('mpv', 'ffmpeg')) {
+            $arg = if ($name -eq 'mpv') { '--version' } else { '-version' }
+            $stdout = Join-Path $env:RUNNER_TEMP "$name-version.txt"
+            $stderr = Join-Path $env:RUNNER_TEMP "$name-version-errors.txt"
+            $process = Start-Process -FilePath (Resolve-Path "media-artifact/$name.exe").Path -ArgumentList $arg -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw "$name-Version konnte nicht gelesen werden." }
+            Get-Content $stdout, $stderr | Set-Content "publish/licenses/$name-version.txt"
+          }
+          Copy-Item media-artifact/FFmpeg-license-report.txt publish/licenses/FFmpeg-binary-license-report.txt -Force
+          Copy-Item media-artifact/licenses/ffmpeg/COPYING.GPLv3 publish/licenses/FFmpeg-binary-LICENSE.txt -Force
+          $lock = Get-Content third-party.lock.json -Raw | ConvertFrom-Json
+          foreach ($name in @('mpv', 'ffmpeg')) {
+            $lock.$name.url = 'GitHub Actions run ' + '${{ github.run_id }}'
+            $lock.$name.sha256 = (Get-FileHash "media-artifact/$name.exe").Hash.ToLowerInvariant()
+            $lock.$name | Add-Member -NotePropertyName license -NotePropertyValue 'GPL-3.0-or-later' -Force
+          }
+          $lock | ConvertTo-Json -Depth 10 | Set-Content publish/third-party.lock.json
+          @'
+          Dieses Prüfpaket verwendet die gemeinsam mit den Quellen selbst gebauten mpv-/FFmpeg-Binaries (GPLv3), nicht die zuvor geprüfte BtbN-LGPL-Variante.
+          Die vollständigen Dependency-Lizenztexte liegen unter licenses/media-dependencies.
+          Das zugehörige Quellenarchiv und Quelleninventar werden zusammen mit diesem Prüfpaket bereitgestellt.
+          Die abschließende Lizenzkompatibilitätsprüfung und Freigabe stehen noch aus.
+          '@ | Add-Content publish/THIRD-PARTY-NOTICES.md
+          .github/scripts/build-release-downloads.ps1 -ReviewOnly
+          Copy-Item media-artifact/HomeCam-Media-corresponding-source.tar.zst, media-artifact/source-inventory.json, media-artifact/SHA256SUMS.txt release-downloads
+          $setup = (Resolve-Path release-downloads/HomeCamMonitor-v1.0.0-Setup-Review.exe).Path
+          $check = Start-Process -FilePath $setup -ArgumentList '--verify-setup' -WindowStyle Hidden -Wait -PassThru
+          if ($check.ExitCode -ne 0) { throw 'Setup- oder Beta-Updateprüfung fehlgeschlagen.' }
+          .github/scripts/scan-downloads.ps1 -DownloadsDirectory release-downloads -ReportName HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
+          Get-ChildItem release-downloads -File | Where-Object Name -ne SHA256SUMS.txt |
+            ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName).Hash.ToLowerInvariant(), $_.Name } |
+            Set-Content release-downloads/SHA256SUMS.txt -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-v1.0.0-Pruefpaket-mit-Quellen
+          path: release-downloads/
+          compression-level: 0
+          retention-days: 30
