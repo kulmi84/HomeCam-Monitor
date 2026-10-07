@@ -88,3 +88,60 @@ jobs:
             ${{ runner.temp }}/media-ui/
             media-artifact/FFmpeg-license-report.txt
           if-no-files-found: ignore
+      - name: Geprüfte Fremdbinaries und vollständige Lizenzunterlagen ins Prüfpaket übernehmen
+        shell: pwsh
+        run: |
+          .github/scripts/prepare-release-components.ps1
+          Copy-Item media-artifact/mpv.exe, media-artifact/ffmpeg.exe publish -Force
+          Copy-Item media-artifact/licenses publish/licenses/media-dependencies -Recurse -Force
+          Copy-Item media-artifact/source-inventory.json publish/licenses/source-inventory.json
+          foreach ($name in @('mpv', 'ffmpeg')) {
+            $arg = if ($name -eq 'mpv') { '--version' } else { '-version' }
+            $stdout = Join-Path $env:RUNNER_TEMP "$name-version.txt"
+            $stderr = Join-Path $env:RUNNER_TEMP "$name-version-errors.txt"
+            $process = Start-Process -FilePath (Resolve-Path "media-artifact/$name.exe").Path -ArgumentList $arg -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw "$name-Version konnte nicht gelesen werden." }
+            Get-Content $stdout, $stderr | Set-Content "publish/licenses/$name-version.txt"
+          }
+          Copy-Item media-artifact/FFmpeg-license-report.txt publish/licenses/FFmpeg-binary-license-report.txt -Force
+          Copy-Item media-artifact/licenses/ffmpeg/COPYING.GPLv3 publish/licenses/FFmpeg-binary-LICENSE.txt -Force
+          $lock = Get-Content third-party.lock.json -Raw | ConvertFrom-Json
+          foreach ($name in @('mpv', 'ffmpeg')) {
+            $lock.$name.url = 'GitHub Actions run ' + '${{ github.run_id }}'
+            $lock.$name.version = (Get-Content "publish/licenses/$name-version.txt" | Select-Object -First 1)
+            $lock.$name.sha256 = (Get-FileHash "media-artifact/$name.exe").Hash.ToLowerInvariant()
+            $lock.$name | Add-Member -NotePropertyName license -NotePropertyValue 'GPL-3.0-or-later' -Force
+          }
+          $lock | ConvertTo-Json -Depth 10 | Set-Content publish/third-party.lock.json
+          @'
+          Dieses Prüfpaket verwendet die gemeinsam mit den Quellen selbst gebauten mpv-/FFmpeg-Binaries (GPLv3), nicht die zuvor geprüfte BtbN-LGPL-Variante.
+          Die vollständigen Dependency-Lizenztexte liegen unter licenses/media-dependencies.
+          Das zugehörige Quellenarchiv und Quelleninventar werden zusammen mit diesem Prüfpaket bereitgestellt.
+          Die abschließende Lizenzkompatibilitätsprüfung und Freigabe stehen noch aus.
+          '@ | Add-Content publish/THIRD-PARTY-NOTICES.md
+          .github/scripts/build-release-downloads.ps1 -ReviewOnly
+          Copy-Item media-artifact/HomeCam-Media-corresponding-source.tar.zst, media-artifact/source-inventory.json, media-artifact/SHA256SUMS.txt release-downloads
+          $setup = (Resolve-Path release-downloads/HomeCamMonitor-v1.0.0-Setup-Review.exe).Path
+          $check = Start-Process -FilePath $setup -ArgumentList '--verify-setup' -WindowStyle Hidden -Wait -PassThru
+          if ($check.ExitCode -ne 0) { throw 'Setup- oder Beta-Updateprüfung fehlgeschlagen.' }
+          .github/scripts/scan-downloads.ps1 -DownloadsDirectory release-downloads -ReportName HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
+          Get-ChildItem release-downloads -File | Where-Object Name -ne SHA256SUMS.txt |
+            ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName).Hash.ToLowerInvariant(), $_.Name } |
+            Set-Content release-downloads/SHA256SUMS.txt -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-v1.0.0-Pruefpaket-mit-Quellen
+          path: release-downloads/
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCam-Media-Lizenznachweise
+          path: |
+            media-artifact/licenses/
+            media-artifact/source-inventory.json
+            media-artifact/SHA256SUMS.txt
+            publish/licenses/*version.txt
+            media-artifact/FFmpeg-license-report.txt
+            release-downloads/HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
+            release-downloads/SHA256SUMS.txt
