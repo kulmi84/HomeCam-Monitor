@@ -95,6 +95,27 @@ jobs:
           Copy-Item media-artifact/mpv.exe, media-artifact/ffmpeg.exe publish -Force
           Copy-Item media-artifact/licenses publish/licenses/media-dependencies -Recurse -Force
           Copy-Item media-artifact/source-inventory.json publish/licenses/source-inventory.json
+          # These actual-source license texts do not use the generic LICENSE prefix.
+          $extraLicenses = @(
+            'freetype2/docs/FTL.TXT', 'freetype2/docs/GPLv2.TXT',
+            'freetype2/src/bdf/README', 'freetype2/src/pcf/README',
+            'libjpeg/README.ijg', 'aom/PATENTS', 'libvpx/PATENTS', 'libjxl/PATENTS'
+          )
+          $licenseExtract = Join-Path $env:RUNNER_TEMP 'homecam-license-extract'
+          New-Item -ItemType Directory -Force -Path $licenseExtract | Out-Null
+          $archiveEntries = @($extraLicenses | ForEach-Object { 'src_packages/' + $_ })
+          & tar -xf media-artifact/HomeCam-Media-corresponding-source.tar.zst -C $licenseExtract @archiveEntries
+          if ($LASTEXITCODE -ne 0) { throw 'Ergänzende Lizenztexte konnten nicht aus den tatsächlichen Quellen gelesen werden.' }
+          $extraEvidence = @()
+          foreach ($relative in $extraLicenses) {
+            $sourceFile = Join-Path $licenseExtract ('src_packages/' + $relative)
+            $licenseFile = Join-Path publish/licenses/media-dependencies $relative
+            if (-not (Test-Path -LiteralPath $sourceFile)) { throw "Lizenztext fehlt: $relative" }
+            New-Item -ItemType Directory -Force -Path (Split-Path $licenseFile -Parent) | Out-Null
+            Copy-Item -LiteralPath $sourceFile -Destination $licenseFile
+            $extraEvidence += @{ path = $relative; sha256 = (Get-FileHash -LiteralPath $licenseFile).Hash.ToLowerInvariant() }
+          }
+          $extraEvidence | ConvertTo-Json -Depth 5 | Set-Content publish/licenses/supplemental-licenses.json
           foreach ($name in @('mpv', 'ffmpeg')) {
             $arg = if ($name -eq 'mpv') { '--version' } else { '-version' }
             $stdout = Join-Path $env:RUNNER_TEMP "$name-version.txt"
@@ -146,6 +167,8 @@ jobs:
             media-artifact/source-inventory.json
             media-artifact/SHA256SUMS.txt
             publish/licenses/*version.txt
+            publish/licenses/media-dependencies/
+            publish/licenses/supplemental-licenses.json
             media-artifact/FFmpeg-license-report.txt
             release-downloads/HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
             release-downloads/SHA256SUMS.txt
