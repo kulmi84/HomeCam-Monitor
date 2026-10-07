@@ -52,7 +52,7 @@ jobs:
               for prefix in ('https://ftp.gnu.org/pub/gnu/', 'https://ftp.gnu.org/gnu/'):
                   s = s.replace(prefix, 'https://mirrors.kernel.org/gnu/')
               p.write_text(s)
-          for project, revision in [('mpv', '6c092d978b'), ('ffmpeg', 'a35c879992')]:
+          for project, revision in [('mpv', '6c092d978b'), ('ffmpeg', 'a35c879992'), ('curl', '318bd978ea2d36ace36b42da2174b79c3abd89a3')]:
               p = Path(f'packages/{project}.cmake')
               s = p.read_text().replace('SOURCE_DIR ${SOURCE_LOCATION}', f'GIT_TAG {revision}\n    GIT_RESET {revision}\n    ' + 'SOURCE_DIR ${SOURCE_LOCATION}')
               p.write_text(s)
@@ -72,6 +72,7 @@ jobs:
           # Upstream excludes curl from the aggregate download target.
           # Fetch it explicitly before applying our source corrections.
           ninja -C build curl-download
+          git -C src_packages/curl checkout 318bd978ea2d36ace36b42da2174b79c3abd89a3
           git -C src_packages/curl sparse-checkout disable
           git -C src_packages/mpv checkout 6c092d978b
           git -C src_packages/ffmpeg checkout a35c879992
