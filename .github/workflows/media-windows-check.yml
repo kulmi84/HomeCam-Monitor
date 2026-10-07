@@ -106,8 +106,11 @@ jobs:
           Copy-Item media-artifact/FFmpeg-license-report.txt publish/licenses/FFmpeg-binary-license-report.txt -Force
           Copy-Item media-artifact/licenses/ffmpeg/COPYING.GPLv3 publish/licenses/FFmpeg-binary-LICENSE.txt -Force
           $lock = Get-Content third-party.lock.json -Raw | ConvertFrom-Json
+          $builtInventory = Get-Content media-artifact/source-inventory.json -Raw | ConvertFrom-Json
           foreach ($name in @('mpv', 'ffmpeg')) {
-            $lock.$name.url = 'GitHub Actions run ' + '${{ github.run_id }}'
+            $lock.$name.url = 'https://github.com/kulmi84/HomeCam-Monitor/actions/runs/${{ steps.media.outputs.run_id }}'
+            $lock.$name.buildRevision = $builtInventory.buildSystemRevision
+            $lock.$name.sourceRevision = ($builtInventory.dependencies | Where-Object path -eq "src_packages/$name").revision
             $lock.$name.version = (Get-Content "publish/licenses/$name-version.txt" | Select-Object -First 1)
             $lock.$name.sha256 = (Get-FileHash "media-artifact/$name.exe").Hash.ToLowerInvariant()
             $lock.$name | Add-Member -NotePropertyName license -NotePropertyValue 'GPL-3.0-or-later' -Force
