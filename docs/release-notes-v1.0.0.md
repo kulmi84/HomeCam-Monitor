@@ -22,4 +22,4 @@ mpv, FFmpeg und andere Fremdkomponenten behalten ihre eigenen Lizenzen und Recht
 
 Free Windows IP camera viewer / RTSP camera monitor with snapshots, video recording and optional Home Assistant integration.
 
-Dieser Text ist für den Release vorbereitet. Veröffentlichung und dauerhafte Bereitstellung sämtlicher Quellen-Assets erfolgen erst nach der abschließenden Freigabe.
+Veröffentlichung am 08.10.2026 freigegeben. Die abschließenden Windows-, Setup-, Medien- und Defender-Prüfungen haben bestanden.

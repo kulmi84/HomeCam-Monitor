@@ -73,3 +73,14 @@ Die technische Fremdquellen- und Lizenzprüfung ist in [third-party-release-audi
 Der Paketworkflow bereitet jetzt final benannte Dateien nur für den exakt geprüften Quellen-/Binary-Satz vor. Installer, portable ZIP sowie Quellen und Prüfsummen stehen als getrennte Downloads bereit, sobald der abschließende Paketlauf erfolgreich ist. Marcin hat Installation und korrigiertes Icon des vorherigen Pakets bestätigt. Anwendungscode und Icon werden durch diese Paketänderung nicht verändert.
 
 Öffentliche Veröffentlichung, Tag und Merge bleiben ausstehend. PR #2 zielt jetzt auf main. Dessen Dokumentationshistorie wurde im Prüfbranch ohne Änderung des Dateistands berücksichtigt; die spätere Übernahme ist konfliktfrei vorbereitet. Die Quellen werden beim offiziellen Release dauerhaft als separate Assets angeboten.
+## Veröffentlichungsfreigabe vom 08.10.2026
+
+Marcin hat die Übernahme nach main und Veröffentlichung ausdrücklich genehmigt. Alle abschließenden Läufe für Paketcommit e84f3ed54ca7192bf9a4a380afd82d1e8013da20 sind erfolgreich:
+
+- [Windows-Paketprüfung 37735725449](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37735725449): Installer, Beta-Upgrade, Oberfläche, Vorlauf, minimierte Vorschau, vollständige Lizenztexte und Defender (Exitcode 0, keine Bedrohungen).
+- [Release-Prüfung 37735725672](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37735725672).
+- [Windows-Build 37735730109](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37735730109).
+
+Die finalen Downloads stammen unverändert aus diesem Paketlauf. Spätere Änderungen betreffen ausschließlich Veröffentlichungsdatum und offizielle Links. Installer-SHA-256: 96aef4ae903dae1cd8913aae9b64dce4688ab61bb0ebfd0f567a39286edae418. Portable-SHA-256: 674a49e9cbebae979d8c74321e36d71bf869aa4ddcaf452e5a4f770682134463.
+
+Offizielle Downloadseite: https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v1.0.0. Quellenarchiv, Inventar, Quellenmanifest und Prüfsummen werden dort zusammen mit den Binaries dauerhaft angeboten. Die früheren Abschnitte dokumentieren die Vorbereitung und deren damalige offene Punkte.

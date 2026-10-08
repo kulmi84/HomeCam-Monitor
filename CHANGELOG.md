@@ -1,8 +1,8 @@
 # Changelog
 
-## V1.0.0 – vorbereitet, noch nicht veröffentlicht
+## V1.0.0 – 08.10.2026
 
-Basis des festgelegten Funktionsumfangs: `0.5.0-beta.22`, Commit `7041045392c17e8677bee127b3a76e1b8a9b1cfb`. Der erfolgreiche Windows-Build ist [hier dokumentiert](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37339036318). Ein Veröffentlichungsdatum wird erst nach Freigabe eingetragen.
+Basis des festgelegten Funktionsumfangs: `0.5.0-beta.22`, Commit `7041045392c17e8677bee127b3a76e1b8a9b1cfb`. Der erfolgreiche Windows-Build ist [hier dokumentiert](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37339036318). Veröffentlichung am 08.10.2026 durch Marcin freigegeben.
 
 ### Enthaltener Funktionsumfang
 
@@ -28,4 +28,4 @@ Basis des festgelegten Funktionsumfangs: `0.5.0-beta.22`, Commit `7041045392c17e
 - Finaler Paketbau ist an den geprüften Quellen-Build und dessen exakte Binary-/Quellenprüfsummen gebunden; Installer, portable Version und Quellen werden getrennt angeboten.
 - Windows-Prüflauf für V1.0.0 erfolgreich; eigener Fremdquellen-Build ergänzt.
 
-V1.0.0 ist erst nach Abschluss der [Release-Prüfliste](docs/release-v1.0.0.md) freigegeben. Neue Funktionen gehören in die V2/Beta-Linie. Frühere Beta-Änderungen bleiben in der [README](README.md#historische-beta-dokumentation-und-entwicklung) erhalten.
+Die abschließenden Prüfungen sind in der [Release-Prüfliste](docs/release-v1.0.0.md) dokumentiert; Marcin hat die Veröffentlichung freigegeben. Neue Funktionen gehören in die V2/Beta-Linie. Frühere Beta-Änderungen bleiben in der [README](README.md#historische-beta-dokumentation-und-entwicklung) erhalten.
