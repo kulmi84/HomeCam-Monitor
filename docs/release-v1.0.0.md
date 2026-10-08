@@ -72,4 +72,4 @@ Die technische Fremdquellen- und Lizenzprüfung ist in [third-party-release-audi
 
 Der Paketworkflow bereitet jetzt final benannte Dateien nur für den exakt geprüften Quellen-/Binary-Satz vor. Installer, portable ZIP sowie Quellen und Prüfsummen stehen als getrennte Downloads bereit, sobald der abschließende Paketlauf erfolgreich ist. Marcin hat Installation und korrigiertes Icon des vorherigen Pakets bestätigt. Anwendungscode und Icon werden durch diese Paketänderung nicht verändert.
 
-Öffentliche Veröffentlichung, Tag und Merge bleiben ausstehend. PR #2 basiert weiterhin auf dem Beta-Branch; vor dem Übernehmen nach main muss dieser Branch-Zusammenhang berücksichtigt werden. Die Quellen werden beim offiziellen Release dauerhaft als separate Assets angeboten.
+Öffentliche Veröffentlichung, Tag und Merge bleiben ausstehend. PR #2 zielt jetzt auf main. Dessen Dokumentationshistorie wurde im Prüfbranch ohne Änderung des Dateistands berücksichtigt; die spätere Übernahme ist konfliktfrei vorbereitet. Die Quellen werden beim offiziellen Release dauerhaft als separate Assets angeboten.

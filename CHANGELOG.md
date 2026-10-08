@@ -20,12 +20,12 @@ Basis des festgelegten Funktionsumfangs: `0.5.0-beta.22`, Commit `7041045392c17e
 
 - README und ergänzende Anleitung auf den vorgesehenen V1.0.0-Funktionsstand ausgerichtet.
 - Vorbereiteten proprietären Lizenzentwurf mit abgestimmter Zustimmungspflicht für Paketweitergabe übernommen; Rechteinhaber: Marcin Kulmaczewski.
-- Fremdkomponenten und noch fehlende Lizenz-/Quellennachweise dokumentiert.
-- Stable-Projekt übernimmt den vollständigen Beta-22-Funktionsumfang mit Version 1.0.0, neutraler Produktbezeichnung und Stable-Icon.
+- Selbst gebaute mpv-/FFmpeg-Binaries mit tatsächlichen Quellen, Abhängigkeiten, Buildrezepten und vollständigen gesammelten Lizenzhinweisen dokumentiert.
+- Stable-Projekt übernimmt den vollständigen Beta-22-Funktionsumfang mit Version 1.0.0, neutraler Produktbezeichnung und unverändertem Originalicon aus der Beta.
 - Neuer V1-Installer erkennt Beta-Installationen und berücksichtigt bestehende Installationslisten; Einstellungen und eigene Dateien bleiben erhalten.
 - Persönliche HA-Standardadresse durch leere Vorgabe ersetzt; vorhandene Konfigurationen behalten ihre Werte.
 - Feste Fremdkomponenten-Downloads, Versions-/Prüfsummenprüfung, Runtime-Lizenzunterlagen, Lizenzanzeige im Setup und SHA-256-Paketmanifest ergänzt.
-- Finaler Paketbau bleibt bis zur Prüfung vollständiger korrespondierender Quellen gesperrt.
+- Finaler Paketbau ist an den geprüften Quellen-Build und dessen exakte Binary-/Quellenprüfsummen gebunden; Installer, portable Version und Quellen werden getrennt angeboten.
 - Windows-Prüflauf für V1.0.0 erfolgreich; eigener Fremdquellen-Build ergänzt.
 
 V1.0.0 ist erst nach Abschluss der [Release-Prüfliste](docs/release-v1.0.0.md) freigegeben. Neue Funktionen gehören in die V2/Beta-Linie. Frühere Beta-Änderungen bleiben in der [README](README.md#historische-beta-dokumentation-und-entwicklung) erhalten.
