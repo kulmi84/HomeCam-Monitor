@@ -17,7 +17,7 @@ if (-not $ReviewOnly) {
         -not $manifest.includesAllDependencies -or -not $manifest.includesBuildScripts -or
         -not $manifest.archives) { throw 'Quellennachweise sind unvollständig oder passen nicht zu den Binaries.' }
     foreach ($archive in $manifest.archives) {
-        if ([IO.Path]::IsPathRooted($archive.path) -or $archive.path.Split('/', '\') -contains '..') {
+        if ([IO.Path]::IsPathRooted($archive.path) -or ($archive.path -split '[/\\]') -contains '..') {
             throw 'Quellenpaket muss innerhalb des Repository-Arbeitsordners liegen.'
         }
         $source = Join-Path $root $archive.path
