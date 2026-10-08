@@ -6,12 +6,372 @@ namespace ToolbarRender;
 
 internal static class Program
 {
+    private static async Task CheckMotionFocusAsync(MonitorForm monitor, Settings settings)
+    {
+        const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        settings.MotionDetectionEnabled = true; settings.AlwaysOnTop = false; settings.MinimizeWhenInactive = false;
+        using var editor = new Form { Text = "Typing focus fixture", Width = 300, Height = 180, StartPosition = FormStartPosition.Manual,
+            Location = new Point(10, 10) };
+        using var text = new TextBox { Dock = DockStyle.Fill, Multiline = true };
+        editor.Controls.Add(text); editor.Show();
+        NativeMethods.SetForegroundWindow(editor.Handle); text.Focus();
+        if (NativeMethods.GetForegroundWindow() != editor.Handle || NativeMethods.GetFocus() != text.Handle)
+            throw new InvalidOperationException("Focus fixture could not acquire keyboard focus.");
+        var activations = 0;
+        monitor.Activated += (_, _) => activations++;
+        foreach (var minimized in new[] { false, true })
+        {
+            if (minimized) monitor.MinimizeWindow();
+            for (var repeat = 0; repeat < 2; repeat++)
+            {
+                typeof(MonitorForm).GetMethod("HandleMotion", hidden)!.Invoke(monitor, new object[] { "Vorschau-Test" });
+                await Task.Delay(200);
+                if (NativeMethods.GetForegroundWindow() != editor.Handle || NativeMethods.GetFocus() != text.Handle || activations != 0)
+                    throw new InvalidOperationException($"Motion interrupted typing (minimized={minimized}, activations={activations}).");
+                if (monitor.WindowState != FormWindowState.Normal || (NativeMethods.GetWindowStyle(monitor.Handle, -20) & 8) == 0)
+                    throw new InvalidOperationException("Motion no longer displays the camera above other windows.");
+                NativeMethods.SendMessage(NativeMethods.GetFocus(), 0x0102, (IntPtr)'x', IntPtr.Zero);
+            }
+            // Expiry must leave the currently used application active, even if
+            // the user switched to a different editor after the motion event.
+            using var other = new Form { Text = "Different application fixture", Width = 200, Height = 120 };
+            other.Show(); NativeMethods.SetForegroundWindow(other.Handle);
+            typeof(MonitorForm).GetMethod("SendToBackground", hidden)!.Invoke(monitor, null);
+            await Task.Delay(100);
+            if (NativeMethods.GetForegroundWindow() != other.Handle)
+                throw new InvalidOperationException("Motion expiry reactivated the previously used application.");
+            NativeMethods.SetForegroundWindow(editor.Handle); text.Focus();
+        }
+        if (text.Text != "xxxx") throw new InvalidOperationException("Typing did not reach the original editor.");
+        NativeMethods.SetForegroundWindow(monitor.Handle);
+        if (NativeMethods.GetForegroundWindow() != monitor.Handle)
+            throw new InvalidOperationException("The monitor can no longer be activated manually.");
+    }
+
     [STAThread]
     private static void Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--pre-roll-check")
+        {
+            Task.Run(async () =>
+            {
+                var source = args[1]; var output = args[2]; Directory.CreateDirectory(output);
+                using var buffer = new MotionPreRoll(source);
+                await Task.Delay(8000);
+                var trigger = DateTime.UtcNow;
+                var snapshot = Path.Combine(output, "pre-roll.png");
+                if (!await buffer.CaptureAsync(trigger, 3, 0, snapshot, true))
+                    throw new InvalidOperationException("Snapshot pre-roll buffer did not warm up.");
+                using var img = Image.FromFile(snapshot);
+                if (img.Width != 320 || img.Height != 180) throw new InvalidOperationException("Buffered snapshot is invalid.");
+                if (!await buffer.CaptureAsync(trigger, 3, 2, Path.Combine(output, "pre-roll.mkv"), false))
+                    throw new InvalidOperationException("Video pre-roll buffer is missing.");
+                if (new FileInfo(Path.Combine(output, "pre-roll.mkv")).Length < 4096)
+                    throw new InvalidOperationException("Buffered video is empty.");
+            }).GetAwaiter().GetResult();
+            return;
+        }
+        if (args.Length > 0 && args[0] == "--preview-check")
+        {
+            ApplicationConfiguration.Initialize();
+            var previewSettings = new Settings { StartBehavior = "Minimized", MotionDetectionEnabled = false,
+                Width = 640, Height = 360, Cameras = [new CameraEntry { Name = "Vorschau-Test", StreamUrl = new Uri(Path.GetFullPath(args[1])).AbsoluteUri }] };
+            using var previewMonitor = new MonitorForm(previewSettings);
+            using var checkTimer = new System.Windows.Forms.Timer { Interval = 500 };
+            var attempts = 0; var checking = false; Exception? failure = null;
+            checkTimer.Tick += async (_, _) =>
+            {
+                if (checking) return;
+                checking = true;
+                try
+                {
+                    const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                    if (previewMonitor.WindowState != FormWindowState.Minimized)
+                        throw new InvalidOperationException("Preview restored the startup window.");
+                    var capture = (Task<Bitmap?>)typeof(MonitorForm).GetMethod("CaptureStartupPreviewAsync", hidden)!
+                        .Invoke(previewMonitor, new object[] { CancellationToken.None })!;
+                    using var bitmap = await capture;
+                    if (bitmap is null && ++attempts < 20) return;
+                    if (bitmap is null) throw new InvalidOperationException("Minimized mpv startup produced no preview frame.");
+                    Directory.CreateDirectory(args[2]);
+                    bitmap.Save(Path.Combine(args[2], "taskbar-stream-preview.png"));
+                    if (bitmap.Width < 100 || bitmap.Height < 50) throw new InvalidOperationException("Stream preview is too small.");
+                    using var scaled = TaskbarPreview.Scale(bitmap, new Size(211, 117));
+                    if (scaled.Width > 211 || scaled.Height > 117 || scaled.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                        throw new InvalidOperationException("Taskbar thumbnail does not obey DWM bitmap constraints.");
+                    NativeMethods.SendMessage(previewMonitor.Handle, TaskbarPreview.ThumbnailMessage, IntPtr.Zero, (IntPtr)((211 << 16) | 117));
+                    if (previewMonitor.WindowState != FormWindowState.Minimized)
+                        throw new InvalidOperationException("DWM preview request showed the monitor.");
+                    var provider = (TaskbarPreview?)typeof(MonitorForm).GetField("startupTaskbarPreview", hidden)!.GetValue(previewMonitor);
+                    if (provider is null || !provider.IsRegistered) throw new InvalidOperationException("Minimized startup did not register a preview provider with DWM.");
+                    // This SendMessage tests our callback, not a compositor request.
+                    // DWM validates bitmaps against its own most recent size request,
+                    // which cannot be manufactured by sending a Windows message.
+                    var nativeBitmap = TaskbarPreview.CreateDib(scaled);
+                    try
+                    {
+                        using var nativeImage = Image.FromHbitmap(nativeBitmap);
+                        if (nativeImage.Width != scaled.Width || nativeImage.Height != scaled.Height)
+                            throw new InvalidOperationException("Native preview bitmap lost its dimensions.");
+                    }
+                    finally { NativeMethods.DeleteObject(nativeBitmap); }
+                    previewMonitor.WindowState = FormWindowState.Normal;
+                    Application.DoEvents();
+                    if (typeof(MonitorForm).GetField("startupTaskbarPreview", hidden)!.GetValue(previewMonitor) is not null)
+                        throw new InvalidOperationException("Normal restore did not return to native Windows previews.");
+                    await CheckMotionFocusAsync(previewMonitor, previewSettings);
+                    checkTimer.Stop(); previewMonitor.Close();
+                }
+                catch (Exception exception) { failure = exception; checkTimer.Stop(); previewMonitor.Close(); }
+                finally { checking = false; }
+            };
+            previewMonitor.Shown += (_, _) => checkTimer.Start();
+            Application.Run(previewMonitor);
+            if (failure is not null) throw failure;
+            if (attempts == 0 && !File.Exists(Path.Combine(args[2], "taskbar-stream-preview.png")))
+                throw new InvalidOperationException("Preview test closed without producing a frame.");
+            return;
+        }
         ApplicationConfiguration.Initialize();
+        var preparationFixture = new Settings { Cameras = [new CameraEntry { Name = "Fixture", StreamUrl = "rtsp://127.0.0.1/Test" }] };
+        var fingerprint = SettingsForm.GetDisplayFingerprint(preparationFixture);
+        preparationFixture.SelectedCamera = 1; preparationFixture.Left = 600;
+        if (SettingsForm.GetDisplayFingerprint(preparationFixture) != fingerprint)
+            throw new InvalidOperationException("Runtime camera/window changes invalidate prepared settings unnecessarily.");
+        preparationFixture.SnapshotPreRollSeconds = 3;
+        if (SettingsForm.GetDisplayFingerprint(preparationFixture) == fingerprint)
+            throw new InvalidOperationException("Changed settings would use a stale prepared dialog.");
+        using (var editor = new Form())
+        using (var prepared = new SettingsForm(preparationFixture))
+        {
+            editor.Show(); NativeMethods.SetForegroundWindow(editor.Handle);
+            prepared.PrepareForDisplay();
+            if (prepared.Visible || NativeMethods.GetForegroundWindow() != editor.Handle)
+                throw new InvalidOperationException("Hidden settings preparation shows or activates a window.");
+            var readyTimer = System.Diagnostics.Stopwatch.StartNew();
+            prepared.Show(); Application.DoEvents();
+            readyTimer.Stop();
+            Console.WriteLine($"Prepared settings display: {readyTimer.ElapsedMilliseconds} ms");
+        }
+        var backupFixture = SettingsStore.CreateForNewInstallation();
+        backupFixture.Cameras.Add(new CameraEntry { Name = "Testkamera", StreamUrl = "rtsp://127.0.0.1/Test", MotionEnabled = true, PersonEnabled = true,
+            MotionEntityId = "binary_sensor.test_motion", PersonEntityId = "binary_sensor.test_person", MotionAction = "Both", MotionVideoSeconds = 60 });
+        backupFixture.HomeAssistantToken = "test-token";
+        backupFixture.ManualSnapshotFolder = Path.Combine(Path.GetTempPath(), "manual photos");
+        backupFixture.MotionVideoFolder = @"\\nas\share\motion";
+        backupFixture.MotionRetentionDays = 14;
+        backupFixture.SnapshotPreRollSeconds = 3;
+        var resetFixture = System.Text.Json.JsonSerializer.Deserialize<Settings>(System.Text.Json.JsonSerializer.Serialize(backupFixture))!;
+        resetFixture.Left = 875; resetFixture.Top = 324; resetFixture.Width = 750;
+        resetFixture.ToolbarSizePercent = 60; resetFixture.StartWithWindows = true;
+        resetFixture.LastGridMode = true; resetFixture.StartBehavior = "Grid";
+        var beforeReset = System.Text.Json.JsonSerializer.Serialize(resetFixture);
+        var windowReset = SettingsReset.Apply(resetFixture, SettingsResetScope.Window);
+        if (windowReset.Left != -1 || windowReset.Width != 480 || windowReset.Cameras.Count != 1 ||
+            windowReset.HomeAssistantToken != "test-token" || windowReset.ToolbarSizePercent != 60 || !windowReset.LastGridMode)
+            throw new InvalidOperationException("Window reset changed unrelated settings.");
+        var displayReset = SettingsReset.Apply(resetFixture, SettingsResetScope.Display);
+        if (displayReset.ToolbarSizePercent != 90 || displayReset.StartWithWindows || displayReset.Left != 875 ||
+            displayReset.HomeAssistantToken != "test-token" || displayReset.Cameras.Count != 1 || displayReset.SnapshotPreRollSeconds != 3)
+            throw new InvalidOperationException("Display reset changed cameras, window or capture settings.");
+        var cameraReset = SettingsReset.Apply(resetFixture, SettingsResetScope.Cameras);
+        if (cameraReset.Cameras.Count != 0 || cameraReset.HomeAssistantToken != "" || cameraReset.LastGridMode ||
+            cameraReset.StartBehavior != "Last" || cameraReset.Left != 875 || cameraReset.ToolbarSizePercent != 60 ||
+            cameraReset.MotionVideoFolder != resetFixture.MotionVideoFolder)
+            throw new InvalidOperationException("Camera reset lost unrelated settings or retained credentials.");
+        var allReset = SettingsReset.Apply(resetFixture, SettingsResetScope.All);
+        if (System.Text.Json.JsonSerializer.Serialize(allReset) != System.Text.Json.JsonSerializer.Serialize(SettingsStore.CreateForNewInstallation()) ||
+            System.Text.Json.JsonSerializer.Serialize(resetFixture) != beforeReset)
+            throw new InvalidOperationException("Reset mutated existing settings or did not restore installation defaults.");
+        displayReset.Cameras[0].Name = "Changed";
+        if (resetFixture.Cameras[0].Name != "Testkamera") throw new InvalidOperationException("Reset shares mutable camera entries.");
+        var privateFixture = System.Text.Json.JsonSerializer.Deserialize<Settings>(beforeReset)!;
+        privateFixture.HomeAssistantUrl = "https://hauser:hapassword@192.0.2.1:8123/secret-ha-path?token=ha-query#ha-fragment";
+        privateFixture.Cameras[0].StreamUrl = "rtsp://camuser:cam%40password@192.0.2.2:8554/secret-camera-path?password=query-secret#camera-fragment";
+        privateFixture.Cameras[0].Name = "private-camera-name";
+        var telemetry = new StreamDiagnostics();
+        for (var i = 0; i < 250; i++) telemetry.Record(0, "manual-reconnect");
+        telemetry.Record(0, "start-failed");
+        var diagnostic = DiagnosticExport.Serialize(privateFixture, telemetry.Snapshot(), new { GridMode = false });
+        foreach (var secret in new[] { "test-token", "hauser", "hapassword", "secret-ha-path", "ha-query", "ha-fragment", "camuser", "cam%40password", "cam@password", "secret-camera-path", "query-secret", "camera-fragment", "private-camera-name", "manual photos", "nas", "share" })
+            if (diagnostic.Contains(secret, StringComparison.Ordinal)) throw new InvalidOperationException("Diagnostic export leaked private configuration: " + secret);
+        using (var report = System.Text.Json.JsonDocument.Parse(diagnostic))
+        {
+            var root = report.RootElement;
+            if (root.GetProperty("Streams").GetProperty("Events").GetArrayLength() != 200 ||
+                root.GetProperty("Streams").GetProperty("Counts").GetProperty("manual-reconnect").GetInt32() != 250 ||
+                root.GetProperty("Cameras")[0].GetProperty("StreamAddress").GetString() != "rtsp://192.0.2.2:8554" ||
+                root.GetProperty("HomeAssistantAddress").GetString() != "https://192.0.2.1:8123")
+                throw new InvalidOperationException("Diagnostic history bounds or safe address export failed.");
+        }
+        if (DiagnosticExport.SafeAddress("invalid private text").Contains("private") ||
+            DiagnosticExport.SafeAddress("file:///C:/private/video.mp4").Contains("private"))
+            throw new InvalidOperationException("Invalid or file addresses leaked text.");
+        Console.WriteLine("Selective reset, deep copy, diagnostic credential removal and bounded stream history passed.");
+        var roundtrip = SettingsBackup.Parse(SettingsBackup.Serialize(backupFixture));
+        if (System.Text.Json.JsonSerializer.Serialize(roundtrip) != System.Text.Json.JsonSerializer.Serialize(backupFixture))
+            throw new InvalidOperationException("Backup round trip changed configuration fields.");
+        var legacySettings = SettingsBackup.Parse(System.Text.Json.JsonSerializer.Serialize(backupFixture));
+        if (legacySettings.Cameras[0].PersonEntityId != "binary_sensor.test_person" || legacySettings.HomeAssistantToken != "test-token")
+            throw new InvalidOperationException("Existing settings.json import lost camera/token configuration.");
+        foreach (var invalid in new[] { "{}", "[]", "{\"Cameras\":null}", "{\"Cameras\":[null]}",
+            "{\"Format\":\"Other\",\"Version\":1,\"Settings\":{\"Cameras\":[]}}", "{\"Cameras\":[],\"ToolbarSizePercent\":10000}" })
+        {
+            var rejected = false;
+            try { SettingsBackup.Parse(invalid); } catch { rejected = true; }
+            if (!rejected) throw new InvalidOperationException("Invalid backup was accepted.");
+        }
+        if (SettingsBackup.Parse(SettingsBackup.Serialize(SettingsStore.CreateForNewInstallation())).Cameras.Count != 0)
+            throw new InvalidOperationException("Empty-camera backup cannot be restored.");
+        if (RecordingStorage.Resolve("", RecordingStorage.ManualSnapshots) != RecordingStorage.ManualSnapshots)
+            throw new InvalidOperationException("Default snapshot storage changed.");
+        var storageTest = Path.Combine(Path.GetTempPath(), "HomeCam-Storage-Test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(storageTest);
+        try
+        {
+            var locationKey = @"Software\HomeCamMonitor-Test-" + Guid.NewGuid().ToString("N");
+            try
+            {
+                var oldSettingsFile = Path.Combine(storageTest, "source-settings.json");
+                var newSettingsFile = Path.Combine(storageTest, "new folder", "settings.json");
+                File.WriteAllText(oldSettingsFile, "original");
+                SettingsLocation.Relocate(oldSettingsFile, newSettingsFile, System.Text.Json.JsonSerializer.Serialize(backupFixture), () =>
+                {
+                    if (!File.Exists(oldSettingsFile) || !File.Exists(newSettingsFile)) throw new InvalidOperationException("Source removed before destination committed.");
+                    using var location = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(locationKey);
+                    location.SetValue("SettingsFolder", Path.GetDirectoryName(newSettingsFile)!);
+                }, false);
+                if (File.Exists(oldSettingsFile) || SettingsLocation.ReadFolder(locationKey) != Path.GetDirectoryName(newSettingsFile) ||
+                    SettingsBackup.Read(newSettingsFile).HomeAssistantToken != "test-token")
+                    throw new InvalidOperationException("Settings migration or persisted location did not survive reloading.");
+                var failedTarget = Path.Combine(storageTest, "failed", "settings.json");
+                Directory.CreateDirectory(Path.GetDirectoryName(failedTarget)!); File.WriteAllText(failedTarget, "existing target");
+                var failedAsExpected = false;
+                try { SettingsLocation.Relocate(newSettingsFile, failedTarget, "replacement", () => throw new IOException("test failure"), true); }
+                catch (IOException) { failedAsExpected = true; }
+                if (!failedAsExpected || !File.Exists(newSettingsFile) || File.ReadAllText(failedTarget) != "existing target" ||
+                    SettingsLocation.ReadFolder(locationKey) != Path.GetDirectoryName(newSettingsFile))
+                    throw new InvalidOperationException("Failed settings migration changed the original or target configuration.");
+            }
+            finally { Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree(locationKey, false); }
+            var backupFile = Path.Combine(storageTest, "settings-backup.json");
+            SettingsBackup.Write(backupFile, backupFixture);
+            if (SettingsBackup.Read(backupFile).MotionVideoFolder != backupFixture.MotionVideoFolder || Directory.GetFiles(storageTest, "*.tmp").Length != 0)
+                throw new InvalidOperationException("Backup file write/read did not preserve the storage path.");
+            var automaticCapture = Path.Combine(storageTest, "Test_2026-01-01_00-00-00-000_" + new string('a', 32) + ".png");
+            var manual = Path.Combine(storageTest, "Test_2026-01-01_00-00-00.png");
+            var foreign = Path.Combine(storageTest, "other.mkv");
+            foreach (var file in new[] { automaticCapture, manual, foreign }) { File.WriteAllText(file, "test"); File.SetLastWriteTimeUtc(file, DateTime.UtcNow.AddDays(-30)); }
+            var tracked = new HashSet<string> { automaticCapture, manual, foreign };
+            RecordingStorage.CleanupPaths(tracked, DateTime.UtcNow.AddDays(-7));
+            if (File.Exists(automaticCapture) || !File.Exists(manual) || !File.Exists(foreign))
+                throw new InvalidOperationException("Retention deleted manual/foreign recordings or missed automatic recordings.");
+        }
+        finally { Directory.Delete(storageTest, true); }
         var output = args.Length == 0 ? "toolbar-render" : args[0];
         Directory.CreateDirectory(output);
+        using (var videoHost = new Panel())
+        using (var nativeVideo = new Form { TopLevel = false, FormBorderStyle = FormBorderStyle.FixedSingle })
+        {
+            videoHost.Controls.Add(nativeVideo);
+            videoHost.CreateControl();
+            var nativeHandle = nativeVideo.Handle;
+            NativeMethods.PrepareVideoChildren(videoHost.Handle);
+            if ((NativeMethods.GetWindowStyle(nativeHandle, -16) & 0x00C40000) != 0)
+                throw new InvalidOperationException("Embedded video still has a native caption/border.");
+        }
+        var freshDefaults = SettingsStore.CreateForNewInstallation();
+        if (freshDefaults.AlwaysOnTop || freshDefaults.ToolbarSizePercent != 90 || !freshDefaults.AutoScaleToolbar ||
+            freshDefaults.ShowGridCameraNames || !freshDefaults.MinimizeWhenInactive || freshDefaults.MotionIndicatorSeconds != 1 ||
+            !freshDefaults.DirectHomeAssistantEnabled || freshDefaults.HomeAssistantUrl != "" ||
+            freshDefaults.Cameras.Count != 0 || freshDefaults.HomeAssistantToken.Length != 0 ||
+            freshDefaults.ShowEmptyFourthFieldBorder || !freshDefaults.ShowEmptyCameraLogo ||
+            freshDefaults.SnapshotPreRollSeconds != 0 || freshDefaults.VideoPreRollSeconds != 0)
+            throw new InvalidOperationException("Fresh-install defaults do not match the agreed settings.");
+        var existing = System.Text.Json.JsonSerializer.Deserialize<Settings>(
+            "{\"AlwaysOnTop\":true,\"ToolbarSizePercent\":75,\"HomeAssistantUrl\":\"http://existing:8123\"}")!;
+        if (!existing.AlwaysOnTop || existing.ToolbarSizePercent != 75 || existing.HomeAssistantUrl != "http://existing:8123")
+            throw new InvalidOperationException("Existing settings were overridden by fresh-install defaults.");
+        if (new Settings().SnapshotPreRollSeconds != 0 || new Settings().VideoPreRollSeconds != 0)
+            throw new InvalidOperationException("Pre-roll must be disabled by default.");
+        var segments = new[] { new MotionPreRoll.Segment("early", DateTime.UnixEpoch, DateTime.UnixEpoch.AddSeconds(1)),
+            new MotionPreRoll.Segment("later", DateTime.UnixEpoch.AddSeconds(1), DateTime.UnixEpoch.AddSeconds(2)) };
+        if (MotionPreRoll.SnapshotSegment(segments, DateTime.UnixEpoch.AddSeconds(0.5))?.Path != "early" ||
+            MotionPreRoll.SnapshotSegment(segments, DateTime.UnixEpoch.AddSeconds(-1)) is not null)
+            throw new InvalidOperationException("Pre-roll snapshot selection does not match the requested past time.");
+        var progress = new PlaybackProgress();
+        if (progress.Observe(1) || progress.Observe(1) || !progress.Observe(2) ||
+            progress.Observe(double.NaN) || progress.Observe(2) || !progress.Observe(0))
+            throw new InvalidOperationException("Playback progress incorrectly accepts stalled/invalid timestamps.");
+        foreach (var size in new[] { new Size(160, 90), new Size(480, 270), new Size(1920, 1080) })
+        {
+            using var placeholder = new CameraPlaceholderPanel { Size = size };
+            placeholder.Configure("Testkamera mit langem Namen");
+            placeholder.SetOffline();
+            using var bitmap = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(bitmap, new Rectangle(Point.Empty, size));
+            bitmap.Save(Path.Combine(output, $"offline-{size.Width}x{size.Height}.png"));
+            placeholder.SetEmpty(true);
+            using var emptyLogo = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(emptyLogo, new Rectangle(Point.Empty, size));
+            emptyLogo.Save(Path.Combine(output, $"empty-logo-{size.Width}x{size.Height}.png"));
+            placeholder.SetEmpty(false);
+            using var emptyBlack = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(emptyBlack, new Rectangle(Point.Empty, size));
+            for (var y = 0; y < size.Height; y++)
+                for (var x = 0; x < size.Width; x++)
+                    if (emptyBlack.GetPixel(x, y).ToArgb() != Color.Black.ToArgb())
+                        throw new InvalidOperationException("Empty camera field with logo disabled is not fully black.");
+            placeholder.SetEmpty(false, true);
+            using var borderedEmpty = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(borderedEmpty, new Rectangle(Point.Empty, size));
+            borderedEmpty.Save(Path.Combine(output, $"empty-border-{size.Width}x{size.Height}.png"));
+            if (borderedEmpty.GetPixel(size.Width - 2, size.Height / 2).R < 40 ||
+                borderedEmpty.GetPixel(size.Width / 2, size.Height - 2).R < 40)
+                throw new InvalidOperationException("Empty tile outside border is missing.");
+            if (borderedEmpty.GetPixel(2, size.Height / 2).ToArgb() != Color.Black.ToArgb() ||
+                borderedEmpty.GetPixel(size.Width / 2, 2).ToArgb() != Color.Black.ToArgb())
+                throw new InvalidOperationException("Empty tile border leaks onto interior grid edges.");
+            placeholder.SetEmpty(false, true, -1);
+            using var singleBorder = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(singleBorder, new Rectangle(Point.Empty, size));
+            singleBorder.Save(Path.Combine(output, $"empty-border-single-{size.Width}x{size.Height}.png"));
+            if (singleBorder.GetPixel(2, size.Height / 2).R < 40 ||
+                singleBorder.GetPixel(size.Width - 2, size.Height / 2).R < 40 ||
+                singleBorder.GetPixel(size.Width / 2, 2).R < 40 ||
+                singleBorder.GetPixel(size.Width / 2, size.Height - 2).R < 40)
+                throw new InvalidOperationException("Single empty field outside border is incomplete.");
+            placeholder.SuppressOuterBorder = true;
+            using var fullscreenEmpty = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(fullscreenEmpty, new Rectangle(Point.Empty, size));
+            for (var y = 0; y < size.Height; y++)
+                for (var x = 0; x < size.Width; x++)
+                    if (fullscreenEmpty.GetPixel(x, y).ToArgb() != Color.Black.ToArgb())
+                        throw new InvalidOperationException("Outside border is visible in fullscreen.");
+            placeholder.SuppressOuterBorder = false;
+            for (var gridIndex = 0; gridIndex < 4; gridIndex++)
+            {
+                placeholder.SetEmpty(false, true, gridIndex);
+                using var corner = new Bitmap(size.Width, size.Height);
+                placeholder.DrawToBitmap(corner, new Rectangle(Point.Empty, size));
+                corner.Save(Path.Combine(output, $"empty-border-slot-{gridIndex}-{size.Width}x{size.Height}.png"));
+                var outerX = gridIndex % 2 == 0 ? 2 : size.Width - 2;
+                var innerX = gridIndex % 2 == 0 ? size.Width - 2 : 2;
+                var outerY = gridIndex < 2 ? 2 : size.Height - 2;
+                var innerY = gridIndex < 2 ? size.Height - 2 : 2;
+                if (corner.GetPixel(outerX, size.Height / 2).R < 40 ||
+                    corner.GetPixel(size.Width / 2, outerY).R < 40 ||
+                    corner.GetPixel(innerX, size.Height / 2).ToArgb() != Color.Black.ToArgb() ||
+                    corner.GetPixel(size.Width / 2, innerY).ToArgb() != Color.Black.ToArgb())
+                    throw new InvalidOperationException("Empty tile border does not follow its outside grid edges.");
+            }
+            placeholder.Configure("Testkamera mit langem Namen");
+            placeholder.SetOffline();
+            using var offlineAfterBorder = new Bitmap(size.Width, size.Height);
+            placeholder.DrawToBitmap(offlineAfterBorder, new Rectangle(Point.Empty, size));
+            if (offlineAfterBorder.GetPixel(size.Width - 2, size.Height / 2).ToArgb() != Color.Black.ToArgb())
+                throw new InvalidOperationException("Empty tile border persists on a configured camera.");
+        }
 
         using var toolbar = new ToolbarForm(null!);
         toolbar.CameraName = "Einfahrt";
@@ -56,6 +416,23 @@ internal static class Program
         AssertSameImage(output, "live-50", "restart-50");
         AssertSameImage(output, "live-50", "hidden-then-50");
 
+        foreach (var size in new[] { new Size(180, 100), new Size(181, 101), new Size(752, 473) })
+        {
+            var tiles = MonitorForm.GetCameraGridBounds(size);
+            if (tiles.Length != 4 ||
+                tiles[0].Right != tiles[1].Left || tiles[2].Right != tiles[3].Left ||
+                tiles[0].Bottom != tiles[2].Top || tiles[1].Bottom != tiles[3].Top ||
+                tiles[0].Width != tiles[2].Width || tiles[1].Width != tiles[3].Width ||
+                tiles[0].Height != tiles[1].Height || tiles[2].Height != tiles[3].Height ||
+                tiles[1].Right != size.Width || tiles[3].Bottom != size.Height)
+                throw new InvalidOperationException($"Grid tiles do not meet at the same center for {size}");
+        }
+        var tileBorders = MonitorForm.GetGridMotionBorderBounds(new Size(180, 100));
+        if (tileBorders.Length != 4 ||
+            tileBorders.Any(border => border.Left < 2 || border.Top < 2 ||
+                border.Right > 178 || border.Bottom > 98))
+            throw new InvalidOperationException("Motion borders must stay inside their camera tile");
+
         var automatic = new Settings { AutoScaleToolbar = true, ToolbarSizePercent = 75 };
         foreach (var (width, expected) in new[] { (480, 100), (340, 100), (300, 87), (240, 68), (480, 100) })
         {
@@ -92,27 +469,280 @@ internal static class Program
         if (MonitorForm.RestoreWindowBounds(savedWindow, [displays[0]]) != new Rectangle(720, 385, 480, 270))
             throw new InvalidOperationException("Missing display did not fall back to the primary screen");
 
+        var minimizedSettings = new Settings { StartBehavior = "Minimized", Width = 640, Height = 360,
+            Cameras = [new CameraEntry { Name = "Testkamera", StreamUrl = "rtsp://127.0.0.1/Test" }] };
+        using (var minimized = new MonitorForm(minimizedSettings))
+        using (var startupToolbar = new ToolbarForm(minimized))
+        using (var startupDragSurface = new DragSurfaceForm(minimized))
+        {
+            const System.Reflection.BindingFlags privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var style = NativeMethods.GetWindowStyle(minimized.Handle, -16);
+            var showCommand = Convert.ToInt32(typeof(Form).GetProperty("ShowParams", privateInstance)!.GetValue(minimized));
+            if (minimized.Visible || minimized.WindowState != FormWindowState.Minimized || minimized.TopMost ||
+                (style & 0x20000000) == 0 || showCommand is not (2 or 7))
+                throw new InvalidOperationException("Minimized startup would first show a normal desktop window.");
+            typeof(MonitorForm).GetField("toolbar", privateInstance)!.SetValue(minimized, startupToolbar);
+            typeof(MonitorForm).GetField("dragSurface", privateInstance)!.SetValue(minimized, startupDragSurface);
+            typeof(MonitorForm).GetMethod("PositionOverlays", privateInstance)!.Invoke(minimized, null);
+            if (startupToolbar.Visible || startupDragSurface.Visible)
+                throw new InvalidOperationException("Minimized startup showed a toolbar or drag overlay.");
+            var expectedBounds = MonitorForm.RestoreWindowBounds(minimizedSettings,
+                Screen.AllScreens.Select(screen => (screen.DeviceName, screen.WorkingArea)).ToArray());
+            if (minimized.RestoreBounds != expectedBounds)
+                throw new InvalidOperationException($"Minimized startup lost restore geometry: {minimized.RestoreBounds}, expected {expectedBounds}.");
+            // This harness keeps the form hidden (mpv is installed later in CI).
+            // Hidden forms do not receive the visible restore/Resize lifecycle.
+            minimized.WindowState = FormWindowState.Normal;
+            typeof(MonitorForm).GetMethod("RestoreWindowAfterMinimize", privateInstance)!.Invoke(minimized, null);
+            if (!minimized.TopMost)
+                throw new InvalidOperationException("Restoring a minimized startup lost foreground settings.");
+        }
+        using var monitor = new MonitorForm();
+        if (monitor.Text != ApplicationBranding.ProductName)
+            throw new InvalidOperationException("The Windows application title is missing.");
+        if (!ReferenceEquals(monitor.Icon, ApplicationBranding.WindowIcon))
+            throw new InvalidOperationException("Main window does not use the HomeCamMonitor icon.");
+        using (var layoutMonitor = new MonitorForm())
+        {
+            const System.Reflection.BindingFlags privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            typeof(MonitorForm).GetField("settings", privateInstance)!.SetValue(layoutMonitor, new Settings());
+            var originalBounds = layoutMonitor.Bounds;
+            layoutMonitor.ToggleFullscreen();
+            var fullscreenBounds = layoutMonitor.Bounds;
+            typeof(MonitorForm).GetField("gridMode", privateInstance)!.SetValue(layoutMonitor, true);
+            typeof(MonitorForm).GetMethod("ExitGridView", privateInstance)!.Invoke(layoutMonitor, new object?[] { null });
+            if (layoutMonitor.Bounds != fullscreenBounds || !(bool)typeof(MonitorForm).GetField("fullscreen", privateInstance)!.GetValue(layoutMonitor)!)
+                throw new InvalidOperationException("Grid-to-single transition exited fullscreen.");
+            layoutMonitor.ToggleFullscreen();
+            if (layoutMonitor.Bounds != originalBounds)
+                throw new InvalidOperationException("Fullscreen restore bounds were lost after leaving the grid.");
+        }
+        using (var drag = new DragSurfaceForm(monitor))
+        using (var grip = new ResizeGripForm(monitor, NativeMethods.HtRight, Cursors.SizeWE))
+        using (var hiddenToolbar = new ToolbarForm(monitor))
+        using (var indicator = new MotionIndicatorForm())
+        {
+            foreach (var window in new Form[] { monitor, drag, grip, hiddenToolbar, indicator })
+            {
+                window.HandleCreated += (_, _) =>
+                {
+                    var style = NativeMethods.GetWindowStyle(window.Handle, -16);
+                    if ((style & 0x00C40000) != 0 || (style & unchecked((int)0x80000000)) == 0)
+                        throw new InvalidOperationException($"{window.GetType().Name} acquired a native caption during creation.");
+                };
+                var handle = window.Handle;
+                var style = NativeMethods.GetWindowStyle(handle, -16);
+                if ((style & 0x00C40000) != 0)
+                    throw new InvalidOperationException($"Hidden {window.GetType().Name} has a native caption.");
+            }
+        }
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) &&
+            (monitor.Region is not null || monitor.ClientSize != monitor.Size))
+            throw new InvalidOperationException($"Rounded borderless window is inset: window {monitor.Size}, client {monitor.ClientSize}");
+        foreach (var width in new[] { 640, 641, 640, 641, 640 })
+        {
+            monitor.Bounds = new Rectangle(200, 150, width, 360);
+            Application.DoEvents();
+            var expected = (int)Math.Round(width * 9d / 16d);
+            if (Math.Abs(monitor.Height - expected) > 1)
+                throw new InvalidOperationException($"Camera window grew while resizing: {monitor.Bounds}, expected height {expected}");
+            foreach (var surface in monitor.Controls.OfType<Panel>())
+                if (surface.Bounds != monitor.ClientRectangle)
+                    throw new InvalidOperationException($"Camera surface is inset after resizing: {surface.Bounds} versus {monitor.ClientRectangle}");
+            var cameraGrid = monitor.Controls.OfType<Panel>()
+                .Single(panel => panel.Controls.OfType<Panel>().Count() == 4);
+            var tiles = MonitorForm.GetCameraGridBounds(cameraGrid.ClientSize);
+            for (var index = 0; index < tiles.Length; index++)
+                if (cameraGrid.Controls[index].Bounds != tiles[index])
+                    throw new InvalidOperationException($"Camera tile {index} is offset after resizing");
+        }
+        var previousHeight = monitor.Height;
+        for (var move = 0; move < 5; move++)
+        {
+            monitor.Location = new Point(200 + move, 150 + move);
+            Application.DoEvents();
+            if (monitor.Height != previousHeight)
+                throw new InvalidOperationException("Camera window grew while moving");
+        }
+
+        var settingsOpenTimer = System.Diagnostics.Stopwatch.StartNew();
         using var settingsForm = new SettingsForm(new Settings
         {
-            Cameras = [new CameraEntry { Name = "Einfahrt", StreamUrl = "rtsp://127.0.0.1:8554/Einfahrt" }]
+            Cameras = [new CameraEntry { Name = "Einfahrt", StreamUrl = "rtsp://127.0.0.1:8554/Einfahrt",
+                PersonEntityId = "binary_sensor.einfahrt_person" }]
         });
+        if (!ReferenceEquals(settingsForm.Icon, ApplicationBranding.WindowIcon))
+            throw new InvalidOperationException("Settings window does not use the HomeCamMonitor icon.");
+        Console.WriteLine($"Settings constructor total: {settingsOpenTimer.ElapsedMilliseconds} ms; stages: {string.Join(", ", settingsForm.ConstructionTimings.Select(pair => $"{pair.Key}={pair.Value} ms"))}");
+        var settingsShowTimer = System.Diagnostics.Stopwatch.StartNew();
+        _ = settingsForm.Handle;
+        Console.WriteLine($"Settings handle: {settingsShowTimer.ElapsedMilliseconds} ms");
+        settingsShowTimer.Restart();
         settingsForm.Show();
+        Console.WriteLine($"Settings Show: {settingsShowTimer.ElapsedMilliseconds} ms");
+        settingsShowTimer.Restart();
         Application.DoEvents();
+        Console.WriteLine($"Settings first message pump: {settingsShowTimer.ElapsedMilliseconds} ms");
+        settingsOpenTimer.Stop();
+        Console.WriteLine($"Settings construction and first show: {settingsOpenTimer.ElapsedMilliseconds} ms");
+
+        if (!settingsForm.Controls.Find("PersonCaptureHint", true).Single().Text.Contains("Snapshot je Ereignis"))
+            throw new InvalidOperationException("Person snapshots are not distinguished from motion actions.");
+        var storagePaths = AllControls(settingsForm).OfType<TextBox>().Where(field => field.Name.StartsWith("StoragePath")).ToArray();
+        if (storagePaths.Length != 4 || storagePaths.Any(field => string.IsNullOrWhiteSpace(field.Text)))
+            throw new InvalidOperationException("Four independent storage path controls are missing.");
+        var expectedMotionSnapshots = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "HomeCam Monitor", "Bewegung");
+        if (settingsForm.Controls.Find("StoragePath2", true).OfType<TextBox>().Single().Text != expectedMotionSnapshots ||
+            RecordingStorage.ResolveMotionSnapshots("") != expectedMotionSnapshots ||
+            RecordingStorage.ResolveMotionSnapshots(RecordingStorage.MotionDefault + Path.DirectorySeparatorChar) != expectedMotionSnapshots)
+            throw new InvalidOperationException("Movement snapshots still use the old Videos default.");
+        var customMotionSnapshots = Path.Combine(Path.GetTempPath(), "HomeCam-custom-snapshots");
+        if (RecordingStorage.ResolveMotionSnapshots(customMotionSnapshots) != customMotionSnapshots ||
+            settingsForm.Controls.Find("StoragePath3", true).OfType<TextBox>().Single().Text != RecordingStorage.MotionDefault)
+            throw new InvalidOperationException("Correcting snapshot defaults changed a custom folder or the video default.");
+        var settingsStoragePath = settingsForm.Controls.Find("SettingsStoragePath", true).OfType<TextBox>().Single();
+        if (settingsStoragePath.Text != SettingsStore.Folder)
+            throw new InvalidOperationException("The current settings storage folder is not displayed.");
+        using (var settingsImage = new Bitmap(settingsForm.Width, settingsForm.Height))
+        {
+            settingsForm.DrawToBitmap(settingsImage, new Rectangle(Point.Empty, settingsImage.Size));
+            settingsImage.Save(Path.Combine(output, "settings.png"));
+        }
         var cameraTable = AllControls(settingsForm).OfType<DataGridView>().Single();
+        if (Convert.ToBoolean(cameraTable.Rows[0].Cells["MotionEnabled"].Value) ||
+            !Convert.ToBoolean(cameraTable.Rows[0].Cells["PersonEnabled"].Value))
+            throw new InvalidOperationException("An existing person sensor must stay enabled independently of motion");
         var cameraHint = settingsForm.Controls.Find("CameraHint", true).Single();
         var options = settingsForm.Controls.Find("Options", true).Single();
         var startup = settingsForm.Controls.Find("StartupOptions", true).Single();
-        if (cameraTable.Bottom > cameraHint.Top || cameraHint.Bottom > options.Top || options.Bottom > startup.Top)
-            throw new InvalidOperationException("Settings rows overlap or the camera hint is hidden");
+        var generalGroup = AllControls(settingsForm).OfType<GroupBox>()
+            .Single(group => group.Text == "Allgemeine Einstellungen");
+        var activityGroup = AllControls(settingsForm).OfType<GroupBox>()
+            .Single(group => group.Text == "Bewegung und Aktivitätsanzeige");
+        var motionGroup = AllControls(settingsForm).OfType<GroupBox>()
+            .Single(group => group.Text == "Bewegung pro Kamera und Home Assistant");
+        static int TopOnScreen(Control control) => control.PointToScreen(Point.Empty).Y;
+        static int BottomOnScreen(Control control) => TopOnScreen(control) + control.Height;
+        if (BottomOnScreen(cameraTable) > TopOnScreen(cameraHint) ||
+            BottomOnScreen(cameraHint) > TopOnScreen(generalGroup) ||
+            BottomOnScreen(options) > TopOnScreen(startup) ||
+            BottomOnScreen(generalGroup) > TopOnScreen(activityGroup) ||
+            BottomOnScreen(activityGroup) > TopOnScreen(motionGroup))
+            throw new InvalidOperationException($"Settings rows overlap: table={BottomOnScreen(cameraTable)}, hint={TopOnScreen(cameraHint)}..{BottomOnScreen(cameraHint)}, general={TopOnScreen(generalGroup)}..{BottomOnScreen(generalGroup)}, options={BottomOnScreen(options)}, startup={TopOnScreen(startup)}, motion={TopOnScreen(motionGroup)}");
+        var selectedCamera = AllControls(motionGroup).OfType<Label>()
+            .Single(label => label.Text == "Ausgewählte Kamera:");
+        var recordingGroup = settingsForm.Controls.Find("MotionCaptureOptions", true).Single();
+        var actionLabel = AllControls(recordingGroup).OfType<Label>()
+            .Single(label => label.Text == "Bei Bewegung (ausgewählte Kamera)");
+        if (recordingGroup.PointToScreen(Point.Empty).X <= selectedCamera.PointToScreen(Point.Empty).X)
+            throw new InvalidOperationException("Recording options must be in the right-hand column.");
+        var indicatorLabel = AllControls(activityGroup).OfType<Label>()
+            .Single(label => label.Text == "Aktivitätssymbole anzeigen:");
+        if (!AllControls(activityGroup).OfType<CheckBox>().Any(check => check.Name == "DetectionEnabled") ||
+            indicatorLabel.Parent is null)
+            throw new InvalidOperationException("Activity controls must be grouped together");
+        var minimizedStart = settingsForm.Controls.Find("MinimizedStart", true).OfType<CheckBox>().Single();
+        var startBehavior = AllControls(settingsForm).OfType<ComboBox>().Single(combo => combo.Items.Contains("Wie zuletzt"));
+        if (minimizedStart.Checked) throw new InvalidOperationException("Minimized start must be disabled by default.");
+        startBehavior.SelectedIndex = 2;
+        minimizedStart.Checked = true;
+        if (startBehavior.SelectedIndex != 1) throw new InvalidOperationException("Minimized start checkbox did not update the startup selection.");
+        minimizedStart.Checked = false;
+        if (startBehavior.SelectedIndex != 2) throw new InvalidOperationException("Disabling minimized start did not restore the previous camera startup choice.");
+        startBehavior.SelectedIndex = 1;
+        if (!minimizedStart.Checked) throw new InvalidOperationException("Startup selection did not update the minimized start checkbox.");
+        startBehavior.SelectedIndex = 3;
+        if (minimizedStart.Checked) throw new InvalidOperationException("Grid startup left minimized start checked.");
+        var detection = AllControls(activityGroup).OfType<CheckBox>().Single(check => check.Name == "DetectionEnabled");
+        detection.Checked = false;
+        if (!minimizedStart.Enabled) throw new InvalidOperationException("Minimized start must remain available without motion detection.");
+        detection.Checked = true;
+        startBehavior.SelectedIndex = 0;
+        using (var savedMinimized = new SettingsForm(new Settings { StartBehavior = "Minimized" }))
+            if (!savedMinimized.Controls.Find("MinimizedStart", true).OfType<CheckBox>().Single().Checked)
+                throw new InvalidOperationException("Previously saved minimized startup was not shown as checked.");
+        var action = AllControls(motionGroup).OfType<ComboBox>()
+            .Single(combo => combo.Items.Contains("Snapshot + Videoaufnahme"));
+        var videoSeconds = AllControls(motionGroup).OfType<ComboBox>()
+            .Single(combo => combo.Items.Contains("30 Sekunden"));
+        if (videoSeconds.Width < 110)
+            throw new InvalidOperationException("The video duration selection is too narrow");
+        if (BottomOnScreen(actionLabel) > TopOnScreen(action))
+            throw new InvalidOperationException("Motion action is not below the selected camera");
         var seconds = AllControls(settingsForm)
-            .OfType<Label>().Single(label => label.Text == "Sekunden");
+            .OfType<Label>().Single(label => label.Text == "Sekunden" &&
+                label.Parent!.Controls.OfType<NumericUpDown>().Any(number => number.Maximum == 300));
         var duration = seconds.Parent!.Controls.OfType<NumericUpDown>().Single();
         if (seconds.Top > duration.Bottom || seconds.Bottom < duration.Top)
             throw new InvalidOperationException("Seconds label wrapped away from the duration field");
+        var gridHighlight = AllControls(settingsForm).OfType<CheckBox>()
+            .Single(check => check.Text == "Bewegung im 4er-Raster hervorheben");
+        var indicatorDuration = AllControls(settingsForm).OfType<NumericUpDown>()
+            .Single(number => number.Maximum == 10);
+        if (gridHighlight.Checked || indicatorDuration.Value != 2)
+            throw new InvalidOperationException("Grid highlighting must be disabled and indicators shown for two seconds by default");
         var buttons = AllControls(settingsForm).OfType<FlowLayoutPanel>()
             .Single(panel => panel.Controls.OfType<Button>().Any(button => button.Text == "Speichern"));
-        if (settingsForm.ClientSize.Height - buttons.Bottom > 25)
-            throw new InvalidOperationException("Unused space remains below the settings buttons");
+        var buttonPosition = settingsForm.PointToClient(buttons.PointToScreen(Point.Empty));
+        var bottomGap = settingsForm.ClientSize.Height - buttonPosition.Y - buttons.Height;
+        if (bottomGap < 6 || bottomGap > 14 || buttons.Parent?.Name != "SettingsFooter")
+            throw new InvalidOperationException("Settings buttons are clipped or missing their fixed bottom spacing.");
+        var screenArea = Screen.FromControl(settingsForm).WorkingArea;
+        if (!screenArea.Contains(settingsForm.Bounds))
+            throw new InvalidOperationException("Settings window extends beyond the screen working area.");
+        var scrollArea = (ScrollableControl)settingsForm.Controls.Find("SettingsScrollArea", true).Single();
+        var betaGroup = settingsForm.Controls.Find("BetaDiagnostics", true).Single();
+        foreach (var height in new[] { settingsForm.ClientSize.Height, 610 })
+        {
+            settingsForm.ClientSize = new Size(settingsForm.ClientSize.Width, height);
+            Application.DoEvents();
+            scrollArea.AutoScrollPosition = new Point(0, scrollArea.VerticalScroll.Maximum);
+            Application.DoEvents();
+            var betaBounds = new Rectangle(scrollArea.PointToClient(betaGroup.PointToScreen(Point.Empty)), betaGroup.Size);
+            if (!scrollArea.ClientRectangle.Contains(betaBounds) || betaBounds.Bottom > scrollArea.ClientSize.Height - 8)
+                throw new InvalidOperationException("The bottom BETA settings group cannot be scrolled fully into view.");
+        }
+        using (var bottomImage = new Bitmap(settingsForm.Width, settingsForm.Height))
+        {
+            settingsForm.DrawToBitmap(bottomImage, new Rectangle(Point.Empty, bottomImage.Size));
+            bottomImage.Save(Path.Combine(output, "settings-bottom.png"));
+        }
+        settingsForm.ClientSize = new Size(1260, 1000);
+        Application.DoEvents();
+        using var wideSettings = new Bitmap(settingsForm.Width, settingsForm.Height);
+        settingsForm.DrawToBitmap(wideSettings, new Rectangle(Point.Empty, wideSettings.Size));
+        wideSettings.Save(Path.Combine(output, "settings-wide.png"));
+        var storageGroup = settingsForm.Controls.Find("RecordingStorage", true).Single();
+        scrollArea.ScrollControlIntoView(storageGroup);
+        Application.DoEvents();
+        buttonPosition = settingsForm.PointToClient(buttons.PointToScreen(Point.Empty));
+        if (buttonPosition.Y < 0 || buttonPosition.Y + buttons.Height > settingsForm.ClientSize.Height - 6)
+            throw new InvalidOperationException("Scrolling settings moved the save/cancel buttons out of view.");
+        foreach (var field in storagePaths)
+        {
+            var row = ((TableLayoutPanel)field.Parent!).GetRow(field);
+            var browse = ((TableLayoutPanel)field.Parent!).GetControlFromPosition(2, row)!;
+            if (field.Right > browse.Left || field.Width < 200)
+                throw new InvalidOperationException("Storage path fields overlap the browse buttons.");
+        }
+        using var storageImage = new Bitmap(settingsForm.Width, settingsForm.Height);
+        settingsForm.DrawToBitmap(storageImage, new Rectangle(Point.Empty, storageImage.Size));
+        storageImage.Save(Path.Combine(output, "settings-storage.png"));
+        var backupGroup = settingsForm.Controls.Find("SettingsBackup", true).Single();
+        scrollArea.ScrollControlIntoView(backupGroup);
+        Application.DoEvents();
+        if (backupGroup.Controls.Find("ExportSettings", true).Length != 1 || backupGroup.Controls.Find("ImportSettings", true).Length != 1 ||
+            backupGroup.Controls.Find("ResetSettings", true).Length != 1 || backupGroup.Controls.Find("ExportDiagnostics", true).Length != 1 ||
+            ((ComboBox)backupGroup.Controls.Find("SettingsResetScope", true).Single()).Items.Count != 4)
+            throw new InvalidOperationException("Backup and restore controls are missing.");
+        // Capture the longest reset explanation to verify wrapping in the real settings layout.
+        ((ComboBox)backupGroup.Controls.Find("SettingsResetScope", true).Single()).SelectedIndex = 2;
+        Application.DoEvents();
+        scrollArea.ScrollControlIntoView(backupGroup);
+        Application.DoEvents();
+        using var backupImage = new Bitmap(settingsForm.Width, settingsForm.Height);
+        settingsForm.DrawToBitmap(backupImage, new Rectangle(Point.Empty, backupImage.Size));
+        backupImage.Save(Path.Combine(output, "settings-backup.png"));
     }
 
     private static IEnumerable<Control> AllControls(Control parent)

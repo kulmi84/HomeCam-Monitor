@@ -10,15 +10,15 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-[assembly: AssemblyTitle("HomeCamMonitor Beta Setup")]
-[assembly: AssemblyProduct("HomeCamMonitor Beta")]
-[assembly: AssemblyVersion("0.5.0.20")]
-[assembly: AssemblyFileVersion("0.5.0.20")]
+[assembly: AssemblyTitle("HomeCam Monitor Setup")]
+[assembly: AssemblyProduct("HomeCam Monitor")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
 
-internal static class BetaInstaller
+internal static class ReleaseInstaller
 {
-    internal const string Executable = "HomeCamMonitor-Beta.exe";
-    internal const string ApplicationVersion = "0.5.0-beta.22";
+    internal const string Executable = "HomeCamMonitor.exe";
+    internal const string ApplicationVersion = "1.0.0";
     private const string RegistryPath = @"Software\HomeCamMonitor-Beta\Setup";
 
     [STAThread]
@@ -28,8 +28,8 @@ internal static class BetaInstaller
         Application.SetCompatibleTextRenderingDefault(false);
         try
         {
-            if (args.Length == 2 && args[0] == "--uninstall-ui") return BetaUninstaller.Run(args);
-            if (args.Length == 2 && args[0] == "--remove-files") { BetaUninstaller.RemoveFiles(args[1]); return 0; }
+            if (args.Length == 2 && args[0] == "--uninstall-ui") return ReleaseUninstaller.Run(args);
+            if (args.Length == 2 && args[0] == "--remove-files") { ReleaseUninstaller.RemoveFiles(args[1]); return 0; }
             if (args.Length == 1 && args[0] == "--verify-setup") { Verify(); return 0; }
             if (args.Length == 2 && args[0] == "--install-files") { Install(args[1]); return 0; }
             Application.Run(new SetupForm());
@@ -39,11 +39,11 @@ internal static class BetaInstaller
         {
             if (args.Length > 0)
             {
-                if (args[0] == "--install-files") MessageBox.Show(exception.Message, "HomeCamMonitor Beta Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (args[0] == "--install-files") MessageBox.Show(exception.Message, "HomeCam Monitor Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 else Console.Error.WriteLine(exception);
                 return 1;
             }
-            MessageBox.Show(exception.Message, "HomeCamMonitor Beta Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(exception.Message, "HomeCam Monitor Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }
     }
@@ -53,7 +53,7 @@ internal static class BetaInstaller
         using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryPath))
         {
             string previous = key == null ? null : key.GetValue("InstallDirectory") as string;
-            if (!String.IsNullOrWhiteSpace(previous) && File.Exists(Path.Combine(previous, Executable))) return previous;
+            if (!String.IsNullOrWhiteSpace(previous) && (File.Exists(Path.Combine(previous, Executable)) || File.Exists(Path.Combine(previous, "HomeCamMonitor-Beta.exe")))) return previous;
         }
         return FreshInstallDirectory();
     }
@@ -69,7 +69,7 @@ internal static class BetaInstaller
         using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryPath))
             saved = key == null ? null : key.GetValue("InstallDirectory") as string;
         string registered;
-        using (RegistryKey key = Registry.CurrentUser.OpenSubKey(BetaUninstaller.RegistryPath))
+        using (RegistryKey key = Registry.CurrentUser.OpenSubKey(ReleaseUninstaller.RegistryPath))
             registered = key == null ? null : key.GetValue("InstallLocation") as string;
         return FindInstallation(new[] { selected, saved, registered, FreshInstallDirectory() });
     }
@@ -82,7 +82,7 @@ internal static class BetaInstaller
             try
             {
                 string path = NormalizeDirectory(candidate);
-                if (File.Exists(Path.Combine(path, Executable))) return path;
+                if (File.Exists(Path.Combine(path, Executable)) || File.Exists(Path.Combine(path, "HomeCamMonitor-Beta.exe"))) return path;
             }
             catch (ArgumentException) { } catch (NotSupportedException) { } catch (PathTooLongException) { }
         }
@@ -138,12 +138,22 @@ internal static class BetaInstaller
     {
         directory = NormalizeDirectory(directory);
         string executable = Path.Combine(directory, Executable);
+        // Keep the legacy marker and registrations so Beta 22 updates preserve settings.
         var installedFiles = new List<string> { "HomeCamMonitor-Beta/v1" };
-        foreach (Process process in Process.GetProcessesByName("HomeCamMonitor-Beta"))
+        string previousManifest = Path.Combine(directory, ReleaseUninstaller.Manifest);
+        if (File.Exists(previousManifest))
+        {
+            string[] previous = File.ReadAllLines(previousManifest);
+            if (previous.Length > 0 && previous[0] == "HomeCamMonitor-Beta/v1")
+                for (int i = 1; i < previous.Length; i++)
+                    if (!Path.IsPathRooted(previous[i]) && !previous[i].Contains("..")) installedFiles.Add(previous[i]);
+        }
+        foreach (string processName in new[] { "HomeCamMonitor", "HomeCamMonitor-Beta" })
+        foreach (Process process in Process.GetProcessesByName(processName))
         {
             try
             {
-                if (String.Equals(process.MainModule.FileName, executable, StringComparison.OrdinalIgnoreCase))
+                if (String.Equals(Path.GetDirectoryName(process.MainModule.FileName), directory, StringComparison.OrdinalIgnoreCase))
                 {
                     process.Kill();
                     if (!process.WaitForExit(5000)) throw new IOException("HomeCam Monitor konnte nicht beendet werden.");
@@ -155,9 +165,9 @@ internal static class BetaInstaller
         }
         Directory.CreateDirectory(directory);
         string targetRoot = directory + Path.DirectorySeparatorChar;
-        using (Stream payload = Assembly.GetExecutingAssembly().GetManifestResourceStream("HomeCamMonitor.Beta.zip"))
+        using (Stream payload = Assembly.GetExecutingAssembly().GetManifestResourceStream("HomeCamMonitor.Release.zip"))
         {
-            if (payload == null) throw new InvalidOperationException("Das eingebettete Beta-Paket fehlt.");
+            if (payload == null) throw new InvalidOperationException("Das eingebettete Programmpaket fehlt.");
             using (ZipArchive archive = new ZipArchive(payload, ZipArchiveMode.Read))
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
@@ -171,7 +181,7 @@ internal static class BetaInstaller
                 }
         }
         if (!File.Exists(executable)) throw new IOException("Die Programmdatei fehlt im Paket.");
-        File.WriteAllLines(Path.Combine(directory, BetaUninstaller.Manifest), installedFiles);
+        File.WriteAllLines(Path.Combine(directory, ReleaseUninstaller.Manifest), installedFiles);
     }
 
     internal static void CreateShortcut(string shortcutPath, string target, string directory, string icon)
@@ -198,14 +208,20 @@ internal static class BetaInstaller
     internal static void FinishInstall(string directory, bool desktop, bool startMenuEntries)
     {
         string executable = Path.Combine(directory, Executable);
-        string startMenu = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "HomeCamMonitor Beta");
-        string uninstaller = Path.Combine(directory, "HomeCamMonitor-Beta-Uninstall.exe");
-        ConfigureStartMenu(startMenu, directory, startMenuEntries);
-        if (desktop) CreateShortcut(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "HomeCamMonitor Beta.lnk"), executable, directory, executable);
-        using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryPath)) key.SetValue("InstallDirectory", directory);
-        using (RegistryKey key = Registry.CurrentUser.CreateSubKey(BetaUninstaller.RegistryPath))
+        using (RegistryKey run = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true))
         {
-            key.SetValue("DisplayName", "HomeCamMonitor Beta");
+            string oldPath = "\"" + Path.Combine(directory, "HomeCamMonitor-Beta.exe") + "\"";
+            if (run != null && String.Equals(run.GetValue("HomeCamMonitor-Beta") as string, oldPath, StringComparison.OrdinalIgnoreCase))
+                run.SetValue("HomeCamMonitor-Beta", "\"" + executable + "\"");
+        }
+        string startMenu = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "HomeCam Monitor");
+        string uninstaller = Path.Combine(directory, "HomeCamMonitor-Uninstall.exe");
+        ConfigureStartMenu(startMenu, directory, startMenuEntries);
+        if (desktop) CreateShortcut(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "HomeCam Monitor.lnk"), executable, directory, executable);
+        using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryPath)) key.SetValue("InstallDirectory", directory);
+        using (RegistryKey key = Registry.CurrentUser.CreateSubKey(ReleaseUninstaller.RegistryPath))
+        {
+            key.SetValue("DisplayName", "HomeCam Monitor");
             key.SetValue("DisplayVersion", ApplicationVersion);
             key.SetValue("DisplayIcon", executable + ",0");
             key.SetValue("InstallLocation", directory);
@@ -220,13 +236,13 @@ internal static class BetaInstaller
         string executable = Path.Combine(directory, Executable);
         if (enabled)
         {
-            CreateShortcut(Path.Combine(startMenu, "HomeCamMonitor Beta.lnk"), executable, directory, executable);
+            CreateShortcut(Path.Combine(startMenu, "HomeCam Monitor.lnk"), executable, directory, executable);
             CreateShortcut(Path.Combine(startMenu, "Installationsordner.lnk"), directory, directory, executable);
-            CreateShortcut(Path.Combine(startMenu, "Deinstallieren.lnk"), Path.Combine(directory, "HomeCamMonitor-Beta-Uninstall.exe"), directory, executable);
+            CreateShortcut(Path.Combine(startMenu, "Deinstallieren.lnk"), Path.Combine(directory, "HomeCamMonitor-Uninstall.exe"), directory, executable);
         }
         else
         {
-            foreach (string name in new[] { "HomeCamMonitor Beta.lnk", "Installationsordner.lnk", "Deinstallieren.lnk" })
+            foreach (string name in new[] { "HomeCam Monitor.lnk", "Installationsordner.lnk", "Deinstallieren.lnk" })
             {
                 string path = Path.Combine(startMenu, name); if (File.Exists(path)) File.Delete(path);
             }
@@ -244,13 +260,22 @@ internal static class BetaInstaller
             string target = Path.Combine(temp, "Ordner mit Leerzeichen");
             Install(target);
             File.WriteAllText(Path.Combine(target, "user-file.txt"), "preserve");
+            string legacyOnly = Path.Combine(temp, "Legacy Beta");
+            Directory.CreateDirectory(legacyOnly);
+            File.WriteAllText(Path.Combine(legacyOnly, "HomeCamMonitor-Beta.exe"), "legacy");
+            if (FindInstallation(new[] { legacyOnly }) != legacyOnly) throw new Exception("Beta upgrade detection failed.");
+            File.WriteAllLines(Path.Combine(legacyOnly, ReleaseUninstaller.Manifest), new[] { "HomeCamMonitor-Beta/v1", "HomeCamMonitor-Beta.exe" });
+            Install(legacyOnly);
+            if (!File.Exists(Path.Combine(legacyOnly, Executable))) throw new Exception("Release upgrade failed.");
+            ReleaseUninstaller.RemoveFiles(legacyOnly);
+            if (File.Exists(Path.Combine(legacyOnly, "HomeCamMonitor-Beta.exe"))) throw new Exception("Legacy files not tracked for uninstall.");
             Install(target);
             if (File.ReadAllText(Path.Combine(target, "user-file.txt")) != "preserve") throw new Exception("Update removed user files.");
             if (FindInstallation(new[] { Path.Combine(temp, "missing"), target }) != target || FindInstallation(new[] { temp }) != null)
                 throw new Exception("Existing installation detection failed.");
             using (Icon icon = Icon.ExtractAssociatedIcon(Path.Combine(target, Executable)))
                 if (icon == null) throw new Exception("Program icon missing.");
-            string link = Path.Combine(temp, "Startmenu", "HomeCamMonitor Beta.lnk");
+            string link = Path.Combine(temp, "Startmenu", "HomeCam Monitor.lnk");
             CreateShortcut(link, Path.Combine(target, Executable), target, Path.Combine(target, Executable));
             object shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell", true));
             object shortcut = shell.GetType().InvokeMember("CreateShortcut", BindingFlags.InvokeMethod, null, shell, new object[] { link });
@@ -294,7 +319,7 @@ internal static class BetaInstaller
             string resetFolder = Path.Combine(temp, "Settings reset"); Directory.CreateDirectory(resetFolder);
             foreach (string name in new[] { "settings.json", "motion-recordings.json", "keep-video.mkv", "snapshot.png" })
                 File.WriteAllText(Path.Combine(resetFolder, name), "preserve");
-            BetaUninstaller.DeleteSettingsFiles(resetFolder, false);
+            ReleaseUninstaller.DeleteSettingsFiles(resetFolder, false);
             if (File.Exists(Path.Combine(resetFolder, "settings.json")) || Directory.GetFiles(resetFolder).Length != 3)
                 throw new Exception("Settings reset removed recording files or the retention ledger.");
             string testRegistry = @"Software\HomeCamMonitor-Uninstall-Test-" + Guid.NewGuid().ToString("N");
@@ -303,7 +328,7 @@ internal static class BetaInstaller
                 using (RegistryKey key = Registry.CurrentUser.CreateSubKey(testRegistry + @"\Setup")) key.SetValue("InstallDirectory", target);
                 using (RegistryKey key = Registry.CurrentUser.CreateSubKey(testRegistry + @"\Uninstall")) key.SetValue("InstallLocation", target);
                 using (RegistryKey key = Registry.CurrentUser.CreateSubKey(testRegistry)) key.SetValue("SettingsFolder", resetFolder);
-                BetaUninstaller.RemoveInstallRegistration(testRegistry + @"\Setup", testRegistry + @"\Uninstall");
+                ReleaseUninstaller.RemoveInstallRegistration(testRegistry + @"\Setup", testRegistry + @"\Uninstall");
                 using (RegistryKey setup = Registry.CurrentUser.OpenSubKey(testRegistry + @"\Setup"))
                 using (RegistryKey uninstall = Registry.CurrentUser.OpenSubKey(testRegistry + @"\Uninstall"))
                 using (RegistryKey settings = Registry.CurrentUser.OpenSubKey(testRegistry))
@@ -313,7 +338,7 @@ internal static class BetaInstaller
             finally { Registry.CurrentUser.DeleteSubKeyTree(testRegistry, false); }
             File.WriteAllText(Path.Combine(target, "keep-video.mkv"), "user video");
             File.WriteAllText(Path.Combine(target, "settings.json"), "user settings");
-            BetaUninstaller.RemoveFiles(target);
+            ReleaseUninstaller.RemoveFiles(target);
             if (File.Exists(Path.Combine(target, Executable))) throw new Exception("Uninstall left executable behind.");
             if (!File.Exists(Path.Combine(target, "keep-video.mkv")) || !File.Exists(Path.Combine(target, "settings.json")) || !File.Exists(Path.Combine(target, "user-file.txt")))
                 throw new Exception("Uninstall removed user files.");
@@ -339,19 +364,19 @@ internal sealed class SetupForm : Form
 
     internal SetupForm(string initialDirectory = null)
     {
-        Text = "HomeCamMonitor Beta – Setup";
+        Text = "HomeCam Monitor – Setup";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(690, 390); MinimumSize = new Size(706, 429);
+        ClientSize = new Size(690, 420); MinimumSize = new Size(706, 459);
         MaximizeBox = false;
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(20), ColumnCount = 2, RowCount = 12 };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         for (int row = 0; row < 11; row++) layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        var title = new Label { Text = "HomeCamMonitor Beta installieren", Font = new Font("Segoe UI", 14), AutoSize = true };
+        var title = new Label { Text = "HomeCam Monitor installieren", Font = new Font("Segoe UI", 14), AutoSize = true };
         layout.Controls.Add(title, 0, 0); layout.SetColumnSpan(title, 2);
         layout.Controls.Add(new Label { Text = "Installationsverzeichnis", AutoSize = true, Margin = new Padding(3, 14, 3, 6) }, 0, 1);
-        folder.Text = initialDirectory ?? BetaInstaller.DefaultDirectory();
+        folder.Text = initialDirectory ?? ReleaseInstaller.DefaultDirectory();
         layout.Controls.Add(folder, 0, 2); layout.Controls.Add(browse, 1, 2);
         layout.Controls.Add(desktop, 0, 3); layout.SetColumnSpan(desktop, 2);
         layout.Controls.Add(launch, 0, 4); layout.SetColumnSpan(launch, 2);
@@ -361,15 +386,30 @@ internal sealed class SetupForm : Form
         layout.Controls.Add(new Label { Text = "Snapshots und Videoaufnahmen bleiben erhalten.", AutoSize = true }, 0, 8); layout.SetColumnSpan(layout.GetControlFromPosition(0, 8), 2);
         layout.Controls.Add(uninstall, 0, 9); layout.Controls.Add(install, 1, 9);
         layout.Controls.Add(status, 0, 10); layout.SetColumnSpan(status, 2);
-        var version = new Label { Name = "SetupVersion", Text = "Version " + BetaInstaller.ApplicationVersion,
+        var version = new Label { Name = "SetupVersion", Text = "Version " + ReleaseInstaller.ApplicationVersion,
             AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-        layout.Controls.Add(version, 0, 11); layout.SetColumnSpan(version, 2);
+        layout.Controls.Add(version, 0, 11);
+        var licenseButton = new Button { Name = "ShowLicense", Text = "Lizenz anzeigen …", AutoSize = true, Anchor = AnchorStyles.Right | AnchorStyles.Bottom };
+        licenseButton.Click += delegate
+        {
+            using (Stream resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("HomeCamMonitor.License"))
+            {
+                if (resource == null) { MessageBox.Show(this, "Lizenztext fehlt.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+                using (var reader = new StreamReader(resource))
+                using (var licenseForm = new Form { Text = "HomeCam Monitor – Lizenz", Size = new Size(760, 560), StartPosition = FormStartPosition.CenterParent })
+                {
+                    licenseForm.Controls.Add(new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, Text = reader.ReadToEnd(), Font = new Font("Segoe UI", 10) });
+                    licenseForm.ShowDialog(this);
+                }
+            }
+        };
+        layout.Controls.Add(licenseButton, 1, 11);
         Controls.Add(layout); AcceptButton = install;
         folder.TextChanged += delegate { RefreshExisting(); };
         RefreshExisting();
         uninstall.Click += delegate
         {
-            try { BetaInstaller.StartUninstall(existingDirectory); Close(); }
+            try { ReleaseInstaller.StartUninstall(existingDirectory); Close(); }
             catch (Exception error) { MessageBox.Show(this, error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error); }
         };
         browse.Click += delegate
@@ -380,24 +420,24 @@ internal sealed class SetupForm : Form
         install.Click += delegate
         {
             string target;
-            try { target = BetaInstaller.NormalizeDirectory(folder.Text); }
+            try { target = ReleaseInstaller.NormalizeDirectory(folder.Text); }
             catch (Exception error) { MessageBox.Show(this, error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
             bool makeDesktop = desktop.Checked;
             bool makeStartMenu = startMenu.Checked;
             bool resetSettings = reset.Checked;
-            if (resetSettings && MessageBox.Show(this, "Alle Beta-Einstellungen einschließlich Kameras und Zugangsdaten zurücksetzen?\nSnapshots und Videoaufnahmen bleiben erhalten.", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+            if (resetSettings && MessageBox.Show(this, "Alle Einstellungen einschließlich Kameras und Zugangsdaten zurücksetzen?\nSnapshots und Videoaufnahmen bleiben erhalten.", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
             string previous = existingDirectory;
             busy = true; install.Enabled = browse.Enabled = folder.Enabled = desktop.Enabled = launch.Enabled = startMenu.Enabled = reset.Enabled = uninstall.Enabled = false;
             status.Text = "Installation läuft …";
             var worker = new BackgroundWorker();
             worker.DoWork += delegate
             {
-                if (resetSettings && previous != null) BetaUninstaller.StopApp(previous);
-                BetaInstaller.InstallWithElevation(target);
-                BetaInstaller.FinishInstall(target, makeDesktop, makeStartMenu);
+                if (resetSettings && previous != null) ReleaseUninstaller.StopApp(previous);
+                ReleaseInstaller.InstallWithElevation(target);
+                ReleaseInstaller.FinishInstall(target, makeDesktop, makeStartMenu);
                 if (resetSettings)
                 {
-                    BetaUninstaller.DeleteSettings(false);
+                    ReleaseUninstaller.DeleteSettings(false);
                     using (RegistryKey key = Registry.CurrentUser.CreateSubKey(@"Software\HomeCamMonitor-Beta"))
                         key.SetValue("ResetSettings", 1, RegistryValueKind.DWord);
                 }
@@ -413,8 +453,8 @@ internal sealed class SetupForm : Form
                     MessageBox.Show(this, "Installation nach " + target + " fehlgeschlagen.\n\n" + result.Error.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                if (launch.Checked) Process.Start(new ProcessStartInfo { FileName = Path.Combine(target, BetaInstaller.Executable), WorkingDirectory = target, UseShellExecute = true });
-                MessageBox.Show(this, makeStartMenu ? "HomeCamMonitor Beta wurde installiert. Die Einträge befinden sich im Startmenü unter HomeCamMonitor Beta." : "HomeCamMonitor Beta wurde installiert.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (launch.Checked) Process.Start(new ProcessStartInfo { FileName = Path.Combine(target, ReleaseInstaller.Executable), WorkingDirectory = target, UseShellExecute = true });
+                MessageBox.Show(this, makeStartMenu ? "HomeCam Monitor wurde installiert. Die Einträge befinden sich im Startmenü unter HomeCam Monitor." : "HomeCam Monitor wurde installiert.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Close();
             };
             worker.RunWorkerAsync();
@@ -423,10 +463,10 @@ internal sealed class SetupForm : Form
     }
     private void RefreshExisting()
     {
-        existingDirectory = BetaInstaller.ExistingInstallation(folder.Text);
+        existingDirectory = ReleaseInstaller.ExistingInstallation(folder.Text);
         existing.Text = existingDirectory == null ? "Keine bestehende Installation gefunden." : "Vorhandene Installation: " + existingDirectory;
-        uninstall.Enabled = existingDirectory != null && File.Exists(Path.Combine(existingDirectory, BetaUninstaller.Manifest));
-        reset.Enabled = existingDirectory != null || BetaUninstaller.HasSettings();
+        uninstall.Enabled = existingDirectory != null && File.Exists(Path.Combine(existingDirectory, ReleaseUninstaller.Manifest));
+        reset.Enabled = existingDirectory != null || ReleaseUninstaller.HasSettings();
         if (!reset.Enabled) reset.Checked = false;
         install.Text = existingDirectory == null ? "Installieren" : "Installieren / Aktualisieren";
         if (existingDirectory != null && !uninstall.Enabled) existing.Text += "\nFür die Deinstallation diese ältere Beta zuerst aktualisieren.";

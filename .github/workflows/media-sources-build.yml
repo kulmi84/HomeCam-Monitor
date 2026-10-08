@@ -1,0 +1,260 @@
+name: Fremdprogramme-mit-Quellen
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [release/v1.0.0-documentation]
+    paths:
+      - '.github/workflows/media-sources-build.yml'
+      - '.github/scripts/collect-media-sources.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: media-sources-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    container:
+      image: ghcr.io/shinchiro/archlinux:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: shinchiro/mpv-winbuild-cmake
+          ref: 05a60b3cfd04e3e3b89918f4a27f3dde2935dff2
+          path: media-build
+      - name: Fremdquellen laden und Hauptprojekte fixieren
+        run: |
+          git config --global --add safe.directory '*'
+          # git am creates local patch commits; use a technical runner identity.
+          git config --global user.name 'HomeCam Media Build'
+          git config --global user.email 'homecam-media-build@users.noreply.github.com'
+          cd media-build
+          # Upstream cleanup resets patched source trees after installation.
+          # Keep those exact trees so the archived sources match our binaries.
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('cmake/custom_steps.cmake')
+          s = p.read_text().replace('function(cleanup _name _last_step)', 'function(cleanup _name _last_step)\n    return() # preserve actual corresponding sources')
+          p.write_text(s)
+          # ftp.gnu.org is unreachable from this runner. Mirror GNU inputs,
+          # including the toolchain, retaining every upstream checksum.
+          for p in Path('.').rglob('*.cmake'):
+              s = p.read_text()
+              for prefix in ('https://ftp.gnu.org/pub/gnu/', 'https://ftp.gnu.org/gnu/'):
+                  s = s.replace(prefix, 'https://mirrors.kernel.org/gnu/')
+              p.write_text(s)
+          for project, revision in [('mpv', '6c092d978b'), ('ffmpeg', 'a35c879992'), ('curl', '318bd978ea2d36ace36b42da2174b79c3abd89a3'), ('libaribcaption', '6c3b4f361bc8f65b34497ba0d123c5aea6f9ed84')]:
+              p = Path(f'packages/{project}.cmake')
+              s = p.read_text().replace('SOURCE_DIR ${SOURCE_LOCATION}', f'GIT_TAG {revision}\n    GIT_RESET {revision}\n    ' + 'SOURCE_DIR ${SOURCE_LOCATION}')
+              p.write_text(s)
+          # Static OpenSSL's symbol checks must link its compression dependencies
+          # after libssl/libcrypto, rather than placing -l flags in CFLAGS.
+          p = Path('packages/ngtcp2.cmake')
+          s = p.read_text()
+          flag_line = next(line for line in s.splitlines(True) if '-DCMAKE_C_FLAGS=' in line)
+          p.write_text(s.replace(flag_line, ''))
+          p = Path('packages/curl.cmake')
+          s = p.read_text()
+          s = s.replace(' -lz -lbrotlienc -lbrotlidec -lbrotlicommon -lzstd -lcrypt32 -lsecur32', '')
+          p.write_text(s)
+          # libaribcaption calls its own aribcc_md5_* functions. HAVE_OPENSSL
+          # suppresses their implementation without providing replacements.
+          p = Path('packages/libaribcaption.cmake')
+          s = p.read_text()
+          flag_lines = [line for line in s.splitlines(True) if '-DHAVE_OPENSSL=1' in line]
+          if len(flag_lines) != 2:
+              raise RuntimeError('Review libaribcaption compiler flags before changing them')
+          for line in flag_lines:
+              s = s.replace(line, '')
+          p.write_text(s)
+          PY
+          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DGCC_ARCH=x86-64 -DSINGLE_SOURCE_LOCATION="$PWD/src_packages" -DRUSTUP_LOCATION="$PWD/rustup" -G Ninja -B build -S .
+          ninja -C build download
+          # Upstream excludes curl from the aggregate download target.
+          # Fetch it explicitly before applying our source corrections.
+          ninja -C build curl-download
+          git -C src_packages/curl checkout 318bd978ea2d36ace36b42da2174b79c3abd89a3
+          git -C src_packages/curl sparse-checkout disable
+          git -C src_packages/mpv checkout 6c092d978b
+          git -C src_packages/ffmpeg checkout a35c879992
+          git -C src_packages/ffmpeg sparse-checkout disable
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src_packages/ngtcp2/CMakeLists.txt')
+          s = p.read_text()
+          needle = 'set(CMAKE_REQUIRED_LIBRARIES  "${OPENSSL_LIBRARIES}")'
+          if needle not in s:
+              raise RuntimeError('ngtcp2 OpenSSL symbol check changed; inspect before patching')
+          libs = ('z', 'brotlienc', 'brotlidec', 'brotlicommon', 'zstd')
+          extra = '\n    list(APPEND CMAKE_REQUIRED_LIBRARIES ' + ' '.join('"${CMAKE_INSTALL_PREFIX}/lib/lib' + name + '.a"' for name in libs) + ')'
+          p.write_text(s.replace(needle, needle + extra))
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src_packages/curl/CMakeLists.txt')
+          s = p.read_text()
+          needle = 'list(APPEND CMAKE_REQUIRED_LIBRARIES OpenSSL::SSL OpenSSL::Crypto)'
+          if needle not in s:
+              raise RuntimeError('curl OpenSSL checks changed; review required')
+          libs = ('z', 'brotlienc', 'brotlidec', 'brotlicommon', 'zstd')
+          extra = '\n    list(APPEND CMAKE_REQUIRED_LIBRARIES ' + ' '.join('"${CMAKE_INSTALL_PREFIX}/lib/lib' + name + '.a"' for name in libs) + ')'
+          p.write_text(s.replace(needle, needle + extra))
+          PY
+          pacman -Q > build-environment.txt
+      - name: Windows-Toolchain bauen
+        run: ninja -C media-build/build gcc
+      - name: mpv und FFmpeg mit Abhängigkeiten bauen
+        run: ninja -C media-build/build mpv
+      - name: Tatsächliche Quellen, Revisionen und Lizenztexte sammeln
+        run: python3 .github/scripts/collect-media-sources.py media-build media-output
+      - name: Quellen und Binaries gemeinsam zur Prüfung bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: HomeCam-Media-Build-mit-Quellen
+          path: media-output/
+          retention-days: 30
+          compression-level: 0
+      - name: Buildprotokolle speichern
+        if: always()
+        run: |
+          mkdir -p media-logs
+          python3 - <<'PY'
+          from pathlib import Path
+          import shutil
+          root = Path('media-build/build')
+          for p in root.rglob('*'):
+              if p.is_file() and (p.suffix == '.log' or p.name == 'CMakeConfigureLog.yaml'):
+                  destination = Path('media-logs') / p.relative_to(root)
+                  destination.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copyfile(p, destination)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HomeCam-Media-Buildprotokolle
+          path: media-logs/
+          if-no-files-found: ignore
+
+
+  windows:
+    needs: media
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.425'
+      - uses: actions/download-artifact@v4
+        with:
+          name: HomeCam-Media-Build-mit-Quellen
+          path: media-artifact
+          run-id: ${{ github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Prüfsummen, Quelleninventar und Binary-Lizenz prüfen
+        shell: pwsh
+        run: |
+          foreach ($line in Get-Content media-artifact/SHA256SUMS.txt) {
+            if ($line -notmatch '^([a-f0-9]{64})  ([^/\\]+)$') { throw 'Ungültige SHA-256-Liste.' }
+            $expected = $Matches[1]
+            $file = Join-Path media-artifact $Matches[2]
+            if ((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw "Prüfsumme falsch: $file" }
+          }
+          $inventory = Get-Content media-artifact/source-inventory.json -Raw | ConvertFrom-Json
+          if (-not $inventory.dependencies -or -not $inventory.licenseFiles) { throw 'Quellen- oder Lizenzinventar fehlt.' }
+          foreach ($license in $inventory.licenseFiles) {
+            if (-not (Test-Path -LiteralPath (Join-Path media-artifact $license))) { throw "Lizenzdatei fehlt: $license" }
+          }
+          $ffmpeg = (Resolve-Path media-artifact/ffmpeg.exe).Path
+          $license = & $ffmpeg -L 2>&1
+          if ($LASTEXITCODE -ne 0 -or ($license -join "`n") -notmatch 'GNU General Public License' -or
+              ($license -join "`n") -notmatch 'version 3' -or ($license -join "`n") -match 'enable-nonfree') {
+            throw 'Erwartete GPLv3-Binary-Lizenz ist nicht bestätigt.'
+          }
+          $license | Set-Content media-artifact/FFmpeg-license-report.txt
+      - name: Vorhandene Oberfläche mit V1 bauen und prüfen
+        run: |
+          dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
+          dotnet run --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- "${{ runner.temp }}/media-ui"
+      - name: Neue Fremdbinaries unter Windows prüfen
+        shell: pwsh
+        run: |
+          $ffmpeg = (Resolve-Path media-artifact/ffmpeg.exe).Path
+          $source = Join-Path $env:RUNNER_TEMP 'homecam-source.mkv'
+          & $ffmpeg -nostdin -hide_banner -loglevel error -f lavfi -i 'testsrc=size=320x180:rate=10' -t 20 -c:v mpeg4 -y $source
+          if ($LASTEXITCODE -ne 0) { throw 'Testquelle fehlgeschlagen.' }
+          $testExe = Get-ChildItem tests/ToolbarRender/bin -Filter ToolbarRender.exe -Recurse | Select-Object -First 1
+          Copy-Item media-artifact/ffmpeg.exe $testExe.DirectoryName
+          Copy-Item media-artifact/mpv.exe $testExe.DirectoryName
+          $output = Join-Path $env:RUNNER_TEMP 'media-pre-roll'
+          dotnet run --no-build --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- --pre-roll-check $source $output
+          if ($LASTEXITCODE -ne 0) { throw 'Vorlaufprüfung fehlgeschlagen.' }
+          & $ffmpeg -nostdin -hide_banner -loglevel error -i (Join-Path $output 'pre-roll.mkv') -f null NUL
+          if ($LASTEXITCODE -ne 0) { throw 'Vorlaufaufnahme nicht lesbar.' }
+          dotnet run --no-build --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- --preview-check $source "${{ runner.temp }}/media-ui"
+          if ($LASTEXITCODE -ne 0) { throw 'Minimierte Vorschau fehlgeschlagen.' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HomeCam-Media-Windows-Pruefergebnisse
+          path: |
+            ${{ runner.temp }}/media-ui/
+            media-artifact/FFmpeg-license-report.txt
+          if-no-files-found: ignore
+
+      - name: Geprüfte Fremdbinaries und vollständige Lizenzunterlagen ins Prüfpaket übernehmen
+        shell: pwsh
+        run: |
+          .github/scripts/prepare-release-components.ps1
+          Copy-Item media-artifact/mpv.exe, media-artifact/ffmpeg.exe publish -Force
+          Copy-Item media-artifact/licenses publish/licenses/media-dependencies -Recurse -Force
+          Copy-Item media-artifact/source-inventory.json publish/licenses/source-inventory.json
+          foreach ($name in @('mpv', 'ffmpeg')) {
+            $arg = if ($name -eq 'mpv') { '--version' } else { '-version' }
+            $stdout = Join-Path $env:RUNNER_TEMP "$name-version.txt"
+            $stderr = Join-Path $env:RUNNER_TEMP "$name-version-errors.txt"
+            $process = Start-Process -FilePath (Resolve-Path "media-artifact/$name.exe").Path -ArgumentList $arg -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw "$name-Version konnte nicht gelesen werden." }
+            Get-Content $stdout, $stderr | Set-Content "publish/licenses/$name-version.txt"
+          }
+          Copy-Item media-artifact/FFmpeg-license-report.txt publish/licenses/FFmpeg-binary-license-report.txt -Force
+          Copy-Item media-artifact/licenses/ffmpeg/COPYING.GPLv3 publish/licenses/FFmpeg-binary-LICENSE.txt -Force
+          $lock = Get-Content third-party.lock.json -Raw | ConvertFrom-Json
+          foreach ($name in @('mpv', 'ffmpeg')) {
+            $lock.$name.url = 'GitHub Actions run ' + '${{ github.run_id }}'
+            $lock.$name.sha256 = (Get-FileHash "media-artifact/$name.exe").Hash.ToLowerInvariant()
+            $lock.$name | Add-Member -NotePropertyName license -NotePropertyValue 'GPL-3.0-or-later' -Force
+          }
+          $lock | ConvertTo-Json -Depth 10 | Set-Content publish/third-party.lock.json
+          @'
+          Dieses Prüfpaket verwendet die gemeinsam mit den Quellen selbst gebauten mpv-/FFmpeg-Binaries (GPLv3), nicht die zuvor geprüfte BtbN-LGPL-Variante.
+          Die vollständigen Dependency-Lizenztexte liegen unter licenses/media-dependencies.
+          Das zugehörige Quellenarchiv und Quelleninventar werden zusammen mit diesem Prüfpaket bereitgestellt.
+          Die abschließende Lizenzkompatibilitätsprüfung und Freigabe stehen noch aus.
+          '@ | Add-Content publish/THIRD-PARTY-NOTICES.md
+          .github/scripts/build-release-downloads.ps1 -ReviewOnly
+          Copy-Item media-artifact/HomeCam-Media-corresponding-source.tar.zst, media-artifact/source-inventory.json, media-artifact/SHA256SUMS.txt release-downloads
+          $setup = (Resolve-Path release-downloads/HomeCamMonitor-v1.0.0-Setup-Review.exe).Path
+          $check = Start-Process -FilePath $setup -ArgumentList '--verify-setup' -WindowStyle Hidden -Wait -PassThru
+          if ($check.ExitCode -ne 0) { throw 'Setup- oder Beta-Updateprüfung fehlgeschlagen.' }
+          .github/scripts/scan-downloads.ps1 -DownloadsDirectory release-downloads -ReportName HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
+          Get-ChildItem release-downloads -File | Where-Object Name -ne SHA256SUMS.txt |
+            ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName).Hash.ToLowerInvariant(), $_.Name } |
+            Set-Content release-downloads/SHA256SUMS.txt -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-v1.0.0-Pruefpaket-mit-Quellen
+          path: release-downloads/
+          compression-level: 0
+          retention-days: 30

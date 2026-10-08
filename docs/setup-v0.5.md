@@ -1,0 +1,43 @@
+# V0.5 Beta 2 – Setup
+
+Das selbstentpackende Setup bietet einen frei wählbaren Installationsordner. Standard ist `C:\Program Files\HomeCamMonitor`. Ein bereits gespeicherter Installationspfad wird wieder vorgeschlagen.
+
+Bei aktivierter Option „Startmenü-Einträge erstellen“ (Standard: an) werden im Startmenü für den aktuellen Windows-Benutzer „HomeCamMonitor Beta“ (Programm mit Icon) und „Installationsordner“ eingerichtet. Eine Desktop-Verknüpfung sowie Programmstart nach Installation sind optional. Beta-Einstellungen bleiben im bisherigen Profilordner erhalten. Bei Installation in denselben Ordner wird nur die dort laufende Beta beendet. Andere Dateien im Zielordner werden nicht entfernt.
+
+Für geschützte Zielordner fordert das Setup bei der Installation Administratorrechte an. Nur das Entpacken der Programmdateien wird erhöht ausgeführt; Verknüpfungen, gespeicherter Installationspfad und anschließender Programmstart erfolgen für den ursprünglichen Benutzer.
+
+CI prüft Entpacken in einen Pfad mit Leerzeichen, Wiederholungsinstallation, Erhalt fremder Dateien, Programm-Icon und Verknüpfungsziel. Eine Setup-Vorschau wird als Build-Artefakt gespeichert.
+
+Beta 9 erkennt vorhandene Installationen anhand gespeicherter Setup-/Deinstallationseinträge und der Programmdatei im ausgewählten, Standardordner. Das Setup bietet Aktualisieren und Deinstallieren an. Bei alten Paketen ohne sichere Installationsliste muss zunächst aktualisiert werden.
+
+„Einstellungen zurücksetzen“ ist standardmäßig aus und benötigt eine Bestätigung. Nach erfolgreicher Installation werden nur Beta-Einstellungen gelöscht; vorhandene Aufnahmen, Sicherungsdateien und die Aufbewahrungsdateiliste bleiben erhalten. Beim nächsten Programmstart werden frische Voreinstellungen erzeugt, ohne alte Stable-Einstellungen erneut zu importieren. Eine Deinstallation bietet das Löschen der Einstellungen ebenfalls separat an.
+
+Beta 10 enthält keinen fest eingebauten persönlichen Entwicklungsordner mehr. Die Erkennung nutzt nur das ausgewählte Ziel, vorhandene Registry-Einträge und den Standardordner. Bei der Deinstallation werden beide Installationsvermerke immer entfernt, unabhängig davon, ob Einstellungen behalten werden. Ein vorhandener benutzerdefinierter Einstellungsordner bleibt bei deaktiviertem Löschen der Einstellungen erhalten.
+
+Beta 11 zeigt unten links die Programmversion als reine Information an. Die Anzeige verwendet denselben Versionswert wie der Windows-Deinstallationseintrag.
+
+In Beta 11 liegen Version, Speichern und Abbrechen in einem festen Fußbereich des Einstellungsfensters. Nur die Einstellungsgruppen scrollen. Beim Öffnen bleibt das gesamte Fenster innerhalb der Arbeitsfläche des jeweiligen Bildschirms, einschließlich Abstand zur Taskleiste.
+
+Beta 12 trennt das Scrollfenster vom automatisch bemessenen Inhalt. Damit umfasst die Scrollstrecke auch die gesamte letzte BETA-Gruppe und deren unteren Abstand. Eine Windows-Prüfung scrollt bei normaler und kleiner Fensterhöhe bis zur letzten Gruppe und kontrolliert deren vollständige Sichtbarkeit.
+
+Eine dezente dunkelgraue Trennlinie kennzeichnet den festen Fußbereich.
+
+Beta 13 verkleinert den festen Fußbereich auf eine Zeile: Version links, Abbrechen und Speichern rechts auf gleicher Höhe. Die Trennlinie und der vollständige Scrollbereich bleiben erhalten.
+
+Beta 14 ergänzt beim Sichern der Einstellungen den Rechnernamen im vorgeschlagenen Dateinamen, zum Beispiel `HomeCamMonitor-Einstellungen_PC-NAME_2026-10-03_15-35-00.json`. Der Name bleibt im Speichern-Dialog frei änderbar. Inhalt und Wiederherstellung bestehender Sicherungen bleiben unverändert.
+
+Beta 15 bietet im Bereich Bewegung und Aktivitätsanzeige die Checkbox „Minimiert starten“. Diese zusätzliche Bedienmöglichkeit ist mit der vorhandenen Auswahl „Beim Start“ synchronisiert und verwendet denselben gespeicherten Wert. Sie funktioniert unabhängig von der Bewegungserkennung. Bei neuen Einstellungen bleibt sie ausgeschaltet. Während der Bearbeitung stellt Ausschalten die vorherige Startauswahl wieder her.
+
+Beta 16 setzt den minimierten Startzustand bei einer konfigurierten Kamera vor dem ersten Anzeigen des Fensters. Das normale Kamerafenster wird beim Start nicht mehr kurz angezeigt und danach minimiert. Toolbar und Drag-Overlay bleiben im minimierten Zustand verborgen. Beim Wiederherstellen gelten die gespeicherte Größe/Position und die Vordergrundoption wieder. Windows kann vor dem ersten sichtbaren Öffnen weiterhin eine schwarze Taskleisten-Vorschau zeigen, weil noch kein sichtbares Fensterbild vorliegt.
+
+Beta 17 liefert beim minimierten Start ein eigenes Taskleisten-Vorschaubild an Windows (DWM). Das Bild kommt per IPC aus dem bereits laufenden mpv-Stream; HomeCam wird dafür nicht sichtbar geöffnet und baut keine weitere Kameraverbindung auf. Solange die Vorschau angefordert wird, aktualisiert sie sich etwa einmal pro Sekunde. Beim Verbinden bzw. bei einer Offline-Kamera wird der vorhandene schwarze Status mit Logo verwendet. Temporäre Vorschaubilder werden nach dem Lesen gelöscht und nicht im Snapshot-Ordner abgelegt. Nach dem ersten Wiederherstellen übernimmt wieder die native Windows-Vorschau.
+
+Beta 18 verhindert Fokuswechsel beim automatischen Anzeigen nach Bewegung: Kamera und Bedienflächen ändern ihren Vordergrundstatus mit `SWP_NOACTIVATE`. Auch das Anordnen der Overlays aktiviert kein Fenster mehr. Ein nachträgliches Zurücksetzen auf das vorher aktive Programm entfällt, ebenso beim Ablauf der Vordergrunddauer. Manuelles Anklicken bleibt möglich. Beim Wiederherstellen aus dem minimierten Zustand bleibt die laufende Bewegungs-Vordergrunddauer erhalten.
+
+Beta 19 trennt die Beschriftungen für Personen-Snapshots und Aufnahmen bei Bewegung: „Keine“ gilt ausschließlich für Bewegung, der Person-Haken in der Kameraliste aktiviert weiterhin einen Snapshot je Ereignis. Der globale Schalter heißt „Bewegungs- und Personenerkennung aktiv“. Der Aufbau der Einstellungen bündelt verschachtelte Layout-Berechnungen bis nach Aufbau und Farbgestaltung. Die Windows-Prüfung misst Aufbau und erstes Anzeigen und überprüft weiterhin das Scrollen und alle Gruppen.
+
+Überarbeitete Beta 19: Direkt unter „Snapshot-Vorlauf“ erklärt ein Hinweis, dass der Vorlauf für Bewegung und Personenerkennung gilt und „Keine“ nur Bewegungsaufnahmen ausschaltet. Die Personen-Zeile nennt den Auslöser und den Haken oben ausdrücklich. Die Versionsnummer bleibt Beta 19.
+
+Beta 20 bereitet den Einstellungsdialog samt Windows-Steuerelementen nach dem Start und nach dem Schließen in einer Ruhephase verborgen vor. Die Vorbereitung aktiviert kein Fenster und findet erst nach mindestens 1,5 Sekunden ohne Eingabe statt; während Bewegung, Größenänderung oder geöffneten Einstellungen wartet sie. Beim Öffnen werden Einstellungen und Speicherpfad gegen den vorbereiteten Stand geprüft; bei Änderungen wird ein frischer Dialog aufgebaut. Fensterposition, aktuelle Kamera und laufende Bewegungspause lesen sich beim Speichern weiterhin aus dem aktuellen Modell. Die dunkle gemeinsame Darstellung bleibt erhalten. Messungen trennen Aufbau und sichtbares Öffnen.
+
+Beim ersten Anzeigen bleiben die verschachtelten Layouts bis zum Abschluss der Steuerelement-Erzeugung angehalten. Vor dem Sichtbarwerden wird das Layout einmal abgeschlossen; die dunkle Gestaltung und gemeinsame Fensterzeichnung bleiben erhalten.

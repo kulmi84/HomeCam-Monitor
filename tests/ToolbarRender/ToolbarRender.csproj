@@ -6,11 +6,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <DefineConstants>BETA</DefineConstants>
+    <DefineConstants>BETA;RELEASE_V1</DefineConstants>
     <StartupObject>ToolbarRender.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="../../assets/HomeCamMonitor.ico" LogicalName="HomeCamMonitor.ApplicationIcon" />
+    <EmbeddedResource Include="../../assets/homecam-monitor-logo.png" LogicalName="HomeCamMonitor.OfflineLogo" />
     <Compile Include="../../Program.cs" />
+    <Compile Include="../../TaskbarPreview.cs" />
+    <Compile Include="../../MotionPreRoll.cs" />
+    <Compile Include="../../RecordingStorage.cs" />
+    <Compile Include="../../SettingsBackup.cs" />
+    <Compile Include="../../SettingsMaintenance.cs" />
+    <Compile Include="../../SettingsLocation.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
 </Project>
