@@ -65,3 +65,11 @@ SHA-256 des abschließenden Prüfpakets:
 
 Die Quellenarchiv-Prüfung bestätigt 1.020 mpv-Einträge, 10.965 FFmpeg-Einträge, 71 graphengine-Einträge und 22 Buildnachweise. `libzimg/graphengine` verweist relativ auf `../graphengine`; der absolute Runner-Pfad wird nicht benötigt. Review-Kennzeichnung und abschließende Freigabepunkte bleiben erhalten.
 Das V1-Icon verwendet unverändert die vorhandene Datei HomeCamMonitor-Beta.ico unter dem Stable-Dateinamen. Damit sind Motiv und belegte Fläche in allen Icon-Größen identisch zur Beta; Anwendung, Fenster, Setup, Deinstallation und Verknüpfungen übernehmen dieses Icon.
+
+## Aktualisierung vom 08.10.2026
+
+Die technische Fremdquellen- und Lizenzprüfung ist in [third-party-release-audit.md](third-party-release-audit.md) dokumentiert. Ergänzende FreeType-, IJG- und Codec-Texte wurden aus den tatsächlichen Quellen ergänzt; Windows-Prüflauf 37672184812 hat bestanden. Die früheren offenen Quellenpunkte oben dokumentieren den damaligen Zwischenstand.
+
+Der Paketworkflow bereitet jetzt final benannte Dateien nur für den exakt geprüften Quellen-/Binary-Satz vor. Installer, portable ZIP sowie Quellen und Prüfsummen stehen als getrennte Downloads bereit, sobald der abschließende Paketlauf erfolgreich ist. Marcin hat Installation und korrigiertes Icon des vorherigen Pakets bestätigt. Anwendungscode und Icon werden durch diese Paketänderung nicht verändert.
+
+Öffentliche Veröffentlichung, Tag und Merge bleiben ausstehend. PR #2 basiert weiterhin auf dem Beta-Branch; vor dem Übernehmen nach main muss dieser Branch-Zusammenhang berücksichtigt werden. Die Quellen werden beim offiziellen Release dauerhaft als separate Assets angeboten.

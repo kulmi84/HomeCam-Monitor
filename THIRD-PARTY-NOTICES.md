@@ -1,40 +1,33 @@
 # Fremdkomponenten – HomeCam Monitor V1.0.0
 
-Die proprietäre HomeCam-Lizenz gilt ausschließlich für eigene geschützte HomeCam-Bestandteile. Die Rechte an Fremdkomponenten, einschließlich Änderungen, Weitergabe und korrespondierender Quellen, richten sich nach deren eigenen Lizenzen.
+Die proprietäre HomeCam-Lizenz von Marcin Kulmaczewski gilt ausschließlich für eigene geschützte HomeCam-Bestandteile. Fremdprogramme, ihre Abhängigkeiten, Änderungen und korrespondierenden Quellen unterliegen ausschließlich ihren jeweiligen Lizenzen. Ihre Nutzung, Bearbeitung und Weitergabe setzt keine HomeCam-Zustimmung voraus, soweit ihre Lizenzen diese Rechte gewähren.
 
-## Geprüfter Stand
+## Tatsächlicher Paketstand
 
-Der V1-Paketbau verwendet feste Bezugsadressen und SHA-256 aus `third-party.lock.json`. Versionen und Lizenzberichte werden vor dem Verpacken geprüft. Die folgenden Angaben beziehen sich auf das derzeitige **Prüfpaket**, nicht auf einen bereits freigegebenen Download.
-
-| Komponente | Konkret verwendeter Stand | Lizenz und Nachweis |
+| Komponente | Quellstand | Lizenz / Nachweise im Paket |
 |---|---|---|
-| mpv | shinchiro, Asset `mpv-x86_64-20261006-git-6c092d978b.7z`; Quellrevision `6c092d978b` | mpv-Haupttexte unter `licenses/mpv-*.txt`. Die tatsächliche Gesamtvariante hängt von Buildoptionen und eingebauten Bibliotheken ab; deren vollständiger Quell- und Lizenznachweis ist noch offen. |
-| FFmpeg | BtbN, Asset `ffmpeg-N-127203-ga35c879992-win64-lgpl.zip` vom 05.10.2026 | Die konkrete EXE meldet **LGPL Version 3 oder später**. Volltexte unter `licenses/FFmpeg-*.txt`; die Ausgabe von `ffmpeg -L` wird mitgeliefert. Nicht pauschal als LGPLv2.1 bezeichnen. |
-| .NET / Windows Desktop Runtime | Self-contained Windows x64; im geprüften Build Runtime **8.0.31**, SDK **8.0.425** | Die tatsächlichen Paketversionen werden aus Projektassets und Runtimeabhängigkeiten ermittelt. LICENSE, THIRD-PARTY-NOTICES und Versionsliste aus den passenden NuGet-Runtimepaketen werden dem Download beigefügt. |
-| Eingebaute Bibliotheken | Abhängigkeiten der jeweiligen mpv-/FFmpeg-Binaries | Eigene Copyrights und Lizenztexte erforderlich. Die HomeCam-Lizenz beansprucht keine Rechte an ihnen. |
+| mpv | `6c092d978b73a54f8b945e29f88a4015c7dacd89` | Zusammen mit GPLv3-Abhängigkeiten gebaut; Gesamtbinary GPL-3.0-or-later. `licenses/mpv-*`, `licenses/media-dependencies/mpv/` und Versionsbericht. |
+| FFmpeg | `a35c8799920a93b99781eab6e70a5795ee7d182b` | GPL-3.0-or-later, laut tatsächlicher Ausgabe von `ffmpeg -L`. `licenses/FFmpeg-binary-LICENSE.txt` und Binary-Lizenzreport. Kein `enable-nonfree`. |
+| .NET / Windows Desktop Runtime | Tatsächliche Paketversionen in `licenses/` | Lizenztexte, THIRD-PARTY-NOTICES und Versionsnachweise aus den verwendeten Runtimepaketen. |
+| Weitere Bibliotheken | `licenses/source-inventory.json` | Vollständige gesammelte Copyright-/Lizenztexte unter `licenses/media-dependencies/`, einschließlich ergänzender FreeType-, IJG- und Codec-Hinweise. |
 
-HomeCam startet mpv und FFmpeg als getrennte Programme. Die Fremdprogramme werden nicht unter der proprietären HomeCam-Lizenz angeboten.
+Die früher zur Vorbereitung verwendete BtbN-LGPL-FFmpeg-Variante ist nicht die hier ausgelieferte EXE. Die finalen Fremdprogramme stammen aus unserem [Quellen-Build 37641796309](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37641796309).
+
+FreeType erlaubt alternativ FTL oder GPLv2-or-later. Für die GPLv3-Zusammenstellung wird GPLv2-or-later gewählt. Beide Texte und die zusätzlichen BDF-/PCF-Hinweise sind enthalten. Weitere Bibliotheken behalten ihre eigenen Lizenzbedingungen; einzelne Copyright-Hinweise werden nicht durch eine pauschale HomeCam-Lizenz ersetzt.
 
 ## Korrespondierende Quellen
 
-Die vorhandenen Fremdbinary-Downloads enthalten keinen von uns vollständig nachgewiesenen Satz der tatsächlich verwendeten Abhängigkeitsquellen, Patches und Buildskripte. Deshalb bleibt `sourceCoverageVerified` im Lockfile **false** und der finale Paketbau gesperrt. Allgemeine Links auf aktuelle Quellbranches ersetzen diesen Nachweis nicht.
+`HomeCam-Media-corresponding-source.tar.zst` enthält die tatsächlichen verwendeten Quellbäume, Abhängigkeiten, Änderungen und Buildrezepte. `source-inventory.json` dokumentiert die Revisionen. `sources-manifest.json` und `SHA256SUMS.txt` verbinden diese Unterlagen mit den ausgelieferten Binaries.
 
-Ein separater Workflow baut die Fremdprogramme mit archivierten tatsächlichen Quellen. Er erhält die beim Build verwendeten, gegebenenfalls gepatchten Quellbäume und sammelt Revisionen, Lizenztexte sowie Buildanweisungen. Dieser neue Build verwendet GPL-Komponenten; sein FFmpeg darf daher nicht mit dem oben beschriebenen LGPL-Prüfpaket gleichgesetzt werden. Vor Übernahme sind die vollständigen Lizenzbedingungen, Quellenabdeckung und Windows-Funktionstests zu prüfen.
+Das Quellenarchiv wird als eigener Download neben Installer und portabler Version angeboten und nicht installiert. Beim offiziellen Release müssen diese Quellen dauerhaft zusammen mit den Binärdownloads bereitgestellt werden. Zeitlich begrenzte GitHub-Actions-Artefakte dienen bis dahin nur zur Prüfung.
 
-Der finale Paketbau verlangt ein passendes `sources-manifest.json`, überprüfte Quellenabdeckung und SHA-256 für die Quellenarchive. Die korrespondierenden Quellen müssen zusammen mit den offiziellen Binärdownloads verfügbar sein und dürfen keiner HomeCam-Zustimmungspflicht unterliegen. GitHub-Prüfartefakte mit begrenzter Aufbewahrungszeit sind kein dauerhafter Release-Quellendownload.
-
-## Paketinhalt und Freigabe
-
-Setup und portable ZIP enthalten die HomeCam-Lizenz, dieses Dokument, Anleitung und Fremdlizenztexte. Das Setup zeigt die HomeCam-Lizenz vor der Installation auf Wunsch an. Pakete mit `-ReviewOnly` tragen eine eindeutige Prüfkennzeichnung.
-
-Noch offen sind der vollständige Quellen- und Dependency-Lizenznachweis sowie die Prüfung der endgültigen Fremdbinaries. Eine vollständige Release-Freigabe wird erst nach diesen Prüfungen dokumentiert; siehe [Release-Prüfung](docs/release-v1.0.0.md).
+HomeCam startet mpv und FFmpeg als getrennte Programme über Prozessaufrufe und gewöhnliche IPC-/Dateischnittstellen. Es bindet keine libmpv-/libavcodec-Bibliothek in den eigenen Programmcode ein. Die technische Einordnung als Zusammenstellung getrennter Programme und die geprüften Nachweise sind in [der Paketprüfung](docs/third-party-release-audit.md) dokumentiert.
 
 ## Primärquellen
 
-- [mpv Copyright am verwendeten Quellstand](https://github.com/mpv-player/mpv/blob/6c092d978b/Copyright)
-- [FFmpeg License and Legal Considerations](https://ffmpeg.org/legal.html)
-- [BtbN Buildvarianten am verwendeten Buildstand](https://github.com/BtbN/FFmpeg-Builds/blob/9acad4a9ef1583096af7836cc1e9c8cbcb4d3950/README.md)
-- [mpv Windows-Buildrezept am verwendeten Stand](https://github.com/shinchiro/mpv-winbuild-cmake/tree/05a60b3cfd04e3e3b89918f4a27f3dde2935dff2)
+- [mpv Copyright am verwendeten Stand](https://github.com/mpv-player/mpv/blob/6c092d978b73a54f8b945e29f88a4015c7dacd89/Copyright)
+- [FFmpeg Lizenzhinweise](https://ffmpeg.org/legal.html)
+- [Verwendetes Windows-Buildrezept](https://github.com/shinchiro/mpv-winbuild-cmake/tree/05a60b3cfd04e3e3b89918f4a27f3dde2935dff2)
 - [GNU GPL FAQ zur Zusammenstellung getrennter Programme](https://www.gnu.org/licenses/gpl-faq.en.html#MereAggregation)
 
 Maßgeblich sind die Lizenztexte und Quellen der konkret ausgelieferten Builds.

@@ -18,7 +18,7 @@ HomeCam Monitor ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Window
 
 ## Stand V1.0.0
 
-V1.0.0 übernimmt den festgelegten Funktionsumfang von `0.5.0-beta.22`. Anwendung, Setup und Paketnamen sind auf 1.0.0 gebracht. Der [aktuelle Windows- und Paketprüflauf](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37669838943) hat bestanden. Der korrigierte Installer und das ursprüngliche HomeCam-Icon sind auch vom Nutzer geprüft. Ein finaler Download wird erst nach Abschluss der Fremdquellen-Prüfung und Freigabe veröffentlicht; siehe [Release-Prüfliste](docs/release-v1.0.0.md).
+V1.0.0 übernimmt den festgelegten Funktionsumfang von `0.5.0-beta.22`. Anwendung, Setup und Paketnamen sind auf 1.0.0 gebracht. Der [aktuelle Windows- und Paketprüflauf](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37669838943) hat bestanden. Der korrigierte Installer und das ursprüngliche HomeCam-Icon sind auch vom Nutzer geprüft. Die Fremdquellen und ergänzenden Lizenztexte sind geprüft. Die final benannten Downloadpakete werden vor der Veröffentlichung nochmals automatisch geprüft; siehe [Release-Prüfliste](docs/release-v1.0.0.md).
 
 ## Funktionen
 

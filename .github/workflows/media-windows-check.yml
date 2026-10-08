@@ -137,15 +137,41 @@ jobs:
             $lock.$name | Add-Member -NotePropertyName license -NotePropertyValue 'GPL-3.0-or-later' -Force
           }
           $lock | ConvertTo-Json -Depth 10 | Set-Content publish/third-party.lock.json
-          @'
-          Dieses Prüfpaket verwendet die gemeinsam mit den Quellen selbst gebauten mpv-/FFmpeg-Binaries (GPLv3), nicht die zuvor geprüfte BtbN-LGPL-Variante.
-          Die vollständigen Dependency-Lizenztexte liegen unter licenses/media-dependencies.
-          Das zugehörige Quellenarchiv und Quelleninventar werden zusammen mit diesem Prüfpaket bereitgestellt.
-          Die abschließende Lizenzkompatibilitätsprüfung und Freigabe stehen noch aus.
-          '@ | Add-Content publish/THIRD-PARTY-NOTICES.md
-          .github/scripts/build-release-downloads.ps1 -ReviewOnly
-          Copy-Item media-artifact/HomeCam-Media-corresponding-source.tar.zst, media-artifact/source-inventory.json, media-artifact/SHA256SUMS.txt release-downloads
-          $setup = (Resolve-Path release-downloads/HomeCamMonitor-v1.0.0-Setup-Review.exe).Path
+          $final = (Get-Content media-review.lock.json -Raw | ConvertFrom-Json).releaseReady -eq $true
+          if ($final) {
+            if ('${{ steps.media.outputs.run_id }}' -ne '37641796309') { throw 'Finales Paket benötigt den geprüften Quellen-Build.' }
+            $expected = @{
+              'mpv.exe' = 'bb51c0d176ea76c26777cd05f92d65a724ef96253599e5ab3bf0c1af7245ede9'
+              'ffmpeg.exe' = '0cdeb8e922e75e2f9c39cf85cab79cff2c899df6dc703e77bcb5b849193498d1'
+              'HomeCam-Media-corresponding-source.tar.zst' = 'd4ae852e6f5048e6918a597c538724fb60385eb658f1c93d5ad9ac910acf9d6f'
+              'source-inventory.json' = 'a30900b1d93d66e4c3be169de3b2ac6e7a011aaa44ca63b8b3875d0cfef8f3c6'
+            }
+            foreach ($file in $expected.Keys) {
+              if ((Get-FileHash "media-artifact/$file").Hash.ToLowerInvariant() -ne $expected[$file]) { throw "Ungeprüfter Quellen- oder Binärstand: $file" }
+            }
+            foreach ($name in @('mpv', 'ffmpeg')) { $lock.$name.sourceCoverageVerified = $true }
+            $lock | ConvertTo-Json -Depth 10 | Set-Content third-party.lock.json
+            Copy-Item third-party.lock.json publish/third-party.lock.json -Force
+            $manifest = @{
+              schemaVersion = 1
+              sourceBuildRunId = 37641796309
+              mpvBinarySha256 = $expected['mpv.exe']
+              ffmpegBinarySha256 = $expected['ffmpeg.exe']
+              sourceInventorySha256 = $expected['source-inventory.json']
+              includesAllDependencies = $true
+              includesBuildScripts = $true
+              audit = 'docs/third-party-release-audit.md'
+              archives = @(@{ path = 'media-artifact/HomeCam-Media-corresponding-source.tar.zst'; sha256 = $expected['HomeCam-Media-corresponding-source.tar.zst'] })
+            }
+            $manifest | ConvertTo-Json -Depth 8 | Set-Content sources-manifest.json
+            Copy-Item sources-manifest.json publish/sources-manifest.json
+            .github/scripts/build-release-downloads.ps1
+          } else {
+            .github/scripts/build-release-downloads.ps1 -ReviewOnly
+          }
+          Copy-Item media-artifact/HomeCam-Media-corresponding-source.tar.zst, media-artifact/source-inventory.json release-downloads -Force
+          $setupName = if ($final) { 'HomeCamMonitor-v1.0.0-Setup.exe' } else { 'HomeCamMonitor-v1.0.0-Setup-Review.exe' }
+          $setup = (Resolve-Path (Join-Path release-downloads $setupName)).Path
           $check = Start-Process -FilePath $setup -ArgumentList '--verify-setup' -WindowStyle Hidden -Wait -PassThru
           if ($check.ExitCode -ne 0) { throw 'Setup- oder Beta-Updateprüfung fehlgeschlagen.' }
           .github/scripts/scan-downloads.ps1 -DownloadsDirectory release-downloads -ReportName HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
@@ -155,7 +181,7 @@ jobs:
             Set-Content release-downloads/SHA256SUMS.txt -Encoding ascii
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-v1.0.0-Pruefpaket-mit-Quellen
+          name: HomeCamMonitor-v1.0.0-Downloadpaket-mit-Quellen
           path: release-downloads/
           compression-level: 0
           retention-days: 30
@@ -175,12 +201,23 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCamMonitor-v1.0.0-Installer
-          path: release-downloads/HomeCamMonitor-v1.0.0-Setup-Review.exe
+          path: release-downloads/HomeCamMonitor-v1.0.0-Setup*.exe
           compression-level: 0
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCamMonitor-v1.0.0-Portable
-          path: release-downloads/HomeCamMonitor-v1.0.0-win-x64-Review.zip
+          path: release-downloads/HomeCamMonitor-v1.0.0-win-x64*.zip
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-v1.0.0-Quellen-und-Pruefsummen
+          path: |
+            release-downloads/HomeCam-Media-corresponding-source.tar.zst
+            release-downloads/source-inventory.json
+            release-downloads/sources-manifest.json
+            release-downloads/SHA256SUMS.txt
+            release-downloads/HomeCamMonitor-v1.0.0-DEFENDER-SCAN.txt
           compression-level: 0
           retention-days: 30
