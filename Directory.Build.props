@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Generated installer sources and package contents are never app sources. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/v2-release-downloads/**;**/publish-v2-release/**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>

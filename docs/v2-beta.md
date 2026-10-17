@@ -1,5 +1,7 @@
 # HomeCam Monitor V2 Beta – 2.0.0-beta.37
 
+Historische Entwicklungshinweise: Beta37 ist die bestätigte Grundlage der finalen V2.0.0. Aktuelle Funktionen und Bilder stehen in der [V2.0.0-Anleitung](v2.0.0.md), Paket- und Upgrade-Hinweise in [release-v2.0.0.md](release-v2.0.0.md).
+
 Beta37: Der Einstellungsbereich zeichnet native Felder beim Scrollen gemeinsam gepuffert. Scrollschritte schalten die Sichtbarkeit des Zeichenfensters nicht mehr über WM_SETREDRAW um. Die gesamte Oberfläche wird weiter als feste Einheit verschoben; Kamera- und Bewegungsbereiche behalten ihre Klappfunktion.
 
 Beta36: Bewegungsquellen passen zur Verbindung: Reolink-Kameraereignisse bei UID, externe HA-Sensoren bei Home Assistant und ausschließlich lokale Bildanalyse bei ONVIF/RTSP. Lokale Analyse bleibt bei UID/HA alternativ verfügbar. Die Quelle wird über ihre Bedeutung statt einen festen Dropdown-Index zugeordnet; Kamerawechsel erhalten gespeicherte Sensoren. Kameraeigene Einstellungen werden nicht verändert.

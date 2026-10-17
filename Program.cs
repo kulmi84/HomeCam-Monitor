@@ -4743,7 +4743,7 @@ internal sealed class SettingsForm : Form
         var betaFields = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false });
         betaFields.Controls.Add(betaLogging);
         betaFields.Controls.Add(new Label { Text = "Zur Fehlersuche bei Darstellungsproblemen. Änderungen gelten nach dem Speichern.", AutoSize = true });
-        var betaGroup = Batch(new GroupBox { Name = "BetaDiagnostics", Text = ApplicationBranding.ProductName == "HomeCam Monitor" ? "Darstellungsdiagnose" : "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
+        var betaGroup = Batch(new GroupBox { Name = "BetaDiagnostics", Text = ApplicationBranding.ProductName.Contains("Beta", StringComparison.OrdinalIgnoreCase) ? "BETA" : "Darstellungsdiagnose", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
         betaGroup.Controls.Add(betaFields);
         table.Controls.Add(betaGroup, 0, 7);
         var backupGroup = Batch(new GroupBox { Name = "SettingsBackup", Text = "Einstellungen sichern und wiederherstellen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });

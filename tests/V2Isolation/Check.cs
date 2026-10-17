@@ -16,6 +16,9 @@ internal static partial class Check
             Console.WriteLine(frameMode == "frame" ? "frame=1" : "frame=0"); return;
         }
         Application.EnableVisualStyles();
+#if RELEASE_V2
+        if (ApplicationBranding.ProductName != "HomeCam Monitor V2") throw new Exception("Final V2 branding is incorrect.");
+#endif
         if (args.Length == 1 && args[0] == "--docs-screenshots") { CaptureDocumentationScreenshots(); return; }
         if (args.Length == 1 && args[0] == "--local-motion") { TestLocalMotion(); return; }
         if (args.Length == 1 && args[0] == "--ha-discovery") { TestHomeAssistantDiscovery(); return; }

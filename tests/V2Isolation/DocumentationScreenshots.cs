@@ -24,6 +24,9 @@ internal static partial class Check
         var details = (MotionDetailsSection)form.Controls.Find("MotionDetailsSection",true).Single();
         void Save(string name, int offset = 0)
         {
+#if RELEASE_V2
+            name = name.Replace("v2-beta37", "v2-2.0.0");
+#endif
             scroll.AutoScrollPosition = new Point(0,offset); Pump(100); using var bitmap = new Bitmap(form.Width,form.Height);
             form.DrawToBitmap(bitmap,new Rectangle(Point.Empty,bitmap.Size)); bitmap.Save(Path.Combine(output,name));
         }
@@ -31,11 +34,14 @@ internal static partial class Check
         connections.Expanded = true; Save("v2-beta37-homeassistant.png"); connections.Expanded = false;
         grid.CurrentCell = grid.Rows[1].Cells[0]; connections.Expanded = true; Save("v2-beta37-reolink.png"); connections.Expanded = false;
         grid.CurrentCell = grid.Rows[2].Cells[0]; details.Expanded = true;
+#if RELEASE_V2
+        details.Expanded = false; connections.Expanded = true; Save("v2-beta37-direct.png"); connections.Expanded = false; details.Expanded = true;
+#endif
         // Synthetic preview, generated entirely in memory, no network/camera access.
         var pixels = new byte[320*180];
         for (var y=0;y<180;y++) for(var x=0;x<320;x++) pixels[y*320+x] = (byte)(35 + x/4 + y/6);
         var canvas = (MotionZoneCanvas)form.Controls.Find("LocalMotionZones",true).Single(); canvas.SetFrame(pixels);
         Save("v2-beta37-local-motion.png",180);
-        Console.WriteLine("Four Beta37 screenshots captured with synthetic data and preview; no user settings or camera access.");
+        Console.WriteLine("Documentation screenshots captured with synthetic data and preview; no user settings or camera access.");
     }
 }

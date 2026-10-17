@@ -6,7 +6,11 @@ internal static class ApplicationChannel
 #if V2_BETA
     internal const string StorageName = "HomeCamMonitor-V2-Beta";
     internal const string RecordingFolderName = "HomeCam Monitor V2 Beta";
+#if RELEASE_V2
+    internal const string ProductName = "HomeCam Monitor V2";
+#else
     internal const string ProductName = "HomeCam Monitor V2 Beta";
+#endif
 #else
     internal const string StorageName = "HomeCamMonitor-Beta";
     internal const string RecordingFolderName = "HomeCam Monitor";

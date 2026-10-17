@@ -16,9 +16,13 @@ HomeCam Monitor ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Window
 
 **English:** Free Windows IP camera viewer and RTSP camera monitor with a four-camera view, snapshots, video recording, pre-recording and optional Home Assistant motion/person sensor integration. Home Assistant is not required to view camera streams.
 
-## V2 Beta37 – separate Anwendung
+## V2.0.0 – finale Anwendung
 
-Die Entwicklung von **HomeCam Monitor V2** ist bei **2.0.0-beta.37**. V2 verwendet eine eigene Anwendung und getrennte Einstellungen; V1.0.0 bleibt die stabile Veröffentlichung.
+Die letzte Beta **2.0.0-beta.37** wurde am 17.10.2026 als Grundlage der finalen **V2.0.0** bestätigt. Die finale Ausgabe übernimmt ihre Funktionen unverändert und behält vorhandene V2-Einstellungen. [Paketbau und Upgrade-Hinweise](docs/release-v2.0.0.md). Der öffentliche Binärrelease bleibt bis zur vollständigen Quellen- und Lizenzprüfung der V2-Laufzeitkomponenten ausstehend.
+
+### Funktionen und Bilder
+
+**HomeCam Monitor V2.0.0** verwendet eine eigene Anwendung und von V1 getrennte Einstellungen. Die [V2.0.0-Anleitung mit Bildern](docs/v2.0.0.md) erklärt Einrichtung, Kameraquellen, Sensoren und Aufnahmen. V1.0.0 bleibt als bisheriger öffentlicher Download erhalten.
 
 - Drei Verbindungsarten: **Reolink-UID**, **Home Assistant** und direktes **ONVIF/RTSP**.
 - Netzwerk- und HA-Kamerasuche, ONVIF-Streamprofile und HA-Sensorzuordnung.
@@ -27,29 +31,41 @@ Die Entwicklung von **HomeCam Monitor V2** ist bei **2.0.0-beta.37**. V2 verwend
 - Empfindlichkeit, Mindestfläche, Mindestdauer und Überwachungsbereiche je Kamera; bestehende externe Sensoren bleiben erhalten.
 - Eingeklappte Verbindungseinstellungen und Bewegungsdetails, dunkle Auswahllisten und Scrollleisten. Beta37 puffert die Einstellungsfelder beim Scrollen gemeinsam.
 
-![V2 Beta37: Kameraliste, Bewegungsquelle und eingeklappte Einstellungen](docs/screenshots/v2-beta37-overview.png)
+![V2.0.0: Kameraliste, Bewegungsquelle und eingeklappte Einstellungen](docs/screenshots/v2-2.0.0-overview.png)
 
 ### Reolink direkt über UID
 
 Kameraeigene Bewegungsereignisse benötigen keinen HA-Sensor. Alternativ steht lokale Bildanalyse zur Verfügung.
 
-![Reolink-UID und Bewegungserkennung der Reolink-Kamera](docs/screenshots/v2-beta37-reolink.png)
+![Reolink-UID und Bewegungserkennung der Reolink-Kamera](docs/screenshots/v2-2.0.0-reolink.png)
 
 ### Home Assistant
 
 Verbindung und Streamadresse stehen getrennt von der Ereignis- und Sensorzuordnung. Die Suche listet HA-Kameras und passende Sensoren auf.
 
-![Home-Assistant-Verbindung und Kamerasuche](docs/screenshots/v2-beta37-homeassistant.png)
+![Home-Assistant-Verbindung und Kamerasuche](docs/screenshots/v2-2.0.0-homeassistant.png)
+
+### ONVIF/RTSP und Kamerasuche
+
+Direkt erreichbare Netzwerkkameras lassen sich über ONVIF suchen, mit ihren Streamprofilen übernehmen oder mit einer manuellen RTSP-Adresse einrichten. Eine ergänzende Portsuche prüft einen gewählten IPv4-Bereich; ein offener Port bestätigt noch keinen Stream. Für Bewegung steht bei dieser Verbindung lokale Bildanalyse zur Verfügung.
+
+![Direkte ONVIF-/RTSP-Verbindung](docs/screenshots/v2-2.0.0-direct.png)
 
 ### Lokale Bewegungserkennung
 
 Empfindlichkeit, Mindestfläche, Mindestdauer und Überwachungsbereiche werden je Kamera eingestellt. Die Vorschau zeigt hier ein synthetisches Testbild.
 
-![Lokale Bildanalyse mit Überwachungsbereich](docs/screenshots/v2-beta37-local-motion.png)
+![Lokale Bildanalyse mit Überwachungsbereich](docs/screenshots/v2-2.0.0-local-motion.png)
 
-[**V2-Beschreibung und Einrichtung**](docs/release-notes-v2-beta37.md) · [Technische Hinweise und Versionshistorie](docs/v2-beta.md) · [V2-Quellcode](https://github.com/kulmi84/HomeCam-Monitor/tree/main)
+[**V2.0.0-Anleitung mit Bildern**](docs/v2.0.0.md) · [Release und Upgrade](docs/release-v2.0.0.md) · [Technische Hinweise und Versionshistorie](docs/v2-beta.md) · [V2-Quellcode](https://github.com/kulmi84/HomeCam-Monitor/tree/main)
 
-Der Hauptzweig enthält V1 und die separate V2 Beta37. [Pull Request #3](https://github.com/kulmi84/HomeCam-Monitor/pull/3) wurde nach dem erfolgreichen [Windows-Build #295](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/39050341220) übernommen. Geprüft wurden unter anderem Oberfläche, Videowiedergabe, Aufnahmen, Reolink-Dienst, lokale Bewegungserkennung sowie V2-Installation und Deinstallation.
+Der Quellstand enthält V1 und die separate finale V2.0.0. [Pull Request #3](https://github.com/kulmi84/HomeCam-Monitor/pull/3) wurde nach dem erfolgreichen [Windows-Build #295](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/39050341220) übernommen. Geprüft wurden unter anderem Oberfläche, Videowiedergabe, Aufnahmen, Reolink-Dienst, lokale Bewegungserkennung sowie V2-Installation und Deinstallation.
+
+### Update und Installation
+
+Der V2.0.0-Installer beendet die Anwendung im gewählten Zielordner, übernimmt vorhandene V2-Kameras und Einstellungen und bereinigt zugehörige alte Beta-Verknüpfungen. **Einstellungen zurücksetzen** für ein normales Update ausgeschaltet lassen. Einige interne Datei- und Ordnernamen behalten aus Kompatibilitätsgründen `V2-Beta`; die Oberfläche zeigt Version **2.0.0**. V1 wird separat behandelt.
+
+![Finaler V2.0.0-Installer](docs/screenshots/v2-2.0.0-setup.png)
 
 Die Screenshots zeigen die Anwendung mit erfundenen Kameradaten. Die Vorschau der lokalen Analyse ist synthetisch. Öffentliche V2-Installer folgen nach der noch offenen Prüfung der neuen Fremdkomponenten; bestehende V1-Downloads bleiben unverändert.
 
