@@ -204,6 +204,11 @@ internal static class V2BetaInstaller
         string uninstaller = Path.Combine(directory, "HomeCamMonitor-V2-Beta-Uninstall.exe");
         ConfigureStartMenu(startMenu, directory, startMenuEntries);
         if (desktop) CreateShortcut(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "HomeCam Monitor V2 Beta.lnk"), executable, directory, executable);
+#if RELEASE_V2
+        RemoveLegacyShortcuts(directory,
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "HomeCam Monitor V2" + " Beta"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "HomeCam Monitor V2" + " Beta.lnk"));
+#endif
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegistryPath)) key.SetValue("InstallDirectory", directory);
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(V2BetaUninstaller.RegistryPath))
         {
@@ -217,6 +222,34 @@ internal static class V2BetaInstaller
         }
     }
 
+#if RELEASE_V2
+    internal static void RemoveLegacyShortcuts(string directory, string menu, string desktop)
+    {
+        string expected = Path.GetFullPath(directory).TrimEnd(Path.DirectorySeparatorChar);
+        var paths = new List<string> { desktop };
+        foreach (string name in new[] { "HomeCam Monitor V2" + " Beta.lnk", "Installationsordner.lnk", "Deinstallieren.lnk" }) paths.Add(Path.Combine(menu, name));
+        foreach (string path in paths)
+        {
+            if (!File.Exists(path)) continue;
+            object shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell", true));
+            object shortcut = null;
+            try
+            {
+                shortcut = shell.GetType().InvokeMember("CreateShortcut", BindingFlags.InvokeMethod, null, shell, new object[] { path });
+                string target = shortcut.GetType().InvokeMember("TargetPath", BindingFlags.GetProperty, null, shortcut, null) as string;
+                if (String.IsNullOrWhiteSpace(target) || !Path.IsPathRooted(target)) continue;
+                target = Path.GetFullPath(target).TrimEnd(Path.DirectorySeparatorChar);
+                if (String.Equals(target, expected, StringComparison.OrdinalIgnoreCase) || String.Equals(Path.GetDirectoryName(target), expected, StringComparison.OrdinalIgnoreCase)) File.Delete(path);
+            }
+            finally
+            {
+                if (shortcut != null) Marshal.FinalReleaseComObject(shortcut);
+                Marshal.FinalReleaseComObject(shell);
+            }
+        }
+        if (Directory.Exists(menu) && Directory.GetFileSystemEntries(menu).Length == 0) Directory.Delete(menu);
+    }
+#endif
     internal static void ConfigureStartMenu(string startMenu, string directory, bool enabled)
     {
         string executable = Path.Combine(directory, Executable);
@@ -262,6 +295,17 @@ internal static class V2BetaInstaller
                 if (!String.Equals(actual, Path.Combine(target, Executable), StringComparison.OrdinalIgnoreCase)) throw new Exception("Shortcut target incorrect.");
             }
             finally { Marshal.FinalReleaseComObject(shortcut); Marshal.FinalReleaseComObject(shell); }
+#if RELEASE_V2
+            string legacyMenu = Path.Combine(temp, "Legacy menu");
+            string legacyLink = Path.Combine(legacyMenu, "HomeCam Monitor V2" + " Beta.lnk");
+            string foreignLink = Path.Combine(temp, "Foreign desktop.lnk");
+            CreateShortcut(legacyLink, Path.Combine(target, Executable), target, Path.Combine(target, Executable));
+            CreateShortcut(foreignLink, Application.ExecutablePath, temp, Application.ExecutablePath);
+            File.WriteAllText(Path.Combine(legacyMenu, "keep.txt"), "preserve");
+            RemoveLegacyShortcuts(target, legacyMenu, foreignLink);
+            if (File.Exists(legacyLink) || !File.Exists(foreignLink) || !File.Exists(Path.Combine(legacyMenu, "keep.txt")))
+                throw new Exception("Final upgrade shortcut cleanup affected unrelated files.");
+#endif
             string testMenu = Path.Combine(temp, "Optional menu");
             ConfigureStartMenu(testMenu, target, true);
             if (Directory.GetFiles(testMenu, "*.lnk").Length != 3) throw new Exception("Start menu entries are missing.");

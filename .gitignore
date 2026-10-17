@@ -4,6 +4,8 @@ publish/
 *.user
 *.suo
 publish-v2-beta/
+publish-v2-release/
+v2-release-downloads/
 v2-beta-downloads/
 reolink-component-cache/
 gateway-test-*/

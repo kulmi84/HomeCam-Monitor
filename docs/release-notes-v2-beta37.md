@@ -1,8 +1,8 @@
 # HomeCam Monitor V2 – Beta37
 
-V2 ist eine separate Windows-Anwendung mit eigenen Einstellungen und eigenem Installationsordner. V1.0.0 bleibt die stabile Veröffentlichung. Die vorher als gut bestätigte V2-Referenz bleibt Beta29; Beta37 ergänzt die Funktionen und Fehlerkorrekturen der nachfolgenden Entwicklung.
+Historischer Beta37-Stand: Beta37 wurde als Grundlage der finalen V2.0.0 bestätigt und hat Beta29 als aktuelle Referenz ersetzt. Die aktuelle [V2.0.0-Anleitung](v2.0.0.md) und die [Release-Hinweise](release-v2.0.0.md) enthalten den heutigen Stand.
 
-Der V2-Programmcode liegt im [Entwicklungszweig](https://github.com/kulmi84/HomeCam-Monitor/tree/feature/reolink-v2-beta); [Pull Request #3](https://github.com/kulmi84/HomeCam-Monitor/pull/3) enthält die Änderung zur Prüfung. Die Dokumentation ist bereits im Hauptzweig sichtbar, dessen Programmcode weiterhin V1 ist.
+Der Programmstand wurde mit [Pull Request #3](https://github.com/kulmi84/HomeCam-Monitor/pull/3) in den Hauptzweig übernommen. V1 und V2 bleiben separate Anwendungen mit getrennten Einstellungen.
 
 ## Einrichtung in fünf Schritten
 
