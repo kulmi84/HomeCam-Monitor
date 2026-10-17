@@ -10,6 +10,7 @@ internal static class Program
     {
         const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         settings.MotionDetectionEnabled = true; settings.AlwaysOnTop = false; settings.MinimizeWhenInactive = false;
+        foreach (var camera in settings.Cameras) camera.MotionEnabled = true;
         using var editor = new Form { Text = "Typing focus fixture", Width = 300, Height = 180, StartPosition = FormStartPosition.Manual,
             Location = new Point(10, 10) };
         using var text = new TextBox { Dock = DockStyle.Fill, Multiline = true };
@@ -24,7 +25,7 @@ internal static class Program
             if (minimized) monitor.MinimizeWindow();
             for (var repeat = 0; repeat < 2; repeat++)
             {
-                typeof(MonitorForm).GetMethod("HandleMotion", hidden)!.Invoke(monitor, new object[] { "Vorschau-Test" });
+                typeof(MonitorForm).GetMethod("HandleMotion", hidden)!.Invoke(monitor, new object[] { "Vorschau-Test", false });
                 await Task.Delay(200);
                 if (NativeMethods.GetForegroundWindow() != editor.Handle || NativeMethods.GetFocus() != text.Handle || activations != 0)
                     throw new InvalidOperationException($"Motion interrupted typing (minimized={minimized}, activations={activations}).");
