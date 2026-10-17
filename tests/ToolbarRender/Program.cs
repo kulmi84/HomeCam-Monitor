@@ -10,6 +10,7 @@ internal static class Program
     {
         const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         settings.MotionDetectionEnabled = true; settings.AlwaysOnTop = false; settings.MinimizeWhenInactive = false;
+        foreach (var camera in settings.Cameras) camera.MotionEnabled = true;
         using var editor = new Form { Text = "Typing focus fixture", Width = 300, Height = 180, StartPosition = FormStartPosition.Manual,
             Location = new Point(10, 10) };
         using var text = new TextBox { Dock = DockStyle.Fill, Multiline = true };
@@ -24,7 +25,7 @@ internal static class Program
             if (minimized) monitor.MinimizeWindow();
             for (var repeat = 0; repeat < 2; repeat++)
             {
-                typeof(MonitorForm).GetMethod("HandleMotion", hidden)!.Invoke(monitor, new object[] { "Vorschau-Test" });
+                typeof(MonitorForm).GetMethod("HandleMotion", hidden)!.Invoke(monitor, new object[] { "Vorschau-Test", false });
                 await Task.Delay(200);
                 if (NativeMethods.GetForegroundWindow() != editor.Handle || NativeMethods.GetFocus() != text.Handle || activations != 0)
                     throw new InvalidOperationException($"Motion interrupted typing (minimized={minimized}, activations={activations}).");
@@ -145,9 +146,10 @@ internal static class Program
         using (var prepared = new SettingsForm(preparationFixture))
         {
             editor.Show(); NativeMethods.SetForegroundWindow(editor.Handle);
+            var foregroundBeforePreparation = NativeMethods.GetForegroundWindow();
             prepared.PrepareForDisplay();
-            if (prepared.Visible || NativeMethods.GetForegroundWindow() != editor.Handle)
-                throw new InvalidOperationException("Hidden settings preparation shows or activates a window.");
+            if (prepared.Visible || NativeMethods.GetForegroundWindow() != foregroundBeforePreparation)
+                throw new InvalidOperationException($"Hidden settings preparation shows or activates a window (visible={prepared.Visible}, foreground={NativeMethods.GetForegroundWindow()}, before={foregroundBeforePreparation}, settings={prepared.Handle}).");
             var readyTimer = System.Diagnostics.Stopwatch.StartNew();
             prepared.Show(); Application.DoEvents();
             readyTimer.Stop();
@@ -497,12 +499,12 @@ internal static class Program
             if (!minimized.TopMost)
                 throw new InvalidOperationException("Restoring a minimized startup lost foreground settings.");
         }
-        using var monitor = new MonitorForm();
+        using var monitor = new MonitorForm(new Settings { MotionDetectionEnabled = false });
         if (monitor.Text != ApplicationBranding.ProductName)
             throw new InvalidOperationException("The Windows application title is missing.");
         if (!ReferenceEquals(monitor.Icon, ApplicationBranding.WindowIcon))
             throw new InvalidOperationException("Main window does not use the HomeCamMonitor icon.");
-        using (var layoutMonitor = new MonitorForm())
+        using (var layoutMonitor = new MonitorForm(new Settings { MotionDetectionEnabled = false }))
         {
             const System.Reflection.BindingFlags privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
             typeof(MonitorForm).GetField("settings", privateInstance)!.SetValue(layoutMonitor, new Settings());

@@ -4,8 +4,8 @@ using System.Text.Json;
 namespace HomeCamMonitor;
 internal static class SettingsLocation
 {
-    internal const string RegistryPath = @"Software\HomeCamMonitor-Beta";
-    internal static string DefaultFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta");
+    internal const string RegistryPath = ApplicationChannel.RegistryPath;
+    internal static string DefaultFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationChannel.StorageName);
     internal static string CurrentFolder => ReadFolder(RegistryPath);
     internal static string ReadFolder(string registryPath)
     {

@@ -26,8 +26,13 @@ internal static class SettingsBackup
         if (payload.ValueKind != JsonValueKind.Object || !payload.TryGetProperty("Cameras", out var cameras) || cameras.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Die Datei enthält keine HomeCamMonitor-Einstellungen.");
         var settings = payload.Deserialize<Settings>() ?? throw new InvalidDataException("Leere Einstellungsdatei.");
+#if V2_BETA
+        if (settings.Cameras is not null && settings.Cameras.Any(c => c is not null &&
+            (c.Direct is null || c.Reolink is null || c.Direct.Enabled && c.Reolink.Enabled)))
+            throw new InvalidDataException("Ungültige oder widersprüchliche Kamera-Verbindungsart.");
+#endif
         if (settings.Cameras is null || settings.Cameras.Count > 1000 || settings.Cameras.Any(camera => camera is null ||
-            camera.Name is null || !Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _) ||
+            camera.Name is null || (camera.Active && !Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _)) ||
             camera.MotionEntityId is null || camera.PersonEntityId is null || camera.MotionAction is not ("None" or "Snapshot" or "Video" or "Both") ||
             camera.MotionVideoSeconds is not (15 or 30 or 60)))
             throw new InvalidDataException("Ungültige Kamerakonfiguration in der Datei.");
@@ -45,6 +50,10 @@ internal static class SettingsBackup
             if (path is null) throw new InvalidDataException("Ungültiger Speicherpfad.");
             _ = RecordingStorage.Resolve(path, RecordingStorage.MotionDefault);
         }
+#if V2_BETA
+        foreach (var camera in settings.Cameras)
+            try { camera.LocalMotion.Validate(); } catch (ArgumentException e) { throw new InvalidDataException("Ungültige lokale Bewegungserkennung in der Sicherung.", e); }
+#endif
         settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, Math.Max(0, settings.Cameras.Count - 1));
         settings.StartCameraIndex = Math.Clamp(settings.StartCameraIndex, 0, Math.Max(0, settings.Cameras.Count - 1));
         settings.LastGridMode &= settings.Cameras.Count >= 2;

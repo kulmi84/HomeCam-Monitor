@@ -1,0 +1,10 @@
+using System;
+class PkgConfig {
+ static int Main(string[] args) {
+  string s=string.Join(" ",args);
+  if(s.Contains("--modversion")) Console.WriteLine(s.Contains("glib")||s.Contains("gobject")||s.Contains("gio-")?"2.84.0":"1.26.11");
+  else if(s.Contains("--variable=")) Console.WriteLine(System.IO.Path.GetDirectoryName(typeof(PkgConfig).Assembly.Location).Replace('\\','/'));
+  else Console.WriteLine("-L"+System.IO.Path.GetDirectoryName(typeof(PkgConfig).Assembly.Location).Replace('\\','/')+" -lglib-2.0 -lgobject-2.0 -lgio-2.0 -lgstreamer-1.0 -lgstbase-1.0 -lgstapp-1.0 -lgstrtsp-1.0 -lgstrtspserver-1.0 -lgstsdp-1.0 -lgstnet-1.0 -lgstvideo-1.0");
+  return 0;
+ }
+}

@@ -1,0 +1,23 @@
+{
+  "neolink": {
+    "version": "0.6.2",
+    "compatibilityVariant": "homecam-stream3",
+    "originalExecutableSha256": "3617f05fd1181fbda4a85a5bc9b3dcc80f157b509fbf1e06819a8b6e467e2823",
+    "patchedExecutableSha256": "fa08400354c8437105bfe01d407c041bd4c9156f4dae63e1598efaded24510c0",
+    "url": "https://github.com/QuantumEntangledAndy/neolink/releases/download/v0.6.2/neolink_windows.zip",
+    "sha256": "e43e9d7036367a2e0b8370635e0d51df5d28c70b07d020149880d6712e662136",
+    "sourceUrl": "https://github.com/QuantumEntangledAndy/neolink/archive/e47a0d5734b0a06b53bd8d78be9ca2f6b8396480.zip",
+    "sourceSha256": "f305a917abfe0ec4520109425dc2c3d465257aed491efa8d4bd3a7f0cc0a5b2f",
+    "streamExecutableSha256": "e70dbe88731ed37313004d9dfffd0b3862e30b1f353571e51a0da6a387b99bc6"
+  },
+  "gstreamer": {
+    "version": "1.26.11",
+    "url": "https://gstreamer.freedesktop.org/data/pkg/windows/1.26.11/msvc/gstreamer-1.0-msvc-x86_64-1.26.11.msi",
+    "sha256": "31cbc21fa0950b5c1e79c80959b2799805cb05a7a35953a13a9f790776137605"
+  },
+  "lessmsi": {
+    "version": "2.12.9",
+    "url": "https://github.com/activescott/lessmsi/releases/download/v2.12.9/lessmsi-v2.12.9.zip",
+    "sha256": "5b4e187e74b184ad3a63ccf06c3d17dae2b8c4b6c298a996dbd51a9f6db29d21"
+  }
+}

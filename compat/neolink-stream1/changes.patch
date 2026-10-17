@@ -1,0 +1,102 @@
+diff --git a/crates/core/src/bc_protocol/connection/bcconn.rs b/crates/core/src/bc_protocol/connection/bcconn.rs
+index e8b5738..c6d5e8a 100644
+--- a/crates/core/src/bc_protocol/connection/bcconn.rs
++++ b/crates/core/src/bc_protocol/connection/bcconn.rs
+@@ -16,6 +16,59 @@ use tokio::{sync::RwLock, task::JoinSet};
+ 
+ type MsgHandler = dyn 'static + Send + Sync + for<'a> Fn(&'a Bc) -> BoxFuture<'a, Option<Bc>>;
+ 
++fn legacy_video_sender(response: &Bc, consumers: &BTreeMap<Option<u16>, Sender<Result<Bc>>>) -> Option<Sender<Result<Bc>>> {
++    if response.meta.msg_id != MSG_ID_VIDEO || response.meta.channel_id != 0 ||
++        !matches!(&response.body, BcBody::ModernMsg(ModernMsg { payload: Some(BcPayloads::Binary(_)), .. })) {
++        return None;
++    }
++    let mut active = consumers.values().filter(|sender| !sender.is_closed());
++    let sender = active.next()?.clone();
++    if active.next().is_some() { None } else { Some(sender) }
++}
++
++#[cfg(test)]
++mod legacy_video_tests {
++    use super::*;
++    fn video() -> Bc {
++        Bc {
++            meta: BcMeta { msg_id: MSG_ID_VIDEO, channel_id: 0, stream_type: 1,
++                response_code: 200, msg_num: 0, class: 0x6414 },
++            body: BcBody::ModernMsg(ModernMsg { extension: None, payload: Some(BcPayloads::Binary(vec![1, 2, 3])) }),
++        }
++    }
++    #[tokio::test]
++    async fn legacy_video_routes_binary_to_the_only_open_consumer() {
++        let (sender, mut receiver) = channel(1);
++        let mut consumers = BTreeMap::new();
++        consumers.insert(Some(42), sender);
++        let message = video();
++        legacy_video_sender(&message, &consumers).unwrap().send(Ok(message)).await.unwrap();
++        assert_eq!(receiver.recv().await.unwrap().unwrap().meta.msg_num, 0);
++    }
++    #[tokio::test]
++    async fn legacy_video_never_guesses_between_streams_or_routes_other_channels_and_xml() {
++        let (one, _rx1) = channel(1);
++        let (two, rx2) = channel(1);
++        let mut consumers = BTreeMap::new();
++        consumers.insert(Some(42), one);
++        consumers.insert(Some(43), two);
++        assert!(legacy_video_sender(&video(), &consumers).is_none());
++        drop(rx2);
++        assert!(legacy_video_sender(&video(), &consumers).is_some());
++        let mut message = video();
++        message.meta.channel_id = 1;
++        assert!(legacy_video_sender(&message, &consumers).is_none());
++        message.meta.channel_id = 0;
++        message.body = BcBody::ModernMsg(ModernMsg::default());
++        assert!(legacy_video_sender(&message, &consumers).is_none());
++        message.body = BcBody::ModernMsg(ModernMsg { extension: None,
++            payload: Some(BcPayloads::BcXml(BcXml::default())) });
++        assert!(legacy_video_sender(&message, &consumers).is_none());
++        message.meta.msg_id = MSG_ID_LOGIN;
++        assert!(legacy_video_sender(&message, &consumers).is_none());
++    }
++}
++
+ #[derive(Default)]
+ struct Subscriber {
+     /// Subscribers based on their ID and their num
+@@ -284,6 +337,11 @@ impl Poller {
+                                         occ.remove(&None);
+                                         occ.insert(Some(msg_num), sender.clone());
+                                         Some(sender)
++                                    } else if let Some(sender) = legacy_video_sender(&response, occ) {
++                                        // Some standalone cameras tag video data with a different
++                                        // message number than the preview command. Route only binary
++                                        // channel-zero video when there is one unambiguous consumer.
++                                        Some(sender)
+                                     } else if occ
+                                         .get(&Some(msg_num))
+                                         .map(|a| a.is_closed())
+diff --git a/crates/core/src/bc_protocol/connection/discovery.rs b/crates/core/src/bc_protocol/connection/discovery.rs
+index 0160482..f281af2 100644
+--- a/crates/core/src/bc_protocol/connection/discovery.rs
++++ b/crates/core/src/bc_protocol/connection/discovery.rs
+@@ -399,7 +399,7 @@ impl Discoverer {
+                 addrs.append(
+                     &mut format!("{}:9999", p2p_relay)
+                         .to_socket_addrs()
+-                        .map(|i| i.collect::<Vec<SocketAddr>>())
++                        .map(|i| i.filter(|a| !a.ip().is_loopback() && !a.ip().is_unspecified() && !a.ip().is_multicast()).collect::<Vec<SocketAddr>>())
+                         .unwrap_or_else(|_| vec![]),
+                 );
+             }
+diff --git a/src/common/streamthread.rs b/src/common/streamthread.rs
+index 28dfaf2..9d978b4 100644
+--- a/src/common/streamthread.rs
++++ b/src/common/streamthread.rs
+@@ -378,7 +378,7 @@ impl StreamData {
+                             v = async {
+                                 watchdog_rx.recv().await; // Wait forever for the first feed
+                                 loop {
+-                                    let check_timeout = timeout(Duration::from_secs(3), watchdog_rx.recv()).await;
++                                    let check_timeout = timeout(Duration::from_secs(15), watchdog_rx.recv()).await;
+                                     if let Err(_)| Ok(None) = check_timeout {
+                                         // Timeout
+                                         // Reply with Ok to trigger the restart

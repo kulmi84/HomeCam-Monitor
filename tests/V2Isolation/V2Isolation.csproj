@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DefineConstants>BETA;V2_BETA</DefineConstants>
+    <StartupObject>V2Isolation.Check</StartupObject>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../assets/HomeCamMonitor-Beta.ico" LogicalName="HomeCamMonitor.ApplicationIcon" />
+    <EmbeddedResource Include="../../assets/homecam-monitor-logo.png" LogicalName="HomeCamMonitor.OfflineLogo" />
+    <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" ExcludeAssets="analyzers" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260627" />
+    <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+    <Compile Include="../../*.cs" />
+    <Compile Include="Check.cs" />
+    <Compile Include="DirectChecks.cs" />
+    <Compile Include="UidPlaybackChecks.cs" />
+    <Compile Include="DiscoveryChecks.cs" />
+    <Compile Include="HomeAssistantChecks.cs" />
+    <Compile Include="LocalMotionChecks.cs" />
+    <Compile Include="DocumentationScreenshots.cs" />
+  </ItemGroup>
+  <!-- The package analyzer needs a newer Roslyn than this .NET 8 project. -->
+  <Target Name="RemoveIncompatibleOpenCvAnalyzer" BeforeTargets="CoreCompile">
+    <ItemGroup><Analyzer Remove="@(Analyzer)" Condition="'%(Filename)' == 'OpenCvSharp.Analyzers'" /></ItemGroup>
+  </Target>
+</Project>
