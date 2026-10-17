@@ -145,9 +145,10 @@ internal static class Program
         using (var prepared = new SettingsForm(preparationFixture))
         {
             editor.Show(); NativeMethods.SetForegroundWindow(editor.Handle);
+            var foregroundBeforePreparation = NativeMethods.GetForegroundWindow();
             prepared.PrepareForDisplay();
-            if (prepared.Visible || NativeMethods.GetForegroundWindow() != editor.Handle)
-                throw new InvalidOperationException("Hidden settings preparation shows or activates a window.");
+            if (prepared.Visible || NativeMethods.GetForegroundWindow() != foregroundBeforePreparation)
+                throw new InvalidOperationException($"Hidden settings preparation shows or activates a window (visible={prepared.Visible}, foreground={NativeMethods.GetForegroundWindow()}, before={foregroundBeforePreparation}, settings={prepared.Handle}).");
             var readyTimer = System.Diagnostics.Stopwatch.StartNew();
             prepared.Show(); Application.DoEvents();
             readyTimer.Stop();
@@ -497,12 +498,12 @@ internal static class Program
             if (!minimized.TopMost)
                 throw new InvalidOperationException("Restoring a minimized startup lost foreground settings.");
         }
-        using var monitor = new MonitorForm();
+        using var monitor = new MonitorForm(new Settings { MotionDetectionEnabled = false });
         if (monitor.Text != ApplicationBranding.ProductName)
             throw new InvalidOperationException("The Windows application title is missing.");
         if (!ReferenceEquals(monitor.Icon, ApplicationBranding.WindowIcon))
             throw new InvalidOperationException("Main window does not use the HomeCamMonitor icon.");
-        using (var layoutMonitor = new MonitorForm())
+        using (var layoutMonitor = new MonitorForm(new Settings { MotionDetectionEnabled = false }))
         {
             const System.Reflection.BindingFlags privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
             typeof(MonitorForm).GetField("settings", privateInstance)!.SetValue(layoutMonitor, new Settings());
