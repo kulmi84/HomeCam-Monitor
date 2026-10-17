@@ -3,3 +3,16 @@ obj/
 publish/
 *.user
 *.suo
+publish-v2-beta/
+v2-beta-downloads/
+reolink-component-cache/
+gateway-test-*/
+v2-settings.png
+helper-smoke-registry.bin
+v2-dialog.png
+v2-tabs-*.png
+v2-settings-beta11.png
+v2-dropdown.png
+v2-discovery.png
+v2-ha-discovery.png
+v2-local-motion.png

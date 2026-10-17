@@ -16,6 +16,23 @@ HomeCam Monitor ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Window
 
 **English:** Free Windows IP camera viewer and RTSP camera monitor with a four-camera view, snapshots, video recording, pre-recording and optional Home Assistant motion/person sensor integration. Home Assistant is not required to view camera streams.
 
+## V2 Beta37 – separate Anwendung
+
+Die Entwicklung von **HomeCam Monitor V2** ist bei **2.0.0-beta.37**. V2 verwendet eine eigene Anwendung und getrennte Einstellungen; V1.0.0 bleibt die stabile Veröffentlichung.
+
+- Drei Verbindungsarten: **Reolink-UID**, **Home Assistant** und direktes **ONVIF/RTSP**.
+- Netzwerk- und HA-Kamerasuche, ONVIF-Streamprofile und HA-Sensorzuordnung.
+- Kameras aktivieren, sortieren und löschen; Bewegung, Personenereignisse und Aufnahmen pro Kamera.
+- Wahl zwischen Kamera-/HA-Ereignissen und **lokaler Bewegungserkennung mit OpenCV/MOG2**. ONVIF/RTSP nutzt für Bewegung die lokale Analyse.
+- Empfindlichkeit, Mindestfläche, Mindestdauer und Überwachungsbereiche je Kamera; bestehende externe Sensoren bleiben erhalten.
+- Eingeklappte Verbindungseinstellungen und Bewegungsdetails, dunkle Auswahllisten und Scrollleisten. Beta37 puffert die Einstellungsfelder beim Scrollen gemeinsam.
+
+![V2 Beta37: Kameraliste, Bewegungsquelle und eingeklappte Einstellungen](docs/screenshots/v2-beta37-overview.png)
+
+[**V2-Beschreibung mit weiteren Screenshots**](docs/release-notes-v2-beta37.md) · [Technische Hinweise und Versionshistorie](docs/v2-beta.md)
+
+Die Screenshots zeigen die Anwendung mit erfundenen Kameradaten. Die Vorschau der lokalen Analyse ist synthetisch. Öffentliche V2-Installer folgen nach der noch offenen Prüfung der neuen Fremdkomponenten; bestehende V1-Downloads bleiben unverändert.
+
 ## Stand V1.0.0
 
 V1.0.0 übernimmt den festgelegten Funktionsumfang von `0.5.0-beta.22`. Die Veröffentlichung wurde am 08.10.2026 von Marcin freigegeben. Installation und Originalicon sind bestätigt; die abschließenden Windows-, Setup-, Medien- und Defender-Prüfungen haben bestanden.

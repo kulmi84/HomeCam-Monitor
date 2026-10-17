@@ -1,0 +1,577 @@
+diff --git a/crates/core/src/bc_protocol/connection/bcconn.rs b/crates/core/src/bc_protocol/connection/bcconn.rs
+index e8b5738..c6d5e8a 100644
+--- a/crates/core/src/bc_protocol/connection/bcconn.rs
++++ b/crates/core/src/bc_protocol/connection/bcconn.rs
+@@ -16,6 +16,59 @@ use tokio::{sync::RwLock, task::JoinSet};
+ 
+ type MsgHandler = dyn 'static + Send + Sync + for<'a> Fn(&'a Bc) -> BoxFuture<'a, Option<Bc>>;
+ 
++fn legacy_video_sender(response: &Bc, consumers: &BTreeMap<Option<u16>, Sender<Result<Bc>>>) -> Option<Sender<Result<Bc>>> {
++    if response.meta.msg_id != MSG_ID_VIDEO || response.meta.channel_id != 0 ||
++        !matches!(&response.body, BcBody::ModernMsg(ModernMsg { payload: Some(BcPayloads::Binary(_)), .. })) {
++        return None;
++    }
++    let mut active = consumers.values().filter(|sender| !sender.is_closed());
++    let sender = active.next()?.clone();
++    if active.next().is_some() { None } else { Some(sender) }
++}
++
++#[cfg(test)]
++mod legacy_video_tests {
++    use super::*;
++    fn video() -> Bc {
++        Bc {
++            meta: BcMeta { msg_id: MSG_ID_VIDEO, channel_id: 0, stream_type: 1,
++                response_code: 200, msg_num: 0, class: 0x6414 },
++            body: BcBody::ModernMsg(ModernMsg { extension: None, payload: Some(BcPayloads::Binary(vec![1, 2, 3])) }),
++        }
++    }
++    #[tokio::test]
++    async fn legacy_video_routes_binary_to_the_only_open_consumer() {
++        let (sender, mut receiver) = channel(1);
++        let mut consumers = BTreeMap::new();
++        consumers.insert(Some(42), sender);
++        let message = video();
++        legacy_video_sender(&message, &consumers).unwrap().send(Ok(message)).await.unwrap();
++        assert_eq!(receiver.recv().await.unwrap().unwrap().meta.msg_num, 0);
++    }
++    #[tokio::test]
++    async fn legacy_video_never_guesses_between_streams_or_routes_other_channels_and_xml() {
++        let (one, _rx1) = channel(1);
++        let (two, rx2) = channel(1);
++        let mut consumers = BTreeMap::new();
++        consumers.insert(Some(42), one);
++        consumers.insert(Some(43), two);
++        assert!(legacy_video_sender(&video(), &consumers).is_none());
++        drop(rx2);
++        assert!(legacy_video_sender(&video(), &consumers).is_some());
++        let mut message = video();
++        message.meta.channel_id = 1;
++        assert!(legacy_video_sender(&message, &consumers).is_none());
++        message.meta.channel_id = 0;
++        message.body = BcBody::ModernMsg(ModernMsg::default());
++        assert!(legacy_video_sender(&message, &consumers).is_none());
++        message.body = BcBody::ModernMsg(ModernMsg { extension: None,
++            payload: Some(BcPayloads::BcXml(BcXml::default())) });
++        assert!(legacy_video_sender(&message, &consumers).is_none());
++        message.meta.msg_id = MSG_ID_LOGIN;
++        assert!(legacy_video_sender(&message, &consumers).is_none());
++    }
++}
++
+ #[derive(Default)]
+ struct Subscriber {
+     /// Subscribers based on their ID and their num
+@@ -284,6 +337,11 @@ impl Poller {
+                                         occ.remove(&None);
+                                         occ.insert(Some(msg_num), sender.clone());
+                                         Some(sender)
++                                    } else if let Some(sender) = legacy_video_sender(&response, occ) {
++                                        // Some standalone cameras tag video data with a different
++                                        // message number than the preview command. Route only binary
++                                        // channel-zero video when there is one unambiguous consumer.
++                                        Some(sender)
+                                     } else if occ
+                                         .get(&Some(msg_num))
+                                         .map(|a| a.is_closed())
+diff --git a/crates/core/src/bc_protocol/connection/discovery.rs b/crates/core/src/bc_protocol/connection/discovery.rs
+index 0160482..f281af2 100644
+--- a/crates/core/src/bc_protocol/connection/discovery.rs
++++ b/crates/core/src/bc_protocol/connection/discovery.rs
+@@ -399,7 +399,7 @@ impl Discoverer {
+                 addrs.append(
+                     &mut format!("{}:9999", p2p_relay)
+                         .to_socket_addrs()
+-                        .map(|i| i.collect::<Vec<SocketAddr>>())
++                        .map(|i| i.filter(|a| !a.ip().is_loopback() && !a.ip().is_unspecified() && !a.ip().is_multicast()).collect::<Vec<SocketAddr>>())
+                         .unwrap_or_else(|_| vec![]),
+                 );
+             }
+diff --git a/crates/core/src/bc_protocol/connection/udpsource.rs b/crates/core/src/bc_protocol/connection/udpsource.rs
+index 74bb364..92b15a2 100644
+--- a/crates/core/src/bc_protocol/connection/udpsource.rs
++++ b/crates/core/src/bc_protocol/connection/udpsource.rs
+@@ -214,57 +214,68 @@ enum State {
+     YieldNow, // Used to ensure we rest between polling packets so as to not starve the runtime
+ }
+ 
++// The ACK feedback field carries received bytes per second, not inter-ACK time.
++// Count unique accepted data packets; retransmissions must not inflate feedback.
+ #[derive(Default)]
+-struct AckLatency {
+-    current_values: Vec<u32>,
+-    last_recieve_time: Option<Instant>,
+-    display_value: u32,
+-    last_display_time: Option<Instant>,
++struct AckReceiveRate {
++    receive_bytes: u64,
++    receive_window: Option<Instant>,
++    receive_rate: u32,
+ }
+ 
+-impl AckLatency {
+-    /// Used to get the current latency, in thd way that the official
+-    /// client does. This is a value that seems to be updated only every second
+-    /// Observed values are `0`,    `54785`,    `55062`,     `2528`,
+-    fn get_value(&self) -> u32 {
+-        self.display_value
+-    }
+-
+-    /// Used to updaet the average latency calculation
+-    fn feed_ack(&mut self) {
+-        // Update the last recieve time
+-        let now = Instant::now();
+-        if let Some(last_recieve_time) = self.last_recieve_time {
+-            let diff = (now - last_recieve_time).as_micros();
+-            self.current_values.push(diff as u32);
+-            self.last_recieve_time = Some(now);
+-        } else {
+-            self.last_recieve_time = Some(now);
+-        }
++impl AckReceiveRate {
++    fn get_value(&self) -> u32 { self.receive_rate }
+ 
+-        // Update the display_value
+-        // this is done only ever 1s
+-        if let Some(last_display_time) = self.last_display_time {
+-            if now - last_display_time > Duration::from_secs(1) {
+-                // A second has passed update this
+-                self.last_display_time = Some(now);
+-                let current_values_count = self.current_values.len() as u32;
+-                let current_value = self
+-                    .current_values
+-                    .iter()
+-                    .fold(0u32, |acc, value| acc + *value / current_values_count);
+-                self.current_values = vec![]; // Reset the average vec
+-
+-                self.display_value = current_value;
+-            }
+-        } else {
+-            // First 1s is a zero value
+-            self.last_display_time = Some(now);
+-            self.display_value = 0;
++    fn feed_data(&mut self, bytes: usize) {
++        self.feed_data_at(bytes, Instant::now());
++    }
++
++    fn feed_data_at(&mut self, bytes: usize, now: Instant) {
++        let started = *self.receive_window.get_or_insert(now);
++        self.receive_bytes = self.receive_bytes.saturating_add(bytes as u64);
++        let elapsed = now.duration_since(started);
++        if elapsed >= Duration::from_secs(1) {
++            self.receive_rate = ((self.receive_bytes as u128 * 1_000_000) / elapsed.as_micros())
++                .min(u32::MAX as u128) as u32;
++            self.receive_bytes = 0;
++            self.receive_window = Some(now);
+         }
+     }
+ }
+ 
++#[cfg(test)]
++mod ack_receive_rate_tests {
++    use super::*;
++    #[test]
++    fn ack_receive_rate_updates_once_per_second_and_resets_window() {
++        let start = Instant::now();
++        let mut rate = AckReceiveRate::default();
++        rate.feed_data_at(600, start);
++        rate.feed_data_at(400, start + Duration::from_millis(500));
++        assert_eq!(rate.get_value(), 0);
++        rate.feed_data_at(1000, start + Duration::from_secs(1));
++        assert_eq!(rate.get_value(), 2000);
++        rate.feed_data_at(500, start + Duration::from_secs(2));
++        assert_eq!(rate.get_value(), 500);
++    }
++    #[test]
++    fn ack_receive_rate_uses_actual_elapsed_time() {
++        let start = Instant::now();
++        let mut rate = AckReceiveRate::default();
++        rate.feed_data_at(1000, start);
++        rate.feed_data_at(0, start + Duration::from_secs(2));
++        assert_eq!(rate.get_value(), 500);
++    }
++    #[test]
++    fn ack_receive_rate_saturates_protocol_field() {
++        let start = Instant::now();
++        let mut rate = AckReceiveRate::default();
++        rate.feed_data_at(usize::MAX, start);
++        rate.feed_data_at(usize::MAX, start + Duration::from_secs(1));
++        assert_eq!(rate.get_value(), u32::MAX);
++    }
++}
++
+ pub(crate) struct UdpPayloadSource {
+     inner_stream: Pin<Box<ReceiverStream<IoResult<Vec<u8>>>>>,
+     inner_sink: PollSender<Vec<u8>>,
+@@ -304,7 +315,7 @@ struct UdpPayloadInner {
+     /// Offical Client does resend every 500ms
+     /// This `resend_interval` controls how ofen we do this
+     resend_interval: Interval,
+-    ack_latency: AckLatency,
++    ack_receive_rate: AckReceiveRate,
+     cancel: CancellationToken,
+     set: JoinSet<Result<()>>,
+ }
+@@ -491,7 +502,7 @@ impl UdpPayloadInner {
+             sent: Default::default(),
+             recieved: Default::default(),
+             resend_interval: interval(Duration::from_millis(500)), // Offical Client does resend every 500ms
+-            ack_latency: Default::default(),
++            ack_receive_rate: Default::default(),
+             cancel,
+             set,
+         }
+@@ -548,6 +559,7 @@ impl UdpPayloadInner {
+                             if data.connection_id == self.client_id {
+                                 let packet_id = data.packet_id;
+                                 if packet_id >= self.packets_want {
++                                    if !self.recieved.contains_key(&packet_id) { self.ack_receive_rate.feed_data(data.payload.len()); }
+                                     // error!("packets_want: {}", this.packets_want);
+                                     self.recieved.insert(packet_id, data.payload);
+                                     self.ack_tx.feed(self.build_send_ack()).await?;
+@@ -602,7 +614,7 @@ impl UdpPayloadInner {
+                 connection_id: self.camera_id,
+                 packet_id: first_missing - 1, // Last we actually have is first_missing - 1
+                 group_id: 0,
+-                maybe_latency: self.ack_latency.get_value(),
++                maybe_latency: self.ack_receive_rate.get_value(),
+                 payload: missing_ids,
+             }
+         } else {
+@@ -623,7 +635,6 @@ impl UdpPayloadInner {
+                 }
+             }
+         }
+-        self.ack_latency.feed_ack();
+     }
+ }
+ 
+diff --git a/src/common/streamthread.rs b/src/common/streamthread.rs
+index 28dfaf2..8f99d2b 100644
+--- a/src/common/streamthread.rs
++++ b/src/common/streamthread.rs
+@@ -378,7 +378,7 @@ impl StreamData {
+                             v = async {
+                                 watchdog_rx.recv().await; // Wait forever for the first feed
+                                 loop {
+-                                    let check_timeout = timeout(Duration::from_secs(3), watchdog_rx.recv()).await;
++                                    let check_timeout = timeout(Duration::from_secs(15), watchdog_rx.recv()).await;
+                                     if let Err(_)| Ok(None) = check_timeout {
+                                         // Timeout
+                                         // Reply with Ok to trigger the restart
+@@ -405,7 +405,6 @@ impl StreamData {
+                                                 watchdog_tx.send(()).await?;  // Feed the watchdog
+                                                 let data = stream_data.get_data().await??;
+                                                 watchdog_tx.send(()).await?;  // Feed the watchdog
+-
+                                                 // Update the stream config with any information
+                                                 match &data {
+                                                     BcMedia::InfoV1(info) => {
+diff --git a/src/rtsp/mod.rs b/src/rtsp/mod.rs
+index bce692f..dcda417 100644
+--- a/src/rtsp/mod.rs
++++ b/src/rtsp/mod.rs
+@@ -668,30 +668,32 @@ async fn stream_run(
+                 _ = thread_stream_cancel.cancelled() => AnyResult::Ok(()),
+                 v = async {
+                     // Send Initial
+-                    let mut found_key_frame = false;
+-                    for data in thread_vid_history.borrow().iter() {
+-                        if data.keyframe || found_key_frame {
+-                            found_key_frame = true;
++                    let history = fresh_video_history(&thread_vid_history.borrow());
++                    let mut found_key_frame = !history.is_empty();
++                    for data in history {
+                             thread_vid_data_tx.send(
+                                 StreamData::Media {
+                                     data: data.data.clone(),
+-                                    ts: Duration::ZERO,
++                                    ts: data.ts,
+                                 }
+                             )?;
+-                        }
+                     }
+ 
+                     // Send new
+                     while let Some(data) = vidstream.next().await {
+                         if let Ok(data) = data {
++                            if data.keyframe { found_key_frame = true; }
++                            if !found_key_frame { continue; }
+                             thread_vid_data_tx.send(
+                                 StreamData::Media {
+                                     data: data.data,
+                                     ts: data.ts
+                                 }
+                             )?;
++                        } else {
++                            // Never decode P-frames after losing their references.
++                            found_key_frame = false;
+                         }
+-                        // Ignore broadcast lag errors
+                     }
+                     AnyResult::Ok(())
+                 } => v
+@@ -760,7 +762,7 @@ async fn stream_run(
+                             // Send initial buffer
+                             if let Some(seek_ts) = seek_ts {
+                                 // Send Initial
+-                                for data in thread_vid_history.borrow().iter() {
++                                for data in fresh_video_history(&thread_vid_history.borrow()) {
+                                     vid_data_tx.send(
+                                         StreamData::Media {
+                                             data: data.data.clone(),
+@@ -984,7 +986,7 @@ async fn handle_data<T: Stream<Item = Result<StreamData, E>> + Unpin, E>(
+         let mut ft = Duration::ZERO;
+         let mut last_rt: Option<Duration> = None;
+         let mut rt = Duration::ZERO;
+-        let (gst_data_tx, mut gst_data_rx) = mpsc(100);
++        let (gst_data_tx, mut gst_data_rx) = mpsc(8);
+         let appsrc = app.clone();
+         // push_buffer can block so we need to do this on a dedicated thread
+         // however it is expensive to call spawn_blocking too often
+@@ -1131,12 +1133,10 @@ fn build_h264(bin: &Element) -> Result<AppSrc> {
+         .dynamic_cast::<AppSrc>()
+         .map_err(|_| anyhow!("Cannot cast to appsrc."))?;
+ 
+-    source.set_is_live(false);
+-    source.set_block(false);
++    configure_live_source(&source);
+     source.set_property("emit-signals", false);
+-    source.set_max_bytes(50000000u64); // 50MB
+     source.set_do_timestamp(false);
+-    source.set_stream_type(AppStreamType::Seekable);
++    source.set_stream_type(AppStreamType::Stream);
+ 
+     let source = source
+         .dynamic_cast::<Element>()
+@@ -1162,12 +1162,10 @@ fn build_h265(bin: &Element) -> Result<AppSrc> {
+     let source = make_element("appsrc", "vidsrc")?
+         .dynamic_cast::<AppSrc>()
+         .map_err(|_| anyhow!("Cannot cast to appsrc."))?;
+-    source.set_is_live(false);
+-    source.set_block(false);
++    configure_live_source(&source);
+     source.set_property("emit-signals", false);
+-    source.set_max_bytes(52428800);
+     source.set_do_timestamp(false);
+-    source.set_stream_type(AppStreamType::Seekable);
++    source.set_stream_type(AppStreamType::Stream);
+ 
+     let source = source
+         .dynamic_cast::<Element>()
+@@ -1194,12 +1192,10 @@ fn build_aac(bin: &Element) -> Result<AppSrc> {
+         .dynamic_cast::<AppSrc>()
+         .map_err(|_| anyhow!("Cannot cast to appsrc."))?;
+ 
+-    source.set_is_live(false);
+-    source.set_block(false);
++    configure_live_source(&source);
+     source.set_property("emit-signals", false);
+-    source.set_max_bytes(52428800);
+     source.set_do_timestamp(false);
+-    source.set_stream_type(AppStreamType::Seekable);
++    source.set_stream_type(AppStreamType::Stream);
+ 
+     let source = source
+         .dynamic_cast::<Element>()
+@@ -1239,12 +1235,10 @@ fn build_adpcm(bin: &Element, block_size: u32) -> Result<AppSrc> {
+     let source = make_element("appsrc", "audsrc")?
+         .dynamic_cast::<AppSrc>()
+         .map_err(|_| anyhow!("Cannot cast to appsrc."))?;
+-    source.set_is_live(false);
+-    source.set_block(false);
++    configure_live_source(&source);
+     source.set_property("emit-signals", false);
+-    source.set_max_bytes(52428800);
+     source.set_do_timestamp(false);
+-    source.set_stream_type(AppStreamType::Seekable);
++    source.set_stream_type(AppStreamType::Stream);
+ 
+     source.set_caps(Some(
+         &Caps::builder("audio/x-adpcm")
+@@ -1313,26 +1307,171 @@ fn make_element(kind: &str, name: &str) -> AnyResult<Element> {
+         )
+     })
+ }
+-fn make_queue(name: &str) -> AnyResult<Element> {
+-    // let queue = make_element("queue", name)?;
+-    // queue.set_property_from_str("leaky", "downstream");
+-    // queue.set_property("max-size-bytes", 0u32);
+-    // queue.set_property("max-size-buffers", 0u32);
+-    // queue.set_property(
+-    //     "max-size-time",
+-    //     std::convert::TryInto::<u64>::try_into(tokio::time::Duration::from_secs(5).as_nanos())
+-    //         .unwrap_or(0),
+-    // );
+-    // Ok(queue)
++fn fresh_video_history(history: &std::collections::VecDeque<crate::common::StampedData>) -> Vec<crate::common::StampedData> {
++    // Replay only the latest complete GOP; older GOPs are not live video.
++    history.iter().rposition(|frame| frame.keyframe)
++        .map(|start| history.iter().skip(start).cloned().collect())
++        .unwrap_or_default()
++}
++
++fn configure_live_source(source: &AppSrc) {
++    source.set_is_live(true);
++    source.set_format(gstreamer::Format::Time);
++    source.set_block(true);
++    source.set_max_bytes(2 * 1024 * 1024);
++    source.set_property("max-time", 500_000_000u64);
++}
+ 
++fn make_queue(name: &str) -> AnyResult<Element> {
+     let queue = make_element("queue2", name)?;
+     // queue.set_property("max-size-bytes", 0u32);
+     // queue.set_property("max-size-buffers", 0u32);
+     queue.set_property(
+         "max-size-time",
+-        std::convert::TryInto::<u64>::try_into(tokio::time::Duration::from_secs(5).as_nanos())
+-            .unwrap_or(0),
++        250_000_000u64,
+     );
+-    queue.set_property("use-buffering", true);
++    queue.set_property("use-buffering", false);
+     Ok(queue)
+ }
++
++#[cfg(test)]
++mod homecam_live_tests {
++    use super::*;
++    use crate::common::StampedData;
++    use std::collections::VecDeque;
++
++    #[test]
++    fn live_history_uses_latest_keyframe_or_waits_for_one() {
++        let mut history = VecDeque::new();
++        for n in 0..100 {
++            history.push_back(StampedData { keyframe: n % 20 == 0,
++                data: Arc::new(vec![n]), ts: Duration::from_millis(n as u64 * 100) });
++        }
++        let recent = fresh_video_history(&history);
++        assert_eq!(recent.len(), 20);
++        assert_eq!(recent[0].data[0], 80);
++        assert_eq!(recent[19].data[0], 99);
++        assert_eq!(recent[19].ts, Duration::from_millis(9900));
++        for frame in &mut history { frame.keyframe = false; }
++        assert!(fresh_video_history(&history).is_empty());
++        history.clear();
++        assert!(fresh_video_history(&history).is_empty());
++    }
++
++    #[tokio::test(flavor = "multi_thread")]
++    #[ignore = "requires HOMECAM_LIVE_SAMPLE and the private GStreamer runtime"]
++    async fn live_pipeline_decodes_timed_h264_without_backlog() -> AnyResult<()> {
++        gstreamer::init()?;
++        let sample = std::env::var("HOMECAM_LIVE_SAMPLE")
++            .expect("Set HOMECAM_LIVE_SAMPLE to a synthetic H264 I-frame for this integration test");
++        let frame = Arc::new(std::fs::read(sample)?);
++        let pipeline = gstreamer::Pipeline::new(None);
++        let app = build_h264(pipeline.upcast_ref())?;
++        assert!(app.is_live());
++        assert!(app.is_block());
++        assert_eq!(app.format(), gstreamer::Format::Time);
++        assert_eq!(app.stream_type(), AppStreamType::Stream);
++        assert_eq!(app.max_bytes(), 2 * 1024 * 1024);
++        assert_eq!(app.property::<u64>("max-time"), 500_000_000);
++        let queue = pipeline.by_name("source_queue").unwrap();
++        assert!(!queue.property::<bool>("use-buffering"));
++        assert_eq!(queue.property::<u64>("max-size-time"), 250_000_000);
++        let sink = make_element("fakesink", "test_sink")?;
++        sink.set_property("sync", true);
++        pipeline.add(&sink)?;
++        pipeline.by_name("pay0").unwrap().link(&sink)?;
++        let count = Arc::new(std::sync::atomic::AtomicUsize::new(0));
++        let observed = count.clone();
++        let max_lag = Arc::new(std::sync::atomic::AtomicU64::new(0));
++        let lag = max_lag.clone();
++        let monitored = sink.downgrade();
++        sink.static_pad("sink").unwrap().add_probe(gstreamer::PadProbeType::BUFFER | gstreamer::PadProbeType::BUFFER_LIST, move |_, info| {
++            let buffers: Vec<&gstreamer::BufferRef> = match info.data.as_ref() {
++                Some(gstreamer::PadProbeData::Buffer(buffer)) => vec![buffer.as_ref()],
++                Some(gstreamer::PadProbeData::BufferList(list)) => list.iter().collect(),
++                _ => vec![],
++            };
++            for buffer in buffers {
++                let bytes = buffer.map_readable().unwrap();
++                if bytes.as_slice().get(1).is_some_and(|b| b & 0x80 != 0) {
++                    observed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
++                    if let Some(element) = monitored.upgrade() {
++                        if let (Some(clock), Some(base), Some(pts)) = (element.clock(), element.base_time(), buffer.pts()) {
++                            if let Some(now) = clock.time() {
++                                lag.fetch_max(now.saturating_sub(base).saturating_sub(pts).nseconds(), std::sync::atomic::Ordering::Relaxed);
++                            }
++                        }
++                    }
++                }
++            }
++            gstreamer::PadProbeReturn::Ok
++        });
++        pipeline.set_state(gstreamer::State::Playing)?;
++        let (tx, rx) = mpsc(8);
++        let source = app.clone();
++        let worker = tokio::spawn(async move {
++            handle_data(Some(&source), tokio_stream::wrappers::ReceiverStream::new(rx)).await
++        });
++        let mut cadence = interval(Duration::from_millis(50));
++        for n in 0..400u64 {
++            cadence.tick().await;
++            tx.send(Ok::<_, ()>(StreamData::Media { data: frame.clone(), ts: Duration::from_millis(n * 50) })).await?;
++        }
++        drop(tx);
++        tokio::time::timeout(Duration::from_secs(3), worker).await???;
++        app.end_of_stream()?;
++        sleep(Duration::from_millis(250)).await;
++        let queued = app.property::<u64>("current-level-time");
++        pipeline.set_state(gstreamer::State::Null)?;
++        let frames = count.load(std::sync::atomic::Ordering::Relaxed);
++        let lag = max_lag.load(std::sync::atomic::Ordering::Relaxed);
++        println!("Live pipeline: {frames}/400 complete RTP frames, max timestamp lag {}ms, queued {}ms", lag / 1_000_000, queued / 1_000_000);
++        assert_eq!(frames, 400, "RTP output stopped or lost complete frames");
++        assert!(lag < 1_000_000_000, "Live timestamp lag grew beyond one second");
++        assert!(queued <= 500_000_000, "Live appsrc accumulated a backlog");
++        Ok(())
++    }
++
++    #[tokio::test(flavor = "multi_thread")]
++    #[ignore = "requires HOMECAM_LIVE_SAMPLE, HOMECAM_MPV and GStreamer"]
++    async fn live_rtsp_factory_reaches_real_player() -> AnyResult<()> {
++        gstreamer::init()?;
++        let frame = Arc::new(std::fs::read(std::env::var("HOMECAM_LIVE_SAMPLE")?)?);
++        let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
++        let port = listener.local_addr()?.port(); drop(listener);
++        let server = gstreamer_rtsp_server::RTSPServer::new();
++        server.set_address("127.0.0.1"); server.set_service(&port.to_string());
++        let (factory, mut clients) = make_factory(&StreamConfig { resolution: [640, 360], vid_format: VidFormat::H264, aud_format: AudFormat::None }).await?;
++        factory.add_permitted_roles(&HashSet::from(["anonymous"]));
++        server.mount_points().unwrap().add_factory("/test", factory);
++        let id = server.attach(None)?;
++        let main_loop = gstreamer::glib::MainLoop::new(None, false);
++        let running = main_loop.clone();
++        let thread = std::thread::spawn(move || running.run());
++        let producer = tokio::spawn(async move {
++            if let Some(mut client) = clients.recv().await {
++                let source = client.vid.take().unwrap().app;
++                let (tx, rx) = mpsc(8);
++                let worker = tokio::spawn(async move { handle_data(Some(&source), tokio_stream::wrappers::ReceiverStream::new(rx)).await });
++                for n in 0..160u64 {
++                    if tx.send(Ok::<_, ()>(StreamData::Media { data: frame.clone(), ts: Duration::from_millis(n * 50) })).await.is_err() { break; }
++                    sleep(Duration::from_millis(50)).await;
++                }
++                drop(tx); let _ = worker.await;
++            }
++        });
++        let player = std::env::var("HOMECAM_MPV")?;
++        let url = format!("rtsp://127.0.0.1:{port}/test");
++        let result = tokio::task::spawn_blocking(move || {
++            std::process::Command::new(player).args(["--no-config", "--vo=null", "--no-audio", "--no-input-terminal",
++                "--profile=low-latency", "--cache=no", "--demuxer-lavf-o-add=rtsp_transport=tcp", "--frames=40", &url]).output()
++        }).await?;
++        main_loop.quit(); id.remove(); thread.join().unwrap(); producer.abort();
++        let output = result?;
++        let text = format!("{}{}", String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr));
++        assert!(output.status.success(), "mpv RTSP failed: {:?}", output);
++        assert!(text.contains("Video") && text.contains("End of file"), "mpv did not decode the RTSP video: {}", text);
++        println!("Production live RTSP factory: actual mpv decoded 40 frames over loopback TCP");
++        Ok(())
++    }
++}

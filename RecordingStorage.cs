@@ -5,8 +5,8 @@ namespace HomeCamMonitor;
 
 internal static class RecordingStorage
 {
-    internal static string ManualSnapshots => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "HomeCam Monitor");
-    internal static string ManualVideos => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "HomeCam Monitor");
+    internal static string ManualSnapshots => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), ApplicationChannel.RecordingFolderName);
+    internal static string ManualVideos => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), ApplicationChannel.RecordingFolderName);
     internal static string MotionSnapshots => Path.Combine(ManualSnapshots, "Bewegung");
     internal static string MotionDefault => Path.Combine(ManualVideos, "Bewegung");
     internal static string ResolveMotionSnapshots(string value)
@@ -16,7 +16,7 @@ internal static class RecordingStorage
         return string.Equals(Path.TrimEndingDirectorySeparator(folder), Path.TrimEndingDirectorySeparator(MotionDefault), StringComparison.OrdinalIgnoreCase)
             ? MotionSnapshots : folder;
     }
-    private static string Ledger => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta", "motion-recordings.json");
+    private static string Ledger => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationChannel.StorageName, "motion-recordings.json");
     internal static string Resolve(string value, string fallback)
     {
         if (string.IsNullOrWhiteSpace(value)) return fallback;

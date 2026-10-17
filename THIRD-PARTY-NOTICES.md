@@ -31,3 +31,7 @@ HomeCam startet mpv und FFmpeg als getrennte Programme über Prozessaufrufe und 
 - [GNU GPL FAQ zur Zusammenstellung getrennter Programme](https://www.gnu.org/licenses/gpl-faq.en.html#MereAggregation)
 
 Maßgeblich sind die Lizenztexte und Quellen der konkret ausgelieferten Builds.
+
+## V2 Beta32: OpenCvSharp / OpenCV für lokale Bewegungserkennung
+
+OpenCvSharp4 und OpenCvSharp4.runtime.win: 4.13.0.20260627, Repository-Commit b161e7e012f5101f6d5dc68a835c59db6cc88b18, Apache-2.0. OpenCV 4.13.0 und opencv_contrib 4.13.0 sowie eingebundene Drittkomponenten behalten ihre jeweiligen Lizenzen. Lizenz-/Copyright-/NOTICE-Dateien aus den offiziellen Quellen liegen unter licenses/opencvsharp-4.13.0/, einschließlich Intel IPP/IW 2022.2.0. Buildinformationen und Komponentenquellen werden dort mitgeliefert. Die proprietäre HomeCam-Lizenz gilt nicht für diese Komponenten.

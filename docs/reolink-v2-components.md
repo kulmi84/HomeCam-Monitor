@@ -1,0 +1,20 @@
+# Reolink-Verbindungsdienst der V2-Beta
+
+Neolink 0.6.2 läuft als eigenständiger Prozess in der aus Quellcode gebauten Variante `homecam-stream3` (HomeCam Monitor, 15.10.2026). HomeCamMonitor kommuniziert mit ihm über lokale RTSP- und MQTT-Schnittstellen. Neolink-Code wird nicht in die HomeCamMonitor-Programmdatei eingebunden.
+
+Seit Beta 21 ergänzt `homecam-stream3` eine echte zeitformatierte Live-Pipeline mit begrenzten, blockierenden Puffern, ohne Queue2-Download-Pufferung. Ein neuer Client startet mit dem neuesten vollständigen GOP; nach verlorenen Quellpaketen wartet die Videoausgabe auf ein I-Frame. Das soll anwachsenden Bildrückstand begrenzen. Die lokalen Tests prüfen die vollständige RTP-Bildausgabe und Zeitstempel sowie die Wiedergabe über die tatsächliche RTSP-Factory mit mpv. Eine gemessene Garantie für den Kamera-/Relayweg ist damit nicht verbunden. Die unten beschriebenen ACK- und Routingkorrekturen aus `homecam-stream2` bleiben enthalten.
+
+`homecam-stream3` ergänzt die Korrektur des UDP-ACK-Feedbacks zur gemessenen Empfangsrate. Die vorangegangene Berechnung mittlerer ACK-Zeitabstände führte im getesteten UID-/Relay-Szenario zu langsamer und fehlerhafter Wiedergabe. Die neue Berechnung zählt nur neue akzeptierte Nutzdaten und wird durch drei zusätzliche Regressionstests geprüft. Ein unabhängiger Protokollvergleich erfolgte mit [PyNeolink](https://github.com/alzgamer-kr/pyneolink/blob/main/docs/05-udp-p2p-transport.md); diese Referenz wird nicht mit der Anwendung ausgeführt oder mitgeliefert.
+
+UID-Suchen überspringen nun Loopback-, unbestimmte und Multicast-Adressen. Binäre Videopakete mit abweichender Nachrichtennummer werden bei genau einem aktiven Videokonsumenten dieser Kamera-Verbindung zugeordnet. Andere Kanäle, XML/Bestätigungen und mehrdeutige Fälle bleiben davon ausgenommen; passende Nachrichtennummern haben Vorrang. Die Stream-Überwachung erlaubt 15 statt drei Sekunden zwischen Rückmeldungen. Der Dependency-Lock wurde für Rust 1.85.1 aktualisiert (`time` 0.3.37 und benötigte Abhängigkeiten). Systemweite DNS-, Hosts- oder Firewall-Einstellungen werden nicht geändert.
+
+`.github/scripts/build-neolink-stream.ps1` prüft den Original-Quellarchiv-Hash, wendet den Patch aus `compat/neolink-stream3` an und erstellt den eigenständigen Dienst. Der lokale vorgebaute Dienst wird zusätzlich per SHA-256 geprüft. Die vollständigen geänderten Quellen, Original-Lizenz, Änderungsvermerk, Dependency-Lock und Build-Hilfen liegen unter `licenses/neolink-0.6.2-homecam-stream3-source.zip`; der unveränderte Originalquellstand wird zusätzlich mitgeliefert. Dies ist keine offizielle Neolink-Veröffentlichung. Die vorherige Byte-Patch-Variante `homecam-uid1` wird seit Beta 8 nicht mehr verwendet.
+
+- Projekt und Lizenz (AGPL-3.0): https://github.com/QuantumEntangledAndy/neolink
+- Exakter Quellstand: e47a0d5734b0a06b53bd8d78be9ca2f6b8396480; im Paket unter `licenses/neolink-0.6.2-source.zip` enthalten, einschließlich Original-Lizenz.
+- GStreamer 1.26.11 ist die separat mitgelieferte Multimedia-Laufzeit. Informationen, Lizenzangaben und Quellen: https://gstreamer.freedesktop.org/documentation/application-development/appendix/licensing.html und https://gstreamer.freedesktop.org/src/ . Original-Windows-Pakete: https://gstreamer.freedesktop.org/data/pkg/windows/1.26.11/msvc/ . Die Lizenz des HomeCamMonitor-Codes ersetzt keine Fremdkomponenten-Lizenzen.
+- MQTTnet 4.3.7.1207: MIT, https://github.com/dotnet/MQTTnet/tree/v4.3.7.1207
+- Microsoft .NET und ProtectedData: MIT, https://github.com/dotnet/runtime
+- lessmsi wird ausschließlich zum lokalen Entpacken beim Build verwendet und nicht mit der Anwendung ausgeliefert: https://github.com/activescott/lessmsi
+
+Die Download-Prüfsummen sind in `reolink-components.lock.json` festgehalten. Dieses Paket ist eine lokale Test-Beta. Der bestehende Audit der Video-Komponenten und eine vollständige Prüfung der Quellpakete und Hinweise für die neuen Laufzeit-Komponenten bleiben Voraussetzung für einen öffentlichen Release.

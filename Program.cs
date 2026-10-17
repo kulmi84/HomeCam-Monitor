@@ -32,7 +32,9 @@ internal static class Program
 #if BETA
 internal static class ApplicationBranding
 {
-    #if RELEASE_V1
+    #if V2_BETA
+    internal const string ProductName = ApplicationChannel.ProductName;
+#elif RELEASE_V1
     internal const string ProductName = "HomeCam Monitor";
 #else
     internal const string ProductName = "HomeCamMonitor Beta";
@@ -51,6 +53,9 @@ internal static class ApplicationBranding
 internal sealed class Settings
 {
     public List<CameraEntry> Cameras { get; set; } = [];
+#if V2_BETA
+    public string ReolinkHelperPath { get; set; } = Path.Combine(AppContext.BaseDirectory, "tools", "neolink", "neolink.exe");
+#endif
     public int SelectedCamera { get; set; }
     public bool AlwaysOnTop { get; set; } = true;
     public bool StartWithWindows { get; set; }
@@ -72,7 +77,18 @@ internal sealed class Settings
     public bool ShowGridCameraNames { get; set; } = true;
     public bool ShowEmptyCameraLogo { get; set; } = true;
     public bool ShowEmptyFourthFieldBorder { get; set; }
+#if V2_BETA
+    // Legacy master switch is ignored on import; only per-camera choices gate events.
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool MotionDetectionEnabled
+    {
+        get => Cameras.Any(c => c.Active && (c.MotionEnabled && (!c.Direct.Enabled || c.LocalMotion.Enabled) ||
+            !c.Direct.Enabled && !c.Reolink.Enabled && (c.PersonEnabled ?? !string.IsNullOrWhiteSpace(c.PersonEntityId))));
+        set { }
+    }
+#else
     public bool MotionDetectionEnabled { get; set; } = true;
+#endif
     public DateTime? MotionActionsPausedUntilUtc { get; set; }
     public int MotionForegroundSeconds { get; set; } = 10;
     public int MotionIndicatorSeconds { get; set; } = 2;
@@ -99,9 +115,73 @@ internal sealed class Settings
 }
 
 internal sealed class CameraEntry
+#if V2_BETA
+    : System.Text.Json.Serialization.IJsonOnDeserialized
+#endif
 {
+#if V2_BETA
+    public bool Active { get; set; } = true;
+    public bool RecordingEnabled { get; set; } = true;
+#else
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal bool Active => true;
+#endif
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal bool CanRecord => Active
+#if V2_BETA
+        && RecordingEnabled && (!Direct.Enabled || LocalMotion.Enabled)
+#endif
+        ;
     public string Name { get; set; } = "Kamera";
+#if V2_BETA
+    [System.Text.Json.Serialization.JsonIgnore]
+#endif
     public string StreamUrl { get; set; } = "";
+#if V2_BETA
+    // Runtime URLs may contain credentials for mpv/FFmpeg. Persist only the
+    // clean direct URL; rebuild its runtime form from the DPAPI-protected field.
+    [System.Text.Json.Serialization.JsonPropertyName("StreamUrl")]
+    public string StoredStreamUrl
+    {
+        get
+        {
+            if (Direct?.Enabled != true) return HomeAssistantRuntimeSource ?? StreamUrl;
+            return Uri.TryCreate(Direct.RtspUrl, UriKind.Absolute, out var url)
+                ? new UriBuilder(url) { UserName = "", Password = "" }.Uri.AbsoluteUri : "";
+        }
+        set => StreamUrl = value;
+    }
+    void System.Text.Json.Serialization.IJsonOnDeserialized.OnDeserialized()
+    {
+        if (Direct?.Enabled == true) StreamUrl = Direct.StreamUrlOrEmpty();
+    }
+    public ReolinkCamera Reolink { get; set; } = new();
+    public DirectCamera Direct { get; set; } = new();
+    public string HomeAssistantStreamUrl { get; set; } = "";
+    public string HomeAssistantEntityId { get; set; } = "";
+    private LocalMotionSettings localMotion = new();
+    public LocalMotionSettings LocalMotion { get => localMotion; set => localMotion = value ?? new(); }
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal string? HomeAssistantRuntimeSource { get; set; }
+#endif
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal bool IsAvailable => Active && Uri.TryCreate(StreamUrl, UriKind.Absolute, out _);
+#if BETA
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal bool ReceivesHomeAssistantEvents => Active
+#if V2_BETA
+        && !Reolink.Enabled && !Direct.Enabled
+#endif
+        ;
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal bool SupportsPersonDetection => ReceivesHomeAssistantEvents && !string.IsNullOrWhiteSpace(PersonEntityId);
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal bool UsesExternalMotion => MotionEnabled
+#if V2_BETA
+        && !LocalMotion.Enabled
+#endif
+        ;
+#endif
 #if BETA
     public bool MotionEnabled { get; set; }
     // Null preserves the enabled state of person sensors configured before the separate checkbox existed.
@@ -149,7 +229,7 @@ internal static class SettingsStore
 #endif
                 return loaded;
             }
-#if BETA
+#if BETA && !V2_BETA
             if (File.Exists(StableFileName))
             {
                 var imported = JsonSerializer.Deserialize<Settings>(File.ReadAllText(StableFileName)) ?? new Settings();
@@ -181,7 +261,11 @@ internal static class SettingsStore
         ShowGridCameraNames = false,
         MinimizeWhenInactive = true,
         MotionIndicatorSeconds = 1,
+        #if V2_BETA
+        DirectHomeAssistantEnabled = false,
+#else
         DirectHomeAssistantEnabled = true,
+#endif
         PerCameraMotionConfigured = true
     };
 #endif
@@ -246,9 +330,9 @@ internal abstract class NonActivatingForm : Form
         }
     }
 }
-internal sealed class MonitorForm : NonActivatingForm
+internal sealed partial class MonitorForm : NonActivatingForm
 #else
-internal sealed class MonitorForm : Form
+internal sealed partial class MonitorForm : Form
 #endif
 {
 #if BETA
@@ -293,6 +377,7 @@ internal sealed class MonitorForm : Form
     private readonly Dictionary<string, DateTime> lastMotionCapture = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> activeMotionCapture = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<Process> motionProcesses = [];
+    private readonly Dictionary<Process, string> motionProcessCameras = [];
     private readonly Panel cameraGrid = new()
     {
         Dock = DockStyle.Fill,
@@ -373,7 +458,11 @@ internal sealed class MonitorForm : Form
         Text = ApplicationBranding.ProductName;
         AccessibleName = ApplicationBranding.ProductName;
 #else
+        #if V2_BETA
+        Text = ApplicationBranding.ProductName;
+#else
         Text = "HomeCamMonitor for Homeassistant";
+#endif
 #endif
         BackColor = Color.Black;
         FormBorderStyle = FormBorderStyle.None;
@@ -533,20 +622,31 @@ internal sealed class MonitorForm : Form
         foreach (var resizeGrip in resizeGrips) resizeGrip.ContextMenuStrip = cameraContextMenu;
         motionIndicator = new MotionIndicatorForm { Owner = this };
 #endif
+        NormalizeCameraSelection();
+#if V2_BETA
+        if (!HasUsableCamera() && settings.Cameras.Count == 0) OpenSettings();
+#else
         if (!HasUsableCamera()) OpenSettings();
+#endif
         if (closing) return;
 #if BETA
         if (settings.StartBehavior == "Camera" && settings.Cameras.Count > 0)
             settings.SelectedCamera = Math.Clamp(settings.StartCameraIndex, 0, settings.Cameras.Count - 1);
+        NormalizeCameraSelection();
 #endif
         UpdateToolbar(); PositionOverlays();
 #if !BETA
         toolbar.Show(this);
 #endif
+#if V2_BETA
+        ConfigureReolink();
+        ConfigureHomeAssistantStreams();
+        ConfigureLocalMotion();
+#endif
         StartPlayer(); latencyTimer.Start(); controlsTimer.Start();
 #if BETA
         if ((settings.StartBehavior == "Grid" || settings.StartBehavior == "Last" && settings.LastGridMode) &&
-            settings.Cameras.Count(camera => Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _)) >= 2)
+            settings.Cameras.Count(camera => camera.IsAvailable) >= 2)
             ToggleGridView();
         if (settings.StartBehavior == "Minimized" && WindowState != FormWindowState.Minimized) MinimizeWindow();
         RestartMotionIntegration();
@@ -581,6 +681,11 @@ internal sealed class MonitorForm : Form
         videoDecorationTimer.Stop(); videoDecorationTimer.Dispose();
         motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionPauseTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
+#if V2_BETA
+        reolink?.Dispose(); reolink = null;
+        StopLocalMotion();
+        homeAssistantStreams?.Dispose(); homeAssistantStreams = null;
+#endif
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
 
@@ -604,10 +709,24 @@ internal sealed class MonitorForm : Form
 #endif
         if (closing || !HasUsableCamera() || player is { HasExited: false }) return;
         var camera = settings.Cameras[settings.SelectedCamera];
+#if V2_BETA
+        if (camera.Reolink.Enabled && reolink?.IsStreamReady(camera) != true)
+        {
+            video.Hide(); standbyVideo.Hide();
+            offlinePlaceholder.Configure(camera.Name);
+            offlinePlaceholder.SetConnecting();
+            offlinePlaceholder.Show(); offlinePlaceholder.BringToFront();
+            return;
+        }
+#endif
 #if BETA
         // Keep the application title stable; the selected camera is in the toolbar.
 #else
+        #if V2_BETA
+        Text = $"{ApplicationBranding.ProductName} – {camera.Name}";
+#else
         Text = $"HomeCamMonitor for Homeassistant – {camera.Name}";
+#endif
 #endif
         intentionalStop = false;
 #if BETA
@@ -630,6 +749,9 @@ internal sealed class MonitorForm : Form
             "--cscale=ewa_lanczossharp", "--dscale=mitchell", "--interpolation=no", "--window-dragging=yes", "--keep-open=no",
             $"--input-ipc-server=\\\\.\\pipe\\{pipeName}", camera.StreamUrl
         }) start.ArgumentList.Add(argument);
+#if V2_BETA
+        ReolinkPlayback.Configure(start, camera.Reolink.Enabled);
+#endif
         try
         {
             player = Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
@@ -765,6 +887,9 @@ internal sealed class MonitorForm : Form
         arguments.Add("--input-ipc-server=" + @"\\.\pipe\" + ipcName);
         arguments.Add(streamUrl);
         foreach (var argument in arguments) start.ArgumentList.Add(argument);
+#if V2_BETA
+        ReolinkPlayback.Configure(start, settings.Cameras.Any(camera => camera.Reolink.Enabled && camera.StreamUrl == streamUrl));
+#endif
         return Process.Start(start) ?? throw new InvalidOperationException("mpv konnte nicht gestartet werden.");
     }
 
@@ -793,7 +918,7 @@ internal sealed class MonitorForm : Form
         try
         {
             replacement = StartRefreshPlayer(nextSurface, settings.Cameras[cameraIndex].StreamUrl, newPipeName, false);
-            if (!await WaitForFirstFrameAsync(replacement, newPipeName, cancellationToken) ||
+            if (!await WaitForFirstFrameAsync(replacement, newPipeName, cancellationToken, startupTimeoutSeconds: InitialStreamTimeout(cameraIndex)) ||
                 replacement.HasExited || cancellationToken.IsCancellationRequested || closing || gridMode ||
                 player != oldPlayer || settings.SelectedCamera != cameraIndex) return;
 
@@ -835,7 +960,7 @@ internal sealed class MonitorForm : Form
             try
             {
                 replacement = StartRefreshPlayer(nextSurface, settings.Cameras[cameraIndex].StreamUrl, newPipeName, true);
-                if (!await WaitForFirstFrameAsync(replacement, newPipeName, cancellationToken) ||
+                if (!await WaitForFirstFrameAsync(replacement, newPipeName, cancellationToken, startupTimeoutSeconds: InitialStreamTimeout(cameraIndex)) ||
                     replacement.HasExited || cancellationToken.IsCancellationRequested || closing || !gridMode ||
                     slot.Player != oldPlayer || slot.CameraIndex != cameraIndex) continue;
 
@@ -875,7 +1000,7 @@ internal sealed class MonitorForm : Form
         {
             while (!closing && !started.HasExited && stillCurrent())
             {
-                if (await WaitForFirstFrameAsync(started, ipcName, cancellationToken))
+                if (await WaitForFirstFrameAsync(started, ipcName, cancellationToken, startupTimeoutSeconds: InitialStreamTimeout(cameraIndex)))
                 {
                     if (!closing && !cancellationToken.IsCancellationRequested && stillCurrent())
                     {
@@ -914,11 +1039,19 @@ internal sealed class MonitorForm : Form
         catch (InvalidOperationException) { }
     }
 
+    private int InitialStreamTimeout(int cameraIndex)
+    {
+#if V2_BETA
+        if (cameraIndex >= 0 && cameraIndex < settings.Cameras.Count && settings.Cameras[cameraIndex].Reolink.Enabled) return 30;
+#endif
+        return 12;
+    }
+
     private static async Task<bool> WaitForFirstFrameAsync(Process process, string ipcName,
-        CancellationToken cancellationToken, bool monitorContinuously = false)
+        CancellationToken cancellationToken, bool monitorContinuously = false, int startupTimeoutSeconds = 12)
     {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeout.CancelAfter(TimeSpan.FromSeconds(12));
+        timeout.CancelAfter(TimeSpan.FromSeconds(startupTimeoutSeconds));
         try
         {
             using var pipe = new NamedPipeClientStream(".", ipcName, PipeDirection.InOut, PipeOptions.Asynchronous);
@@ -972,8 +1105,10 @@ internal sealed class MonitorForm : Form
         RegisterUserInteraction();
         if (gridMode) { toolbar?.Flash("Kamera doppelt anklicken"); return; }
 #endif
-        if (settings.Cameras.Count < 2) return;
-        settings.SelectedCamera = (settings.SelectedCamera + direction + settings.Cameras.Count) % settings.Cameras.Count;
+        var available = settings.Cameras.Select((camera, index) => (camera, index)).Where(c => c.camera.IsAvailable).Select(c => c.index).ToArray();
+        if (available.Length < 2) return;
+        var position = Array.IndexOf(available, settings.SelectedCamera);
+        settings.SelectedCamera = available[(position + direction + available.Length) % available.Length];
         SettingsStore.Save(settings); UpdateToolbar(); RestartPlayer();
     }
 
@@ -1167,7 +1302,9 @@ internal sealed class MonitorForm : Form
         if (dialog is not null && !dialog.IsDisposed && ReferenceEquals(preparedSettingsSource, settings) &&
             preparedSettingsFingerprint == SettingsForm.GetDisplayFingerprint(settings)) return dialog;
         dialog?.Dispose();
-        return new SettingsForm(settings);
+        var fresh = new SettingsForm(settings);
+        fresh.PrepareForDisplay();
+        return fresh;
     }
 #endif
 
@@ -1248,7 +1385,14 @@ internal sealed class MonitorForm : Form
 #endif
         var previousSettings = settings;
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, Math.Max(0, settings.Cameras.Count - 1));
+        NormalizeCameraSelection();
 #if BETA
+        if (recording && previousSettings.SelectedCamera >= 0 && previousSettings.SelectedCamera < previousSettings.Cameras.Count &&
+            !settings.Cameras.Any(c => c.Active && c.Name.Equals(previousSettings.Cameras[previousSettings.SelectedCamera].Name, StringComparison.OrdinalIgnoreCase)))
+        { StopRecordingForClose(); RefreshRecordingIndicator(); }
+        foreach (var pair in motionProcessCameras.ToArray())
+            if (!settings.Cameras.Any(c => c.CanRecord && c.Name.Equals(pair.Value, StringComparison.OrdinalIgnoreCase)))
+                try { if (!pair.Key.HasExited) pair.Key.Kill(true); } catch (InvalidOperationException) { }
         if (!dialog.RestoredFromFile) settings.LastGridMode = gridMode;
         if (settings.BetaWindowLoggingEnabled && windowDiagnostics is null)
             windowDiagnostics = new NativeWindowDiagnostics(Handle);
@@ -1260,10 +1404,16 @@ internal sealed class MonitorForm : Form
         var streamsChanged = previousSettings.SelectedCamera != settings.SelectedCamera ||
             previousSettings.Cameras.Count != settings.Cameras.Count ||
             previousSettings.Cameras.Where((camera, index) =>
+                camera.Active != settings.Cameras[index].Active ||
                 !string.Equals(camera.StreamUrl, settings.Cameras[index].StreamUrl, StringComparison.Ordinal))
                 .Any();
         var sensorsChanged = previousSettings.Cameras.Count != settings.Cameras.Count ||
             previousSettings.Cameras.Where((camera, index) =>
+                camera.Active != settings.Cameras[index].Active ||
+#if V2_BETA
+                camera.Reolink.Enabled != settings.Cameras[index].Reolink.Enabled ||
+                camera.Direct.Enabled != settings.Cameras[index].Direct.Enabled ||
+#endif
                 camera.MotionEnabled != settings.Cameras[index].MotionEnabled ||
                 camera.PersonEnabled != settings.Cameras[index].PersonEnabled ||
                 !string.Equals(camera.MotionEntityId, settings.Cameras[index].MotionEntityId, StringComparison.Ordinal) ||
@@ -1293,6 +1443,11 @@ internal sealed class MonitorForm : Form
             ConfigureAutostart(settings.StartWithWindows);
         UpdateToolbar(); PositionOverlays();
 #if BETA
+#if V2_BETA
+        streamsChanged |= ConfigureReolink();
+        ConfigureHomeAssistantStreams();
+        ConfigureLocalMotion();
+#endif
         UpdatePreRollBuffers();
         if (streamsChanged) RestartPlayer();
         else if (!gridMode && !HasUsableCamera()) StartPlayer();
@@ -1608,7 +1763,7 @@ internal sealed class MonitorForm : Form
         initialGridReveal ??= new CancellationTokenSource();
         var cameras = settings.Cameras
             .Select((camera, index) => (Camera: camera, Index: index))
-            .Where(item => Uri.TryCreate(item.Camera.StreamUrl, UriKind.Absolute, out _))
+            .Where(item => item.Camera.IsAvailable)
             .Take(4)
             .ToList();
 
@@ -1644,6 +1799,13 @@ internal sealed class MonitorForm : Form
             slot.ActiveSurface.Hide();
             slot.SpareSurface.Hide();
             slot.Placeholder.Refresh();
+#if V2_BETA
+            if (camera.Camera.Reolink.Enabled && reolink?.IsStreamReady(camera.Camera) != true)
+            {
+                slot.Placeholder.SetConnecting();
+                continue;
+            }
+#endif
             slot.ActiveSurface.CreateControl();
             var gridPipeName = $"HomeCamMonitor-Grid-{Environment.ProcessId}-{Guid.NewGuid():N}";
             var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
@@ -1661,6 +1823,9 @@ internal sealed class MonitorForm : Form
                 "--keepaspect-window=no", "--panscan=1.0", "--keep-open=no",
                 "--input-ipc-server=" + @"\\.\pipe\" + gridPipeName, camera.Camera.StreamUrl
             }) start.ArgumentList.Add(argument);
+#if V2_BETA
+            ReolinkPlayback.Configure(start, camera.Camera.Reolink.Enabled);
+#endif
 
             try
             {
@@ -1837,6 +2002,7 @@ internal sealed class MonitorForm : Form
         alwaysOnTop.Click += (_, _) => SetAlwaysOnTop(alwaysOnTop.Checked);
         menu.Items.Add(alwaysOnTop);
 
+#if !V2_BETA
         var motionEnabled = new ToolStripMenuItem("Bewegungserkennung aktiv")
         {
             Checked = settings.MotionDetectionEnabled,
@@ -1844,6 +2010,7 @@ internal sealed class MonitorForm : Form
         };
         motionEnabled.Click += (_, _) => SetMotionDetectionEnabled(motionEnabled.Checked);
         menu.Items.Add(motionEnabled);
+#endif
 
         var paused = MotionActionsArePaused();
         var pause = new ToolStripMenuItem(paused
@@ -1858,6 +2025,7 @@ internal sealed class MonitorForm : Form
             item.Click += (_, _) => PauseMotionActions(TimeSpan.FromMinutes(minutes));
             pause.DropDownItems.Add(item);
         }
+#if !V2_BETA
         var untilManual = new ToolStripMenuItem("Bis manuell aktiviert")
         {
             Checked = !settings.MotionDetectionEnabled,
@@ -1865,15 +2033,23 @@ internal sealed class MonitorForm : Form
         };
         untilManual.Click += (_, _) => SetMotionDetectionEnabled(false);
         pause.DropDownItems.Add(untilManual);
+#endif
         pause.DropDownItems.Add(new ToolStripSeparator());
         var endPause = new ToolStripMenuItem("Pause beenden")
         {
-            Enabled = paused || !settings.MotionDetectionEnabled
+            Enabled = paused
+#if !V2_BETA
+                || !settings.MotionDetectionEnabled
+#endif
         };
         endPause.Click += (_, _) =>
         {
+#if V2_BETA
+            ClearMotionPause();
+#else
             if (!settings.MotionDetectionEnabled) SetMotionDetectionEnabled(true);
             else ClearMotionPause();
+#endif
         };
         pause.DropDownItems.Add(endPause);
         ConfigureContextMenuCorners(pause.DropDown);
@@ -1924,6 +2100,7 @@ internal sealed class MonitorForm : Form
         PositionOverlays();
     }
 
+#if !V2_BETA
     private void SetMotionDetectionEnabled(bool enabled)
     {
         settings.MotionDetectionEnabled = enabled;
@@ -1935,6 +2112,7 @@ internal sealed class MonitorForm : Form
         RestartMotionIntegration();
         UpdatePreRollBuffers();
     }
+#endif
 
     private bool MotionActionsArePaused()
     {
@@ -2067,7 +2245,7 @@ internal sealed class MonitorForm : Form
 #if BETA
         if (gridMode) { toolbar.CameraName = "4 Kameras"; return; }
 #endif
-        if (HasUsableCamera()) toolbar.CameraName = settings.Cameras[settings.SelectedCamera].Name;
+        toolbar.CameraName = HasUsableCamera() ? settings.Cameras[settings.SelectedCamera].Name : "Keine aktive Kamera";
     }
     private void UpdateToolbarVisibility()
     {
@@ -2189,12 +2367,18 @@ internal sealed class MonitorForm : Form
         toolbar.SetSizePercent(GetToolbarSizePercent(settings, Width));
     }
 #endif
-    private bool HasUsableCamera() => settings.Cameras.Count > 0 && settings.SelectedCamera >= 0 && settings.SelectedCamera < settings.Cameras.Count && Uri.TryCreate(settings.Cameras[settings.SelectedCamera].StreamUrl, UriKind.Absolute, out _);
+    private bool HasUsableCamera() => settings.SelectedCamera >= 0 && settings.SelectedCamera < settings.Cameras.Count && settings.Cameras[settings.SelectedCamera].IsAvailable;
+    private void NormalizeCameraSelection()
+    {
+        if (HasUsableCamera()) return;
+        var available = settings.Cameras.FindIndex(camera => camera.IsAvailable);
+        if (available >= 0) settings.SelectedCamera = available;
+    }
     private static void ConfigureAutostart(bool enabled)
     {
         using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
 #if BETA
-        const string name = "HomeCamMonitor-Beta";
+        const string name = ApplicationChannel.StorageName;
 #else
         const string name = "HomeCamMonitor";
 #endif
@@ -2207,18 +2391,24 @@ internal sealed class MonitorForm : Form
         StopMotionIntegration();
         if (closing || !settings.MotionDetectionEnabled) return;
         motionCancellation = new CancellationTokenSource();
+#if V2_BETA
+        // UID and HA events coexist; V2 does not bind the legacy HTTP listener.
+        if (!settings.DirectHomeAssistantEnabled) return;
+#endif
         if (settings.DirectHomeAssistantEnabled)
         {
             if (!string.IsNullOrWhiteSpace(settings.HomeAssistantUrl) &&
                 !string.IsNullOrWhiteSpace(settings.HomeAssistantToken) &&
-                settings.Cameras.Any(camera =>
-                    (camera.MotionEnabled && !string.IsNullOrWhiteSpace(camera.MotionEntityId)) ||
+                settings.Cameras.Any(camera => camera.ReceivesHomeAssistantEvents && (
+                    (camera.UsesExternalMotion && !string.IsNullOrWhiteSpace(camera.MotionEntityId)) ||
                     ((camera.PersonEnabled ?? !string.IsNullOrWhiteSpace(camera.PersonEntityId)) &&
-                     !string.IsNullOrWhiteSpace(camera.PersonEntityId))))
+                     !string.IsNullOrWhiteSpace(camera.PersonEntityId)))))
                 _ = Task.Run(() => ListenToHomeAssistantAsync(motionCancellation.Token));
             return;
         }
+#if !V2_BETA
         StartMotionListener();
+#endif
     }
 
     private void StopMotionIntegration()
@@ -2313,13 +2503,13 @@ internal sealed class MonitorForm : Form
             socket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
     }
 
-    internal static async Task SendHomeAssistantMessageAsync(ClientWebSocket socket, object message, CancellationToken cancellationToken)
+    internal static async Task SendHomeAssistantMessageAsync(WebSocket socket, object message, CancellationToken cancellationToken)
     {
         var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
         await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken);
     }
 
-    internal static async Task<JsonDocument> ReceiveHomeAssistantMessageAsync(ClientWebSocket socket, CancellationToken cancellationToken)
+    internal static async Task<JsonDocument> ReceiveHomeAssistantMessageAsync(WebSocket socket, CancellationToken cancellationToken)
     {
         using var content = new MemoryStream();
         var buffer = new byte[4096];
@@ -2392,11 +2582,11 @@ internal sealed class MonitorForm : Form
         if (data.TryGetProperty("old_state", out var oldState) && oldState.ValueKind != JsonValueKind.Null &&
             oldState.TryGetProperty("state", out var oldValue) && oldValue.GetString() == "on") return false;
 
-        var matchingCamera = settings.Cameras.FirstOrDefault(camera => camera.MotionEnabled &&
+        var matchingCamera = settings.Cameras.FirstOrDefault(camera => camera.ReceivesHomeAssistantEvents && camera.UsesExternalMotion &&
             !string.IsNullOrWhiteSpace(camera.MotionEntityId) &&
             string.Equals(camera.MotionEntityId.Trim(), entity.GetString(), StringComparison.OrdinalIgnoreCase));
         if (matchingCamera is not null) { cameraName = matchingCamera.Name; return true; }
-        matchingCamera = settings.Cameras.FirstOrDefault(camera =>
+        matchingCamera = settings.Cameras.FirstOrDefault(camera => camera.SupportsPersonDetection &&
             (camera.PersonEnabled ?? !string.IsNullOrWhiteSpace(camera.PersonEntityId)) &&
             !string.IsNullOrWhiteSpace(camera.PersonEntityId) &&
             string.Equals(camera.PersonEntityId.Trim(), entity.GetString(), StringComparison.OrdinalIgnoreCase));
@@ -2418,7 +2608,7 @@ internal sealed class MonitorForm : Form
                 var requestLine = await reader.ReadLineAsync(cancellationToken) ?? "";
                 var parts = requestLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var camera = parts.Length >= 2 ? ReadCameraParameter(parts[1]) : null;
-                var matchingCamera = settings.Cameras.FirstOrDefault(item => item.MotionEnabled && string.Equals(camera, item.Name, StringComparison.OrdinalIgnoreCase));
+                var matchingCamera = settings.Cameras.FirstOrDefault(item => item.ReceivesHomeAssistantEvents && item.UsesExternalMotion && string.Equals(camera, item.Name, StringComparison.OrdinalIgnoreCase));
                 var accepted = matchingCamera is not null;
                 if (accepted && !closing) BeginInvoke(new Action(() => HandleMotion(matchingCamera!.Name)));
                 var response = accepted ? "HTTP/1.1 204 No Content\r\nConnection: close\r\n\r\n" : "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
@@ -2444,9 +2634,14 @@ internal sealed class MonitorForm : Form
         return null;
     }
 
-    private void HandleMotion(string cameraName)
+    private void HandleMotion(string cameraName, bool local = false)
     {
+#if V2_BETA
+        var sourceCamera = settings.Cameras.FirstOrDefault(c => c.Name.Equals(cameraName, StringComparison.OrdinalIgnoreCase));
+        if (sourceCamera is null || sourceCamera.LocalMotion.Enabled != local) return;
+#endif
         if (!settings.MotionDetectionEnabled) return;
+        if (!settings.Cameras.Any(camera => camera.Active && camera.MotionEnabled && string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase))) return;
         ShowMotionIndicator(cameraIndex: settings.Cameras.FindIndex(camera =>
             string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase)));
         if (MotionActionsArePaused()) return;
@@ -2482,7 +2677,7 @@ internal sealed class MonitorForm : Form
     private void HandlePersonDetected(string cameraName)
     {
         if (!settings.MotionDetectionEnabled) return;
-        var camera = settings.Cameras.FirstOrDefault(item =>
+        var camera = settings.Cameras.FirstOrDefault(item => item.SupportsPersonDetection &&
             (item.PersonEnabled ?? !string.IsNullOrWhiteSpace(item.PersonEntityId)) &&
             string.Equals(item.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (camera is null) return;
@@ -2497,14 +2692,15 @@ internal sealed class MonitorForm : Form
         preRollBuffers.Clear();
         if (!settings.MotionDetectionEnabled || (settings.SnapshotPreRollSeconds == 0 && settings.VideoPreRollSeconds == 0)) return;
         foreach (var camera in settings.Cameras.Where(c =>
-            Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _) &&
-            ((settings.SnapshotPreRollSeconds > 0 && (c.PersonEnabled == true || c.MotionEnabled && c.MotionAction is "Snapshot" or "Both")) ||
+            c.IsAvailable && c.CanRecord &&
+            ((settings.SnapshotPreRollSeconds > 0 && (c.SupportsPersonDetection && settings.DirectHomeAssistantEnabled && c.PersonEnabled == true || c.MotionEnabled && c.MotionAction is "Snapshot" or "Both")) ||
              (settings.VideoPreRollSeconds > 0 && c.MotionEnabled && c.MotionAction is "Video" or "Both"))))
             preRollBuffers[camera] = new MotionPreRoll(camera.StreamUrl);
     }
 
     private async void StartMotionCapture(CameraEntry camera, bool personDetected = false)
     {
+        if (!camera.CanRecord) return;
         if (!personDetected && camera.MotionAction is not ("Snapshot" or "Video" or "Both")) return;
         var captureKey = camera.Name + (personDetected ? "|Person" : "|Motion");
         if (activeMotionCapture.Contains(captureKey)) return;
@@ -2530,6 +2726,7 @@ internal sealed class MonitorForm : Form
 
             async Task CaptureSnapshotAsync()
             {
+                if (!settings.Cameras.Any(c => c.CanRecord && c.Name.Equals(camera.Name, StringComparison.OrdinalIgnoreCase))) return;
                 Directory.CreateDirectory(snapshotFolder);
                 var path = Path.Combine(snapshotFolder, baseName + ".png");
                 if (preRoll is not null && snapshotBefore > 0 &&
@@ -2547,7 +2744,7 @@ internal sealed class MonitorForm : Form
                 foreach (var argument in new[] { "-i", camera.StreamUrl, "-map", "0:v:0",
                     "-frames:v", "1", "-an", "-f", "image2", "-y", path }) start.ArgumentList.Add(argument);
                 using var process = Process.Start(start) ?? throw new InvalidOperationException("FFmpeg konnte nicht gestartet werden.");
-                motionProcesses.Add(process);
+                motionProcesses.Add(process); motionProcessCameras[process] = camera.Name;
                 try
                 {
                     var errors = process.StandardError.ReadToEndAsync();
@@ -2565,10 +2762,11 @@ internal sealed class MonitorForm : Form
                     RecordingStorage.Track(path);
                 }
                 catch { if (File.Exists(path)) File.Delete(path); throw; }
-                finally { motionProcesses.Remove(process); }
+                finally { motionProcesses.Remove(process); motionProcessCameras.Remove(process); }
             }
             async Task RecordVideoAsync()
             {
+                if (!settings.Cameras.Any(c => c.CanRecord && c.Name.Equals(camera.Name, StringComparison.OrdinalIgnoreCase))) return;
                 Directory.CreateDirectory(videoFolder);
                 var path = Path.Combine(videoFolder, baseName + ".mkv");
                 if (preRoll is not null && videoBefore > 0)
@@ -2595,7 +2793,7 @@ internal sealed class MonitorForm : Form
                     "-t", (camera.MotionVideoSeconds is 15 or 30 or 60 ? camera.MotionVideoSeconds : 30).ToString(System.Globalization.CultureInfo.InvariantCulture),
                     "-map", "0:v:0", "-an", "-c:v", "copy", "-f", "matroska", "-y", path }) start.ArgumentList.Add(argument);
                 using var process = Process.Start(start) ?? throw new InvalidOperationException("FFmpeg konnte nicht gestartet werden.");
-                motionProcesses.Add(process);
+                motionProcesses.Add(process); motionProcessCameras[process] = camera.Name;
                 activeMotionRecordings++;
                 RefreshRecordingIndicator();
                 try
@@ -2615,7 +2813,7 @@ internal sealed class MonitorForm : Form
                 catch { if (File.Exists(path)) File.Delete(path); throw; }
                 finally
                 {
-                    motionProcesses.Remove(process);
+                    motionProcesses.Remove(process); motionProcessCameras.Remove(process);
                     activeMotionRecordings--;
                     if (!closing) RefreshRecordingIndicator();
                 }
@@ -2623,7 +2821,8 @@ internal sealed class MonitorForm : Form
         }
         catch (Exception exception)
         {
-            if (!closing) toolbar?.Flash($"Bewegung: {exception.Message}");
+            if (!closing && settings.Cameras.Any(c => c.CanRecord && c.Name.Equals(camera.Name, StringComparison.OrdinalIgnoreCase)))
+                toolbar?.Flash($"Bewegung: {exception.Message}");
         }
         finally { activeMotionCapture.Remove(captureKey); }
     }
@@ -2699,7 +2898,7 @@ internal sealed class MonitorForm : Form
         var cameraIndex = cameraBeforeMotion;
         cameraBeforeMotion = null;
         if (!settings.RestorePreviousCameraAfterMotion || gridMode || cameraIndex is null ||
-            cameraIndex < 0 || cameraIndex >= settings.Cameras.Count || settings.SelectedCamera == cameraIndex) return;
+            cameraIndex < 0 || cameraIndex >= settings.Cameras.Count || !settings.Cameras[cameraIndex.Value].IsAvailable || settings.SelectedCamera == cameraIndex) return;
         settings.SelectedCamera = cameraIndex.Value;
         SettingsStore.Save(settings);
         UpdateToolbar();
@@ -2877,7 +3076,7 @@ internal sealed class NativeWindowDiagnostics : IDisposable
     public NativeWindowDiagnostics(IntPtr monitor)
     {
         this.monitor = monitor;
-        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-Beta");
+        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationChannel.StorageName);
         logPath = Path.Combine(folder, "window-diagnostics.log");
         try
         {
@@ -3777,7 +3976,16 @@ internal sealed class SettingsForm : Form
 #if BETA
     protected override CreateParams CreateParams
     {
-        get { var parameters = base.CreateParams; parameters.ExStyle |= 0x02000000; return parameters; }
+        get
+        {
+            var parameters = base.CreateParams;
+#if !V2_BETA
+            parameters.ExStyle |= 0x02000000;
+#endif
+            // V2 uses standard form buffering. WS_EX_COMPOSITED continually
+            // repaints the native controls in the complete settings dialog.
+            return parameters;
+        }
     }
     internal static string GetDisplayFingerprint(Settings value)
     {
@@ -3787,6 +3995,32 @@ internal sealed class SettingsForm : Form
         return node.ToJsonString() + "|" + SettingsStore.Folder;
     }
     private List<Control>? displayLayouts;
+#if V2_BETA
+    private bool settingsPresented;
+    private bool settingsPresentationPending;
+    private void PresentSettings()
+    {
+        try
+        {
+            PerformLayout();
+            SettingsPresentation.PaintAll(Handle);
+        }
+        finally
+        {
+            Opacity = 1;
+            SettingsPresentation.SetAlpha(Handle, 255);
+            settingsPresentationPending = false;
+            settingsPresented = true;
+        }
+    }
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        // Shown can be posted after SetVisibleCore returns. Its handlers also
+        // set the final monitor bounds, so present only after those have run.
+        if (TopLevel && settingsPresentationPending) PresentSettings();
+    }
+#endif
     private List<Control> CollectDisplayControls()
     {
         var controls = new List<Control>();
@@ -3800,6 +4034,28 @@ internal sealed class SettingsForm : Form
     }
     protected override void SetVisibleCore(bool value)
     {
+#if V2_BETA
+        if (value && !Visible && TopLevel)
+        {
+            Opacity = 0;
+            PrepareForDisplay();
+            SettingsPresentation.SetAlpha(Handle, 0);
+            settingsPresentationPending = true;
+            try
+            {
+                base.SetVisibleCore(true);
+                if (settingsPresented && settingsPresentationPending) PresentSettings();
+            }
+            catch
+            {
+                Opacity = 1;
+                SettingsPresentation.SetAlpha(Handle, 255);
+                settingsPresentationPending = false;
+                throw;
+            }
+            return;
+        }
+#endif
         if (value && !Visible)
         {
             displayLayouts = CollectDisplayControls();
@@ -3837,12 +4093,12 @@ internal sealed class SettingsForm : Form
     }
 #endif
 
-    private readonly DataGridView cameras = new() { Dock = DockStyle.Fill, AllowUserToAddRows = true, AllowUserToDeleteRows = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
+    private readonly DataGridView cameras = new SettingsCameraGrid() { Dock = DockStyle.Fill, AllowUserToAddRows = true, AllowUserToDeleteRows = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
     private readonly CheckBox top = new() { Text = "Immer im Vordergrund", AutoSize = true };
     private readonly CheckBox autostart = new() { Text = "Mit Windows starten", AutoSize = true };
 #if BETA
-    private readonly ComboBox startBehavior = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
-    private readonly ComboBox startCamera = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
+    private readonly ComboBox startBehavior = new DarkComboBox() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
+    private readonly ComboBox startCamera = new DarkComboBox() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
     private readonly NumericUpDown toolbarSize = new() { Minimum = 50, Maximum = 100, Increment = 5, Width = 60 };
     private readonly CheckBox autoScaleToolbar = new() { Text = "Bedienleiste automatisch skalieren", AutoSize = true };
     private readonly CheckBox showEmptyFourthFieldBorder = new() { Text = "Außenrahmen", AutoSize = true };
@@ -3857,12 +4113,21 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox directHomeAssistant = new() { Text = "Direkt mit Home Assistant verbinden (empfohlen)", AutoSize = true };
     private readonly TextBox homeAssistantUrl = new() { Width = 300 };
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
+    internal static bool HomeAssistantEventsIncomplete(bool enabled, IReadOnlyList<CameraEntry> entries, string address, string token)
+    {
+        if (!enabled || !entries.Any(camera => camera.ReceivesHomeAssistantEvents && (camera.UsesExternalMotion || camera.PersonEnabled == true))) return false;
+        return !Uri.TryCreate(address, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) || string.IsNullOrWhiteSpace(token) ||
+            !entries.Any(camera => camera.ReceivesHomeAssistantEvents &&
+                ((camera.UsesExternalMotion && !string.IsNullOrWhiteSpace(camera.MotionEntityId)) ||
+                 (camera.PersonEnabled == true && !string.IsNullOrWhiteSpace(camera.PersonEntityId))));
+    }
     private readonly TextBox motionEntityId = new() { Width = 300 };
     private readonly TextBox personEntityId = new() { Width = 300 };
     private readonly Label selectedMotionCamera = new() { AutoSize = true, Text = "Keine Kamera ausgewählt", Anchor = AnchorStyles.Left };
-    private readonly ComboBox motionAction = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
-    private readonly ComboBox motionVideoSeconds = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 120 };
-    private readonly ComboBox motionRetention = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
+    private readonly ComboBox motionAction = new DarkComboBox() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
+    private readonly ComboBox motionVideoSeconds = new DarkComboBox() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 120 };
+    private readonly ComboBox motionRetention = new DarkComboBox() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
     private readonly CheckBox ignoreHomeAssistantCertificateErrors = new() { Text = "Ungültiges HA-Zertifikat erlauben (nur lokales Netzwerk)", AutoSize = true };
     private readonly Button testHomeAssistant = new() { Text = "Verbindung testen", AutoSize = true };
     private readonly Label homeAssistantStatus = new() { AutoSize = true, MaximumSize = new Size(600, 0), Margin = new Padding(10, 6, 3, 0) };
@@ -3876,7 +4141,7 @@ internal sealed class SettingsForm : Form
     public bool ApplyWindowState { get; private set; } = true;
     public bool ApplyViewState { get; private set; } = true;
 #endif
-    public SettingsForm(Settings current)
+    public SettingsForm(Settings current, string? initialSettingsFolder = null)
     {
 #if BETA
         var constructionTimer = Stopwatch.StartNew();
@@ -3946,9 +4211,40 @@ internal sealed class SettingsForm : Form
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionAction", Visible = false });
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "MotionVideoSeconds", Visible = false });
         cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "PersonEntityId", Visible = false });
-        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl, camera.MotionEnabled,
+        foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name,
+#if V2_BETA
+            camera.StoredStreamUrl,
+#else
+            camera.StreamUrl,
+#endif
+            camera.MotionEnabled,
             camera.PersonEnabled ?? !string.IsNullOrWhiteSpace(camera.PersonEntityId), camera.MotionEntityId,
             camera.MotionAction, camera.MotionVideoSeconds, camera.PersonEntityId);
+#if V2_BETA
+        cameras.Columns.Add(new DataGridViewCheckBoxColumn { Name = "Active", HeaderText = "Aktiv", FillWeight = 10, DisplayIndex = 0 });
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "HomeAssistantStreamUrl", Visible = false });
+        cameras.Columns.Add(new DataGridViewCheckBoxColumn { Name = "RecordingEnabled", HeaderText = "Aufnahmen", FillWeight = 14 });
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "DirectConnection", Visible = false, ValueType = typeof(DirectCamera) });
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "HomeAssistantEntityId", Visible = false });
+        cameras.Columns.Add(new DataGridViewTextBoxColumn { Name = "LocalMotion", Visible = false, ValueType = typeof(LocalMotionSettings) });
+        cameras.Columns["RecordingEnabled"].ToolTipText = "Automatische Aufnahmen für diese Kamera erlauben und Aufnahmeoptionen unten anzeigen. Ohne Haken bleiben die Optionen gespeichert.";
+        foreach (DataGridViewColumn column in cameras.Columns) column.SortMode = DataGridViewColumnSortMode.NotSortable;
+        for (var i = 0; i < current.Cameras.Count; i++)
+        {
+            cameras.Rows[i].Cells["Active"].Value = current.Cameras[i].Active;
+            cameras.Rows[i].Cells["RecordingEnabled"].Value = current.Cameras[i].RecordingEnabled;
+            cameras.Rows[i].Cells["HomeAssistantStreamUrl"].Value = current.Cameras[i].HomeAssistantStreamUrl;
+            cameras.Rows[i].Cells["HomeAssistantEntityId"].Value = current.Cameras[i].HomeAssistantEntityId;
+            cameras.Rows[i].Cells["LocalMotion"].Value = current.Cameras[i].LocalMotion.Clone();
+            cameras.Rows[i].Cells["DirectConnection"].Value = current.Cameras[i].Direct.Clone();
+        }
+        cameras.DefaultValuesNeeded += (_, e) => e.Row.Cells["Active"].Value = true;
+        cameras.RowsAdded += (_, e) =>
+        {
+            for (var i = e.RowIndex; i < e.RowIndex + e.RowCount; i++)
+                if (!cameras.Rows[i].IsNewRow && cameras.Rows[i].Cells["Active"].Value is null) cameras.Rows[i].Cells["Active"].Value = true;
+        };
+#endif
 #else
         foreach (var camera in current.Cameras) cameras.Rows.Add(camera.Name, camera.StreamUrl);
 #endif
@@ -3966,7 +4262,11 @@ internal sealed class SettingsForm : Form
         showEmptyFourthFieldBorder.Checked = current.ShowEmptyFourthFieldBorder;
         toolbarSize.Enabled = !autoScaleToolbar.Checked;
         autoScaleToolbar.CheckedChanged += (_, _) => toolbarSize.Enabled = !autoScaleToolbar.Checked;
+#if V2_BETA
+        motionDetection.Checked = true;
+#else
         motionDetection.Checked = current.MotionDetectionEnabled;
+#endif
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
         restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
@@ -3982,6 +4282,7 @@ internal sealed class SettingsForm : Form
         var retentionValues = new[] { 1, 3, 7, 14, 30, 0 };
         motionRetention.SelectedIndex = Math.Max(0, Array.IndexOf(retentionValues, current.MotionRetentionDays));
         var selectedCameraRow = -1;
+        var movingCamera = false;
         void StoreSelectedCameraMotion()
         {
             if (selectedCameraRow >= 0 && selectedCameraRow < cameras.Rows.Count && !cameras.Rows[selectedCameraRow].IsNewRow)
@@ -3994,6 +4295,7 @@ internal sealed class SettingsForm : Form
         }
         void LoadSelectedCameraMotion()
         {
+            if (movingCamera) return;
             StoreSelectedCameraMotion();
             selectedCameraRow = cameras.CurrentRow?.Index ?? -1;
             if (selectedCameraRow < 0 || selectedCameraRow >= cameras.Rows.Count || cameras.Rows[selectedCameraRow].IsNewRow)
@@ -4014,9 +4316,13 @@ internal sealed class SettingsForm : Form
         }
         motionAction.SelectedIndexChanged += (_, _) => motionVideoSeconds.Enabled = motionAction.SelectedIndex is 2 or 3;
         cameras.SelectionChanged += (_, _) => LoadSelectedCameraMotion();
+        cameras.CurrentCellChanged += (_, _) => LoadSelectedCameraMotion();
         cameras.CurrentCellDirtyStateChanged += (_, _) => { if (cameras.IsCurrentCellDirty) cameras.CommitEdit(DataGridViewDataErrorContexts.Commit); };
         void RefreshStartCameraChoices()
         {
+#if V2_BETA
+            if (movingCamera) return;
+#endif
             var selected = startCamera.SelectedIndex;
             startCamera.Items.Clear();
             foreach (DataGridViewRow row in cameras.Rows)
@@ -4039,7 +4345,12 @@ internal sealed class SettingsForm : Form
             minimizeWhenInactive.Enabled = enabled;
             restorePreviousCamera.Enabled = enabled;
             directHomeAssistant.Enabled = motionDetection.Checked;
+#if V2_BETA
+            // HA stream access is independent of the selected motion source.
+            var directEnabled = true;
+#else
             var directEnabled = motionDetection.Checked && directHomeAssistant.Checked;
+#endif
             homeAssistantUrl.Enabled = directEnabled;
             homeAssistantToken.Enabled = directEnabled;
             motionEntityId.Enabled = directEnabled;
@@ -4053,14 +4364,22 @@ internal sealed class SettingsForm : Form
         directHomeAssistant.CheckedChanged += (_, _) => UpdateMotionOptions();
 #endif
 #if BETA
-        var scrollArea = Batch(new Panel { Name = "SettingsScrollArea", Dock = DockStyle.Fill, AutoScroll = true });
-        var table = Batch(new TableLayoutPanel { Name = "SettingsContent", Dock = DockStyle.Top, AutoSize = true,
+#if V2_BETA
+        var scrollArea = Batch(new ModernSettingsScrollArea { Name = "SettingsScrollArea", Dock = DockStyle.Fill });
+#else
+        var scrollArea = Batch(new SettingsScrollPanel { Name = "SettingsScrollArea", Dock = DockStyle.Fill, AutoScroll = true });
+#endif
+        var table = Batch(new SettingsLayoutPanel { Name = "SettingsContent", Dock = DockStyle.Top, AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14), ColumnCount = 1, RowCount = 8 });
+#if V2_BETA
+        scrollArea.SetContent(table);
+#else
         scrollArea.Controls.Add(table);
+#endif
         table.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));
         for (var row = 1; row < table.RowCount; row++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 #else
-        var table = Batch(new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 });
+        var table = Batch(new SettingsLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 });
         table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 #endif
         table.Controls.Add(cameras, 0, 0);
@@ -4070,32 +4389,32 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(new Label { Text = "Beispiel: rtsp://192.168.x.x:8554/Einfahrt", AutoSize = true, ForeColor = SystemColors.GrayText }, 0, 1);
 #endif
 #if BETA
-        var options = Batch(new TableLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) });
+        var options = Batch(new SettingsLayoutPanel { Name = "Options", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) });
         options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         options.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        var generalOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+        var generalOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         generalOptions.Controls.Add(top);
         generalOptions.Controls.Add(autostart);
         options.Controls.Add(generalOptions, 0, 0);
 
-        var toolbarOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+        var toolbarOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         toolbarOptions.Controls.Add(new Label { Text = "Bedienleiste:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(toolbarSize);
         toolbarOptions.Controls.Add(new Label { Text = "%", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         toolbarOptions.Controls.Add(autoScaleToolbar);
         options.Controls.Add(toolbarOptions, 0, 1);
-        var cameraAppearance = Batch(new FlowLayoutPanel { Name = "CameraAppearance", Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
+        var cameraAppearance = Batch(new SettingsFlowPanel { Name = "CameraAppearance", Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
         cameraAppearance.Controls.Add(showGridCameraNames);
         cameraAppearance.Controls.Add(showEmptyCameraLogo);
         cameraAppearance.Controls.Add(showEmptyFourthFieldBorder);
         options.Controls.Add(cameraAppearance, 0, 2);
 #else
-        var options = Batch(new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true });
+        var options = Batch(new SettingsFlowPanel { Dock = DockStyle.Fill, AutoSize = true });
         options.Controls.Add(top);
         options.Controls.Add(autostart);
 #endif
 #if BETA
-        var startupOptions = Batch(new FlowLayoutPanel { Name = "StartupOptions", Dock = DockStyle.Fill, AutoSize = true });
+        var startupOptions = Batch(new SettingsFlowPanel { Name = "StartupOptions", Dock = DockStyle.Fill, AutoSize = true });
         startupOptions.Controls.Add(new Label { Text = "Beim Start:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         startupOptions.Controls.Add(startBehavior);
         var startCameraLabel = new Label { Text = "Kamera:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) };
@@ -4109,7 +4428,7 @@ internal sealed class SettingsForm : Form
         startBehavior.SelectedIndexChanged += (_, _) => UpdateStartCameraOption();
         UpdateStartCameraOption();
         var generalGroup = Batch(new GroupBox { Text = "Allgemeine Einstellungen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
-        var generalFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2 });
+        var generalFields = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2 });
         generalFields.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         generalFields.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         generalFields.Controls.Add(options, 0, 0);
@@ -4117,7 +4436,7 @@ internal sealed class SettingsForm : Form
         generalGroup.Controls.Add(generalFields);
         table.Controls.Add(generalGroup, 0, 2);
 
-        var activityOptions = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3 });
+        var activityOptions = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3 });
         for (var row = 0; row < activityOptions.RowCount; row++)
             activityOptions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var minimizedStart = new CheckBox { Name = "MinimizedStart", Text = "Minimiert starten", AutoSize = true,
@@ -4139,12 +4458,14 @@ internal sealed class SettingsForm : Form
             try { startBehavior.SelectedIndex = minimizedStart.Checked ? 1 : lastNormalStart; }
             finally { syncingStart = false; }
         };
-        var activityStartOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
+        var activityStartOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
+#if !V2_BETA
         activityStartOptions.Controls.Add(motionDetection);
+#endif
         activityStartOptions.Controls.Add(minimizedStart);
         activityOptions.Controls.Add(activityStartOptions, 0, 0);
 
-        var motionOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+        var motionOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         motionOptions.Controls.Add(minimizeWhenInactive);
         motionOptions.Controls.Add(restorePreviousCamera);
         motionOptions.Controls.Add(new Label { Text = "Vordergrunddauer:", AutoSize = true, Margin = new Padding(18, 4, 3, 0) });
@@ -4152,7 +4473,7 @@ internal sealed class SettingsForm : Form
         motionOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         activityOptions.Controls.Add(motionOptions, 0, 1);
 
-        var indicatorOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+        var indicatorOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         indicatorOptions.Controls.Add(new Label { Text = "Aktivitätssymbole anzeigen:", AutoSize = true, Margin = new Padding(3, 4, 3, 0) });
         indicatorOptions.Controls.Add(indicatorSeconds);
         indicatorOptions.Controls.Add(new Label { Text = "Sekunden", AutoSize = true, Margin = new Padding(3, 4, 12, 0) });
@@ -4166,18 +4487,18 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(options, 0, 2);
 #endif
 #if BETA
-        var snapshotPreRoll = new ComboBox { Name = "SnapshotPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
-        var videoPreRoll = new ComboBox { Name = "VideoPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
+        var snapshotPreRoll = new DarkComboBox { Name = "SnapshotPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
+        var videoPreRoll = new DarkComboBox { Name = "VideoPreRoll", DropDownStyle = ComboBoxStyle.DropDownList, Width = 115 };
         var preRollValues = new[] { 0, 1, 3, 5 };
         snapshotPreRoll.Items.AddRange(["Aus", "1 Sekunde", "3 Sekunden", "5 Sekunden"]);
         videoPreRoll.Items.AddRange(["Aus", "1 Sekunde", "3 Sekunden", "5 Sekunden"]);
         snapshotPreRoll.SelectedIndex = Math.Max(0, Array.IndexOf(preRollValues, current.SnapshotPreRollSeconds));
         videoPreRoll.SelectedIndex = Math.Max(0, Array.IndexOf(preRollValues, current.VideoPreRollSeconds));
-        var captureOptions = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
+        var captureOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false, Margin = new Padding(0) });
         captureOptions.Controls.Add(motionAction);
         captureOptions.Controls.Add(motionVideoSeconds);
         var homeAssistantGroup = Batch(new GroupBox { Text = "Bewegung pro Kamera und Home Assistant", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
-        var homeAssistantFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 8 });
+        var homeAssistantFields = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 8 });
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         homeAssistantFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         homeAssistantFields.Controls.Add(directHomeAssistant, 0, 0);
@@ -4188,7 +4509,7 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(homeAssistantToken, 1, 2);
         homeAssistantFields.Controls.Add(ignoreHomeAssistantCertificateErrors, 0, 3);
         homeAssistantFields.SetColumnSpan(ignoreHomeAssistantCertificateErrors, 2);
-        var testRow = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false });
+        var testRow = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = false });
         testRow.Controls.Add(testHomeAssistant);
         testRow.Controls.Add(homeAssistantStatus);
         homeAssistantFields.Controls.Add(testRow, 0, 4);
@@ -4200,7 +4521,7 @@ internal sealed class SettingsForm : Form
         homeAssistantFields.Controls.Add(new Label { Text = "Personen-Entität (Snapshot):", AutoSize = true, Anchor = AnchorStyles.Left }, 0, 7);
         homeAssistantFields.Controls.Add(personEntityId, 1, 7);
         var recordingGroup = Batch(new GroupBox { Name = "MotionCaptureOptions", Text = "Aufnahmen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
-        var recordingFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 9 });
+        var recordingFields = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 9 });
         recordingFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         recordingFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         var selectedCaptureHint = new Label { Name = "MotionActionHint", Text = "Bei Bewegung (ausgewählte Kamera)", AutoSize = true };
@@ -4224,17 +4545,172 @@ internal sealed class SettingsForm : Form
         var preRollHint = new Label { Text = "Der Vorlauf benötigt einen kurzen Pufferaufbau. Bis dahin erfolgt die normale Aufnahme.", AutoSize = true, MaximumSize = new Size(340, 0), Margin = new Padding(3, 10, 3, 3) };
         recordingFields.Controls.Add(preRollHint, 0, 8); recordingFields.SetColumnSpan(preRollHint, 2);
         recordingGroup.Controls.Add(recordingFields);
-        var motionColumns = Batch(new TableLayoutPanel { Name = "MotionSettingsColumns", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 1, Margin = new Padding(0) });
+        var motionColumns = Batch(new SettingsLayoutPanel { Name = "MotionSettingsColumns", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, RowCount = 1, Margin = new Padding(0) });
         motionColumns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
         motionColumns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
         motionColumns.Controls.Add(homeAssistantFields, 0, 0);
         motionColumns.Controls.Add(recordingGroup, 1, 0);
         homeAssistantGroup.Controls.Add(motionColumns);
+#if V2_BETA
+        var reolinkEditor = new ReolinkEditor(cameras, current);
+        reolinkEditor.Activated += () => motionDetection.Checked = true;
+        motionDetection.Text = "Bewegungs- und Personenerkennung aktiv";
+        Text = ApplicationBranding.ProductName + " – Einstellungen";
+        var connectionTabs = new V2ConnectionTabs(cameras, reolinkEditor, homeAssistantFields,
+            directHomeAssistant, motionDetection, personEntityId, motionEntityId, homeAssistantUrl, homeAssistantToken, ignoreHomeAssistantCertificateErrors);
+        var externalMotionFields = new SettingsLayoutPanel { Name = "ExternalMotionFields", Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
+        externalMotionFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        externalMotionFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        externalMotionFields.Controls.Add(directHomeAssistant, 0, 0); externalMotionFields.SetColumnSpan(directHomeAssistant, 2);
+        foreach (var field in homeAssistantFields.Controls.Cast<Control>().Where(c => homeAssistantFields.GetRow(c) >= 5).ToArray())
+        {
+            var column = homeAssistantFields.GetColumn(field); var row = homeAssistantFields.GetRow(field) - 4;
+            externalMotionFields.Controls.Add(field, column, row);
+        }
+        var localMotionEditor = new LocalMotionEditor(cameras, homeAssistantUrl, homeAssistantToken, ignoreHomeAssistantCertificateErrors, externalMotionFields);
+        connectionTabs.SourceChanged += localMotionEditor.LoadSelection;
+        localMotionEditor.Changed += connectionTabs.RefreshCapabilities;
+        var reolinkAndRecording = new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, RowCount = 2 };
+        reolinkAndRecording.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        reolinkAndRecording.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        reolinkAndRecording.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        reolinkAndRecording.Controls.Add(new ConnectionSettingsSection(connectionTabs), 0, 0);
+        reolinkAndRecording.RowCount = 3; reolinkAndRecording.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        reolinkAndRecording.Controls.Add(localMotionEditor, 0, 1);
+        reolinkAndRecording.Controls.Add(recordingGroup, 0, 2);
+        table.Controls.Add(reolinkAndRecording, 0, 4);
+        table.SetRow(generalGroup, 3);
+        table.SetRow(activityGroup, 4);
+        table.SetRow(reolinkAndRecording, 2);
+        void UpdateRecordingSection()
+        {
+            if (movingCamera) return;
+            var row = cameras.CurrentRow;
+            var show = row is { IsNewRow: false } && Convert.ToBoolean(row.Cells["RecordingEnabled"].Value ?? false);
+            recordingGroup.Text = $"Aufnahmen – {selectedMotionCamera.Text}";
+            if (recordingGroup.Visible != show) recordingGroup.Visible = show;
+            recordingGroup.Enabled = row is { IsNewRow: false } && Convert.ToBoolean(row.Cells["Active"].Value ?? true);
+        }
+        cameras.SelectionChanged += (_, _) => UpdateRecordingSection();
+        cameras.CurrentCellChanged += (_, _) => UpdateRecordingSection();
+        cameras.CellValueChanged += (_, e) =>
+        {
+            if (e.ColumnIndex == cameras.Columns["RecordingEnabled"].Index || e.ColumnIndex == cameras.Columns["Active"].Index)
+                UpdateRecordingSection();
+        };
+        UpdateRecordingSection();
+        var cameraTools = (Control)table.Controls.Find("CameraHint", false).Single();
+        table.Controls.Remove(cameraTools);
+        var cameraOrder = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true });
+        var moveUp = new Button { Name = "MoveCameraUp", Text = "Nach oben", AutoSize = true };
+        var moveDown = new Button { Name = "MoveCameraDown", Text = "Nach unten", AutoSize = true };
+        var deleteCamera = new Button { Name = "DeleteCamera", Text = "Kamera löschen", AutoSize = true };
+        cameraOrder.Controls.AddRange([moveUp, moveDown, deleteCamera, cameraTools]);
+        cameras.AllowUserToDeleteRows = false;
+        table.Controls.Add(cameraOrder, 0, 1);
+        cameras.ScrollBars = ScrollBars.None;
+        void UpdateCameraTableHeight()
+        {
+            if (movingCamera) return;
+            // Show every camera row; one common dark scrollbar handles the
+            // entire settings page instead of a second scrollbar in the grid.
+            var height = cameras.ColumnHeadersHeight + cameras.Rows.Cast<DataGridViewRow>().Sum(r => r.Height) + 4;
+            table.RowStyles[0].Height = Math.Max(130, height);
+        }
+        cameras.RowsAdded += (_, _) => UpdateCameraTableHeight();
+        cameras.RowsRemoved += (_, _) => UpdateCameraTableHeight();
+        UpdateCameraTableHeight();
+        void UpdateOrderButtons()
+        {
+            if (movingCamera) return;
+            var index = cameras.CurrentRow is { IsNewRow: false } row ? row.Index : -1;
+            moveUp.Enabled = index > 0;
+            moveDown.Enabled = index >= 0 && index < cameras.Rows.Count - 2;
+            deleteCamera.Enabled = index >= 0;
+        }
+        void MoveCamera(int offset)
+        {
+            if (cameras.CurrentRow is not { IsNewRow: false } row) return;
+            var target = row.Index + offset;
+            if (target < 0 || target >= cameras.Rows.Count - 1) return;
+            cameras.EndEdit(); StoreSelectedCameraMotion();
+            var startName = Convert.ToString(startCamera.SelectedItem);
+            scrollArea.PreserveView(() =>
+            {
+                movingCamera = true;
+                selectedCameraRow = -1;
+                try
+                {
+                    using (CameraGridUpdate.Begin(cameras))
+                        reolinkEditor.Reorder(() =>
+                        {
+                            cameras.Rows.Remove(row);
+                            cameras.Rows.Insert(target, row);
+                            cameras.CurrentCell = row.Cells["CameraName"];
+                            row.Selected = true;
+                        });
+                }
+                finally { movingCamera = false; }
+                UpdateCameraTableHeight();
+                RefreshStartCameraChoices();
+                if (startName is not null && startCamera.Items.Contains(startName)) startCamera.SelectedItem = startName;
+                LoadSelectedCameraMotion();
+                connectionTabs.RefreshAfterReorder(); localMotionEditor.LoadSelection();
+                UpdateRecordingSection(); UpdateOrderButtons();
+            });
+        }
+        moveUp.Click += (_, _) => MoveCamera(-1);
+        moveDown.Click += (_, _) => MoveCamera(1);
+        void DeleteSelectedCamera()
+        {
+            if (cameras.CurrentRow is not { IsNewRow: false } row) return;
+            cameras.EndEdit(); StoreSelectedCameraMotion();
+            var index = row.Index;
+            var startName = Convert.ToString(startCamera.SelectedItem);
+            scrollArea.PreserveView(() =>
+            {
+                movingCamera = true;
+                selectedCameraRow = -1;
+                try
+                {
+                    using (CameraGridUpdate.Begin(cameras))
+                        reolinkEditor.Reorder(() =>
+                        {
+                            cameras.Rows.Remove(row);
+                            cameras.ClearSelection();
+                            var next = cameras.Rows[Math.Min(index, cameras.Rows.Count - 1)];
+                            cameras.CurrentCell = next.Cells["CameraName"];
+                            if (!next.IsNewRow) next.Selected = true;
+                        });
+                }
+                finally { movingCamera = false; }
+                UpdateCameraTableHeight(); RefreshStartCameraChoices();
+                if (startName is not null && startCamera.Items.Contains(startName)) startCamera.SelectedItem = startName;
+                LoadSelectedCameraMotion(); connectionTabs.RefreshAfterRemoval(); localMotionEditor.LoadSelection();
+                UpdateRecordingSection(); UpdateOrderButtons();
+            });
+        }
+        deleteCamera.Click += (_, _) => DeleteSelectedCamera();
+        cameras.KeyDown += (_, e) =>
+        {
+            if (e.KeyCode != Keys.Delete || e.Modifiers != Keys.None || cameras.IsCurrentCellInEditMode) return;
+            DeleteSelectedCamera(); e.Handled = true; e.SuppressKeyPress = true;
+        };
+        cameras.SelectionChanged += (_, _) => UpdateOrderButtons();
+        cameras.CurrentCellChanged += (_, _) => UpdateOrderButtons();
+        UpdateOrderButtons();
+        personCaptureHint.Text = "Personen-Snapshots benötigen eine unterstützte Home-Assistant-Personen-Entität. Bei Reolink-UID ist „Person“ gesperrt.";
+        homeAssistantGroup.Visible = false;
+        if (cameraTools is Label cameraHint)
+            cameraHint.Text = "Kamera auswählen und Verbindung unter Reolink oder Home Assistant einrichten. „Aktiv“ schaltet die Kamera vollständig ein oder aus.";
+#else
         table.Controls.Add(homeAssistantGroup, 0, 4);
+#endif
 #endif
 #if BETA
         var storageGroup = Batch(new GroupBox { Name = "RecordingStorage", Text = "Speicherpfade", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
-        var storageFields = Batch(new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 3 });
+        var storageFields = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 3 });
         storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         storageFields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -4255,7 +4731,7 @@ internal sealed class SettingsForm : Form
         var manualVideoPath = AddStoragePath("Manuelle Videos:", current.ManualVideoFolder, RecordingStorage.ManualVideos, 1);
         var motionSnapshotPath = AddStoragePath("Snapshots bei Bewegung:", RecordingStorage.ResolveMotionSnapshots(current.MotionSnapshotFolder), RecordingStorage.MotionSnapshots, 2);
         var motionVideoPath = AddStoragePath("Videos bei Bewegung:", current.MotionVideoFolder, RecordingStorage.MotionDefault, 3);
-        var settingsPath = AddStoragePath("Einstellungen:", SettingsStore.Folder, SettingsLocation.DefaultFolder, 4);
+        var settingsPath = AddStoragePath("Einstellungen:", initialSettingsFolder ?? SettingsStore.Folder, SettingsLocation.DefaultFolder, 4);
         settingsPath.Name = "SettingsStoragePath";
         var storageHint = new Label { Text = "Die Aufbewahrungsfrist gilt nur für automatische Bewegungsaufnahmen. Manuelle Aufnahmen bleiben erhalten.", AutoSize = true, MaximumSize = new Size(700, 0) };
         storageFields.Controls.Add(storageHint, 0, 5); storageFields.SetColumnSpan(storageHint, 3);
@@ -4264,23 +4740,23 @@ internal sealed class SettingsForm : Form
         storageGroup.Controls.Add(storageFields); table.Controls.Add(storageGroup, 0, 5);
         // Existing diagnostics remain available; the release uses a neutral heading.
         var betaLogging = new CheckBox { Name = "BetaWindowLogging", Text = "Fensterprotokollierung aktivieren", AutoSize = true, Checked = current.BetaWindowLoggingEnabled };
-        var betaFields = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false });
+        var betaFields = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false });
         betaFields.Controls.Add(betaLogging);
         betaFields.Controls.Add(new Label { Text = "Zur Fehlersuche bei Darstellungsproblemen. Änderungen gelten nach dem Speichern.", AutoSize = true });
         var betaGroup = Batch(new GroupBox { Name = "BetaDiagnostics", Text = ApplicationBranding.ProductName == "HomeCam Monitor" ? "Darstellungsdiagnose" : "BETA", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) });
         betaGroup.Controls.Add(betaFields);
         table.Controls.Add(betaGroup, 0, 7);
         var backupGroup = Batch(new GroupBox { Name = "SettingsBackup", Text = "Einstellungen sichern und wiederherstellen", Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
-        var backupFields = Batch(new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false });
-        var backupButtons = Batch(new FlowLayoutPanel { AutoSize = true, WrapContents = false });
+        var backupFields = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false });
+        var backupButtons = Batch(new SettingsFlowPanel { AutoSize = true, WrapContents = false });
         var exportSettings = new Button { Name = "ExportSettings", Text = "Einstellungen sichern …", AutoSize = true };
         var importSettings = new Button { Name = "ImportSettings", Text = "Einstellungen wiederherstellen …", AutoSize = true };
         backupButtons.Controls.Add(exportSettings); backupButtons.Controls.Add(importSettings);
         backupFields.Controls.Add(backupButtons);
         backupFields.Controls.Add(new Label { Text = "Sichert die gespeicherten Einstellungen einschließlich Kameras, Speicherpfaden und HA-Token.", AutoSize = true, MaximumSize = new Size(700, 0) });
         backupGroup.Controls.Add(backupFields); table.Controls.Add(backupGroup, 0, 6);
-        var maintenanceButtons = Batch(new FlowLayoutPanel { AutoSize = true, WrapContents = false });
-        var resetScope = new ComboBox { Name = "SettingsResetScope", DropDownStyle = ComboBoxStyle.DropDownList, Width = 235 };
+        var maintenanceButtons = Batch(new SettingsFlowPanel { AutoSize = true, WrapContents = false });
+        var resetScope = new DarkComboBox { Name = "SettingsResetScope", DropDownStyle = ComboBoxStyle.DropDownList, Width = 235 };
         resetScope.Items.AddRange(["Fensterposition und Größe", "Anzeige und Bedienung", "Kameraeinstellungen", "Alle Einstellungen"]);
         resetScope.SelectedIndex = 0;
         var resetSettings = new Button { Name = "ResetSettings", Text = "Zurücksetzen …", AutoSize = true };
@@ -4355,7 +4831,7 @@ internal sealed class SettingsForm : Form
             }
             catch (Exception error) { MessageBox.Show(this, error.Message, "Wiederherstellung fehlgeschlagen", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         };
-        var footer = Batch(new TableLayoutPanel { Name = "SettingsFooter", Dock = DockStyle.Bottom, AutoSize = true,
+        var footer = Batch(new SettingsLayoutPanel { Name = "SettingsFooter", Dock = DockStyle.Bottom, AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(14, 6, 14, 6), ColumnCount = 2, RowCount = 1 });
         footer.Paint += (_, paint) =>
         {
@@ -4371,10 +4847,10 @@ internal sealed class SettingsForm : Form
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
 #if BETA
-        var buttons = Batch(new FlowLayoutPanel { Anchor = AnchorStyles.Right, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+        var buttons = Batch(new SettingsFlowPanel { Anchor = AnchorStyles.Right, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
             Margin = Padding.Empty, WrapContents = false, FlowDirection = FlowDirection.RightToLeft });
 #else
-        var buttons = Batch(new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft });
+        var buttons = Batch(new SettingsFlowPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft });
 #endif
         var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
         buttons.Controls.Add(ok); buttons.Controls.Add(new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, AutoSize = true });
@@ -4388,6 +4864,9 @@ internal sealed class SettingsForm : Form
         Controls.Add(footer);
         Measure("controls");
         ApplyDarkTheme(this);
+#if V2_BETA
+        connectionTabs.UpdateTabAppearance();
+#endif
         Measure("theme");
 #else
         Controls.Add(table);
@@ -4407,21 +4886,38 @@ internal sealed class SettingsForm : Form
                     ? motionEntityId.Text.Trim() : "";
                 var personId = selectedRow is not null && Convert.ToBoolean(selectedRow.Cells[3].Value ?? false)
                     ? personEntityId.Text.Trim() : "";
+#if V2_BETA
+                if (selectedRow is not null && LocalMotionSettings.ForRow(selectedRow).Enabled) motionId = "";
+#endif
                 if (!Uri.TryCreate(homeAssistantUrl.Text.Trim(), UriKind.Absolute, out var testUri) ||
                     (testUri.Scheme != Uri.UriSchemeHttp && testUri.Scheme != Uri.UriSchemeHttps) ||
-                    string.IsNullOrWhiteSpace(homeAssistantToken.Text) ||
-                    (motionId.Length == 0 && personId.Length == 0))
+                    string.IsNullOrWhiteSpace(homeAssistantToken.Text)
+#if !V2_BETA
+                    || (motionId.Length == 0 && personId.Length == 0)
+#endif
+                    )
                 {
                     homeAssistantStatus.ForeColor = Color.Firebrick;
-                    homeAssistantStatus.Text = "Adresse, Token und mindestens einen aktivierten Sensor eintragen.";
+                    homeAssistantStatus.Text =
+#if V2_BETA
+                        "Gültige HA-Adresse und Langzeit-Token eintragen.";
+#else
+                        "Adresse, Token und mindestens einen aktivierten Sensor eintragen.";
+#endif
                     return;
                 }
                 var error = await MonitorForm.TestHomeAssistantConnectionAsync(homeAssistantUrl.Text.Trim(), homeAssistantToken.Text.Trim(),
                     motionId, ignoreHomeAssistantCertificateErrors.Checked, personId);
                 homeAssistantStatus.ForeColor = error is null ? Color.ForestGreen : Color.Firebrick;
-                homeAssistantStatus.Text = error is null ? "Verbunden – eingetragene Sensoren gefunden." : error;
+                homeAssistantStatus.Text = error is null ? (motionId.Length == 0 && personId.Length == 0 ? "Verbunden – Anmeldung erfolgreich." : "Verbunden – eingetragene Sensoren gefunden.") : error;
             }
-            finally { testHomeAssistant.Enabled = directHomeAssistant.Checked && motionDetection.Checked; }
+            finally { testHomeAssistant.Enabled =
+#if V2_BETA
+                true;
+#else
+                directHomeAssistant.Checked && motionDetection.Checked;
+#endif
+            }
         };
 #endif
         ok.Click += (_, _) =>
@@ -4429,9 +4925,29 @@ internal sealed class SettingsForm : Form
 #if BETA
             StoreSelectedCameraMotion();
 #endif
+#if V2_BETA
+            reolinkEditor.Store();
+#endif
             var entries = ReadCameras();
+#if V2_BETA
+            try
+            {
+                foreach (var camera in entries) camera.LocalMotion.Validate();
+                foreach (var camera in entries.Where(c => c.Active)) camera.Reolink.Validate();
+                foreach (var camera in entries.Where(c => c.Active && c.Direct.Enabled)) camera.StreamUrl = camera.Direct.StreamUrl();
+                if (entries.Any(c => c.Active && c.Reolink.Enabled) && !File.Exists(reolinkEditor.HelperPath))
+                    throw new ArgumentException("Bitte den Reolink-Verbindungsdienst (neolink.exe) auswählen.");
+                if (entries.Select(c => c.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count() != entries.Count)
+                    throw new ArgumentException("Bitte jeder Kamera einen eindeutigen Namen geben.");
+            }
+            catch (ArgumentException error)
+            {
+                MessageBox.Show(this, error.Message, "Reolink-Konfiguration", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None; return;
+            }
+#endif
 #if BETA
-            if (entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _)))
+            if (entries.Any(c => c.Active && !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _)))
 #else
             if (entries.Count == 0 || entries.Any(c => !Uri.TryCreate(c.StreamUrl, UriKind.Absolute, out _)))
 #endif
@@ -4445,13 +4961,7 @@ internal sealed class SettingsForm : Form
                 MessageBox.Show(this, "Bitte eine Startkamera auswählen.", "Startverhalten", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 DialogResult = DialogResult.None; return;
             }
-            if (directHomeAssistant.Checked && entries.Any(camera => camera.MotionEnabled || camera.PersonEnabled == true) &&
-                (!Uri.TryCreate(homeAssistantUrl.Text.Trim(), UriKind.Absolute, out var haUri) ||
-                 (haUri.Scheme != Uri.UriSchemeHttp && haUri.Scheme != Uri.UriSchemeHttps) ||
-                 string.IsNullOrWhiteSpace(homeAssistantToken.Text) ||
-                 !entries.Any(camera =>
-                    (camera.MotionEnabled && !string.IsNullOrWhiteSpace(camera.MotionEntityId)) ||
-                    (camera.PersonEnabled == true && !string.IsNullOrWhiteSpace(camera.PersonEntityId)))))
+            if (HomeAssistantEventsIncomplete(directHomeAssistant.Checked, entries, homeAssistantUrl.Text.Trim(), homeAssistantToken.Text))
             {
                 MessageBox.Show(this, "Bitte HA-Adresse und Langzeit-Token eintragen sowie für mindestens eine aktivierte Kamera eine Sensor-Entität hinterlegen.", "Home Assistant unvollständig", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 DialogResult = DialogResult.None; return;
@@ -4472,7 +4982,10 @@ internal sealed class SettingsForm : Form
             #endif
             Result = new Settings
             {
-                Cameras = entries, SelectedCamera = Math.Clamp(current.SelectedCamera, 0, Math.Max(0, entries.Count - 1)),
+#if V2_BETA
+                ReolinkHelperPath = reolinkEditor.HelperPath,
+#endif
+                Cameras = entries, SelectedCamera = Math.Max(0, entries.FindIndex(c => current.SelectedCamera >= 0 && current.SelectedCamera < current.Cameras.Count && c.Name.Equals(current.Cameras[current.SelectedCamera].Name, StringComparison.OrdinalIgnoreCase))),
                 AlwaysOnTop = top.Checked, StartWithWindows = autostart.Checked,
                 Left = current.Left, Top = current.Top, Width = current.Width, Height = current.Height,
 #if BETA
@@ -4487,7 +5000,9 @@ internal sealed class SettingsForm : Form
                 ShowGridCameraNames = showGridCameraNames.Checked,
                 ShowEmptyCameraLogo = showEmptyCameraLogo.Checked,
                 ShowEmptyFourthFieldBorder = showEmptyFourthFieldBorder.Checked,
+#if !V2_BETA
                 MotionDetectionEnabled = motionDetection.Checked,
+#endif
                 MotionActionsPausedUntilUtc = current.MotionActionsPausedUntilUtc,
                 MotionForegroundSeconds = (int)motionSeconds.Value,
                 MotionIndicatorSeconds = (int)indicatorSeconds.Value,
@@ -4545,6 +5060,15 @@ internal sealed class SettingsForm : Form
             var url = Convert.ToString(row.Cells[1].Value)?.Trim() ?? "";
             if (name.Length == 0 && url.Length == 0) continue;
             var entry = new CameraEntry { Name = name, StreamUrl = url };
+#if V2_BETA
+            entry.Reolink = (row.Tag as ReolinkCamera ?? new ReolinkCamera()).Clone();
+            entry.Active = Convert.ToBoolean(row.Cells["Active"].Value ?? true);
+            entry.RecordingEnabled = Convert.ToBoolean(row.Cells["RecordingEnabled"].Value ?? false);
+            entry.HomeAssistantStreamUrl = Convert.ToString(row.Cells["HomeAssistantStreamUrl"].Value) ?? "";
+            entry.HomeAssistantEntityId = Convert.ToString(row.Cells["HomeAssistantEntityId"].Value) ?? "";
+            entry.LocalMotion = LocalMotionSettings.ForRow(row).Clone();
+            entry.Direct = DirectCamera.ForRow(row).Clone();
+#endif
 #if BETA
             entry.MotionEnabled = Convert.ToBoolean(row.Cells[2].Value ?? false);
             entry.PersonEnabled = Convert.ToBoolean(row.Cells[3].Value ?? false);
@@ -4558,7 +5082,7 @@ internal sealed class SettingsForm : Form
         return result;
     }
 #if BETA
-    private static void ApplyDarkTheme(Control root)
+    internal static void ApplyDarkTheme(Control root)
     {
         var background = Color.FromArgb(24, 24, 27);
         var surface = Color.FromArgb(35, 35, 39);
@@ -4620,7 +5144,11 @@ internal sealed class SettingsForm : Form
                     groupBox.ForeColor = text;
                     break;
                 case Label label:
+#if V2_BETA
+                    label.BackColor = background;
+#else
                     label.BackColor = Color.Transparent;
+#endif
                     label.ForeColor = label.ForeColor == SystemColors.GrayText ? muted : text;
                     break;
                 default:

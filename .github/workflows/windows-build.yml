@@ -20,6 +20,10 @@ jobs:
         run: dotnet publish HomeCamMonitor.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish
       - name: Beta mit Bewegungserkennung erstellen
         run: dotnet publish HomeCamMonitor.Beta.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-beta
+      - name: Separate V2 Beta erstellen
+        run: dotnet publish HomeCamMonitor.V2.Beta.csproj -c Release -r win-x64 --self-contained true -o publish-v2-beta
+      - name: V2 Beta auf getrennte Identität prüfen
+        run: dotnet run --project tests/V2Isolation/V2Isolation.csproj -c Release
       - name: Bedienleiste, Fensterposition und Einstellungen prüfen
         run: dotnet run --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- "${{ runner.temp }}/toolbar-render"
       - uses: actions/upload-artifact@v4
@@ -41,6 +45,7 @@ jobs:
           if (-not $exe) { throw 'mpv.exe wurde im Paket nicht gefunden.' }
           Copy-Item $exe.FullName publish/mpv.exe
           Copy-Item $exe.FullName publish-beta/mpv.exe
+          Copy-Item $exe.FullName publish-v2-beta/mpv.exe
       - name: FFmpeg für Bewegungsaufnahmen laden
         shell: pwsh
         env:
@@ -55,6 +60,7 @@ jobs:
           $exe = Get-ChildItem ffmpeg -Filter ffmpeg.exe -Recurse | Select-Object -First 1
           if (-not $exe) { throw 'ffmpeg.exe wurde im Paket nicht gefunden.' }
           Copy-Item $exe.FullName publish-beta/ffmpeg.exe
+          Copy-Item $exe.FullName publish-v2-beta/ffmpeg.exe
           $license = Get-ChildItem ffmpeg -File -Recurse | Where-Object { $_.Name -match '^LICENSE' } | Select-Object -First 1
           if ($license) { Copy-Item $license.FullName publish-beta/FFmpeg-LICENSE.txt }
       - name: Video und Snapshot mit FFmpeg erzeugen und lesen
@@ -127,3 +133,27 @@ jobs:
         with:
           name: HomeCamMonitor-Beta-v0.5.0-beta.22-win-x64
           path: beta-downloads/
+
+      - name: Reolink-Verbindungsdienst für V2 vorbereiten
+        run: |
+          rustup toolchain install 1.85.1 --profile minimal
+          if ($LASTEXITCODE -ne 0) { throw 'Rust toolchain unavailable' }
+          $env:RUSTUP_TOOLCHAIN = '1.85.1'
+          .github/scripts/prepare-reolink-components.ps1
+      - name: Echter Reolink-Verbindungsdienst ohne Kamera prüfen
+        run: dotnet run --no-build --project tests/V2Isolation/V2Isolation.csproj -c Release -- --helper-smoke publish-v2-beta/tools/neolink/neolink.exe publish-v2-beta/tools/gstreamer
+      - name: Lokale Bewegungserkennung mit echtem OpenCV und FFmpeg prüfen
+        run: dotnet run --no-build --project tests/V2Isolation/V2Isolation.csproj -c Release -- --local-motion
+      - name: V2 Beta Setup erstellen
+        run: .github/scripts/build-v2-beta-downloads.ps1 -Version '2.0.0-beta.37'
+      - name: V2 Installation und Deinstallation ohne Registrierung prüfen
+        shell: pwsh
+        run: |
+          $setup = (Resolve-Path v2-beta-downloads/HomeCamMonitor-V2-Beta-Setup.exe).Path
+          $verification = Join-Path $env:RUNNER_TEMP 'v2-package-check'
+          $check = Start-Process $setup -ArgumentList @('--verify-files', ('"' + $verification + '"')) -WindowStyle Hidden -PassThru -Wait
+          if ($check.ExitCode -ne 0) { throw 'V2 Beta Setup-Prüfung fehlgeschlagen.' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCamMonitor-V2-Beta-2.0.0-beta.37
+          path: v2-beta-downloads/
