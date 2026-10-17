@@ -47,9 +47,9 @@ Empfindlichkeit, Mindestfläche, Mindestdauer und Überwachungsbereiche werden j
 
 ![Lokale Bildanalyse mit Überwachungsbereich](docs/screenshots/v2-beta37-local-motion.png)
 
-[**V2-Beschreibung und Einrichtung**](docs/release-notes-v2-beta37.md) · [Technische Hinweise und Versionshistorie](docs/v2-beta.md) · [V2-Quellcode](https://github.com/kulmi84/HomeCam-Monitor/tree/feature/reolink-v2-beta)
+[**V2-Beschreibung und Einrichtung**](docs/release-notes-v2-beta37.md) · [Technische Hinweise und Versionshistorie](docs/v2-beta.md) · [V2-Quellcode](https://github.com/kulmi84/HomeCam-Monitor/tree/main)
 
-Der Hauptzweig enthält weiterhin den V1-Programmstand; der V2-Quellcode liegt im verlinkten Entwicklungszweig und in [Pull Request #3](https://github.com/kulmi84/HomeCam-Monitor/pull/3).
+Der Hauptzweig enthält V1 und die separate V2 Beta37. [Pull Request #3](https://github.com/kulmi84/HomeCam-Monitor/pull/3) wurde nach dem erfolgreichen [Windows-Build #295](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/39050341220) übernommen. Geprüft wurden unter anderem Oberfläche, Videowiedergabe, Aufnahmen, Reolink-Dienst, lokale Bewegungserkennung sowie V2-Installation und Deinstallation.
 
 Die Screenshots zeigen die Anwendung mit erfundenen Kameradaten. Die Vorschau der lokalen Analyse ist synthetisch. Öffentliche V2-Installer folgen nach der noch offenen Prüfung der neuen Fremdkomponenten; bestehende V1-Downloads bleiben unverändert.
 
