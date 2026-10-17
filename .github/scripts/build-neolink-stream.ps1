@@ -71,6 +71,11 @@ if ($LASTEXITCODE -ne 0) { throw 'Build metadata helper failed.' }
 $env:PKG_CONFIG = Join-Path $imports 'pkg-config.exe'
 $env:PKG_CONFIG_ALLOW_CROSS = '1'
 $env:PATH = (Join-Path $GStreamerRoot 'bin') + ';' + $env:PATH
+# MSVC cannot reliably write Cargo's deeply nested output paths below a checkout.
+# Keep a unique target directory near TEMP and preserve the caller's environment.
+$previousCargoTarget = $env:CARGO_TARGET_DIR
+$cargoTarget = Join-Path ([IO.Path]::GetTempPath()) ('hcm-' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
+$env:CARGO_TARGET_DIR = $cargoTarget
 Push-Location $source
 try {
     & cargo build --release --locked -j 2
@@ -79,5 +84,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Video routing regression tests failed.' }
     & cargo test --release --locked -j 2 -p neolink_core ack_receive_rate
     if ($LASTEXITCODE -ne 0) { throw 'UDP receive-rate regression tests failed.' }
-} finally { Pop-Location }
-Copy-Item (Join-Path $source 'target/release/neolink.exe') (Join-Path $output 'neolink.exe')
+    Copy-Item (Join-Path $cargoTarget 'release/neolink.exe') (Join-Path $output 'neolink.exe')
+} finally {
+    Pop-Location
+    $env:CARGO_TARGET_DIR = $previousCargoTarget
+}
