@@ -2,6 +2,18 @@
 
 V2 ist eine separate Windows-Anwendung mit eigenen Einstellungen und eigenem Installationsordner. V1.0.0 bleibt die stabile Veröffentlichung. Die vorher als gut bestätigte V2-Referenz bleibt Beta29; Beta37 ergänzt die Funktionen und Fehlerkorrekturen der nachfolgenden Entwicklung.
 
+Der V2-Programmcode liegt im [Entwicklungszweig](https://github.com/kulmi84/HomeCam-Monitor/tree/feature/reolink-v2-beta); [Pull Request #3](https://github.com/kulmi84/HomeCam-Monitor/pull/3) enthält die Änderung zur Prüfung. Die Dokumentation ist bereits im Hauptzweig sichtbar, dessen Programmcode weiterhin V1 ist.
+
+## Einrichtung in fünf Schritten
+
+1. Eine Kamera hinzufügen oder die Netzwerk-/HA-Suche verwenden. Bestehende Kameras bleiben beim Aktualisieren erhalten.
+2. Bei **Verbindungseinstellungen** die passende Verbindungsart wählen und die nötigen Kamera- beziehungsweise HA-Zugangsdaten eintragen. Für direkte ONVIF-/RTSP-Verbindungen muss die Kamera vom PC erreichbar sein.
+3. Die Verbindung beziehungsweise den Stream testen. Eine gefundene Kamera oder ein offener Port bestätigt noch keine funktionierende Bildübertragung.
+4. In der Kameraliste **Aktiv** und bei Bedarf **Bewegung** setzen. Darunter die unterstützte Ereignisquelle wählen; die passenden Detailfelder werden über den Pfeil aufgeklappt. Ohne Bewegung-Haken ist der Bereich ausgeblendet.
+5. Für automatische Aufnahmen zusätzlich **Aufnahmen** aktivieren, die gewünschte Aktion einstellen und speichern. Deaktivierte Kameras behalten ihre Einstellungen, werden aber nicht verwendet.
+
+Bei lokalen Kameras können Firewall oder getrennte VLANs die Suche und Verbindung verhindern. WS-Discovery arbeitet mit lokalem Multicast und erreicht andere Netzsegmente normalerweise nicht ohne passende Netzkonfiguration. UID und Home Assistant können andere Verbindungswege nutzen; die lokale Suche ersetzt diese Wege nicht.
+
 ## Kameras und Ereignisse pro Kamera
 
 Alle drei Verbindungsarten teilen eine Kameraliste. Kameras können deaktiviert, umsortiert und gelöscht werden. Bewegung, unterstützte Personenereignisse und automatische Aufnahmen werden pro Kamera freigegeben. Verbindungseinstellungen und Details der gewählten Bewegungsquelle starten eingeklappt.

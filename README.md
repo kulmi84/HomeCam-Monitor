@@ -29,7 +29,27 @@ Die Entwicklung von **HomeCam Monitor V2** ist bei **2.0.0-beta.37**. V2 verwend
 
 ![V2 Beta37: Kameraliste, Bewegungsquelle und eingeklappte Einstellungen](docs/screenshots/v2-beta37-overview.png)
 
-[**V2-Beschreibung mit weiteren Screenshots**](docs/release-notes-v2-beta37.md) · [Technische Hinweise und Versionshistorie](docs/v2-beta.md)
+### Reolink direkt über UID
+
+Kameraeigene Bewegungsereignisse benötigen keinen HA-Sensor. Alternativ steht lokale Bildanalyse zur Verfügung.
+
+![Reolink-UID und Bewegungserkennung der Reolink-Kamera](docs/screenshots/v2-beta37-reolink.png)
+
+### Home Assistant
+
+Verbindung und Streamadresse stehen getrennt von der Ereignis- und Sensorzuordnung. Die Suche listet HA-Kameras und passende Sensoren auf.
+
+![Home-Assistant-Verbindung und Kamerasuche](docs/screenshots/v2-beta37-homeassistant.png)
+
+### Lokale Bewegungserkennung
+
+Empfindlichkeit, Mindestfläche, Mindestdauer und Überwachungsbereiche werden je Kamera eingestellt. Die Vorschau zeigt hier ein synthetisches Testbild.
+
+![Lokale Bildanalyse mit Überwachungsbereich](docs/screenshots/v2-beta37-local-motion.png)
+
+[**V2-Beschreibung und Einrichtung**](docs/release-notes-v2-beta37.md) · [Technische Hinweise und Versionshistorie](docs/v2-beta.md) · [V2-Quellcode](https://github.com/kulmi84/HomeCam-Monitor/tree/feature/reolink-v2-beta)
+
+Der Hauptzweig enthält weiterhin den V1-Programmstand; der V2-Quellcode liegt im verlinkten Entwicklungszweig und in [Pull Request #3](https://github.com/kulmi84/HomeCam-Monitor/pull/3).
 
 Die Screenshots zeigen die Anwendung mit erfundenen Kameradaten. Die Vorschau der lokalen Analyse ist synthetisch. Öffentliche V2-Installer folgen nach der noch offenen Prüfung der neuen Fremdkomponenten; bestehende V1-Downloads bleiben unverändert.
 
@@ -68,14 +88,17 @@ Die korrespondierenden mpv-/FFmpeg-Quellen und Prüfsummen stehen im selben Rele
 
 ## Installation
 
-Bis zur Freigabe von V1.0.0 bleibt der bisherige Vorabstand als Actions-Artefakt verfügbar:
+Für die stabile Version **V1.0.0**:
 
-1. Den [erfolgreichen Beta-22-Build](https://github.com/kulmi84/HomeCam-Monitor/actions/runs/37339036318) öffnen (GitHub-Anmeldung erforderlich; Artefakte sind zeitlich begrenzt verfügbar).
-2. Unter **Artifacts** `HomeCamMonitor-Beta-v0.5.0-beta.22-win-x64` herunterladen.
-3. Das ZIP entpacken und `HomeCamMonitor-Beta-Setup.exe` starten.
-4. Installationsordner wählen; Standard ist `C:\Program Files\HomeCamMonitor`. Startmenü-Einträge sind standardmäßig aktiviert.
+1. Den [V1.0.0-Installer](https://github.com/kulmi84/HomeCam-Monitor/releases/download/v1.0.0/HomeCamMonitor-v1.0.0-Setup.exe) herunterladen und starten.
+2. Installationsordner wählen; Standard ist `C:\Program Files\HomeCamMonitor`.
+3. Nach dem Start Kameranamen und Streamadressen in den Einstellungen eintragen.
 
-Das Setup unterstützt Aktualisieren und Deinstallieren. Das Löschen der Einstellungen ist eine separate Option mit Bestätigung. Die Details stehen in der [Setup-Dokumentation](docs/setup-v0.5.md). V1.0.0 verwendet `HomeCamMonitor.exe` und `HomeCamMonitor-v1.0.0-Setup.exe`; lokale Prüfpakete tragen zusätzlich `-Review`. Die Lizenz ist im Setup über **Lizenz anzeigen …** lesbar. Den offiziellen Installer verlinken wir erst nach Freigabe.
+Alternativ die [portable Version](https://github.com/kulmi84/HomeCam-Monitor/releases/download/v1.0.0/HomeCamMonitor-v1.0.0-win-x64.zip) vollständig entpacken und `HomeCamMonitor.exe` starten.
+
+Das Setup unterstützt Aktualisieren und Deinstallieren. Das Löschen der Einstellungen ist eine separate Option mit Bestätigung. Die Lizenz ist im Setup über **Lizenz anzeigen …** lesbar. Details: [Setup-Dokumentation](docs/setup-v0.5.md).
+
+**V2 Beta37:** separate Entwicklungsversion mit eigener Anwendung und eigenen Einstellungen; öffentliche Installer sind noch nicht freigegeben. Einrichtung und Bilder stehen in der [V2-Dokumentation](docs/release-notes-v2-beta37.md).
 
 > Wichtig: Nicht nur die EXE kopieren. Der komplette entpackte Ordner einschließlich `mpv.exe` wird benötigt.
 
