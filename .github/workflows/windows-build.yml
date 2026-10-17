@@ -22,8 +22,6 @@ jobs:
         run: dotnet publish HomeCamMonitor.Beta.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-beta
       - name: Separate V2 Beta erstellen
         run: dotnet publish HomeCamMonitor.V2.Beta.csproj -c Release -r win-x64 --self-contained true -o publish-v2-beta
-      - name: V2 Beta auf getrennte Identität prüfen
-        run: dotnet run --project tests/V2Isolation/V2Isolation.csproj -c Release
       - name: Bedienleiste, Fensterposition und Einstellungen prüfen
         run: dotnet run --project tests/ToolbarRender/ToolbarRender.csproj -c Release -- "${{ runner.temp }}/toolbar-render"
       - uses: actions/upload-artifact@v4
@@ -63,6 +61,10 @@ jobs:
           Copy-Item $exe.FullName publish-v2-beta/ffmpeg.exe
           $license = Get-ChildItem ffmpeg -File -Recurse | Where-Object { $_.Name -match '^LICENSE' } | Select-Object -First 1
           if ($license) { Copy-Item $license.FullName publish-beta/FFmpeg-LICENSE.txt }
+      # The V2 suite also exercises the real player and decoder.
+      # Prepare both executables before starting those integration tests.
+      - name: V2 Beta auf getrennte Identität prüfen
+        run: dotnet run --project tests/V2Isolation/V2Isolation.csproj -c Release
       - name: Video und Snapshot mit FFmpeg erzeugen und lesen
         shell: pwsh
         run: |
