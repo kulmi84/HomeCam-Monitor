@@ -14,7 +14,7 @@ HomeCam Monitor ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Window
 
 ## V2.0.0 – finale Anwendung
 
-Die letzte Beta **2.0.0-beta.37** wurde am 17.10.2026 als Grundlage der finalen **V2.0.0** bestätigt. Die finale Ausgabe übernimmt ihre Funktionen unverändert und behält vorhandene V2-Einstellungen. [Paketbau und Upgrade-Hinweise](docs/release-v2.0.0.md). Der öffentliche Binärrelease bleibt bis zur vollständigen Quellen- und Lizenzprüfung der V2-Laufzeitkomponenten ausstehend.
+Die letzte Beta **2.0.0-beta.37** wurde am 17.10.2026 als Grundlage der finalen **V2.0.0** bestätigt. Die finale Ausgabe übernimmt ihre Funktionen unverändert und behält vorhandene V2-Einstellungen. Der Release-Kandidat verwendet den erneut getesteten, vollständig belegten mpv-/FFmpeg-Dateisatz. Die [technische Komponentenprüfung](docs/third-party-release-audit-v2.md) ist abgeschlossen; vor öffentlicher Binärverteilung müssen die drei vollständigen Quellenarchive dauerhaft zusammen mit den Downloads bereitgestellt werden. [Paketbau und Upgrade-Hinweise](docs/release-v2.0.0.md).
 
 ### Funktionen und Bilder
 
@@ -63,7 +63,7 @@ Der V2.0.0-Installer beendet die Anwendung im gewählten Zielordner, übernimmt 
 
 ![Finaler V2.0.0-Installer](docs/screenshots/v2-2.0.0-setup.png)
 
-Die Screenshots zeigen die Anwendung mit erfundenen Kameradaten. Die Vorschau der lokalen Analyse ist synthetisch. Öffentliche V2-Installer folgen nach der noch offenen Prüfung der neuen Fremdkomponenten; bestehende V1-Downloads bleiben unverändert.
+Die Screenshots zeigen die Anwendung mit erfundenen Kameradaten. Die Vorschau der lokalen Analyse ist synthetisch. Öffentliche V2-Installer setzen die dauerhafte Bereitstellung der geprüften Quellenpakete voraus; bestehende V1-Downloads bleiben unverändert.
 
 ## V1.0.0 bleibt verfügbar
 
@@ -92,4 +92,4 @@ Die Anleitung zu [Paketbau und Upgrade](docs/release-v2.0.0.md) beschreibt die e
 
 HomeCam Monitor ist als proprietäre Freeware vorgesehen. Die unveränderte offizielle Anwendung darf kostenlos genutzt werden. Änderungen, Weitergabe von Paketen, Forks, Weiterentwicklung und Verwendung des geschützten HomeCam-Codes für eigene Projekte erfordern die vorherige Zustimmung des Rechteinhabers, soweit keine zwingenden Rechte entgegenstehen. Benutzerkonfiguration und Links zu offiziellen Downloads dürfen frei geändert bzw. geteilt werden.
 
-Der [vorbereitete Lizenztext](LICENSE.txt) nennt Marcin Kulmaczewski als Rechteinhaber und liegt zur abschließenden Prüfung vor. Die Rechte an mpv, FFmpeg, .NET und anderen Fremdkomponenten richten sich ausschließlich nach ihren eigenen Lizenzen; siehe [Fremdkomponenten-Hinweise](THIRD-PARTY-NOTICES.md). Das derzeit öffentliche Quellcode-Repository ist noch nicht in private Entwicklung und öffentliche Downloads getrennt.
+Der [vorbereitete Lizenztext](LICENSE.txt) nennt Marcin Kulmaczewski als Rechteinhaber und liegt zur abschließenden Prüfung vor. Die Rechte an mpv, FFmpeg, .NET und anderen Fremdkomponenten richten sich ausschließlich nach ihren eigenen Lizenzen; siehe [V2-Fremdkomponenten-Hinweise](THIRD-PARTY-NOTICES-V2.md). Das derzeit öffentliche Quellcode-Repository ist noch nicht in private Entwicklung und öffentliche Downloads getrennt.

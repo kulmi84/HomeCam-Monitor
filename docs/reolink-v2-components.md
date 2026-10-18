@@ -17,4 +17,4 @@ UID-Suchen überspringen nun Loopback-, unbestimmte und Multicast-Adressen. Bin�
 - Microsoft .NET und ProtectedData: MIT, https://github.com/dotnet/runtime
 - lessmsi wird ausschließlich zum lokalen Entpacken beim Build verwendet und nicht mit der Anwendung ausgeliefert: https://github.com/activescott/lessmsi
 
-Die Download-Prüfsummen sind in `reolink-components.lock.json` festgehalten. Dieses Paket ist eine lokale Test-Beta. Der bestehende Audit der Video-Komponenten und eine vollständige Prüfung der Quellpakete und Hinweise für die neuen Laufzeit-Komponenten bleiben Voraussetzung für einen öffentlichen Release.
+Die Download-Prüfsummen sind in `reolink-components.lock.json` festgehalten. Der [V2-Komponentenbericht](third-party-release-audit-v2.md) dokumentiert den geprüften Kandidaten mit belegtem Mediensatz, vollständigen Neolink-/GStreamer-Quellen und den ergänzten Lizenzhinweisen. Frühere lokale Beta-Pakete erhalten dadurch keine rückwirkende Freigabe. Vor öffentlicher Binärverteilung müssen die zugehörigen Quellen dauerhaft zusammen mit den Downloads veröffentlicht werden.

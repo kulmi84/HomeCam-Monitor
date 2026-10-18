@@ -1,0 +1,97 @@
+[
+  {
+    "package": "Microsoft.NETCore.App.Runtime.win-x64/8.0.32",
+    "archiveSha512": "I7aVEenFvsRc2xeTBu3iyy2SG9PmA+XQjIXt3SrdL+G+QP7dt/QJlTnqW13kMSSLPv8q/h+cxaGIEHP6ExUwDg==",
+    "nugetContentHash": "",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/dotnet/runtime",
+      "commit": "b9a49e4a6d3a444a3685e318c74a7892d01873f7"
+    },
+    "notices": [
+      "licenses/nuget/Microsoft.NETCore.App.Runtime.win-x64-8.0.32/LICENSE.TXT",
+      "licenses/nuget/Microsoft.NETCore.App.Runtime.win-x64-8.0.32/Microsoft.NETCore.App.versions.txt",
+      "licenses/nuget/Microsoft.NETCore.App.Runtime.win-x64-8.0.32/THIRD-PARTY-NOTICES.TXT"
+    ]
+  },
+  {
+    "package": "Microsoft.WindowsDesktop.App.Runtime.win-x64/8.0.32",
+    "archiveSha512": "uvjRYtXc8PFhIRyjfqs2zo99jqtaaLrKw5yyFUZpNQm+O3M9YsyRe6o9cFTsRZDHtKqzY4CE+V+JQvfOF6cDgA==",
+    "nugetContentHash": "",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/dotnet/windowsdesktop",
+      "commit": "c88bcd7803794eb887460f3285b4896a1a7c521a"
+    },
+    "notices": [
+      "licenses/nuget/Microsoft.WindowsDesktop.App.Runtime.win-x64-8.0.32/LICENSE",
+      "licenses/nuget/Microsoft.WindowsDesktop.App.Runtime.win-x64-8.0.32/Microsoft.WindowsDesktop.App.versions.txt"
+    ]
+  },
+  {
+    "package": "MQTTnet/4.3.7.1207",
+    "archiveSha512": "ctAFe7OoR9J3Fl5vjqQdDYi2z87u2ZOZd1TaAFMhaY4SrINDyQy0ePhXPKWyB24rYu0YE6nZIbR52y/Nc+2mqg==",
+    "nugetContentHash": "ah7aHXoedWp5m5a4zy2u4phOEVj0QFYzOb5tFKQeV8RRBrxp+1QREF4ymZuG8D+hzB2dhtrrG81WxTFv0PzOeQ==",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/dotnet/MQTTnet.git",
+      "commit": "740d605fd2c25922fad6ea60e78e8370356e95dd"
+    },
+    "notices": []
+  },
+  {
+    "package": "OpenCvSharp4/4.13.0.20260627",
+    "archiveSha512": "64KMUOP27WX2ibH+EwqA8TWl/12YqH7OLRnlQEru+t957WSfYllV/felk4WAEVIiuMa9OwI2IjuNBougpRrdfw==",
+    "nugetContentHash": "nYk95jkyYY9f0sF5KqZ3OB1SWkmqsfV7eN0ROiQds/rxpSn0v1G0QIedMbwuqbdPhvQnOIG2DDmpkLnHEJMh8Q==",
+    "license": "Apache-2.0",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/shimat/opencvsharp.git",
+      "branch": "refs/heads/main",
+      "commit": "b161e7e012f5101f6d5dc68a835c59db6cc88b18"
+    },
+    "notices": []
+  },
+  {
+    "package": "OpenCvSharp4.runtime.win/4.13.0.20260627",
+    "archiveSha512": "F6Tcm8W6LMZyyreEJtX4QMzPJV8PlU0B3X2SKNqeQE0Wch8GHmeHoQATNQDJBvxbsunf59yJv7n0ryRE24WlTg==",
+    "nugetContentHash": "POIxR+CTpwHJIdam6wd8U2fprWv5QnIUw50jw79WEGb37He3T1h11SdtwSj9p2PLSfrzonMjO2t71wqi5uFsoQ==",
+    "license": "Apache-2.0",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/shimat/opencvsharp.git",
+      "commit": "b161e7e012f5101f6d5dc68a835c59db6cc88b18"
+    },
+    "notices": []
+  },
+  {
+    "package": "System.Memory/4.6.3",
+    "archiveSha512": "NXcNYlWoXe5cz9sb8Huo6x2dCZVYkhwKtgE00n/MoI8V4ZI/7/t+EI5bOhQFlZfFjjqM8+U6prjU/aARt7H/tA==",
+    "nugetContentHash": "qdcDOgnFZY40+Q9876JUHnlHu7bosOHX8XISRoH94fwk6hgaeQGSgfZd8srWRZNt5bV9ZW2TljcegDNxsf+96A==",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/dotnet/maintenance-packages",
+      "commit": "f62ca0009b038cab4725a720f386623a969d73ad"
+    },
+    "notices": []
+  },
+  {
+    "package": "System.Security.Cryptography.ProtectedData/8.0.0",
+    "archiveSha512": "hvcXZ/IR+KXxY9lC9S2izw5/fGYoODJR2r9kQSvs5v/HUAnBRuYYZPJrHzaT0CeDRJzIm8BHJb1ZrwHQ59j3uQ==",
+    "nugetContentHash": "+TUFINV2q2ifyXauQXRwy4CiBhqvDEDZeVJU7qfxya4aRYOKzVBpN+4acx25VcPB9ywUN6C0n8drWl110PhZEg==",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/dotnet/runtime",
+      "commit": "5535e31a712343a63f5d7d796cd874e563e5ac14"
+    },
+    "notices": [
+      "licenses/nuget/System.Security.Cryptography.ProtectedData-8.0.0/LICENSE.TXT",
+      "licenses/nuget/System.Security.Cryptography.ProtectedData-8.0.0/THIRD-PARTY-NOTICES.TXT"
+    ]
+  }
+]

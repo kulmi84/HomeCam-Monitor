@@ -1,0 +1,7 @@
+{
+  "h264Encoding": true,
+  "recordingRemux": true,
+  "pngSnapshot": true,
+  "mpvActualVideoDecoded": true,
+  "framesRequested": 20
+}
