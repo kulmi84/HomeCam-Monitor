@@ -1,18 +1,20 @@
-# HomeCam Monitor – IP-Kamera-Monitor und RTSP-Player für Windows
+# HomeCam Monitor V2 – IP-Kamera-Monitor und RTSP-Player für Windows
 
 <p align="center">
-  <img src="assets/homecam-monitor-logo-default.png" alt="HomeCam Monitor Logo" width="128">
+  <img src="assets/homecam-monitor-logo-default.png" alt="HomeCam Monitor V2 Logo" width="128">
 </p>
 
 <p align="center">
   Kostenloser Windows-Kameramonitor für IP-Kameras und RTSP-Livestreams – mit optionaler Home-Assistant-Integration.
 </p>
 
-HomeCam Monitor ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Windows. Er zeigt Livestreams von Netzwerk- und Überwachungskameras in einem rahmenlosen Fenster oder einer 4-Kamera-Ansicht. Snapshots, Videoaufnahmen und optional Home Assistant ergänzen den Kameramonitor. Die mpv-Video-Engine verwendet Direct3D 11; das Fenster bleibt auf Wunsch im Vordergrund und verbindet abgebrochene Streams automatisch neu.
+HomeCam Monitor V2 ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Windows. Er zeigt Livestreams von Netzwerk- und Überwachungskameras in einem rahmenlosen Fenster oder einer 4-Kamera-Ansicht. Snapshots, Videoaufnahmen und optional Home Assistant ergänzen den Kameramonitor. Die mpv-Video-Engine verwendet Direct3D 11; das Fenster bleibt auf Wunsch im Vordergrund und verbindet abgebrochene Streams automatisch neu.
 
 **English:** Free Windows IP camera viewer and RTSP camera monitor with a four-camera view, snapshots, video recording, pre-recording and optional Home Assistant motion/person sensor integration. Home Assistant is not required to view camera streams.
 
 ## V2.0.0 – finale Anwendung
+
+Der Produktname der aktuellen Generation lautet **HomeCam Monitor V2**, einheitlich für GitHub und die geplante Microsoft-Store-Ausgabe. **2.0.0** bezeichnet die Versionsnummer des hier veröffentlichten GitHub-Releases. **HomeCam Monitor V1** bleibt als separate ältere Ausgabe erhalten.
 
 Die bewährte Beta **2.0.0-beta.37** ist die Grundlage der finalen **V2.0.0**. Die [finale Version ist veröffentlicht](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.0): Installer, portable ZIP, HomeCam-Quellcode und die drei vollständigen Fremdkomponenten-Quellenarchive stehen dauerhaft bereit. Die [technische Komponentenprüfung](docs/third-party-release-audit-v2.md) ist abgeschlossen; alle zehn Release-Anhänge wurden anhand ihrer SHA-256-Prüfsummen kontrolliert. Vorhandene V2-Einstellungen bleiben erhalten. [Paketbau und Upgrade-Hinweise](docs/release-v2.0.0.md).
 
