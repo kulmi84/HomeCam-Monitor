@@ -3,8 +3,8 @@
   "version": "2.0.0",
   "checkedOn": "2026-10-18",
   "componentSourceCoverageVerified": true,
-  "publicReleaseReady": false,
-  "publicSourceAssetsPublished": false,
+  "publicReleaseReady": true,
+  "publicSourceAssetsPublished": true,
   "binaries": [
     {
       "path": "mpv.exe",
@@ -45,5 +45,9 @@
   "gstreamerMappedDlls": 543,
   "licenseFiles": 3200,
   "registrySourceArchives": 983,
-  "remainingPublicDistributionRequirement": "Publish the three exact source archives, manifest and checksums permanently alongside installer and ZIP."
+  "remainingPublicDistributionRequirement": null,
+  "releaseUrl": "https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.0",
+  "publishedAt": "2026-10-18T11:45:48Z",
+  "releaseCommit": "351d29fe4ad70ffa51b1e936227f24230391b16b",
+  "publicAssetVerification": "All 10 sizes and SHA-256 digests match the tested local assets."
 }

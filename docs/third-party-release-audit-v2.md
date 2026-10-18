@@ -1,6 +1,6 @@
 # Fremdkomponentenprüfung V2.0.0
 
-Stand: 18. Oktober 2026. **Der technische Quellen- und Lizenznachweis für den nachfolgend festgelegten V2-Kandidaten ist abgeschlossen.** Die bisherigen Quellenlücken wurden geschlossen. Vor einem öffentlichen Binärrelease müssen die drei zugehörigen Quellenarchive dauerhaft zusammen mit Installer und ZIP bereitgestellt werden. Eine Veröffentlichung auf GitHub ist durch diesen lokalen Prüfbericht noch nicht erfolgt.
+Stand: 18. Oktober 2026. **Der technische Quellen- und Lizenznachweis ist abgeschlossen und [V2.0.0 ist veröffentlicht](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.0).** Die drei vollständigen Quellenarchive, Manifest und Prüfsummen stehen dauerhaft gemeinsam mit Installer und ZIP bereit. Alle zehn veröffentlichten Anhänge wurden anhand ihrer Größen und SHA-256-Digests mit den geprüften lokalen Dateien abgeglichen.
 
 ## Konkreter Dateisatz
 
@@ -62,4 +62,4 @@ Der Kandidat bestand die vollständige V2-Funktionsprüfung, wirksame UID-/TCP-/
 
 `.github/scripts/verify-v2-component-set.ps1` prüft die fünf zentralen Binärhashes, sämtliche 1.268 GStreamer-Dateien, alle 3.200 Lizenzdateien und alle drei Quellenarchive. Zusätzliche Runtime-Dateien, fehlende Quellen oder veränderte Dateien werden abgelehnt. Der Paketbau kann mit `-AuditedSourcesDirectory` an diese Prüfung gebunden und in separate Ausgabeordner geleitet werden.
 
-**Noch vor öffentlicher Verteilung erforderlich:** die drei exakten Quellenarchive, Manifest und Prüfsummen dauerhaft zusammen mit Installer und ZIP veröffentlichen. Die Quellen-/Lizenzprüfung ist für diesen konkreten lokalen Kandidaten abgeschlossen; der öffentliche Veröffentlichungsstatus bleibt bis zur tatsächlichen Bereitstellung separat offen. Ein bitidentischer Neubau aller Fremdbinaries und eine allgemeine rechtliche Garantie werden nicht behauptet.
+**Öffentliche Bereitstellung abgeschlossen:** Die drei exakten Quellenarchive, Manifest und Prüfsummen sind zusammen mit Installer und ZIP im [V2.0.0-Release](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.0) verfügbar. Tag und geprüfter Quellstand: `351d29fe4ad70ffa51b1e936227f24230391b16b`. Der Quellen-/Lizenznachweis gilt für diesen konkreten Dateisatz. Ein bitidentischer Neubau aller Fremdbinaries und eine allgemeine rechtliche Garantie werden nicht behauptet. Veröffentlichungsangaben in den unveränderten Paket-Snapshots dokumentieren den Stand vor dem Upload; maßgeblich für die erfolgte Veröffentlichung ist dieser Bericht.

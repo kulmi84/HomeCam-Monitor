@@ -14,7 +14,7 @@ HomeCam Monitor ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Window
 
 ## V2.0.0 – finale Anwendung
 
-Die letzte Beta **2.0.0-beta.37** wurde am 17.10.2026 als Grundlage der finalen **V2.0.0** bestätigt. Die finale Ausgabe übernimmt ihre Funktionen unverändert und behält vorhandene V2-Einstellungen. Der Release-Kandidat verwendet den erneut getesteten, vollständig belegten mpv-/FFmpeg-Dateisatz. Die [technische Komponentenprüfung](docs/third-party-release-audit-v2.md) ist abgeschlossen; vor öffentlicher Binärverteilung müssen die drei vollständigen Quellenarchive dauerhaft zusammen mit den Downloads bereitgestellt werden. [Paketbau und Upgrade-Hinweise](docs/release-v2.0.0.md).
+Die bewährte Beta **2.0.0-beta.37** ist die Grundlage der finalen **V2.0.0**. Die [finale Version ist veröffentlicht](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.0): Installer, portable ZIP, HomeCam-Quellcode und die drei vollständigen Fremdkomponenten-Quellenarchive stehen dauerhaft bereit. Die [technische Komponentenprüfung](docs/third-party-release-audit-v2.md) ist abgeschlossen; alle zehn Release-Anhänge wurden anhand ihrer SHA-256-Prüfsummen kontrolliert. Vorhandene V2-Einstellungen bleiben erhalten. [Paketbau und Upgrade-Hinweise](docs/release-v2.0.0.md).
 
 ### Funktionen und Bilder
 
@@ -85,7 +85,7 @@ Mit einem vorhandenen, getesteten V2-Laufzeitverzeichnis erzeugt der gemeinsame 
 .github/scripts/build-v2-release.ps1 -RuntimeTemplate publish-v2-beta
 ```
 
-Die Anleitung zu [Paketbau und Upgrade](docs/release-v2.0.0.md) beschreibt die erzeugten Dateien und den noch offenen öffentlichen Distributionsnachweis. `HomeCamMonitor.csproj` baut weiterhin V1.0.0. Die [historischen V1-Beta-Notizen](docs/v1-beta-history.md) und die [V2-Beta-Historie](docs/v2-beta.md) bleiben zum Nachlesen erhalten.
+Die Anleitung zu [Paketbau und Upgrade](docs/release-v2.0.0.md) beschreibt die erzeugten Dateien und die dauerhaft veröffentlichten Pakete und Quellennachweise. `HomeCamMonitor.csproj` baut weiterhin V1.0.0. Die [historischen V1-Beta-Notizen](docs/v1-beta-history.md) und die [V2-Beta-Historie](docs/v2-beta.md) bleiben zum Nachlesen erhalten.
 
 ## Lizenz
 

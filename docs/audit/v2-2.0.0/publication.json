@@ -1,0 +1,68 @@
+{
+  "releaseUrl": "https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.0",
+  "tag": "v2.0.0",
+  "commit": "351d29fe4ad70ffa51b1e936227f24230391b16b",
+  "publishedAt": "2026-10-18T11:45:48Z",
+  "assets": [
+    {
+      "name": "HomeCam-GStreamer-1.26.11-corresponding-source.tar.zst",
+      "bytes": 622613465,
+      "digest": "sha256:916c3baab9150627c39b522b53a1600984b544580a6123be276e103cdcde2bc1",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/HomeCam-GStreamer-1.26.11-corresponding-source.tar.zst"
+    },
+    {
+      "name": "HomeCam-Media-corresponding-source.tar.zst",
+      "bytes": 676489797,
+      "digest": "sha256:d4ae852e6f5048e6918a597c538724fb60385eb658f1c93d5ad9ac910acf9d6f",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/HomeCam-Media-corresponding-source.tar.zst"
+    },
+    {
+      "name": "HomeCamMonitor-V2-2.0.0-Setup.exe",
+      "bytes": 346662400,
+      "digest": "sha256:07a8010d7c5020cd00a68d1bdbfc8ac1d20fffe3618388d32372f0d6d0c1361b",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/HomeCamMonitor-V2-2.0.0-Setup.exe"
+    },
+    {
+      "name": "HomeCamMonitor-V2-2.0.0-Source.zip",
+      "bytes": 2110267,
+      "digest": "sha256:4c18f9876b42fd4696bbf5e77e4ad3847e45e2c8aa9e1b463fffc4554b87d70d",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/HomeCamMonitor-V2-2.0.0-Source.zip"
+    },
+    {
+      "name": "HomeCamMonitor-V2-2.0.0-win-x64.zip",
+      "bytes": 346586795,
+      "digest": "sha256:31713a710010a71a3e291103dc6f8bf9456c7b1b00220b65edfbdf5e28bf8b55",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/HomeCamMonitor-V2-2.0.0-win-x64.zip"
+    },
+    {
+      "name": "neolink-0.6.2-homecam-stream3-corresponding-source.zip",
+      "bytes": 49643245,
+      "digest": "sha256:77ca102539fe547d7fd87b9845296db7595ae172d6cb2c1eed9c72a5b608d51d",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/neolink-0.6.2-homecam-stream3-corresponding-source.zip"
+    },
+    {
+      "name": "package-inventory.json",
+      "bytes": 917316,
+      "digest": "sha256:f0b1e7f08cb2d08b87b5e0f7bc90d3dae53a3d3059c1b754a92335c3447f67e4",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/package-inventory.json"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 932,
+      "digest": "sha256:9fbec05a53b626e3514fcdf81fc932ce8cd4c23bcd5f84840ca453cac3dac713",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/SHA256SUMS.txt"
+    },
+    {
+      "name": "sources-manifest-v2.json",
+      "bytes": 1563,
+      "digest": "sha256:fd0db4281f905981e18e4edb16fc53ab68ee59fc300e69a5bc4316617bd73125",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/sources-manifest-v2.json"
+    },
+    {
+      "name": "validation-report.json",
+      "bytes": 1319,
+      "digest": "sha256:05def0aceac6576105563971c43f22e852b8ab0acaa09a530518182d702a71dd",
+      "url": "https://github.com/kulmi84/HomeCam-Monitor/releases/download/v2.0.0/validation-report.json"
+    }
+  ]
+}
