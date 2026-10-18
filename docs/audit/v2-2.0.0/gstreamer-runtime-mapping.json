@@ -1,0 +1,3260 @@
+[
+  {
+    "file": "bin/ass-9.dll",
+    "recipes": [
+      "libass"
+    ]
+  },
+  {
+    "file": "bin/avcodec-61.dll",
+    "recipes": [
+      "ffmpeg"
+    ]
+  },
+  {
+    "file": "bin/avfilter-10.dll",
+    "recipes": [
+      "ffmpeg"
+    ]
+  },
+  {
+    "file": "bin/avformat-61.dll",
+    "recipes": [
+      "ffmpeg"
+    ]
+  },
+  {
+    "file": "bin/avutil-59.dll",
+    "recipes": [
+      "ffmpeg"
+    ]
+  },
+  {
+    "file": "bin/bz2.dll",
+    "recipes": [
+      "bzip2"
+    ]
+  },
+  {
+    "file": "bin/cairo-2.dll",
+    "recipes": [
+      "cairo"
+    ]
+  },
+  {
+    "file": "bin/cairo-gobject-2.dll",
+    "recipes": [
+      "cairo"
+    ]
+  },
+  {
+    "file": "bin/cairo-script-interpreter-2.dll",
+    "recipes": [
+      "cairo"
+    ]
+  },
+  {
+    "file": "bin/dav1d.dll",
+    "recipes": [
+      "dav1d"
+    ]
+  },
+  {
+    "file": "bin/dca-0.dll",
+    "recipes": [
+      "libdca"
+    ]
+  },
+  {
+    "file": "bin/dv-4.dll",
+    "recipes": [
+      "libdv"
+    ]
+  },
+  {
+    "file": "bin/ffi-7.dll",
+    "recipes": [
+      "libffi"
+    ]
+  },
+  {
+    "file": "bin/FLAC-8.dll",
+    "recipes": [
+      "flac"
+    ]
+  },
+  {
+    "file": "bin/fontconfig-1.dll",
+    "recipes": [
+      "fontconfig"
+    ]
+  },
+  {
+    "file": "bin/freetype-6.dll",
+    "recipes": [
+      "freetype"
+    ]
+  },
+  {
+    "file": "bin/fribidi-0.dll",
+    "recipes": [
+      "fribidi"
+    ]
+  },
+  {
+    "file": "bin/gdk_pixbuf-2.0-0.dll",
+    "recipes": [
+      "gdk-pixbuf"
+    ]
+  },
+  {
+    "file": "bin/ges-1.0-0.dll",
+    "recipes": [
+      "gst-editing-services-1.0"
+    ]
+  },
+  {
+    "file": "bin/gio-2.0-0.dll",
+    "recipes": [
+      "glib"
+    ]
+  },
+  {
+    "file": "bin/girepository-1.0-1.dll",
+    "recipes": [
+      "gobject-introspection"
+    ]
+  },
+  {
+    "file": "bin/glib-2.0-0.dll",
+    "recipes": [
+      "glib"
+    ]
+  },
+  {
+    "file": "bin/gmodule-2.0-0.dll",
+    "recipes": [
+      "glib"
+    ]
+  },
+  {
+    "file": "bin/gobject-2.0-0.dll",
+    "recipes": [
+      "glib"
+    ]
+  },
+  {
+    "file": "bin/graphene-1.0-0.dll",
+    "recipes": [
+      "graphene"
+    ]
+  },
+  {
+    "file": "bin/gstadaptivedemux-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstallocators-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstanalytics-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstapp-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstaudio-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstbadaudio-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstbase-1.0-0.dll",
+    "recipes": [
+      "gstreamer-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstbasecamerabinsrc-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstcheck-1.0-0.dll",
+    "recipes": [
+      "gstreamer-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstcodecparsers-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstcodecs-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstcontroller-1.0-0.dll",
+    "recipes": [
+      "gstreamer-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstcuda-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstd3d11-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstd3d12-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstd3dshader-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstdxva-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstfft-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstgl-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstinsertbin-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstisoff-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstmpegts-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstmse-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstnet-1.0-0.dll",
+    "recipes": [
+      "gstreamer-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstpbutils-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstphotography-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstplay-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstplayer-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstreamer-1.0-0.dll",
+    "recipes": [
+      "gstreamer-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstriff-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstrtp-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstrtsp-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstrtspserver-1.0-0.dll",
+    "recipes": [
+      "gst-rtsp-server-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstsctp-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstsdp-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gsttag-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gsttranscoder-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gsturidownloader-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstvalidate-1.0-0.dll",
+    "recipes": [
+      "gst-devtools-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstvideo-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstwebrtc-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstwebrtcnice-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gstwinrt-1.0-0.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "bin/gthread-2.0-0.dll",
+    "recipes": [
+      "glib"
+    ]
+  },
+  {
+    "file": "bin/harfbuzz-gobject.dll",
+    "recipes": [
+      "harfbuzz"
+    ]
+  },
+  {
+    "file": "bin/harfbuzz.dll",
+    "recipes": [
+      "harfbuzz"
+    ]
+  },
+  {
+    "file": "bin/intl-8.dll",
+    "recipes": [
+      "proxy-libintl"
+    ]
+  },
+  {
+    "file": "bin/jpeg8.dll",
+    "recipes": [
+      "libjpeg-turbo"
+    ]
+  },
+  {
+    "file": "bin/json-glib-1.0-0.dll",
+    "recipes": [
+      "json-glib"
+    ]
+  },
+  {
+    "file": "bin/libcharset-1.dll",
+    "recipes": [
+      "libiconv"
+    ]
+  },
+  {
+    "file": "bin/libcrypto-3-x64.dll",
+    "recipes": [
+      "openssl"
+    ]
+  },
+  {
+    "file": "bin/libexpat.dll",
+    "recipes": [
+      "expat"
+    ]
+  },
+  {
+    "file": "bin/libgcc_s_seh-1.dll",
+    "recipes": [
+      "mingw-runtime"
+    ]
+  },
+  {
+    "file": "bin/libiconv-2.dll",
+    "recipes": [
+      "libiconv"
+    ]
+  },
+  {
+    "file": "bin/libmpg123-1.dll",
+    "recipes": [
+      "mpg123"
+    ]
+  },
+  {
+    "file": "bin/libspandsp-2.dll",
+    "recipes": [
+      "spandsp"
+    ]
+  },
+  {
+    "file": "bin/libsrt.dll",
+    "recipes": [
+      "srt"
+    ]
+  },
+  {
+    "file": "bin/libssl-3-x64.dll",
+    "recipes": [
+      "openssl"
+    ]
+  },
+  {
+    "file": "bin/libstdc++-6.dll",
+    "recipes": [
+      "mingw-runtime"
+    ]
+  },
+  {
+    "file": "bin/libwinpthread-1.dll",
+    "recipes": [
+      "mingw-runtime"
+    ]
+  },
+  {
+    "file": "bin/ltc-11.dll",
+    "recipes": [
+      "libltc"
+    ]
+  },
+  {
+    "file": "bin/mp3lame-0.dll",
+    "recipes": [
+      "lame"
+    ]
+  },
+  {
+    "file": "bin/nice-10.dll",
+    "recipes": [
+      "libnice"
+    ]
+  },
+  {
+    "file": "bin/ogg-0.dll",
+    "recipes": [
+      "libogg"
+    ]
+  },
+  {
+    "file": "bin/opencore-amrnb-0.dll",
+    "recipes": [
+      "opencore-amr"
+    ]
+  },
+  {
+    "file": "bin/opencore-amrwb-0.dll",
+    "recipes": [
+      "opencore-amr"
+    ]
+  },
+  {
+    "file": "bin/openh264-7.dll",
+    "recipes": [
+      "openh264"
+    ]
+  },
+  {
+    "file": "bin/openjp2.dll",
+    "recipes": [
+      "openjpeg"
+    ]
+  },
+  {
+    "file": "bin/opus-0.dll",
+    "recipes": [
+      "opus"
+    ]
+  },
+  {
+    "file": "bin/orc-0.4-0.dll",
+    "recipes": [
+      "orc"
+    ]
+  },
+  {
+    "file": "bin/orc-test-0.4-0.dll",
+    "recipes": [
+      "orc"
+    ]
+  },
+  {
+    "file": "bin/pango-1.0-0.dll",
+    "recipes": [
+      "pango"
+    ]
+  },
+  {
+    "file": "bin/pangocairo-1.0-0.dll",
+    "recipes": [
+      "pango"
+    ]
+  },
+  {
+    "file": "bin/pangowin32-1.0-0.dll",
+    "recipes": [
+      "pango"
+    ]
+  },
+  {
+    "file": "bin/pcre2-8-0.dll",
+    "recipes": [
+      "pcre2"
+    ]
+  },
+  {
+    "file": "bin/pixman-1-0.dll",
+    "recipes": [
+      "pixman"
+    ]
+  },
+  {
+    "file": "bin/png16.dll",
+    "recipes": [
+      "libpng"
+    ]
+  },
+  {
+    "file": "bin/psl-5.dll",
+    "recipes": [
+      "libpsl"
+    ]
+  },
+  {
+    "file": "bin/rsvg-2-2.dll",
+    "recipes": [
+      "librsvg"
+    ]
+  },
+  {
+    "file": "bin/rtmp-1.dll",
+    "recipes": [
+      "librtmp"
+    ]
+  },
+  {
+    "file": "bin/sbc-1.dll",
+    "recipes": [
+      "sbc"
+    ]
+  },
+  {
+    "file": "bin/soup-3.0-0.dll",
+    "recipes": [
+      "libsoup"
+    ]
+  },
+  {
+    "file": "bin/speex-1.dll",
+    "recipes": [
+      "speex"
+    ]
+  },
+  {
+    "file": "bin/sqlite3-0.dll",
+    "recipes": [
+      "sqlite3"
+    ]
+  },
+  {
+    "file": "bin/srtp2-1.dll",
+    "recipes": [
+      "libsrtp"
+    ]
+  },
+  {
+    "file": "bin/SvtAv1Enc.dll",
+    "recipes": [
+      "svt-av1"
+    ]
+  },
+  {
+    "file": "bin/SvtJpegxs.dll",
+    "recipes": [
+      "svt-jpeg-xs"
+    ]
+  },
+  {
+    "file": "bin/swresample-5.dll",
+    "recipes": [
+      "ffmpeg"
+    ]
+  },
+  {
+    "file": "bin/swscale-8.dll",
+    "recipes": [
+      "ffmpeg"
+    ]
+  },
+  {
+    "file": "bin/tag.dll",
+    "recipes": [
+      "taglib"
+    ]
+  },
+  {
+    "file": "bin/theora-0.dll",
+    "recipes": [
+      "libtheora"
+    ]
+  },
+  {
+    "file": "bin/theoradec-1.dll",
+    "recipes": [
+      "libtheora"
+    ]
+  },
+  {
+    "file": "bin/theoraenc-1.dll",
+    "recipes": [
+      "libtheora"
+    ]
+  },
+  {
+    "file": "bin/tiff-6.dll",
+    "recipes": [
+      "tiff"
+    ]
+  },
+  {
+    "file": "bin/turbojpeg.dll",
+    "recipes": [
+      "libjpeg-turbo"
+    ]
+  },
+  {
+    "file": "bin/vo-aacenc-0.dll",
+    "recipes": [
+      "vo-aacenc"
+    ]
+  },
+  {
+    "file": "bin/vorbis-0.dll",
+    "recipes": [
+      "libvorbis"
+    ]
+  },
+  {
+    "file": "bin/vorbisenc-2.dll",
+    "recipes": [
+      "libvorbis"
+    ]
+  },
+  {
+    "file": "bin/vorbisfile-3.dll",
+    "recipes": [
+      "libvorbis"
+    ]
+  },
+  {
+    "file": "bin/wavpack.dll",
+    "recipes": [
+      "wavpack"
+    ]
+  },
+  {
+    "file": "bin/x264-164.dll",
+    "recipes": [
+      "x264"
+    ]
+  },
+  {
+    "file": "bin/x265.dll",
+    "recipes": [
+      "x265"
+    ]
+  },
+  {
+    "file": "bin/xml2-2.dll",
+    "recipes": [
+      "libxml2"
+    ]
+  },
+  {
+    "file": "bin/z-1.dll",
+    "recipes": [
+      "zlib"
+    ]
+  },
+  {
+    "file": "bin/zbar-0.dll",
+    "recipes": [
+      "zbar"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/3dflippo.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/addition.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/addition_alpha.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/aech0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alpha0ps_alpha0ps.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alpha0ps_alphagrad.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alpha0ps_alphaspot.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alphaatop.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alphain.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alphainjection.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alphaout.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alphaover.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/alphaxor.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/B.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/balanc0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/baltan.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/bgsubtract0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/blend.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/bluescreen0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/brightness.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/burn.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/bw0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/c0rners.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/cairoaffineblend.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/cairoblend.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/cairogradient.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/cairoimagegrid.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/cartoon.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/cluster.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/colgate.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/coloradj_RGB.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/colordistance.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/colorhalftone.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/colorize.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/colortap.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/color_only.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/composition.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/contrast0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/curves.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/d90stairsteppingfix.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/darken.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/defish0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/delay0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/delaygrab.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/denoise_hqdn3d.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/difference.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/distort0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/dither.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/divide.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/dodge.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/edgeglow.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/elastic_scale.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/emboss.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/equaliz0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/filmgrain.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/flippo.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/G.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/gamma.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/gateweave.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/glitch0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/glow.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/grain_extract.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/grain_merge.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/hardlight.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/hue.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/hueshift0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/IIRblur.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/invert0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/ising0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/kaleid0sc0pe.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/keyspillm0pup.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/lenscorrection.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/letterb0xed.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/levels.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/lighten.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/lightgraffiti.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/lissajous0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/luminance.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/mask0mate.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/measure_pr0be.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/measure_pr0file.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/medians.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/multiply.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/ndvi.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/nervous.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/nois0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/normaliz0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/nosync0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/onecol0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/overlay.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/partik0l.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/perspective.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/pixeliz0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/pixs0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/plasma.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/posterize.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/premultiply.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/primaries.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/R.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/RGB.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/rgbnoise.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/rgbsplit0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/saturat0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/saturation.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/scanline0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/screen.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/select0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sharpness.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sigmoidaltransfer.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_push-down.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_push-left.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_push-right.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_push-up.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_slide-down.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_slide-left.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_slide-right.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_slide-up.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_wipe-barn-door-h.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_wipe-barn-door-v.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_wipe-circle.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_wipe-down.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_wipe-left.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_wipe-rect.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_wipe-right.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sleid0r_wipe-up.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sobel.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/softglow.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/softlight.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/sopsat.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/spillsupress.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/squareblur.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/subtract.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/tehroxx0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/test_pat_B.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/test_pat_C.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/test_pat_G.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/test_pat_I.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/test_pat_L.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/test_pat_R.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/threelay0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/three_point_balance.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/threshold0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/timeout.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/tint0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/transparency.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/twolay0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/uvmap.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/value.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/vertigo.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/vignette.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/frei0r-1/xfade0r.dll",
+    "recipes": [
+      "frei0r-plugins"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsta52dec.dll",
+    "recipes": [
+      "gst-plugins-ugly-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaccurip.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstadaptivedemux2.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstadder.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstadpcmdec.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstadpcmenc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaes.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaiff.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstalaw.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstalpha.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstalphacolor.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstamfcodec.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstamrnb.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstamrwbdec.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstapetag.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstapp.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstasf.dll",
+    "recipes": [
+      "gst-plugins-ugly-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstasfmux.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstasio.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstassrender.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiobuffersplit.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudioconvert.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiofx.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiofxbad.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiolatency.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiomixer.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiomixmatrix.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudioparsers.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiorate.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudioresample.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiotestsrc.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaudiovisualizers.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstauparse.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstautoconvert.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstautodetect.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstavi.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstaws.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstbayer.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstbz2.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcairo.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcamerabin.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcdg.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstclaxon.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstclosedcaption.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcodecalpha.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcodectimestamper.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcoloreffects.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcompositor.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcoreelements.dll",
+    "recipes": [
+      "gstreamer-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcoretracers.dll",
+    "recipes": [
+      "gstreamer-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstcutter.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstd3d.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstd3d11.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstd3d12.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdash.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdav1d.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdebug.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdebugutilsbad.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdecklink.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdeinterlace.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdirectshow.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdirectsound.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdirectsoundsrc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdtls.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdtmf.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdtsdec.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdv.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdvbsubenc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdvbsuboverlay.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdvdlpcmdec.dll",
+    "recipes": [
+      "gst-plugins-ugly-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdvdspu.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdvdsub.dll",
+    "recipes": [
+      "gst-plugins-ugly-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstdwrite.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsteffectv.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstelevenlabs.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstencoding.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstequalizer.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstfallbackswitch.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstffv1.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstfieldanalysis.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstflac.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstflv.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstflxdec.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstfmp4.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstfreeverb.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstfrei0r.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgaudieffects.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgdkpixbuf.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgdp.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgeometrictransform.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstges.dll",
+    "recipes": [
+      "gst-editing-services-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgif.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgio.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgoom.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgoom2k1.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstgopbuffer.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsthls.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsthlsmultivariantsink.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsthlssink3.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsthsv.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsticydemux.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstid3demux.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstid3tag.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstimagefreeze.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstinsertbin.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstinter.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstinterlace.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstinterleave.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstipcpipeline.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstisomp4.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstivfparse.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstivtc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstjack.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstjpeg.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstjpegformat.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstjson.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstladspa.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstlame.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstlegacyrawparse.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstlevel.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstlewton.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstlibav.dll",
+    "recipes": [
+      "gst-libav-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstlivesync.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmatroska.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmediafoundation.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmidi.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmp4.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmpegpsdemux.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmpegpsmux.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmpegtsdemux.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmpegtslive.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmpegtsmux.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmpg123.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmse.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmulaw.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmultifile.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmultipart.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstmxf.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstndi.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstnetsim.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstnice.dll",
+    "recipes": [
+      "libnice"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstnle.dll",
+    "recipes": [
+      "gst-editing-services-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstnvcodec.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstogg.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstopengl.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstopenh264.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstopenjpeg.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstopus.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstopusparse.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstoriginalbuffer.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstoverlaycomposition.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstpango.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstpbtypes.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstpcapparse.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstplayback.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstpng.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstpnm.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstproxy.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstpython.dll",
+    "recipes": [
+      "gst-python-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstqroverlay.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstqsv.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstquinn.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstraptorq.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrav1e.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrawparse.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrealmedia.dll",
+    "recipes": [
+      "gst-plugins-ugly-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstregex.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstremovesilence.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstreplaygain.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstreqwest.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrfbsrc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrist.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsanalytics.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsaudiofx.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsclosedcaption.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsinter.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsonvif.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrspng.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsrtp.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsrtsp.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrstracers.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsvg.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrsvideofx.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrswebrtc.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrtmp.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrtmp2.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrtp.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrtpmanager.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrtpmanagerbad.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrtponvif.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrtsp.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstrtspclientsink.dll",
+    "recipes": [
+      "gst-rtsp-server-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsbc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsctp.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsdpelem.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsegmentclip.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstshapewipe.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsiren.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsmooth.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsmoothstreaming.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsmpte.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsoundtouch.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsoup.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstspandsp.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstspectrum.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstspeed.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstspeex.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsrt.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsrtp.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gststreamgrouper.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsubenc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsubparse.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsvtav1.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstsvtjpegxs.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstswitchbin.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttaglib.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttcp.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttextahead.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttextwrap.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttheora.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstthreadshare.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttimecode.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttogglerecord.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttranscode.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsttypefindfunctions.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstudp.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsturiplaylistbin.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideobox.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideoconvertscale.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideocrop.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideofilter.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideofiltersbad.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideoframe_audiolevel.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideomixer.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideoparsersbad.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideorate.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideosignal.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvideotestsrc.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvoaacenc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvolume.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvorbis.dll",
+    "recipes": [
+      "gst-plugins-base-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstvpx.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwasapi.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwasapi2.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwavenc.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwavpack.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwavparse.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwebrtc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwebrtcdsp.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwebrtchttp.dll",
+    "recipes": [
+      "gst-plugins-rs"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwebview2.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwic.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwin32ipc.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwinks.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstwinscreencap.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstx264.dll",
+    "recipes": [
+      "gst-plugins-ugly-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstx265.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstxingmux.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsty4mdec.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gsty4menc.dll",
+    "recipes": [
+      "gst-plugins-good-1.0"
+    ]
+  },
+  {
+    "file": "lib/gstreamer-1.0/gstzbar.dll",
+    "recipes": [
+      "gst-plugins-bad-1.0"
+    ]
+  },
+  {
+    "file": "lib/gio/modules/gioopenssl.dll",
+    "recipes": [
+      "glib-networking"
+    ]
+  }
+]

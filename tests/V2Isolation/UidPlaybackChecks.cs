@@ -6,7 +6,8 @@ internal static partial class Check
 {
     private static void TestUidPlaybackOptions()
     {
-        var player = Path.Combine(Environment.CurrentDirectory, "publish-v2-beta", "mpv.exe");
+        var runtime = Environment.GetEnvironmentVariable("HOMECAM_TEST_RUNTIME") ?? Path.Combine(Environment.CurrentDirectory, "publish-v2-beta");
+        var player = Path.Combine(runtime, "mpv.exe");
         var script = Path.Combine(Path.GetTempPath(), "homecam-player-options-" + Guid.NewGuid().ToString("N") + ".lua");
         File.WriteAllText(script, "mp.msg.info('HCM_OPTIONS=' .. mp.get_property('options/demuxer-lavf-o')); mp.commandv('quit')");
         try

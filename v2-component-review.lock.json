@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "version": "2.0.0",
+  "componentSourceCoverageVerified": true,
+  "binaries": [
+    {
+      "path": "mpv.exe",
+      "sha256": "bb51c0d176ea76c26777cd05f92d65a724ef96253599e5ab3bf0c1af7245ede9"
+    },
+    {
+      "path": "ffmpeg.exe",
+      "sha256": "0cdeb8e922e75e2f9c39cf85cab79cff2c899df6dc703e77bcb5b849193498d1"
+    },
+    {
+      "path": "tools/neolink/neolink.exe",
+      "sha256": "e70dbe88731ed37313004d9dfffd0b3862e30b1f353571e51a0da6a387b99bc6"
+    },
+    {
+      "path": "OpenCvSharp.dll",
+      "sha256": "a26fd4bfff04fe2a351b3b0b417cc9847ef8e10721a8e484e3b33850f510b509"
+    },
+    {
+      "path": "OpenCvSharpExtern.dll",
+      "sha256": "41e6a418637b7992814a668272e3197306f75c01b151ddb24ac2de183fb9c3f3"
+    }
+  ],
+  "sources": [
+    {
+      "file": "HomeCam-Media-corresponding-source.tar.zst",
+      "sha256": "d4ae852e6f5048e6918a597c538724fb60385eb658f1c93d5ad9ac910acf9d6f"
+    },
+    {
+      "file": "neolink-0.6.2-homecam-stream3-corresponding-source.zip",
+      "sha256": "77ca102539fe547d7fd87b9845296db7595ae172d6cb2c1eed9c72a5b608d51d"
+    },
+    {
+      "file": "HomeCam-GStreamer-1.26.11-corresponding-source.tar.zst",
+      "sha256": "916c3baab9150627c39b522b53a1600984b544580a6123be276e103cdcde2bc1"
+    }
+  ],
+  "gstreamerInventory": "docs/audit/v2-2.0.0/gstreamer-official-msi-match.json",
+  "licenseInventory": "docs/audit/v2-2.0.0/approved-license-inventory.json",
+  "audit": "docs/third-party-release-audit-v2.md",
+  "publicSourceAssetsPublished": false
+}

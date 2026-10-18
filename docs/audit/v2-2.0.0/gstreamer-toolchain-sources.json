@@ -1,0 +1,14 @@
+[
+  {
+    "name": "gcc-sources",
+    "filename": "gcc-14.2.0.tar.xz",
+    "url": "https://ftp.gnu.org/gnu/gcc/gcc-14.2.0/gcc-14.2.0.tar.xz",
+    "sha256": "a7b39bc69cbf9e25826c5a60ab26477001f7c08d85cec04bc0e29cabed6f3cc9"
+  },
+  {
+    "name": "mingw-w64-sources",
+    "filename": "mingw-w64-v12.0.0.tar.bz2",
+    "url": "https://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-v12.0.0.tar.bz2",
+    "sha256": "cc41898aac4b6e8dd5cffd7331b9d9515b912df4420a3a612b5ea2955bbeed2f"
+  }
+]

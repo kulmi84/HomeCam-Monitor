@@ -1,0 +1,136 @@
+{
+  "added": [
+    "opencv/opencv-4.13.0/3rdparty/ittnotify/src/ittnotify/BSD-3-Clause.txt",
+    "opencv/opencv-4.13.0/3rdparty/ittnotify/src/ittnotify/GPL-2.0-only.txt"
+  ],
+  "directives": [
+    {
+      "path": "opencv-4.13.0/3rdparty/cpufeatures/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(cpufeatures LICENSE README.md)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/ffmpeg/ffmpeg.cmake",
+      "directive": "ocv_install_3rdparty_licenses(ffmpeg license.txt readme.txt)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/ittnotify/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(ittnotify src/ittnotify/BSD-3-Clause.txt src/ittnotify/GPL-2.0-only.txt)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/libjasper/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(jasper LICENSE README copyright)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/libjpeg-turbo/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(libjpeg-turbo README.md LICENSE.md README.ijg)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/libjpeg/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(libjpeg README)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/libpng/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(libpng LICENSE README)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/libspng/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(${SPNG_LIBRARY} LICENSE)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/libtiff/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(libtiff LICENSE.md)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/openexr/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(openexr LICENSE AUTHORS.ilmbase AUTHORS.openexr)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/openjpeg/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(${OPENJPEG_LIBRARY_NAME} README.md LICENSE)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/protobuf/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(protobuf LICENSE README.md)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/quirc/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(${PROJECT_NAME} LICENSE)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/tbb/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(tbb \"${tbb_src_dir}/LICENSE.txt\" \"${tbb_src_dir}/README.md\")"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/zlib-ng/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(${ZLIB_INSTALL_LIBRARIES} LICENSE.md)"
+    },
+    {
+      "path": "opencv-4.13.0/3rdparty/zlib/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(zlib LICENSE)"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVDetectDLPack.cmake",
+      "directive": "ocv_install_3rdparty_licenses(dlpack \"${OpenCV_SOURCE_DIR}/3rdparty/dlpack/LICENSE\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVDetectFlatbuffers.cmake",
+      "directive": "ocv_install_3rdparty_licenses(flatbuffers \"${OpenCV_SOURCE_DIR}/3rdparty/flatbuffers/LICENSE.txt\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVDetectOpenCL.cmake",
+      "directive": "ocv_install_3rdparty_licenses(opencl-headers \"${OpenCV_SOURCE_DIR}/3rdparty/include/opencl/LICENSE.txt\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVFindIPP.cmake",
+      "directive": "ocv_install_3rdparty_licenses(ippicv \"${IPPROOT}/readme.htm\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVFindIPP.cmake",
+      "directive": "ocv_install_3rdparty_licenses(ippicv \"${ICV_PACKAGE_ROOT}/EULA.rtf\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVFindIPP.cmake",
+      "directive": "ocv_install_3rdparty_licenses(ippicv \"${ICV_PACKAGE_ROOT}/EULA.txt\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVFindIPP.cmake",
+      "directive": "ocv_install_3rdparty_licenses(ippicv \"${ICV_PACKAGE_ROOT}/third-party-programs.txt\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVFindIPPIW.cmake",
+      "directive": "ocv_install_3rdparty_licenses(ippiw \"${__file}\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVFindLibsPerf.cmake",
+      "directive": "ocv_install_3rdparty_licenses(FastCV \"${OpenCV_BINARY_DIR}/3rdparty/fastcv/LICENSE\")"
+    },
+    {
+      "path": "opencv-4.13.0/cmake/OpenCVUtils.cmake",
+      "directive": "ocv_install_3rdparty_licenses(<library-name> <filename1> [<filename2> ..])"
+    },
+    {
+      "path": "opencv-4.13.0/modules/core/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(SoftFloat \"${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/SoftFloat/COPYING.txt\")"
+    },
+    {
+      "path": "opencv-4.13.0/modules/features2d/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(mscr \"${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/mscr/chi_table_LICENSE.txt\")"
+    },
+    {
+      "path": "opencv-4.13.0/modules/gapi/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(vasot \"${CMAKE_CURRENT_SOURCE_DIR}/src/3rdparty/vasot/LICENSE.txt\")"
+    },
+    {
+      "path": "opencv-4.13.0/modules/gapi/cmake/DownloadADE.cmake",
+      "directive": "ocv_install_3rdparty_licenses(ade \"${ade_src_dir}/${ade_subdir}/LICENSE\")"
+    },
+    {
+      "path": "opencv-4.13.0/modules/videoio/cmake/detect_obsensor.cmake",
+      "directive": "ocv_install_3rdparty_licenses(OrbbecSDK ${OrbbecSDK_DIR}/LICENSE.txt)"
+    },
+    {
+      "path": "opencv_contrib-4.13.0/modules/fastcv/CMakeLists.txt",
+      "directive": "ocv_install_3rdparty_licenses(FastCV \"${OpenCV_BINARY_DIR}/3rdparty/fastcv/LICENSE\")"
+    }
+  ]
+}

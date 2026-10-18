@@ -1,0 +1,1819 @@
+[
+  {
+    "recipe": "a52dec",
+    "archive": "a52dec-0.8.0.tar.gz",
+    "licenses": [
+      {
+        "path": "a52dec/a52dec-0.8.0/AUTHORS",
+        "sha256": "ecde7c6696f10cca21b0891ae42f27582c361725722c85580fea33e4813b6536"
+      },
+      {
+        "path": "a52dec/a52dec-0.8.0/COPYING",
+        "sha256": "dcc100d4161cc0b7177545ab6e47216f84857cda3843847c792a25289852dcaa"
+      }
+    ]
+  },
+  {
+    "recipe": "bzip2",
+    "archive": "bzip2-1.0.8.tar.gz",
+    "licenses": [
+      {
+        "path": "bzip2/bzip2-1.0.8/LICENSE",
+        "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+      }
+    ]
+  },
+  {
+    "recipe": "cairo",
+    "archive": "cairo-1.18.4.tar.xz",
+    "licenses": [
+      {
+        "path": "cairo/cairo-1.18.4/AUTHORS",
+        "sha256": "7118b55c2d911781622ecb281d9e11fd7eeb5f46c8925e6d740f96f89e79a8fe"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/COPYING",
+        "sha256": "67228a9f7c5f9b67c58f556f1be178f62da4d9e2e6285318d8c74d567255abdf"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/COPYING-LGPL-2.1",
+        "sha256": "9e9e8608c4cdda51a78cc3a385f4ec9a2e4c96d5ecad74ac8bca5fca3e563b7d"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/COPYING-MPL-1.1",
+        "sha256": "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/perf/COPYING",
+        "sha256": "6f93b45ea874706058ae35bc02df79c3f9daf00948672eea8394cc25d1327d49"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/test/COPYING",
+        "sha256": "a37812e0e27a211272d4c27fa45028c3653e78bb708acccb77c94128dc72b98e"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/util/COPYING",
+        "sha256": "008e976b6e5e7155ee24322073f42cab7cd6daf90bc2322f1d5c3aacab94111c"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/util/cairo-script/COPYING",
+        "sha256": "25f4d4ce651b1ee6aff713ff986275d6c190a8537e36437886f8bf1497b0a174"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/util/cairo-trace/COPYING",
+        "sha256": "421158645572270264a980b8b130dd988138e4dae20144e22455446e0ef90902"
+      },
+      {
+        "path": "cairo/cairo-1.18.4/util/cairo-trace/COPYING-GPL-3",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      }
+    ]
+  },
+  {
+    "recipe": "dav1d",
+    "archive": "dav1d-1.4.1.tar.xz",
+    "licenses": [
+      {
+        "path": "dav1d/dav1d-1.4.1/COPYING",
+        "sha256": "b327887de263238deaa80c34cdd2ff3e0ba1d35db585ce14a37ce3e74ee389e9"
+      },
+      {
+        "path": "dav1d/dav1d-1.4.1/doc/PATENTS",
+        "sha256": "335eca574598bf4ca181b12f708d6669e5a5e78c8e1513e5b35fa1f03901484b"
+      }
+    ]
+  },
+  {
+    "recipe": "directx-headers",
+    "archive": "v1.611.0.tar.gz",
+    "licenses": [
+      {
+        "path": "directx-headers/DirectX-Headers-1.611.0/LICENSE",
+        "sha256": "903df5512f7d02609fed0c780a9b704f5a3eeb6e4d84ebe42a29845c81899a3c"
+      }
+    ]
+  },
+  {
+    "recipe": "directxmath",
+    "archive": "feb2024.tar.gz",
+    "licenses": [
+      {
+        "path": "directxmath/DirectXMath-feb2024/LICENSE",
+        "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+      }
+    ]
+  },
+  {
+    "recipe": "expat",
+    "archive": "expat-2.7.1.tar.xz",
+    "licenses": [
+      {
+        "path": "expat/expat-2.7.1/COPYING",
+        "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
+      },
+      {
+        "path": "expat/expat-2.7.1/AUTHORS",
+        "sha256": "59f14371c6b75912cfebb46e6247ee5146766e803a0365b124e5d3011e7d0877"
+      }
+    ]
+  },
+  {
+    "recipe": "ffmpeg",
+    "archive": "ffmpeg-7.1.tar.xz",
+    "licenses": [
+      {
+        "path": "ffmpeg/ffmpeg-7.1/COPYING.LGPLv2.1",
+        "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe"
+      },
+      {
+        "path": "ffmpeg/ffmpeg-7.1/COPYING.GPLv2",
+        "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+      },
+      {
+        "path": "ffmpeg/ffmpeg-7.1/COPYING.LGPLv3",
+        "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+      },
+      {
+        "path": "ffmpeg/ffmpeg-7.1/COPYING.GPLv3",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      {
+        "path": "ffmpeg/ffmpeg-7.1/doc/authors.texi",
+        "sha256": "fb5fac6dd8f7474033e933814491a8297d8723c52be4dcbcc82eef9c4f008dd2"
+      },
+      {
+        "path": "ffmpeg/ffmpeg-7.1/LICENSE.md",
+        "sha256": "cb48bf09a11f5fb576cddb0431c8f5ed0a60157a9ec942adffc13907cbe083f2"
+      }
+    ]
+  },
+  {
+    "recipe": "flac",
+    "archive": "flac-1.4.3.tar.xz",
+    "licenses": [
+      {
+        "path": "flac/flac-1.4.3/AUTHORS",
+        "sha256": "ac4e8005a9725bcbd532f163250eac193266113c90075e6728370e3d3f5e81e0"
+      },
+      {
+        "path": "flac/flac-1.4.3/COPYING.FDL",
+        "sha256": "f45cc81b400a048b56c9edbd4c3317f7a8958463dfd55aa96f268ecfd6baa12c"
+      },
+      {
+        "path": "flac/flac-1.4.3/COPYING.GPL",
+        "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+      },
+      {
+        "path": "flac/flac-1.4.3/COPYING.LGPL",
+        "sha256": "5df07007198989c622f5d41de8d703e7bef3d0e79d62e24332ee739a452af62a"
+      },
+      {
+        "path": "flac/flac-1.4.3/COPYING.Xiph",
+        "sha256": "12600ea1a7affcbf469bd0d8b2cd725e4167114a2ee834b88f5d2857bfd7ddbf"
+      }
+    ]
+  },
+  {
+    "recipe": "fontconfig",
+    "archive": "fontconfig-2.16.1.tar.xz",
+    "licenses": [
+      {
+        "path": "fontconfig/fontconfig-2.16.1/AUTHORS",
+        "sha256": "db6d73a160bb2de10268f88ef60aae91771fefdeee4992b791c76ce6592a4a4b"
+      },
+      {
+        "path": "fontconfig/fontconfig-2.16.1/COPYING",
+        "sha256": "51a51aa9823704fd90bccc616cdd17ebabb5b2b3e9cbde886ca02c7002288067"
+      }
+    ]
+  },
+  {
+    "recipe": "freetype",
+    "archive": "freetype-2.13.3.tar.xz",
+    "licenses": [
+      {
+        "path": "freetype/freetype-2.13.3/docs/GPLv2.TXT",
+        "sha256": "c4120c6752c910c299e3bd9cb3a46ff262c268303ca2069b61f92f10a5656c18"
+      },
+      {
+        "path": "freetype/freetype-2.13.3/docs/FTL.TXT",
+        "sha256": "08c135755dd589039470f1fdbb400daaabaaa50d0b366d19cebff4d22986baa1"
+      },
+      {
+        "path": "freetype/freetype-2.13.3/LICENSE.TXT",
+        "sha256": "2e3bbb7d7c5c396368dd0853a790ec29ce5b8647163dde42a0493fb0d6556b2b"
+      }
+    ]
+  },
+  {
+    "recipe": "frei0r-plugins",
+    "archive": "v2.3.3.tar.gz",
+    "licenses": [
+      {
+        "path": "frei0r-plugins/frei0r-2.3.3/AUTHORS",
+        "sha256": "0988b56c0266e11e7368b5753ffa38afdd423c090fe6bc72934b5a58a6a0d301"
+      },
+      {
+        "path": "frei0r-plugins/frei0r-2.3.3/AUTHORS.md",
+        "sha256": "896c1d3538df6136d51c82438bfaf97e904d1353aed0d2c8d589bf6ace0be10b"
+      },
+      {
+        "path": "frei0r-plugins/frei0r-2.3.3/COPYING",
+        "sha256": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c"
+      }
+    ]
+  },
+  {
+    "recipe": "fribidi",
+    "archive": "fribidi-1.0.16.tar.xz",
+    "licenses": [
+      {
+        "path": "fribidi/fribidi-1.0.16/AUTHORS",
+        "sha256": "cb173f55c9514c8f38f4647ac3fedd5f8611358d331e65ab955da931e826861c"
+      },
+      {
+        "path": "fribidi/fribidi-1.0.16/COPYING",
+        "sha256": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b"
+      }
+    ]
+  },
+  {
+    "recipe": "gcc-sources",
+    "archive": "gcc-14.2.0.tar.xz",
+    "licenses": [
+      {
+        "path": "gcc-sources/gcc-14.2.0/COPYING.LIB",
+        "sha256": "a9bdde5616ecdd1e980b44f360600ee8783b1f99b8cc83a2beb163a0a390e861"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libquadmath/COPYING.LIB",
+        "sha256": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/mod/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/mod/LICENSE",
+        "sha256": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/xerrors/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/xerrors/LICENSE",
+        "sha256": "84d554e7a5d139b7c7b5d6ef0670ae556c4cdcfa354eaad72a1c07c08012c96f"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/tools/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/tools/LICENSE",
+        "sha256": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/sync/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/sync/AUTHORS",
+        "sha256": "b82446c166daa6932dc33418961ed7a7f06c5a9fee17e9d214e16079e3442757"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/go/golang.org/x/sync/LICENSE",
+        "sha256": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libgo/LICENSE",
+        "sha256": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libstdc++-v3/include/pstl/LICENSE.txt",
+        "sha256": "0ca8cbe9219a841f9bc8fbb1f8ecdf5e39b1b0e23ee10fb6b0c090d8987dd1eb"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libstdc++-v3/doc/xml/authors.xml",
+        "sha256": "5300074c44853ce8f728eef46916a8d428edf8147a48f4903a97e43f69d6c2d3"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libstdc++-v3/doc/html/manual/license.html",
+        "sha256": "2906eca1abfe0c78daea99197a6eb130603c2dac4aa8cd7863526ea52cd3f030"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/zlib/contrib/dotzlib/LICENSE_1_0.txt",
+        "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libphobos/src/LICENSE_1_0.txt",
+        "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libphobos/libdruntime/LICENSE.txt",
+        "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libcody/LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/COPYING3.LIB",
+        "sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/COPYING",
+        "sha256": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/COPYING.RUNTIME",
+        "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/include/COPYING",
+        "sha256": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/include/COPYING3",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/COPYING.LIB",
+        "sha256": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/testsuite/gcc.dg/params/LICENSE",
+        "sha256": "4919cfb14a73cd64fcef67b107613970cf1659a09aa675dba31314f373bc7204"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/testsuite/gcc.dg/vect/tsvc/license.txt",
+        "sha256": "0bf700c6654f3e72308035d7ebb60abcc486e673ee8a72d19101f80812288f1c"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/ada/doc/share/copyright.tex",
+        "sha256": "c0a2678e14049ef3d4ba0d9dd7abf8b0dbb8335d6e2311b2d2f568035321f2b7"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/m2/images/LICENSE.IMG",
+        "sha256": "30d9238a74b57dae99cc7949fcb57d1f3faeb374b619c598f83c216c42d384ee"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/m2/COPYING3.LIB",
+        "sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/m2/COPYING.RUNTIME",
+        "sha256": "314527bfbe0acd79ab7845a0dca5cb961a04c443f0a573d45da9d8cb926a1b4e"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/m2/COPYING.FDL",
+        "sha256": "0b402b6bff3c3bb698bd8a7efe33827b4a07b3b9a5b8ace23ff62346d33eb534"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/m2/COPYING3",
+        "sha256": "0ae0485a5bd37a63e63603596417e4eb0e653334fa6c7f932ca3a0e85d4af227"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/go/gofrontend/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/go/gofrontend/LICENSE",
+        "sha256": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/COPYING3.LIB",
+        "sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/COPYING",
+        "sha256": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/gcc/COPYING3",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libiberty/COPYING.LIB",
+        "sha256": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libiberty/copying-lib.texi",
+        "sha256": "684f05578fc861d52339c8db6030000343578c35f024845df753ea43f07e5393"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/COPYING3",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libsanitizer/LICENSE.TXT",
+        "sha256": "74c2b24539a53c34abddb559266d89cb653b0198cd2faf9c04763d3223db7f6d"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libffi/LICENSE",
+        "sha256": "a61d06e8f7be57928e71e800eb9273b05cb8868c484108afe41e4305bb320dde"
+      },
+      {
+        "path": "gcc-sources/gcc-14.2.0/libffi/LICENSE-BUILDTOOLS",
+        "sha256": "e67978cd18816c0cb7d29aaaacde7b7447402c2fb321a051698890a8eaedda94"
+      }
+    ]
+  },
+  {
+    "recipe": "gdk-pixbuf",
+    "archive": "gdk-pixbuf-2.42.12.tar.xz",
+    "licenses": [
+      {
+        "path": "gdk-pixbuf/gdk-pixbuf-2.42.12/COPYING",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      }
+    ]
+  },
+  {
+    "recipe": "glib",
+    "archive": "glib-2.80.5.tar.xz",
+    "licenses": [
+      {
+        "path": "glib/glib-2.80.5/COPYING",
+        "sha256": "fa6f36630bb1e0c571d34b2bbdf188d08495c9dbf58f28cac112f303fc1f58fb"
+      },
+      {
+        "path": "glib/glib-2.80.5/LICENSES/LicenseRef-old-glib-tests.txt",
+        "sha256": "fb261b2d5dbe76c4850f90da763210bc385e52428df6bbfd7b06295ac8a32914"
+      },
+      {
+        "path": "glib/glib-2.80.5/docs/reference/AUTHORS",
+        "sha256": "b4f60a02b2b1f82764f8295b2eafbfcd4c33f596d70abcf5cb3c3623b1cfbc6d"
+      },
+      {
+        "path": "glib/glib-2.80.5/docs/reference/COPYING",
+        "sha256": "b1ec1d0e5947f81e815d8771f7d4d90671a94bb10a42dc687fb566de461a57aa"
+      },
+      {
+        "path": "glib/glib-2.80.5/gmodule/AUTHORS",
+        "sha256": "28073c8c65c072387b778ba00b6c24a2ff1b573ca4415e151aa91fab5a6454be"
+      },
+      {
+        "path": "glib/glib-2.80.5/gmodule/COPYING",
+        "sha256": "fa6f36630bb1e0c571d34b2bbdf188d08495c9dbf58f28cac112f303fc1f58fb"
+      },
+      {
+        "path": "glib/glib-2.80.5/subprojects/gvdb/COPYING",
+        "sha256": "bdbcdaa7858872393e9d6b216bbdc8a23e99d98dd6cdb7cda19458025b9e19fc"
+      }
+    ]
+  },
+  {
+    "recipe": "glib-networking",
+    "archive": "glib-networking-2.80.1.tar.xz",
+    "licenses": [
+      {
+        "path": "glib-networking/glib-networking-2.80.1/COPYING",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      },
+      {
+        "path": "glib-networking/glib-networking-2.80.1/LICENSE_EXCEPTION",
+        "sha256": "85685a53e87aa7d3a70016856b646ad1b09c8e636295241f9f7c2d55cd7f05ce"
+      }
+    ]
+  },
+  {
+    "recipe": "gobject-introspection",
+    "archive": "gobject-introspection-1.80.1.tar.xz",
+    "licenses": [
+      {
+        "path": "gobject-introspection/gobject-introspection-1.80.1/COPYING",
+        "sha256": "1b3275b028bcaa77e4580a302ae80473abb97139b84a0e48618be34cd65f8aaa"
+      },
+      {
+        "path": "gobject-introspection/gobject-introspection-1.80.1/COPYING.GPL",
+        "sha256": "4c1cedcbb4a12ea964f1160dbbf36099e5a59b96129a99a1a1a61f2cb09271fb"
+      },
+      {
+        "path": "gobject-introspection/gobject-introspection-1.80.1/COPYING.LGPL",
+        "sha256": "faa2e414bd5f91d2d2c39e85c7cc3f2ccde05c3306f96b404f8ed8cf0266c279"
+      }
+    ]
+  },
+  {
+    "recipe": "graphene",
+    "archive": "1.10.8.tar.gz",
+    "licenses": [
+      {
+        "path": "graphene/graphene-1.10.8/LICENSE.txt",
+        "sha256": "cfd9fd7b2be592d2c0910d32dc1d8910c08dc0670b1d9ce417a82fa9eb788df9"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-devtools-1.0",
+    "archive": "gst-devtools-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-devtools-1.0/gst-devtools-1.26.11/validate/COPYING",
+        "sha256": "6095e9ffa777dd22839f7801aa845b31c9ed07f3d6bf8a26dc5d2dec8ccc0ef3"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-editing-services-1.0",
+    "archive": "gst-editing-services-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-editing-services-1.0/gst-editing-services-1.26.11/AUTHORS",
+        "sha256": "42b88807902c11844d65b4674ff050548dde3806ead516c98e7a4e1e321cf850"
+      },
+      {
+        "path": "gst-editing-services-1.0/gst-editing-services-1.26.11/COPYING",
+        "sha256": "ad2eec519ebd4b5df86ea84dff24ae3bfa2edea846a703b58902dd221ae375db"
+      },
+      {
+        "path": "gst-editing-services-1.0/gst-editing-services-1.26.11/COPYING.LIB",
+        "sha256": "ad2eec519ebd4b5df86ea84dff24ae3bfa2edea846a703b58902dd221ae375db"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-libav-1.0",
+    "archive": "gst-libav-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-libav-1.0/gst-libav-1.26.11/AUTHORS",
+        "sha256": "7eb2425c386e971c483fe3134394b0718ac190ac79b7f1faa5cc7dec1ff43082"
+      },
+      {
+        "path": "gst-libav-1.0/gst-libav-1.26.11/COPYING",
+        "sha256": "ad2eec519ebd4b5df86ea84dff24ae3bfa2edea846a703b58902dd221ae375db"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-plugins-bad-1.0",
+    "archive": "gst-plugins-bad-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-plugins-bad-1.0/gst-plugins-bad-1.26.11/AUTHORS",
+        "sha256": "741bdab0028d4715c160fe8161864a61d501c3fbce230ff07783d9d7d6732b4a"
+      },
+      {
+        "path": "gst-plugins-bad-1.0/gst-plugins-bad-1.26.11/COPYING",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      },
+      {
+        "path": "gst-plugins-bad-1.0/gst-plugins-bad-1.26.11/docs/random/LICENSE",
+        "sha256": "213bb8d9f46e67d806a2dcf1c84b99ac60f6aec89b0968a87bd3551b4f953688"
+      },
+      {
+        "path": "gst-plugins-bad-1.0/gst-plugins-bad-1.26.11/ext/sctp/usrsctp/LICENSE.md",
+        "sha256": "fa53711b25af4b9a9b8dadfea3cb38166ec4b96760c8d62b284055554537d9ef"
+      },
+      {
+        "path": "gst-plugins-bad-1.0/gst-plugins-bad-1.26.11/gst/dvbsubenc/libimagequant/COPYRIGHT",
+        "sha256": "7391bfbcde4404cefb9849553362c3ab436f929f5cc1abb57071ec045590ee99"
+      },
+      {
+        "path": "gst-plugins-bad-1.0/gst-plugins-bad-1.26.11/sys/directshow/strmbase/LICENSE",
+        "sha256": "49885c38b55a2020f72af1d4b3c76059a778bf2e2cb6871ed3e11c268995f98f"
+      },
+      {
+        "path": "gst-plugins-bad-1.0/gst-plugins-bad-1.26.11/sys/dvb/AUTHORS",
+        "sha256": "463e9c6add03116254299e71ad7c6f40c484f79b5cbb49b9f3581c0e13f5a81b"
+      },
+      {
+        "path": "gst-plugins-bad-1.0/gst-plugins-bad-1.26.11/sys/dwrite/libcaption/LICENSE.txt",
+        "sha256": "33738b27547a48e4164c86db9f85d0f735a388c2d171326b548768ee18ad3694"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-plugins-base-1.0",
+    "archive": "gst-plugins-base-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-plugins-base-1.0/gst-plugins-base-1.26.11/AUTHORS",
+        "sha256": "6206eb792cbff61bdc7dcb201553a5f1c433b591604a2b6c41060ef3630a0dc7"
+      },
+      {
+        "path": "gst-plugins-base-1.0/gst-plugins-base-1.26.11/COPYING",
+        "sha256": "ad2eec519ebd4b5df86ea84dff24ae3bfa2edea846a703b58902dd221ae375db"
+      },
+      {
+        "path": "gst-plugins-base-1.0/gst-plugins-base-1.26.11/docs/random/LICENSE",
+        "sha256": "213bb8d9f46e67d806a2dcf1c84b99ac60f6aec89b0968a87bd3551b4f953688"
+      },
+      {
+        "path": "gst-plugins-base-1.0/gst-plugins-base-1.26.11/gst-libs/gst/tag/license-translations.dict",
+        "sha256": "25ebb771dd2bc53bedf66e1b4bee7e6169bd5c0eee84621e7c4ac2d91f9826c2"
+      },
+      {
+        "path": "gst-plugins-base-1.0/gst-plugins-base-1.26.11/gst-libs/gst/tag/licenses-tables.dat",
+        "sha256": "72619e35c59ec2527c561ff5757a2d0fead3a502c3024add007f1e93c16b5d70"
+      },
+      {
+        "path": "gst-plugins-base-1.0/gst-plugins-base-1.26.11/gst-libs/gst/tag/licenses.c",
+        "sha256": "1f56aeb38bfc982b535d1c6356658e7d18cff845cb2a144d38cf994183c5f7b6"
+      },
+      {
+        "path": "gst-plugins-base-1.0/gst-plugins-base-1.26.11/tests/files/license-uris",
+        "sha256": "de0f312e9784884e211d50d4344dae0d9beb9074bfb9812566f904888c47c121"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-plugins-good-1.0",
+    "archive": "gst-plugins-good-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-plugins-good-1.0/gst-plugins-good-1.26.11/AUTHORS",
+        "sha256": "741bdab0028d4715c160fe8161864a61d501c3fbce230ff07783d9d7d6732b4a"
+      },
+      {
+        "path": "gst-plugins-good-1.0/gst-plugins-good-1.26.11/COPYING",
+        "sha256": "6095e9ffa777dd22839f7801aa845b31c9ed07f3d6bf8a26dc5d2dec8ccc0ef3"
+      },
+      {
+        "path": "gst-plugins-good-1.0/gst-plugins-good-1.26.11/gst/rtsp/COPYING.MIT",
+        "sha256": "0efdd7e1522b73c4a206ab2fb1bb8a609157abccf588837bca6eb7c98d5b35c6"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-plugins-ugly-1.0",
+    "archive": "gst-plugins-ugly-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-plugins-ugly-1.0/gst-plugins-ugly-1.26.11/AUTHORS",
+        "sha256": "741bdab0028d4715c160fe8161864a61d501c3fbce230ff07783d9d7d6732b4a"
+      },
+      {
+        "path": "gst-plugins-ugly-1.0/gst-plugins-ugly-1.26.11/COPYING",
+        "sha256": "6095e9ffa777dd22839f7801aa845b31c9ed07f3d6bf8a26dc5d2dec8ccc0ef3"
+      },
+      {
+        "path": "gst-plugins-ugly-1.0/gst-plugins-ugly-1.26.11/docs/random/LICENSE",
+        "sha256": "213bb8d9f46e67d806a2dcf1c84b99ac60f6aec89b0968a87bd3551b4f953688"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-python-1.0",
+    "archive": "gst-python-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-python-1.0/gst-python-1.26.11/COPYING",
+        "sha256": "ea3ad127610e5ded2210b3a86a46314f2b3b28e438eccffdae19a4d6fbcdb0c2"
+      }
+    ]
+  },
+  {
+    "recipe": "gst-rtsp-server-1.0",
+    "archive": "gst-rtsp-server-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gst-rtsp-server-1.0/gst-rtsp-server-1.26.11/AUTHORS",
+        "sha256": "762fb5d63da6b095b4b9946b0c7f8a895c7baca999535427f9017232eba0bbeb"
+      },
+      {
+        "path": "gst-rtsp-server-1.0/gst-rtsp-server-1.26.11/COPYING",
+        "sha256": "ad2eec519ebd4b5df86ea84dff24ae3bfa2edea846a703b58902dd221ae375db"
+      },
+      {
+        "path": "gst-rtsp-server-1.0/gst-rtsp-server-1.26.11/COPYING.LIB",
+        "sha256": "ad2eec519ebd4b5df86ea84dff24ae3bfa2edea846a703b58902dd221ae375db"
+      }
+    ]
+  },
+  {
+    "recipe": "gstreamer-1.0",
+    "archive": "gstreamer-1.26.11.tar.xz",
+    "licenses": [
+      {
+        "path": "gstreamer-1.0/gstreamer-1.26.11/AUTHORS",
+        "sha256": "749e861f73100e39beb17aa57a5d7cdf1797e4c998dacda4cf7020650ecc65c1"
+      },
+      {
+        "path": "gstreamer-1.0/gstreamer-1.26.11/COPYING",
+        "sha256": "ad2eec519ebd4b5df86ea84dff24ae3bfa2edea846a703b58902dd221ae375db"
+      }
+    ]
+  },
+  {
+    "recipe": "harfbuzz",
+    "archive": "harfbuzz-10.4.0.tar.xz",
+    "licenses": [
+      {
+        "path": "harfbuzz/harfbuzz-10.4.0/AUTHORS",
+        "sha256": "19bfe8f5ed100636cd24ab0c90a3f71c21d8b02d9ba00719447a0faab364d49f"
+      },
+      {
+        "path": "harfbuzz/harfbuzz-10.4.0/COPYING",
+        "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64"
+      },
+      {
+        "path": "harfbuzz/harfbuzz-10.4.0/src/ms-use/COPYING",
+        "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+      },
+      {
+        "path": "harfbuzz/harfbuzz-10.4.0/test/COPYING",
+        "sha256": "9b35b8485f69cd298fccbb3c40a827dc06cf1185553bef827903497d2944a8d7"
+      },
+      {
+        "path": "harfbuzz/harfbuzz-10.4.0/test/shape/data/aots/COPYING",
+        "sha256": "f55f74bf740db07bb032a90aa74af4307adea3d489c1ccba12453cf0c0a764cb"
+      },
+      {
+        "path": "harfbuzz/harfbuzz-10.4.0/test/shape/data/text-rendering-tests/COPYING",
+        "sha256": "d24039e4d22c9bc72096f6174374539d92a3d6e1163938546ec59179fe095e6f"
+      }
+    ]
+  },
+  {
+    "recipe": "json-glib",
+    "archive": "json-glib-1.10.6.tar.xz",
+    "licenses": [
+      {
+        "path": "json-glib/json-glib-1.10.6/COPYING",
+        "sha256": "fa6f36630bb1e0c571d34b2bbdf188d08495c9dbf58f28cac112f303fc1f58fb"
+      }
+    ]
+  },
+  {
+    "recipe": "ladspa",
+    "archive": "ladspa_sdk_1.15.tgz",
+    "licenses": [
+      {
+        "path": "ladspa/ladspa_sdk_1.15/doc/COPYING",
+        "sha256": "f7f9d3887c83c67abdaa6905ff21b9a0653d1da8b7703a20097859354b452a6e"
+      },
+      {
+        "path": "ladspa/ladspa_sdk_1.15/doc/license.html",
+        "sha256": "f02f7384e2c0b1aa1efd731468406c996428540d2a5ca9bed7aaba11b3cd94dc"
+      }
+    ]
+  },
+  {
+    "recipe": "lame",
+    "archive": "lame-3.100.tar.gz",
+    "licenses": [
+      {
+        "path": "lame/lame-3.100/COPYING",
+        "sha256": "bfe4a52dc4645385f356a8e83cc54216a293e3b6f1cb4f79f5fc0277abf937fd"
+      },
+      {
+        "path": "lame/lame-3.100/LICENSE",
+        "sha256": "7a40cbd8818c57e5285e83c772a459a996d1662c824a879836b97b473c07cae4"
+      },
+      {
+        "path": "lame/lame-3.100/mpglib/AUTHORS",
+        "sha256": "d8ecf9556aafa8c653796d6be3dc43deea374257680e21c30109a5c3c4484263"
+      },
+      {
+        "path": "lame/lame-3.100/debian/copyright",
+        "sha256": "1f27f9f698183275bd615c1140b7bf6e498750e9280597c6eb39790e54ae809b"
+      }
+    ]
+  },
+  {
+    "recipe": "libass",
+    "archive": "libass-0.17.3.tar.xz",
+    "licenses": [
+      {
+        "path": "libass/libass-0.17.3/COPYING",
+        "sha256": "f7e30699d02798351e7f839e3d3bfeb29ce65e44efa7735c225464c4fd7dfe9c"
+      }
+    ]
+  },
+  {
+    "recipe": "libdca",
+    "archive": "libdca-0.0.7.tar.bz2",
+    "licenses": [
+      {
+        "path": "libdca/libdca-0.0.7/AUTHORS",
+        "sha256": "2e37e4d7cd8e37afdd2be378cc70dd64ebdd8f95150d6227a84884b599dddbd0"
+      },
+      {
+        "path": "libdca/libdca-0.0.7/COPYING",
+        "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+      }
+    ]
+  },
+  {
+    "recipe": "libdv",
+    "archive": "libdv-1.0.0.tar.gz",
+    "licenses": [
+      {
+        "path": "libdv/libdv-1.0.0/AUTHORS",
+        "sha256": "67ac92df61633fba80b8d7e9adc368da4d415a3a0cff8fbdb579c00cfa7c48d3"
+      },
+      {
+        "path": "libdv/libdv-1.0.0/COPYING",
+        "sha256": "a190dc9c8043755d90f8b0a75fa66b9e42d4af4c980bf5ddc633f0124db3cee7"
+      },
+      {
+        "path": "libdv/libdv-1.0.0/COPYRIGHT",
+        "sha256": "6107df3458b34b0e6abafcfa2c0eebf549811472553b36e190c0c552efbd6a4f"
+      }
+    ]
+  },
+  {
+    "recipe": "libiconv",
+    "archive": "libiconv-1.15.tar.gz",
+    "licenses": [
+      {
+        "path": "libiconv/libiconv-1.15/COPYING.LIB",
+        "sha256": "56bdea73b6145ef6ac5259b3da390b981d840c24cb03b8e1cbc678de7ecfa18d"
+      },
+      {
+        "path": "libiconv/libiconv-1.15/COPYING",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      {
+        "path": "libiconv/libiconv-1.15/AUTHORS",
+        "sha256": "ed10ef2a01effb12849006d43262ffde5cf72a7d5423bbc8aa66fc6959774c0c"
+      },
+      {
+        "path": "libiconv/libiconv-1.15/libcharset/COPYING.LIB",
+        "sha256": "56bdea73b6145ef6ac5259b3da390b981d840c24cb03b8e1cbc678de7ecfa18d"
+      },
+      {
+        "path": "libiconv/libiconv-1.15/libcharset/AUTHORS",
+        "sha256": "ed10ef2a01effb12849006d43262ffde5cf72a7d5423bbc8aa66fc6959774c0c"
+      }
+    ]
+  },
+  {
+    "recipe": "libjpeg-turbo",
+    "archive": "libjpeg-turbo-3.1.0.tar.gz",
+    "licenses": [
+      {
+        "path": "libjpeg-turbo/libjpeg-turbo-3.1.0/LICENSE.md",
+        "sha256": "96f5b328adbb78eeaaec6980d73fd558cb1e4d62560ed615646bc3cf5e532430"
+      },
+      {
+        "path": "libjpeg-turbo/libjpeg-turbo-3.1.0/README.ijg",
+        "sha256": "75815e3bf6484201a3c3d17a1bbf10f2e8e3237f84df10a2357ea896db2a81d6"
+      },
+      {
+        "path": "libjpeg-turbo/libjpeg-turbo-3.1.0/java/doc/legal/LICENSE",
+        "sha256": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726"
+      },
+      {
+        "path": "libjpeg-turbo/libjpeg-turbo-3.1.0/release/License.rtf",
+        "sha256": "d26120ab237f87dea10aa4fa7fd4243cadffd26e54eb2f3903d5fb0f8ed336b2"
+      }
+    ]
+  },
+  {
+    "recipe": "libltc",
+    "archive": "libltc-1.3.2.tar.gz",
+    "licenses": [
+      {
+        "path": "libltc/libltc-1.3.2/AUTHORS",
+        "sha256": "8462f5a455f076453e70b80e419b0a61620a6ac70de7b0877451248f032a7e5c"
+      },
+      {
+        "path": "libltc/libltc-1.3.2/COPYING",
+        "sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c"
+      }
+    ]
+  },
+  {
+    "recipe": "libnice",
+    "archive": "libnice-0.1.22.tar.gz",
+    "licenses": [
+      {
+        "path": "libnice/libnice-0.1.22/AUTHORS",
+        "sha256": "d72eb6fa9d5e93abb11d13b6c6f04fda2ba183d0705e703887cda243f6f1eead"
+      },
+      {
+        "path": "libnice/libnice-0.1.22/COPYING",
+        "sha256": "9246b2ee8b1db30cf03d5d9719ad8bb5edce1cadc85f8cfef319c23d24d950b5"
+      },
+      {
+        "path": "libnice/libnice-0.1.22/COPYING.LGPL",
+        "sha256": "a9bdde5616ecdd1e980b44f360600ee8783b1f99b8cc83a2beb163a0a390e861"
+      },
+      {
+        "path": "libnice/libnice-0.1.22/COPYING.MPL",
+        "sha256": "3b3c75ae6c663c4f93987647eb5463d33dc1602a1aded3ac479773f2c3928e3a"
+      }
+    ]
+  },
+  {
+    "recipe": "libogg",
+    "archive": "libogg-1.3.5.tar.xz",
+    "licenses": [
+      {
+        "path": "libogg/libogg-1.3.5/COPYING",
+        "sha256": "d2ab5758336489da61c12cc5bb757da5339c4ae9001f9bb0562b4370249af814"
+      },
+      {
+        "path": "libogg/libogg-1.3.5/AUTHORS",
+        "sha256": "6fcb33d0cdd60b5054e7df820916388b590427514288c2bab01c626bb8ae9506"
+      }
+    ]
+  },
+  {
+    "recipe": "libpng",
+    "archive": "libpng-1.6.55.tar.xz",
+    "licenses": [
+      {
+        "path": "libpng/libpng-1.6.55/AUTHORS",
+        "sha256": "fcd13dd3ecf78ac978338a858869d37a4e6cf16e61155a6c073e5b3355b41f16"
+      },
+      {
+        "path": "libpng/libpng-1.6.55/LICENSE",
+        "sha256": "bdb0a645ea18c60507d0368379b1ac5474b92255fcc2d115e07486a7672ba526"
+      },
+      {
+        "path": "libpng/libpng-1.6.55/ci/LICENSE_MIT.txt",
+        "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1"
+      },
+      {
+        "path": "libpng/libpng-1.6.55/contrib/gregbook/COPYING",
+        "sha256": "d6cb0e9e560f51085556949a84af12b79a00f10ab8b66c752537faf7cd665572"
+      },
+      {
+        "path": "libpng/libpng-1.6.55/contrib/gregbook/LICENSE",
+        "sha256": "b6a03c1803eb58ffb1f1278d5c7d4096c4c116e66dce8a7553e8c77d163c3438"
+      },
+      {
+        "path": "libpng/libpng-1.6.55/contrib/pngexif/LICENSE_MIT.txt",
+        "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1"
+      },
+      {
+        "path": "libpng/libpng-1.6.55/contrib/pngminus/LICENSE.txt",
+        "sha256": "1806f1f10d393e9e377b3a8d1b968452b54f1a90378f14eeef45426946ace330"
+      },
+      {
+        "path": "libpng/libpng-1.6.55/scripts/cmake/AUTHORS.md",
+        "sha256": "50633b976f0133862c921aa67d56de2c0b42eb344c8ca3853686efb092a447db"
+      }
+    ]
+  },
+  {
+    "recipe": "libproxy",
+    "archive": "0.5.4.tar.gz",
+    "licenses": [
+      {
+        "path": "libproxy/libproxy-0.5.4/COPYING",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      }
+    ]
+  },
+  {
+    "recipe": "libpsl",
+    "archive": "libpsl-0.21.5.tar.gz",
+    "licenses": [
+      {
+        "path": "libpsl/libpsl-0.21.5/src/LICENSE.chromium",
+        "sha256": "1d7f52747a9169751cdf2641a8299c0098e9ecdf9429296ffd55bdb14c9ed5b3"
+      },
+      {
+        "path": "libpsl/libpsl-0.21.5/COPYING",
+        "sha256": "322392e6001b2b3b0fca705dc9f11f26e12441188ecde50eb1d22909980b2925"
+      },
+      {
+        "path": "libpsl/libpsl-0.21.5/AUTHORS",
+        "sha256": "f8583862f775c397643c7eac9c6645abfdd3f6d2918311e35f0fba719f8fa818"
+      },
+      {
+        "path": "libpsl/libpsl-0.21.5/LICENSE",
+        "sha256": "322392e6001b2b3b0fca705dc9f11f26e12441188ecde50eb1d22909980b2925"
+      }
+    ]
+  },
+  {
+    "recipe": "librsvg",
+    "archive": "librsvg-2.59.2.tar.xz",
+    "licenses": [
+      {
+        "path": "librsvg/librsvg-2.59.2/AUTHORS",
+        "sha256": "14e765b9c1097d93f4b842a6ad23172b530cc00dfe7a5aae1b9afefdca54531b"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/COPYING.LIB",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/gdk-pixbuf-loader/COPYING.LIB",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/librsvg-c/COPYING.LIB",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/librsvg-rebind/LICENSE",
+        "sha256": "f9c4c77baa3828004ee54b8a4f2db2e88ed44a6237a493965bf551fac0fcb62d"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/librsvg-rebind/librsvg-rebind/LICENSE",
+        "sha256": "f9c4c77baa3828004ee54b8a4f2db2e88ed44a6237a493965bf551fac0fcb62d"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/librsvg-rebind/librsvg-rebind/sys/LICENSE",
+        "sha256": "f9c4c77baa3828004ee54b8a4f2db2e88ed44a6237a493965bf551fac0fcb62d"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/rsvg/COPYING.LIB",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/rsvg-bench/COPYING.LIB",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      },
+      {
+        "path": "librsvg/librsvg-2.59.2/rsvg_convert/COPYING.LIB",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      }
+    ]
+  },
+  {
+    "recipe": "librtmp",
+    "archive": "rtmpdump-2.4_p20200229.tar.xz",
+    "licenses": [
+      {
+        "path": "librtmp/rtmpdump-2.4_p20200229/COPYING",
+        "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+      },
+      {
+        "path": "librtmp/rtmpdump-2.4_p20200229/librtmp/COPYING",
+        "sha256": "03fe7ca91cc28e99b4003d5b3bd4ce3b084d4c475fdf9975cf0e7fdf4dc739cd"
+      }
+    ]
+  },
+  {
+    "recipe": "libsoup",
+    "archive": "libsoup-3.6.6.tar.xz",
+    "licenses": [
+      {
+        "path": "libsoup/libsoup-3.6.6/AUTHORS",
+        "sha256": "f8776285b4556368878a1b903a1f0e6d6cee342284961562a7716a2dacc28321"
+      },
+      {
+        "path": "libsoup/libsoup-3.6.6/COPYING",
+        "sha256": "b7993225104d90ddd8024fd838faf300bea5e83d91203eab98e29512acebd69c"
+      }
+    ]
+  },
+  {
+    "recipe": "libsrtp",
+    "archive": "v2.6.0.tar.gz",
+    "licenses": [
+      {
+        "path": "libsrtp/libsrtp-2.6.0/LICENSE",
+        "sha256": "8e19d42a1eec9561f3f347253ddf2e385c55f392f025bb0fd41b88dbf38db5ae"
+      }
+    ]
+  },
+  {
+    "recipe": "libtheora",
+    "archive": "libtheora-1.1.1.tar.bz2",
+    "licenses": [
+      {
+        "path": "libtheora/libtheora-1.1.1/LICENSE",
+        "sha256": "654a0238f789f4435c4818f50005b141d013c5a09a31d861efc1d0d67ba975a4"
+      },
+      {
+        "path": "libtheora/libtheora-1.1.1/AUTHORS",
+        "sha256": "76ce13651678372266b233e026810a368e2cf0a0d255d19805d268d80ac1dbcd"
+      },
+      {
+        "path": "libtheora/libtheora-1.1.1/COPYING",
+        "sha256": "8417fad7da775735564e209484a2e011e0fa201e94f01fdbee6e4977e478e6fc"
+      }
+    ]
+  },
+  {
+    "recipe": "libvorbis",
+    "archive": "libvorbis-1.3.7.tar.xz",
+    "licenses": [
+      {
+        "path": "libvorbis/libvorbis-1.3.7/COPYING",
+        "sha256": "ec1815db59fcd302846df949d7424876cb2e2dc5ed1606c5fb0b36787b1cf43a"
+      },
+      {
+        "path": "libvorbis/libvorbis-1.3.7/AUTHORS",
+        "sha256": "f5cab9f16035f770f50299f85cf2938c06dc3a9a30425961067788102ec896d3"
+      }
+    ]
+  },
+  {
+    "recipe": "libvpx",
+    "archive": "v1.14.1.tar.gz",
+    "licenses": [
+      {
+        "path": "libvpx/libvpx-1.14.1/AUTHORS",
+        "sha256": "79706c9cea2e0b09e350af1af60f7adbd3cf6cb3cea5423a9640b5051921bb22"
+      },
+      {
+        "path": "libvpx/libvpx-1.14.1/LICENSE",
+        "sha256": "8267348d5af1262c11d1a08de2f5afc77457755f1ac658627dd9acf71011d615"
+      },
+      {
+        "path": "libvpx/libvpx-1.14.1/PATENTS",
+        "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c"
+      },
+      {
+        "path": "libvpx/libvpx-1.14.1/third_party/googletest/src/LICENSE",
+        "sha256": "9702de7e4117a8e2b20dafab11ffda58c198aede066406496bef670d40a22138"
+      },
+      {
+        "path": "libvpx/libvpx-1.14.1/third_party/libwebm/AUTHORS.TXT",
+        "sha256": "3edb5f5496bfff3d6d4a62fa75fe996b814920d0d6e348c2e65c589e7ac5d177"
+      },
+      {
+        "path": "libvpx/libvpx-1.14.1/third_party/libwebm/LICENSE.TXT",
+        "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf"
+      },
+      {
+        "path": "libvpx/libvpx-1.14.1/third_party/libwebm/PATENTS.TXT",
+        "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c"
+      },
+      {
+        "path": "libvpx/libvpx-1.14.1/third_party/libyuv/LICENSE",
+        "sha256": "2b2cc1180c7e6988328ad2033b04b80117419db9c4c584918bbb3cfec7e9364f"
+      },
+      {
+        "path": "libvpx/libvpx-1.14.1/third_party/x86inc/LICENSE",
+        "sha256": "719d8fa235f2068e0ae6d6a7dceb0a7720d7840f0f0ebed29957989e6ded3cd8"
+      }
+    ]
+  },
+  {
+    "recipe": "libxml2",
+    "archive": "libxml2-2.13.6.tar.xz",
+    "licenses": [
+      {
+        "path": "libxml2/libxml2-2.13.6/Copyright",
+        "sha256": "c99aae1afe013e50b8b3701e089222b351258043c3025b64053a233fd25b4be7"
+      }
+    ]
+  },
+  {
+    "recipe": "mingw-w64-sources",
+    "archive": "mingw-w64-v12.0.0.tar.bz2",
+    "licenses": [
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/AUTHORS",
+        "sha256": "8f308316e7a94b8410f871868bd3948f126526dc1775aeee97a0e365f9a0fd9f"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/COPYING",
+        "sha256": "99a69660981156c21336fdb5661f89341b013c94e4bf9e1c7467b4745718397f"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/COPYING.MinGW-w64-runtime/COPYING.MinGW-w64-runtime.txt",
+        "sha256": "e9b2dc02451ea29092a1f25fa0f3c07207ed421f1807dffb0c4e6dce69dee7bd"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/COPYING.MinGW-w64/COPYING.MinGW-w64.txt",
+        "sha256": "f38e6194bd3bfa1b654f118e5acefe0aead437bbe669eee43957ccc65a7127f1"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/mingw-w64-crt/profile/COPYING",
+        "sha256": "dcc100d4161cc0b7177545ab6e47216f84857cda3843847c792a25289852dcaa"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/mingw-w64-libraries/libmangle/COPYING",
+        "sha256": "ae7a4090983e6ea0780c60c454016fd5e93b414b0de26ad041608ec66fbb54bb"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/mingw-w64-libraries/pseh/COPYING",
+        "sha256": "5ece225da0c7f0dba84dc64d773b5231075e8fee61cbeceb9f774e939918e638"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/mingw-w64-libraries/winpthreads/COPYING",
+        "sha256": "63263614cdd29f2f93cba85e992f041b31f9fc7b4033692f31269489a8a1b177"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/mingw-w64-libraries/winstorecompat/COPYING",
+        "sha256": "fa7368d1f93d890c173177475d8ec7aff265a7d08f1f364d66f74d138978ce36"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/mingw-w64-tools/gendef/COPYING",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/mingw-w64-tools/genidl/COPYING",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      {
+        "path": "mingw-w64-sources/mingw-w64-v12.0.0/mingw-w64-tools/genpeimg/COPYING",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      }
+    ]
+  },
+  {
+    "recipe": "mpg123",
+    "archive": "mpg123-1.32.7.tar.bz2",
+    "licenses": [
+      {
+        "path": "mpg123/mpg123-1.32.7/AUTHORS",
+        "sha256": "bfa5dab0ed3b3ea7a9c76961fcf76df5a5d8e5107cb05d31cf6c5880919b89e5"
+      },
+      {
+        "path": "mpg123/mpg123-1.32.7/COPYING",
+        "sha256": "c22482728a634a8dfdb4ff72a96d4c1ed64cd8f3e79335c401751ac591609366"
+      },
+      {
+        "path": "mpg123/mpg123-1.32.7/doc/PATENTS",
+        "sha256": "a16db5483cc2ab07a81b152fe9147f0ef196d38d26477c7b8c803aff6522e8bc"
+      },
+      {
+        "path": "mpg123/mpg123-1.32.7/doc/LICENSE",
+        "sha256": "cca79ea6fc0a7715e52450df2d86311f990e85067dd13f4d7f5a88d4fd23a07c"
+      }
+    ]
+  },
+  {
+    "recipe": "nghttp2",
+    "archive": "nghttp2-1.61.0.tar.gz",
+    "licenses": [
+      {
+        "path": "nghttp2/nghttp2-1.61.0/third-party/mruby/AUTHORS",
+        "sha256": "b05049b52a140cac210c798075c11757298d2b58ec0611144065ac350b6f2efe"
+      },
+      {
+        "path": "nghttp2/nghttp2-1.61.0/third-party/mruby/mrbgems/mruby-set/LICENSE",
+        "sha256": "2c78d80cafa36acdd728d6a5ddd68aef42e603ae246b3d0c9ac85f09d87d7e17"
+      },
+      {
+        "path": "nghttp2/nghttp2-1.61.0/third-party/mruby/LICENSE",
+        "sha256": "07dc3c033f3f0ee600f76ac52211a04cbb67e722f8da44767687e86151586170"
+      },
+      {
+        "path": "nghttp2/nghttp2-1.61.0/AUTHORS",
+        "sha256": "2e1207527c12ab4db811a15c30ab074232394457144d17f7690bd11658c65ecc"
+      },
+      {
+        "path": "nghttp2/nghttp2-1.61.0/doc/_exts/rubydomain/LICENSE.rubydomain",
+        "sha256": "2dee6027d254030e382dd8e9f0f1b4ac2c186bd409c85ca2bef80d38b4da283c"
+      },
+      {
+        "path": "nghttp2/nghttp2-1.61.0/tests/munit/COPYING",
+        "sha256": "551a04ab9278e48e3d4ef8b0381ad54e54e84fac1a225c50247fa3669dfdef75"
+      },
+      {
+        "path": "nghttp2/nghttp2-1.61.0/COPYING",
+        "sha256": "6b94f3abc1aabd0c72a7c7d92a77f79dda7c8a0cb3df839a97890b4116a2de2a"
+      }
+    ]
+  },
+  {
+    "recipe": "opencore-amr",
+    "archive": "opencore-amr-0.1.6.tar.gz",
+    "licenses": [
+      {
+        "path": "opencore-amr/opencore-amr-0.1.6/LICENSE",
+        "sha256": "8b3f1762349248d444ab9acbafe73941254e36e1064954da56bb9ddbd5873ddb"
+      },
+      {
+        "path": "opencore-amr/opencore-amr-0.1.6/opencore/NOTICE",
+        "sha256": "d106802b5e406073c1d10fbe9f638234c6973ebce37df71773179642085eb489"
+      }
+    ]
+  },
+  {
+    "recipe": "openh264",
+    "archive": "openh264-2.6.0.tar.gz",
+    "licenses": [
+      {
+        "path": "openh264/openh264-2.6.0/LICENSE",
+        "sha256": "dd5c1c9668512530fa5a96e4c29ac4033d70a7eeb0eed7a42fddb6dd794ebdbb"
+      }
+    ]
+  },
+  {
+    "recipe": "openjpeg",
+    "archive": "v2.5.3.tar.gz",
+    "licenses": [
+      {
+        "path": "openjpeg/openjpeg-2.5.3/AUTHORS.md",
+        "sha256": "cf22e984f9fbb9be7550e9a94120595ba8c4a7de0d63f47d3725f4b2e28a4387"
+      },
+      {
+        "path": "openjpeg/openjpeg-2.5.3/LICENSE",
+        "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6"
+      },
+      {
+        "path": "openjpeg/openjpeg-2.5.3/src/bin/wx/OPJViewer/source/license.txt",
+        "sha256": "8081c33f6953950dcf424aa844714658b73ada0fcaea16e4487f5fa07ef0960d"
+      },
+      {
+        "path": "openjpeg/openjpeg-2.5.3/thirdparty/astyle/LICENSE.md",
+        "sha256": "2e8480e753b7a1d100c80920f4250b1bc9f93a18c6a5953c42b11445218cd0fb"
+      },
+      {
+        "path": "openjpeg/openjpeg-2.5.3/thirdparty/liblcms2/COPYING",
+        "sha256": "c725daac91a9259ce5e195683c0eeb797d345035c36ac5ba114c9fa80e11639a"
+      },
+      {
+        "path": "openjpeg/openjpeg-2.5.3/thirdparty/libpng/LICENSE",
+        "sha256": "7317e078e2d3b5d7ba5a6159e650945153262b44b76f6700f8e9edb261c5143e"
+      }
+    ]
+  },
+  {
+    "recipe": "openssl",
+    "archive": "openssl-3.5.0.tar.gz",
+    "licenses": [
+      {
+        "path": "openssl/openssl-3.5.0/AUTHORS.md",
+        "sha256": "b9f638dfc06b59c2d3b808186c3b30f713805a5db390f5b77b1703ac58acb83e"
+      },
+      {
+        "path": "openssl/openssl-3.5.0/LICENSE.txt",
+        "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+      },
+      {
+        "path": "openssl/openssl-3.5.0/external/perl/Text-Template-1.56/LICENSE",
+        "sha256": "9837f05336ef3cbacb6a96e1672a0426d81ad01191f214b8d48e22ca62338181"
+      },
+      {
+        "path": "openssl/openssl-3.5.0/util/perl/OpenSSL/copyright.pm",
+        "sha256": "04213b69dbebc8ba0dd8a6216af1d9422f9b63619c1cf2f1d8aa107b83bbb608"
+      }
+    ]
+  },
+  {
+    "recipe": "opus",
+    "archive": "opus-1.5.2.tar.gz",
+    "licenses": [
+      {
+        "path": "opus/opus-1.5.2/AUTHORS",
+        "sha256": "f9fd849e652219ce98e008303370b352d37663d0ffb27b8dc514ad93c9c7438b"
+      },
+      {
+        "path": "opus/opus-1.5.2/COPYING",
+        "sha256": "01e1167d54a096d123cf6dfbbeb19587278845c6481d2d66d545669846079551"
+      }
+    ]
+  },
+  {
+    "recipe": "orc",
+    "archive": "orc-0.4.41.tar.xz",
+    "licenses": [
+      {
+        "path": "orc/orc-0.4.41/COPYING",
+        "sha256": "4f5dabb1b44bb6fc5cd53820b1f103147ad61b395a57903991325bd1b85d97bf"
+      }
+    ]
+  },
+  {
+    "recipe": "pango",
+    "archive": "pango-1.56.2.tar.xz",
+    "licenses": [
+      {
+        "path": "pango/pango-1.56.2/COPYING",
+        "sha256": "d245807f90032872d1438d741ed21e2490e1175dc8aa3afa5ddb6c8e529b58e5"
+      }
+    ]
+  },
+  {
+    "recipe": "pcre2",
+    "archive": "pcre2-10.42.tar.bz2",
+    "licenses": [
+      {
+        "path": "pcre2/pcre2-10.42/LICENCE",
+        "sha256": "87d884eceb7fc54611470ce9f74280d28612b0c877adfc767e9676892a638987"
+      },
+      {
+        "path": "pcre2/pcre2-10.42/cmake/COPYING-CMAKE-SCRIPTS",
+        "sha256": "46cde7dc11e64c78d650b4851b88f6704b4665ff60f22a1caf68ceb15e217e5b"
+      },
+      {
+        "path": "pcre2/pcre2-10.42/COPYING",
+        "sha256": "99272c55f3dcfa07a8a7e15a5c1a33096e4727de74241d65fa049fccfdd59507"
+      },
+      {
+        "path": "pcre2/pcre2-10.42/AUTHORS",
+        "sha256": "430c8e1ae1c643cef5b14af882ada140bd8f675198d704cf88aa65addac3ab78"
+      }
+    ]
+  },
+  {
+    "recipe": "pixman",
+    "archive": "pixman-0.46.4.tar.xz",
+    "licenses": [
+      {
+        "path": "pixman/pixman-0.46.4/AUTHORS",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "pixman/pixman-0.46.4/COPYING",
+        "sha256": "fac9270f0987b96ff4533fca3548c633e02083cbba4a0172a3b149b2e4019793"
+      }
+    ]
+  },
+  {
+    "recipe": "pkg-config",
+    "archive": "pkg-config-0.29.2.tar.gz",
+    "licenses": [
+      {
+        "path": "pkg-config/pkg-config-0.29.2/glib/AUTHORS",
+        "sha256": "d4635e1b6975b421eab63cea9962254d61306f8575f17827b4332da9a7261db0"
+      },
+      {
+        "path": "pkg-config/pkg-config-0.29.2/glib/COPYING",
+        "sha256": "d245807f90032872d1438d741ed21e2490e1175dc8aa3afa5ddb6c8e529b58e5"
+      },
+      {
+        "path": "pkg-config/pkg-config-0.29.2/AUTHORS",
+        "sha256": "28b8e4097e7b6566c0f3055418ac00864d2162492b4ee1e770b2cfab49cd95b4"
+      },
+      {
+        "path": "pkg-config/pkg-config-0.29.2/COPYING",
+        "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+      }
+    ]
+  },
+  {
+    "recipe": "proxy-libintl",
+    "archive": "proxy-libintl-0.4.tar.gz",
+    "licenses": [
+      {
+        "path": "proxy-libintl/proxy-libintl-0.4/COPYING",
+        "sha256": "d245807f90032872d1438d741ed21e2490e1175dc8aa3afa5ddb6c8e529b58e5"
+      }
+    ]
+  },
+  {
+    "recipe": "pycairo",
+    "archive": "v1.27.0.tar.gz",
+    "licenses": [
+      {
+        "path": "pycairo/pycairo-1.27.0/COPYING",
+        "sha256": "360b9a526d47c51a7cab7f1ec49ca5893050562d639b742d588934ff84823a72"
+      },
+      {
+        "path": "pycairo/pycairo-1.27.0/COPYING-LGPL-2.1",
+        "sha256": "d80c9d084ebfb50ea1ed91bfbc2410d6ce542097a32c43b00781b83adcb8c77f"
+      },
+      {
+        "path": "pycairo/pycairo-1.27.0/COPYING-MPL-1.1",
+        "sha256": "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f"
+      }
+    ]
+  },
+  {
+    "recipe": "pygobject",
+    "archive": "pygobject-3.50.2.tar.gz",
+    "licenses": [
+      {
+        "path": "pygobject/pygobject-3.50.2/COPYING",
+        "sha256": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b"
+      },
+      {
+        "path": "pygobject/pygobject-3.50.2/docs/images/LICENSE",
+        "sha256": "5c382291e88a29636da3f17b0ac11095b2bc7f9939188900037fac3d7f4f5dd7"
+      }
+    ]
+  },
+  {
+    "recipe": "qrencode",
+    "archive": "qrencode-4.1.1.tar.gz",
+    "licenses": [
+      {
+        "path": "qrencode/qrencode-4.1.1/COPYING",
+        "sha256": "a9bdde5616ecdd1e980b44f360600ee8783b1f99b8cc83a2beb163a0a390e861"
+      }
+    ]
+  },
+  {
+    "recipe": "sbc",
+    "archive": "sbc-2.0.tar.xz",
+    "licenses": [
+      {
+        "path": "sbc/sbc-2.0/COPYING",
+        "sha256": "b499eddebda05a8859e32b820a64577d91f1de2b52efa2a1575a2cb4000bc259"
+      },
+      {
+        "path": "sbc/sbc-2.0/AUTHORS",
+        "sha256": "e57876fcdfa3cfdf88db7f6ed971c1f44fda8e9a33c8c1d9999903945e75fd2c"
+      },
+      {
+        "path": "sbc/sbc-2.0/COPYING.LIB",
+        "sha256": "ec60b993835e2c6b79e6d9226345f4e614e686eb57dc13b6420c15a33a8996e5"
+      }
+    ]
+  },
+  {
+    "recipe": "soundtouch",
+    "archive": "2.3.2.tar.gz",
+    "licenses": [
+      {
+        "path": "soundtouch/soundtouch/COPYING.TXT",
+        "sha256": "84c6d82dc7de80f5b73f231edfd3ddc5b53513908117452bfa37ea36bb4b7e0a"
+      }
+    ]
+  },
+  {
+    "recipe": "spandsp",
+    "archive": "spandsp-0.0.6.tar.gz",
+    "licenses": [
+      {
+        "path": "spandsp/spandsp-0.0.6/AUTHORS",
+        "sha256": "28609255546bb070e0e3e64b0efeebfb1af38786f6b25904762a446ada9a15ec"
+      },
+      {
+        "path": "spandsp/spandsp-0.0.6/COPYING",
+        "sha256": "366576cb0b869cd9e95a4882878607314650488ac635e5df0692180382e9666a"
+      },
+      {
+        "path": "spandsp/spandsp-0.0.6/debian/copyright",
+        "sha256": "4f02b19737b0b0cc2413b87d91a391b92397fdd93c516807330930af63532501"
+      }
+    ]
+  },
+  {
+    "recipe": "speex",
+    "archive": "speex-1.2.1.tar.gz",
+    "licenses": [
+      {
+        "path": "speex/speex-1.2.1/AUTHORS",
+        "sha256": "6e5a9d92c5f9ccd28fe0b15ad59443fbf435bfc6ab2221f532006d3717ddf642"
+      },
+      {
+        "path": "speex/speex-1.2.1/COPYING",
+        "sha256": "2654a4264b2bfe298dedc508748d140111840c315cc8eb646a3a68c13fa75b01"
+      }
+    ]
+  },
+  {
+    "recipe": "sqlite3",
+    "archive": "sqlite-amalgamation-3490100.zip",
+    "licenses": []
+  },
+  {
+    "recipe": "srt",
+    "archive": "v1.5.4.tar.gz",
+    "licenses": [
+      {
+        "path": "srt/srt-1.5.4/LICENSE",
+        "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+      }
+    ]
+  },
+  {
+    "recipe": "svt-av1",
+    "archive": "SVT-AV1-v2.1.2.tar.bz2",
+    "licenses": [
+      {
+        "path": "svt-av1/SVT-AV1-v2.1.2/LICENSE-BSD2.md",
+        "sha256": "c582fcbeb9cf972a60d298bfaf41dc5adff2dd14208946edcb9bb56a281e8438"
+      },
+      {
+        "path": "svt-av1/SVT-AV1-v2.1.2/LICENSE.md",
+        "sha256": "0acc2fcb27472bdc9aaf8b71f37055bbdac4f54671b7d922f241bd7fcd0dd3e6"
+      },
+      {
+        "path": "svt-av1/SVT-AV1-v2.1.2/PATENTS.md",
+        "sha256": "20678ab10402659106dc4c147c97b2a6e94b5c0695415e15a8f195ebc3547922"
+      },
+      {
+        "path": "svt-av1/SVT-AV1-v2.1.2/third_party/cpuinfo/LICENSE",
+        "sha256": "8e7e60636c3aa0cb03571a1a841ce5697f9551ff92b3c426c2561613d15ade70"
+      },
+      {
+        "path": "svt-av1/SVT-AV1-v2.1.2/third_party/cpuinfo/deps/clog/LICENSE",
+        "sha256": "68a14c3e79add023eecd83d611e73f05b8bf1d16852efeb7eb4033a96736da9e"
+      },
+      {
+        "path": "svt-av1/SVT-AV1-v2.1.2/third_party/fastfeat/LICENSE",
+        "sha256": "043dcfd059386f9facd376351b2bd79325778744aa442177390cdfcca54babed"
+      },
+      {
+        "path": "svt-av1/SVT-AV1-v2.1.2/third_party/safestringlib/LICENSE",
+        "sha256": "c0f99a208799ca20c9ccf31a30533d49334eb458dca5a3d14f9afe3e884e5d7d"
+      }
+    ]
+  },
+  {
+    "recipe": "svt-jpeg-xs",
+    "archive": "v0.9.0.tar.gz",
+    "licenses": [
+      {
+        "path": "svt-jpeg-xs/SVT-JPEG-XS-0.9.0/LICENSE.md",
+        "sha256": "c76b7a8053500681c904890561be80d3e71f8d78f8c86f1be1d9e58ae92e044d"
+      },
+      {
+        "path": "svt-jpeg-xs/SVT-JPEG-XS-0.9.0/third_party/cpuinfo/LICENSE",
+        "sha256": "8e7e60636c3aa0cb03571a1a841ce5697f9551ff92b3c426c2561613d15ade70"
+      },
+      {
+        "path": "svt-jpeg-xs/SVT-JPEG-XS-0.9.0/third_party/cpuinfo/deps/clog/LICENSE",
+        "sha256": "68a14c3e79add023eecd83d611e73f05b8bf1d16852efeb7eb4033a96736da9e"
+      },
+      {
+        "path": "svt-jpeg-xs/SVT-JPEG-XS-0.9.0/third_party/googletest-1.14.0/LICENSE",
+        "sha256": "9702de7e4117a8e2b20dafab11ffda58c198aede066406496bef670d40a22138"
+      }
+    ]
+  },
+  {
+    "recipe": "taglib",
+    "archive": "taglib-1.13.1.tar.gz",
+    "licenses": [
+      {
+        "path": "taglib/taglib-1.13.1/AUTHORS",
+        "sha256": "047780f6bded3712fc24edc77b9187bfa49ea3826ed090933cb6342458eace85"
+      },
+      {
+        "path": "taglib/taglib-1.13.1/COPYING.LGPL",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+      },
+      {
+        "path": "taglib/taglib-1.13.1/COPYING.MPL",
+        "sha256": "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f"
+      }
+    ]
+  },
+  {
+    "recipe": "tiff",
+    "archive": "tiff-4.5.0.tar.gz",
+    "licenses": [
+      {
+        "path": "tiff/tiff-4.5.0/doc/html-prebuilt/_sources/project/license.rst.txt",
+        "sha256": "02e86af3b805e0f2075ebb5ac512831f6ab2a97ddeb186de076c418956418ba1"
+      },
+      {
+        "path": "tiff/tiff-4.5.0/doc/html-prebuilt/project/license.html",
+        "sha256": "8831e69e85b1ea2de93e9954c68ff8173135f497796e8174213cee7459b27e91"
+      },
+      {
+        "path": "tiff/tiff-4.5.0/doc/project/license.rst",
+        "sha256": "02e86af3b805e0f2075ebb5ac512831f6ab2a97ddeb186de076c418956418ba1"
+      },
+      {
+        "path": "tiff/tiff-4.5.0/LICENSE.md",
+        "sha256": "0780558a8bfba0af1160ec1ff11ade4f41c0d7deafd6ecfc796b492a788e380d"
+      }
+    ]
+  },
+  {
+    "recipe": "vo-aacenc",
+    "archive": "vo-aacenc-0.1.3.tar.gz",
+    "licenses": [
+      {
+        "path": "vo-aacenc/vo-aacenc-0.1.3/common/NOTICE",
+        "sha256": "38751245389e1e23f73e6f5384b5cbe7fa972cc4410c5adc9c04b082a0b9561a"
+      },
+      {
+        "path": "vo-aacenc/vo-aacenc-0.1.3/aacenc/SampleCode/NOTICE",
+        "sha256": "38751245389e1e23f73e6f5384b5cbe7fa972cc4410c5adc9c04b082a0b9561a"
+      },
+      {
+        "path": "vo-aacenc/vo-aacenc-0.1.3/aacenc/NOTICE",
+        "sha256": "38751245389e1e23f73e6f5384b5cbe7fa972cc4410c5adc9c04b082a0b9561a"
+      },
+      {
+        "path": "vo-aacenc/vo-aacenc-0.1.3/NOTICE",
+        "sha256": "e2ae60e14bece975eeab49210fcaf4ee529b77e6ca13e7d6556b6bb203897b31"
+      },
+      {
+        "path": "vo-aacenc/vo-aacenc-0.1.3/COPYING",
+        "sha256": "8b3f1762349248d444ab9acbafe73941254e36e1064954da56bb9ddbd5873ddb"
+      }
+    ]
+  },
+  {
+    "recipe": "wavpack",
+    "archive": "wavpack-5.8.1.tar.xz",
+    "licenses": [
+      {
+        "path": "wavpack/wavpack-5.8.1/AUTHORS",
+        "sha256": "37f2b9d7e6afd1578ab94cc205092f37b2e470c4929ada71a8e988cdd768905d"
+      },
+      {
+        "path": "wavpack/wavpack-5.8.1/COPYING",
+        "sha256": "1703dd391c9b422910287add8483a27d9bead0b0b5ccd6d5017e995a7192b3e2"
+      }
+    ]
+  },
+  {
+    "recipe": "webrtc-audio-processing",
+    "archive": "webrtc-audio-processing-2.1.tar.gz",
+    "licenses": [
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/AUTHORS",
+        "sha256": "705caaeede8c3bc8c8e3f76489864a5b0575b42cb4a38091f88b9126c3e6628d"
+      },
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/COPYING",
+        "sha256": "9b79539028e216e813e152d45f5c1ed5fdd0554426ad50270fb03134e7082dac"
+      },
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/webrtc/LICENSE",
+        "sha256": "ab00a482b6a3902e40211b43c5d0441962ea99b6cc7c25c0f243fa270b78d482"
+      },
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/webrtc/PATENTS",
+        "sha256": "01462e2068d1a04c2274f3389773014c14ed9bc3446b28303543bd3e3c064145"
+      },
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/webrtc/common_audio/third_party/ooura/LICENSE",
+        "sha256": "25b7731b70c77ecd5f3bb19303fbaa99be18860f81d44f71da670fdcd04829db"
+      },
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/webrtc/common_audio/third_party/spl_sqrt_floor/LICENSE",
+        "sha256": "41d791701e3e1c1073470403de7e342442d1e6a2af72681023b13a2f45f2125c"
+      },
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/webrtc/modules/third_party/fft/LICENSE",
+        "sha256": "6fdbabd2c95c5efc6f1e46175278239afb9343120a3022ed0e0cb04267a6aeb3"
+      },
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/webrtc/third_party/pffft/LICENSE",
+        "sha256": "a46200592eb193853527250da098e6bb0c75424e7a2c7db8da526c4f301c3d88"
+      },
+      {
+        "path": "webrtc-audio-processing/webrtc-audio-processing-2.1/webrtc/third_party/rnnoise/COPYING",
+        "sha256": "e2f59ff41d9d03adc3dcf3deff170f8c8cf4a6eb4a9b174762a7656d23200ffa"
+      }
+    ]
+  },
+  {
+    "recipe": "webview2",
+    "archive": "webview2-1.0.2420.47.zip",
+    "licenses": [
+      {
+        "path": "webview2/LICENSE.txt",
+        "sha256": "0af8f1b807512aae39c2ac1aa4d0cae65cabecb6fd554b8439a5162a0d6eca55"
+      },
+      {
+        "path": "webview2/NOTICE.txt",
+        "sha256": "106423785c5b7eba0a8e61d1837f2132e9c828e20ad530f565d981c1df60dd90"
+      }
+    ]
+  },
+  {
+    "recipe": "x264",
+    "archive": "x264_0.164.3108+git31e19f9.orig.tar.gz",
+    "licenses": [
+      {
+        "path": "x264/x264-0.164.3108+git31e19f9/COPYING",
+        "sha256": "32b1062f7da84967e7019d01ab805935caa7ab7321a7ced0e30ebe75e5df1670"
+      },
+      {
+        "path": "x264/x264-0.164.3108+git31e19f9/AUTHORS",
+        "sha256": "783150c1bef404fc7140924f3006eff27c940ea73ef38b3bc76fcb9c173229a5"
+      }
+    ]
+  },
+  {
+    "recipe": "x265-src",
+    "archive": "x265_3.6.tar.gz",
+    "licenses": [
+      {
+        "path": "x265-src/x265_3.6/COPYING",
+        "sha256": "d8afb1bcc7a2cfc603683b168d6987ef0a48e59e0da3693bf55c5d33b67e2b49"
+      },
+      {
+        "path": "x265-src/x265_3.6/source/dynamicHDR10/LICENSE.txt",
+        "sha256": "47f15d63e82eb8a4de6e46471d5f96cf6d052fd5355944a002c3157880248b69"
+      },
+      {
+        "path": "x265-src/x265_3.6/source/dynamicHDR10/json11/LICENSE.txt",
+        "sha256": "950e288a2548cb33f6a90d23958806b0803f510ab17c600d661619a73ae3a6c8"
+      }
+    ]
+  },
+  {
+    "recipe": "zbar",
+    "archive": "zbar-0.23.93.tar.gz",
+    "licenses": [
+      {
+        "path": "zbar/zbar-0.23.93/perl/COPYING.LIB",
+        "sha256": "5df07007198989c622f5d41de8d703e7bef3d0e79d62e24332ee739a452af62a"
+      },
+      {
+        "path": "zbar/zbar-0.23.93/COPYING",
+        "sha256": "c635190c86f74415ba2170ced60caf1260c563a65a3f716d4b1c17326f66e216"
+      },
+      {
+        "path": "zbar/zbar-0.23.93/LICENSE.md",
+        "sha256": "44260f9252c7fe38ba8dfb645330504f4a375e3a5e9dd7d5d6b9f04adb4952f1"
+      }
+    ]
+  },
+  {
+    "recipe": "zlib",
+    "archive": "zlib-1.3.1.tar.gz",
+    "licenses": [
+      {
+        "path": "zlib/zlib-1.3.1/LICENSE",
+        "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
+      },
+      {
+        "path": "zlib/zlib-1.3.1/contrib/dotzlib/LICENSE_1_0.txt",
+        "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951"
+      }
+    ]
+  }
+]

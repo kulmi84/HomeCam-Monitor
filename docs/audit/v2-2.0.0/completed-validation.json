@@ -1,0 +1,14 @@
+{
+  "fullV2Suite": "passed",
+  "actualUidPlayerOptions": "passed",
+  "actualFFmpegMog2": "passed",
+  "actualH264PlaybackRecordingSnapshot": "passed",
+  "realNeolinkConfigRtspStartup": "passed",
+  "componentGate": "passed",
+  "componentGateNegativeTests": "passed: changed binary, missing source, extra runtime",
+  "vendorVerifierTests": "5 passed",
+  "setupUiSelfTest": "passed",
+  "installationUpdateUninstallV1Guard": "passed",
+  "testFixtureLimitation": "Initial verification under a very long workspace-derived destination exceeded the existing .NET Framework 260-character path limit. Normal short TEMP-root verification passed; installer code was not changed.",
+  "defenderInitialCandidate": "passed: exit 0, no threats"
+}
