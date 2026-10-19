@@ -1,5 +1,6 @@
 bin/
 store-artifacts/
+toolbar-render/
 obj/
 __pycache__/
 publish/
