@@ -1,0 +1,22 @@
+Privacy information for HomeCam Monitor
+Date: 18 October 2026
+Publisher: Marcin Kulmaczewski
+Privacy and support contact: support@dorisundmarcin.de
+
+HomeCam Monitor connects to cameras you configure and optionally to your Home Assistant instance. The app processes camera addresses and names, credentials, settings, and image, audio and event data. Enabling recordings creates video or image files. Local motion detection processes camera images on your Windows device.
+
+The application contains no publisher-operated telemetry or upload service. Selected features connect to the endpoints you configure. These endpoints receive your network address and the data needed for the connection. Encryption depends on the protocol and endpoint.
+
+Direct camera connections use the camera addresses you choose. The optional Home Assistant integration uses the configured server address and access token. Reolink UID connections may involve mediation or relay services operated by the camera manufacturer. Their privacy information also applies. UID connections are not guaranteed to remain entirely within your home network.
+
+Settings are saved in the selected settings folder. Camera passwords entered in the dedicated password fields are protected using Windows data protection for the current user account. This does not encrypt all settings: the Home Assistant token and credentials embedded in stream addresses may be readable in settings files. The Reolink helper temporarily uses an access-restricted connection file containing credentials; it is removed during normal shutdown.
+
+Exported settings backups may contain sensitive connection data. Protect them against unauthorized access. Recordings are saved in the selected recording folder. Network folders or folders synchronized by other software may also store files on other devices or with a cloud provider you choose.
+
+Diagnostic files are exported at your request. The export removes certain secrets but may still contain technical details, camera hostnames or IP addresses. Review it before sharing. If you contact support, the publisher receives the contact details, messages and attachments you provide to handle your request. Do not send camera passwords or access tokens.
+
+You can remove connections in the app and delete settings, backups and recordings from their respective folders. Optional retention applies to the automatic recordings it manages. Uninstalling the app does not necessarily remove custom settings or recording folders. Delete these files separately if required.
+
+Contact support@dorisundmarcin.de with questions about processing by the publisher or to exercise your data protection rights. Subject to applicable law, these include access, rectification, erasure, restriction, portability and objection, and the right to complain to a data protection authority. Contact your camera manufacturer or other service provider about data they process.
+
+Microsoft manages installation, Store updates and any Windows or Microsoft Store diagnostic data. Microsoft's privacy information applies to those services.

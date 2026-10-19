@@ -1,0 +1,39 @@
+[
+  {
+    "package": "runtimepack.Microsoft.NETCore.App.Runtime.win-x64/8.0.32",
+    "checkedPayloadFiles": 179,
+    "excludedUnusedPlugins": []
+  },
+  {
+    "package": "runtimepack.Microsoft.WindowsDesktop.App.Runtime.win-x64/8.0.32",
+    "checkedPayloadFiles": 59,
+    "excludedUnusedPlugins": []
+  },
+  {
+    "package": "MQTTnet/4.3.7.1207",
+    "checkedPayloadFiles": 1,
+    "excludedUnusedPlugins": []
+  },
+  {
+    "package": "OpenCvSharp4/4.13.0.20260627",
+    "checkedPayloadFiles": 1,
+    "excludedUnusedPlugins": []
+  },
+  {
+    "package": "OpenCvSharp4.runtime.win/4.13.0.20260627",
+    "checkedPayloadFiles": 1,
+    "excludedUnusedPlugins": [
+      "opencv_videoio_ffmpeg4130_64.dll"
+    ]
+  },
+  {
+    "package": "System.Memory/4.6.3",
+    "checkedPayloadFiles": 0,
+    "excludedUnusedPlugins": []
+  },
+  {
+    "package": "System.Security.Cryptography.ProtectedData/8.0.0",
+    "checkedPayloadFiles": 0,
+    "excludedUnusedPlugins": []
+  }
+]

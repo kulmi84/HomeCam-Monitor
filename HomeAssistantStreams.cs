@@ -52,7 +52,7 @@ internal sealed class HomeAssistantStreams : IDisposable
     {
         if (!Uri.TryCreate(parent, path, out var uri) || uri.Scheme != origin.Scheme || uri.Host != origin.Host || uri.Port != origin.Port ||
             uri.UserInfo.Length > 0 || !uri.AbsolutePath.StartsWith(origin.AbsolutePath.TrimEnd('/') + "/api/hls/", StringComparison.Ordinal))
-            throw new InvalidDataException("HA-Stream verweist auf eine unerwartete Adresse.");
+            throw new InvalidDataException(UiText.T("HA-Stream verweist auf eine unerwartete Adresse."));
         return uri;
     }
     internal string Resource(Uri parent, string path)
@@ -93,7 +93,7 @@ internal sealed class HomeAssistantStreams : IDisposable
                     using var api = new HaApi(); await api.Connect(address, token, ignoreCertificate, cancel).ConfigureAwait(false);
                     var result = await api.Request("camera/stream", cancel, entity).ConfigureAwait(false);
                     var streamPath = result is { } value ? HaApi.Text(value, "url") : "";
-                    if (streamPath.Length == 0) throw new InvalidDataException("Kein HA-Stream.");
+                    if (streamPath.Length == 0) throw new InvalidDataException(UiText.T("Kein HA-Stream."));
                     upstream = SafeUri(origin, streamPath);
                 }
                 else if (path.StartsWith("resource/", StringComparison.Ordinal))

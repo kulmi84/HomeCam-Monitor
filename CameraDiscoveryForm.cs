@@ -6,9 +6,9 @@ internal sealed class CameraDiscoveryForm : Form
     private readonly ComboBox networks = new DarkComboBox { Name = "DiscoveryNetwork", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill };
     private readonly TextBox range = new() { Name = "DiscoveryRange", Dock = DockStyle.Fill };
     private readonly TextBox ports = new() { Name = "DiscoveryPorts", Text = "554,8554,10554", Dock = DockStyle.Fill };
-    private readonly Button discover = new() { Name = "StartCameraDiscovery", Text = "Kameras im Netzwerk suchen", AutoSize = true };
-    private readonly Button scan = new() { Name = "ScanRtspPorts", Text = "RTSP-Ports gezielt prüfen", AutoSize = true };
-    private readonly Button cancel = new() { Name = "CancelCameraDiscovery", Text = "Suche abbrechen", AutoSize = true, Enabled = false };
+    private readonly Button discover = new() { Name = "StartCameraDiscovery", Text = UiText.T("Kameras im Netzwerk suchen"), AutoSize = true };
+    private readonly Button scan = new() { Name = "ScanRtspPorts", Text = UiText.T("RTSP-Ports gezielt prüfen"), AutoSize = true };
+    private readonly Button cancel = new() { Name = "CancelCameraDiscovery", Text = UiText.T("Suche abbrechen"), AutoSize = true, Enabled = false };
     private readonly SettingsCameraGrid results = new() { Name = "DiscoveredCameras", Dock = DockStyle.Top, AllowUserToAddRows = false,
         AllowUserToDeleteRows = false, ReadOnly = true, RowHeadersVisible = false, MultiSelect = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect,
         AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, ScrollBars = ScrollBars.None };
@@ -16,11 +16,11 @@ internal sealed class CameraDiscoveryForm : Form
     private readonly TextBox username = new() { Name = "DiscoveryUsername", Text = "admin", Dock = DockStyle.Fill };
     private readonly TextBox password = new() { Name = "DiscoveryPassword", UseSystemPasswordChar = true, Dock = DockStyle.Fill };
     private readonly ComboBox profiles = new DarkComboBox { Name = "DiscoveredProfiles", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill };
-    private readonly TextBox stream = new() { Name = "DiscoveredStreamUrl", Dock = DockStyle.Fill, PlaceholderText = "RTSP-Pfad wählen oder eintragen; ein offener Port bestätigt noch keinen Stream." };
-    private readonly Button load = new() { Name = "LoadDiscoveredProfiles", Text = "ONVIF-Profile laden", AutoSize = true };
-    private readonly Button test = new() { Name = "TestDiscoveredStream", Text = "Verbindung testen", AutoSize = true };
-    private readonly Button take = new() { Name = "ImportDiscoveredCamera", Text = "Kamera übernehmen", AutoSize = true, Enabled = false };
-    private readonly Label status = new() { Name = "DiscoveryStatus", Text = "Netzwerkadapter und Bereich wählen. Es wird erst nach Klick gesucht.", AutoSize = true, MaximumSize = new Size(850, 0) };
+    private readonly TextBox stream = new() { Name = "DiscoveredStreamUrl", Dock = DockStyle.Fill, PlaceholderText = UiText.T("RTSP-Pfad wählen oder eintragen; ein offener Port bestätigt noch keinen Stream.") };
+    private readonly Button load = new() { Name = "LoadDiscoveredProfiles", Text = UiText.T("ONVIF-Profile laden"), AutoSize = true };
+    private readonly Button test = new() { Name = "TestDiscoveredStream", Text = UiText.T("Verbindung testen"), AutoSize = true };
+    private readonly Button take = new() { Name = "ImportDiscoveredCamera", Text = UiText.T("Kamera übernehmen"), AutoSize = true, Enabled = false };
+    private readonly Label status = new() { Name = "DiscoveryStatus", Text = UiText.T("Netzwerkadapter und Bereich wählen. Es wird erst nach Klick gesucht."), AutoSize = true, MaximumSize = new Size(850, 0) };
     private readonly Dictionary<string, DataGridViewRow> found = new(StringComparer.OrdinalIgnoreCase);
     private readonly CancellationTokenSource closed = new();
     private CancellationTokenSource? operation;
@@ -32,7 +32,7 @@ internal sealed class CameraDiscoveryForm : Form
 
     internal CameraDiscoveryForm()
     {
-        Text = "Kameras im Netzwerk suchen"; Name = "CameraDiscovery";
+        Text = UiText.T("Kameras im Netzwerk suchen"); Name = "CameraDiscovery";
         StartPosition = FormStartPosition.CenterParent; Size = new Size(1050, 820); MinimumSize = new Size(900, 720);
         ShowInTaskbar = false; Icon = ApplicationBranding.WindowIcon;
         var root = new SettingsLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(12) };
@@ -43,26 +43,26 @@ internal sealed class CameraDiscoveryForm : Form
         scope.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); scope.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         void Field(TableLayoutPanel panel, string label, Control control, int row)
         { panel.Controls.Add(new Label { Text = label, AutoSize = true, Anchor = AnchorStyles.Left }, 0, row); panel.Controls.Add(control, 1, row); }
-        Field(scope, "Netzwerkadapter:", networks, 0); Field(scope, "IPv4-Bereich (CIDR):", range, 1); Field(scope, "RTSP-Ports (TCP):", ports, 2);
+        Field(scope, UiText.T("Netzwerkadapter:"), networks, 0); Field(scope, UiText.T("IPv4-Bereich (CIDR):"), range, 1); Field(scope, "RTSP-Ports (TCP):", ports, 2);
         var actions = new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true };
         actions.Controls.AddRange([discover, scan, cancel]); scope.Controls.Add(actions, 0, 3); scope.SetColumnSpan(actions, 2);
-        scope.Controls.Add(new Label { Text = "ONVIF: lokale Multicast-Suche. Hersteller/Modell werden nach Anmeldung über „ONVIF-Profile laden“ abgefragt. Portsuche: nur gewählter Bereich (max. 4096 IPv4-Adressen).", AutoSize = true,
+        scope.Controls.Add(new Label { Text = UiText.T("ONVIF: lokale Multicast-Suche. Hersteller/Modell werden nach Anmeldung über „ONVIF-Profile laden“ abgefragt. Portsuche: nur gewählter Bereich (max. 4096 IPv4-Adressen)."), AutoSize = true,
             MaximumSize = new Size(850, 0) }, 0, 4); scope.SetColumnSpan(scope.GetControlFromPosition(0, 4)!, 2);
         root.Controls.Add(scope, 0, 0);
-        foreach (var name in new[] { "Name / Modell", "Hersteller", "IP-Adresse", "Fund / Prüfstatus" }) results.Columns.Add(name, name);
+        foreach (var name in new[] { UiText.T("Name / Modell"), UiText.T("Hersteller"), UiText.T("IP-Adresse"), UiText.T("Fund / Prüfstatus") }) results.Columns.Add(name, name);
         results.Columns[3].FillWeight = 180;
         var scrolling = new ModernSettingsScrollArea { Dock = DockStyle.Fill, Name = "DiscoveryResultsScroll" };
         scrolling.SetContent(results); root.Controls.Add(scrolling, 0, 1);
         results.RowsAdded += (_, _) => results.Height = results.ColumnHeadersHeight + results.Rows.Cast<DataGridViewRow>().Sum(r => r.Height) + 4;
         var details = new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
         details.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); details.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        Field(details, "ONVIF-Adresse:", device, 0); Field(details, "Kamera-Benutzer:", username, 1); Field(details, "Kamera-Passwort:", password, 2);
-        Field(details, "Stream-Profil:", profiles, 3); Field(details, "RTSP-Adresse:", stream, 4);
+        Field(details, UiText.T("ONVIF-Adresse:"), device, 0); Field(details, UiText.T("Kamera-Benutzer:"), username, 1); Field(details, UiText.T("Kamera-Passwort:"), password, 2);
+        Field(details, UiText.T("Stream-Profil:"), profiles, 3); Field(details, UiText.T("RTSP-Adresse:"), stream, 4);
         var detailActions = new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true };
         detailActions.Controls.AddRange([load, test]); details.Controls.Add(detailActions, 1, 5);
         root.Controls.Add(details, 0, 2); root.Controls.Add(status, 0, 3);
         var footer = new SettingsFlowPanel { AutoSize = true, Dock = DockStyle.Top, FlowDirection = FlowDirection.RightToLeft };
-        var close = new Button { Text = "Schließen", AutoSize = true, DialogResult = DialogResult.Cancel };
+        var close = new Button { Text = UiText.T("Schließen"), AutoSize = true, DialogResult = DialogResult.Cancel };
         footer.Controls.AddRange([close, take]); root.Controls.Add(footer, 0, 4);
         Controls.Add(root); CancelButton = close;
         networks.SelectedIndexChanged += (_, _) =>
@@ -70,7 +70,7 @@ internal sealed class CameraDiscoveryForm : Form
             if (networks.SelectedItem is CameraNetwork network) range.Text = $"{network.Address}/{Math.Max(network.Prefix, 24)}";
         };
         try { foreach (var network in CameraNetwork.Available()) networks.Items.Add(network); if (networks.Items.Count > 0) networks.SelectedIndex = 0; }
-        catch (System.Net.NetworkInformation.NetworkInformationException) { status.Text = "Netzwerkadapter konnten nicht gelesen werden."; }
+        catch (System.Net.NetworkInformation.NetworkInformationException) { status.Text = UiText.T("Netzwerkadapter konnten nicht gelesen werden."); }
         discover.Click += async (_, _) => await Run(Discover);
         scan.Click += async (_, _) => await Run(Scan);
         cancel.Click += (_, _) => operation?.Cancel();
@@ -82,7 +82,7 @@ internal sealed class CameraDiscoveryForm : Form
         take.Click += (_, _) =>
         {
             if (verified is null || Selected is not { } selected) return;
-            Result = new CameraEntry { Name = selected.Name.Length > 0 ? selected.Name : "Netzwerk " + selected.Address,
+            Result = new CameraEntry { Name = selected.Name.Length > 0 ? selected.Name : UiText.T("Netzwerk ") + selected.Address,
                 Active = true, MotionEnabled = false, PersonEnabled = false, RecordingEnabled = false, Direct = verified.Clone() };
             Result.StreamUrl = Result.Direct.StreamUrl(); DialogResult = DialogResult.OK; Close();
         };
@@ -97,7 +97,7 @@ internal sealed class CameraDiscoveryForm : Form
             ref darkTitleBar, sizeof(int));
     }
     internal static string ManufacturerText(NetworkCameraCandidate camera) => camera.Manufacturer.Length > 0
-        ? camera.Manufacturer : camera.DeviceUrl.Length > 0 ? "Noch nicht abgefragt" : "Ohne ONVIF unbekannt";
+        ? camera.Manufacturer : camera.DeviceUrl.Length > 0 ? UiText.T("Noch nicht abgefragt") : UiText.T("Ohne ONVIF unbekannt");
     private void LoadSelection()
     {
         verified = null; profiles.Items.Clear(); password.Clear(); stream.Clear();
@@ -121,9 +121,9 @@ internal sealed class CameraDiscoveryForm : Form
         using var current = CancellationTokenSource.CreateLinkedTokenSource(closed.Token);
         operation = current; SetBusy(true);
         try { await action(current.Token); }
-        catch (OperationCanceledException) { if (!IsDisposed) status.Text = "Vorgang abgebrochen; bisherige Funde bleiben erhalten."; }
+        catch (OperationCanceledException) { if (!IsDisposed) status.Text = UiText.T("Vorgang abgebrochen; bisherige Funde bleiben erhalten."); }
         catch (Exception e) when (e is ArgumentException or InvalidDataException or IOException or System.ComponentModel.Win32Exception or System.Net.Http.HttpRequestException or System.Security.Cryptography.CryptographicException or System.Xml.XmlException or InvalidOperationException)
-        { if (!IsDisposed) status.Text = e is ArgumentException or InvalidDataException ? e.Message : "Netzwerkzugriff oder Anmeldung fehlgeschlagen. Erreichbarkeit, Freigabe und Kamera-Zugangsdaten prüfen."; }
+        { if (!IsDisposed) status.Text = e is ArgumentException or InvalidDataException ? e.Message : UiText.T("Netzwerkzugriff oder Anmeldung fehlgeschlagen. Erreichbarkeit, Freigabe und Kamera-Zugangsdaten prüfen."); }
         finally { operation = null; if (!IsDisposed) SetBusy(false); }
     }
     private IProgress<NetworkCameraCandidate> Updates(CancellationToken token) => new Progress<NetworkCameraCandidate>(candidate =>
@@ -142,71 +142,71 @@ internal sealed class CameraDiscoveryForm : Form
         }
         else { var index = results.Rows.Add(); row = results.Rows[index]; found.Add(key, row); }
         row.Tag = candidate;
-        row.SetValues(candidate.Name.Length > 0 ? candidate.Name : "Noch unbekannt", ManufacturerText(candidate), key, candidate.Status);
+        row.SetValues(candidate.Name.Length > 0 ? candidate.Name : UiText.T("Noch unbekannt"), ManufacturerText(candidate), key, candidate.Status);
         if (ReferenceEquals(results.CurrentRow, row)) LoadSelection();
     }
     private async Task Discover(CancellationToken token)
     {
-        if (networks.SelectedItem is not CameraNetwork network) throw new ArgumentException("Netzwerkadapter auswählen.");
+        if (networks.SelectedItem is not CameraNetwork network) throw new ArgumentException(UiText.T("Netzwerkadapter auswählen."));
         var scope = CameraNetworkRange.Parse(range.Text); searchedRange = scope;
         found.Clear(); results.Rows.Clear(); verified = null;
-        status.Text = "ONVIF-Suche läuft …";
+        status.Text = UiText.T("ONVIF-Suche läuft …");
         await NetworkCameraDiscovery.Discover(network.Address, scope, Updates(token), token);
         token.ThrowIfCancellationRequested();
-        status.Text = found.Count == 0 ? "Keine ONVIF-Antwort. Optional den Bereich mit „RTSP-Ports gezielt prüfen“ untersuchen. Multicast erreicht andere VLANs üblicherweise nicht." : $"ONVIF-Suche beendet: {found.Count} Gerät(e). Für Hersteller und Stream-Profile: Gerät wählen, Kamera-Zugangsdaten eintragen und „ONVIF-Profile laden“ klicken.";
+        status.Text = found.Count == 0 ? UiText.T("Keine ONVIF-Antwort. Optional den Bereich mit „RTSP-Ports gezielt prüfen“ untersuchen. Multicast erreicht andere VLANs üblicherweise nicht.") : UiText.F("ONVIF-Suche beendet: {0} Gerät(e). Für Hersteller und Stream-Profile: Gerät wählen, Kamera-Zugangsdaten eintragen und „ONVIF-Profile laden“ klicken.", found.Count);
     }
     private async Task Scan(CancellationToken token)
     {
-        if (networks.SelectedItem is not CameraNetwork network) throw new ArgumentException("Netzwerkadapter auswählen.");
+        if (networks.SelectedItem is not CameraNetwork network) throw new ArgumentException(UiText.T("Netzwerkadapter auswählen."));
         var scope = CameraNetworkRange.Parse(range.Text); var selectedPorts = NetworkCameraDiscovery.ParsePorts(ports.Text);
         if (searchedRange is not null && scope.Key != searchedRange.Key)
         { found.Clear(); results.Rows.Clear(); }
         searchedRange = scope;
         var total = scope.Count * selectedPorts.Length;
-        status.Text = $"Portsuche läuft: {scope.Count} Adressen, {selectedPorts.Length} Port(s) …";
-        var count = new Progress<int>(n => { if (!IsDisposed && !token.IsCancellationRequested && (n % 16 == 0 || n == total)) status.Text = $"Portsuche: {n}/{total} geprüft. {found.Count} Kandidat(en)."; });
+        status.Text = UiText.F("Portsuche läuft: {0} Adressen, {1} Port(s) …", scope.Count, selectedPorts.Length);
+        var count = new Progress<int>(n => { if (!IsDisposed && !token.IsCancellationRequested && (n % 16 == 0 || n == total)) status.Text = UiText.F("Portsuche: {0}/{1} geprüft. {2} Kandidat(en).", n, total, found.Count); });
         var updates = Updates(token); // Capture the UI synchronization context before Task.Run.
         await Task.Run(() => NetworkCameraDiscovery.ScanPorts(scope, selectedPorts, updates, count, token, network.Address), token);
         token.ThrowIfCancellationRequested();
-        status.Text = $"Portsuche beendet: {found.Count} Kandidat(en). Offene Ports sind keine bestätigten Streams. RTSP-Pfad eintragen und Verbindung testen.";
+        status.Text = UiText.F("Portsuche beendet: {0} Kandidat(en). Offene Ports sind keine bestätigten Streams. RTSP-Pfad eintragen und Verbindung testen.", found.Count);
     }
     private async Task LoadProfiles(CancellationToken token)
     {
         if (Selected is not { DeviceUrl.Length: > 0 } selected) return;
-        status.Text = "ONVIF-Anmeldung und Profile werden geprüft …"; verified = null;
+        status.Text = UiText.T("ONVIF-Anmeldung und Profile werden geprüft …"); verified = null;
         using var limit = CancellationTokenSource.CreateLinkedTokenSource(token); limit.CancelAfter(TimeSpan.FromSeconds(60));
         token = limit.Token;
         using var client = new OnvifClient(username.Text.Trim(), password.Text, true);
         var values = await client.Profiles(selected.DeviceUrl, token);
         token.ThrowIfCancellationRequested();
         profiles.Items.Clear(); foreach (var profile in values) profiles.Items.Add(profile); profiles.SelectedIndex = 0;
-        var metadataStatus = "Hersteller konnte nicht abgefragt werden.";
+        var metadataStatus = UiText.T("Hersteller konnte nicht abgefragt werden.");
         try
         {
             var info = await client.Information(selected.DeviceUrl, token); token.ThrowIfCancellationRequested();
             var updated = selected with { Manufacturer = info.Manufacturer.Length > 0 ? info.Manufacturer : selected.Manufacturer, Name = selected.Name.Length > 0 ? selected.Name : info.Model };
             results.CurrentRow!.Tag = updated;
-            results.CurrentRow.Cells[0].Value = updated.Name; results.CurrentRow.Cells[1].Value = updated.Manufacturer.Length > 0 ? updated.Manufacturer : "Nicht gemeldet";
-            metadataStatus = updated.Manufacturer.Length > 0 ? "Hersteller: " + updated.Manufacturer + "." : "Die Kamera meldet keinen Hersteller.";
+            results.CurrentRow.Cells[0].Value = updated.Name; results.CurrentRow.Cells[1].Value = updated.Manufacturer.Length > 0 ? updated.Manufacturer : UiText.T("Nicht gemeldet");
+            metadataStatus = updated.Manufacturer.Length > 0 ? UiText.T("Hersteller: ") + updated.Manufacturer + "." : UiText.T("Die Kamera meldet keinen Hersteller.");
         }
         catch (Exception e) when (e is InvalidDataException or System.Net.Http.HttpRequestException) { } // Device metadata is optional.
-        status.Text = $"{values.Count} Profil(e) geladen. {metadataStatus} Profil wählen und „Verbindung testen“ ausführen.";
+        status.Text = UiText.F("{0} Profil(e) geladen. {1} Profil wählen und „Verbindung testen“ ausführen.", values.Count, metadataStatus);
     }
     private DirectCamera Configuration()
     {
         if (Selected is not { } selected || !Uri.TryCreate(stream.Text.Trim(), UriKind.Absolute, out var url) || url.Scheme is not ("rtsp" or "rtsps") ||
             !System.Net.IPAddress.TryParse(url.Host, out var address) || !address.Equals(selected.Address))
-            throw new ArgumentException("Eine RTSP-Adresse mit dem Stream-Pfad dieses Geräts eintragen oder ein ONVIF-Profil wählen.");
-        if (url.UserInfo.Length > 0) throw new ArgumentException("Zugangsdaten bitte ausschließlich in Benutzer- und Passwortfeld eintragen.");
+            throw new ArgumentException(UiText.T("Eine RTSP-Adresse mit dem Stream-Pfad dieses Geräts eintragen oder ein ONVIF-Profil wählen."));
+        if (url.UserInfo.Length > 0) throw new ArgumentException(UiText.T("Zugangsdaten bitte ausschließlich in Benutzer- und Passwortfeld eintragen."));
         return new DirectCamera { Enabled = true, DeviceUrl = selected.DeviceUrl, Username = username.Text.Trim(), ProtectedPassword = CameraPassword.Protect(password.Text),
             RtspUrl = url.AbsoluteUri, ProfileToken = (profiles.SelectedItem as OnvifProfile)?.Token ?? "", DiscoveryId = selected.DeviceUrl.Length > 0 ? selected.Identity : "" };
     }
     private async Task Test(CancellationToken token)
     {
-        verified = null; var config = Configuration(); status.Text = "Videobild wird geprüft (max. 25 Sekunden) …";
+        verified = null; var config = Configuration(); status.Text = UiText.T("Videobild wird geprüft (max. 25 Sekunden) …");
         var success = await CameraStreamTest.DecodeFrame(config.StreamUrl(), token); token.ThrowIfCancellationRequested();
-        if (success) { verified = config; status.Text = "Videobild empfangen – Stream bestätigt. Die Kamera kann übernommen werden."; results.CurrentRow!.Cells[3].Value = "Videostream bestätigt"; }
-        else status.Text = "Kein Videobild empfangen. Pfad, Kamera-Zugangsdaten und RTSP-Freigabe prüfen.";
+        if (success) { verified = config; status.Text = UiText.T("Videobild empfangen – Stream bestätigt. Die Kamera kann übernommen werden."); results.CurrentRow!.Cells[3].Value = UiText.T("Videostream bestätigt"); }
+        else status.Text = UiText.T("Kein Videobild empfangen. Pfad, Kamera-Zugangsdaten und RTSP-Freigabe prüfen.");
     }
     protected override void OnFormClosing(FormClosingEventArgs e) { if (!closed.IsCancellationRequested) closed.Cancel(); base.OnFormClosing(e); }
     protected override void Dispose(bool disposing) { if (disposing) { if (!closed.IsCancellationRequested) closed.Cancel(); closed.Dispose(); } base.Dispose(disposing); }

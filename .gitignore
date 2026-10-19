@@ -1,4 +1,5 @@
 bin/
+store-artifacts/
 obj/
 publish/
 *.user

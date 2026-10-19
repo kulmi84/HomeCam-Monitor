@@ -5,13 +5,13 @@ internal sealed class ReolinkEditor : GroupBox
 {
     private readonly DataGridView cameras;
     private DataGridViewRow? selected;
-    private readonly CheckBox enabled = new() { Text = "Direkt über Reolink-UID verbinden", AutoSize = true };
+    private readonly CheckBox enabled = new() { Text = UiText.T("Direkt über Reolink-UID verbinden"), AutoSize = true };
     private readonly TextBox uid = new() { Dock = DockStyle.Fill };
     private readonly TextBox username = new() { Dock = DockStyle.Fill };
     private readonly TextBox password = new() { Dock = DockStyle.Fill, UseSystemPasswordChar = true };
     private readonly ComboBox stream = new DarkComboBox() { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
     private readonly Label status = new() { AutoSize = true };
-    private readonly Button test = new() { Text = "Verbindung testen", AutoSize = true };
+    private readonly Button test = new() { Text = UiText.T("Verbindung testen"), AutoSize = true };
     private readonly TextBox helper = new() { Dock = DockStyle.Fill };
     private readonly System.Windows.Forms.Timer timer = new() { Interval = 1000 };
     private bool loading;
@@ -56,22 +56,22 @@ internal sealed class ReolinkEditor : GroupBox
             if (e.RowIndex >= 0 && e.ColumnIndex == cameras.Columns["StreamUrl"].Index &&
                 cameras.Rows[e.RowIndex].Tag is ReolinkCamera { Enabled: true } config)
             {
-                e.Value = config.Stream == "mainStream" ? "Reolink – hohe Auflösung" : "Reolink – flüssig";
+                e.Value = config.Stream == "mainStream" ? UiText.T("Reolink – hohe Auflösung") : UiText.T("Reolink – flüssig");
                 e.FormattingApplied = true;
             }
         };
         Name = "ReolinkConnection";
-        Text = "Reolink – direkte UID-Verbindung";
+        Text = UiText.T("Reolink – direkte UID-Verbindung");
         Dock = DockStyle.Top; AutoSize = true; AutoSizeMode = AutoSizeMode.GrowAndShrink; Padding = new Padding(10, 18, 10, 10);
         for (var i = 0; i < settings.Cameras.Count; i++)
             cameras.Rows[i].Tag = settings.Cameras[i].Reolink.Clone();
         helper.Text = settings.ReolinkHelperPath;
-        stream.Items.AddRange(["Flüssig (Substream)", "Hohe Auflösung (Hauptstream)"]);
+        stream.Items.AddRange([UiText.T("Flüssig (Substream)"), UiText.T("Hohe Auflösung (Hauptstream)")]);
         var fields = new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
         fields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         fields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         fields.Controls.Add(enabled, 0, 0); fields.SetColumnSpan(enabled, 2);
-        var addCamera = new Button { Name = "AddReolinkCamera", Text = "Reolink-Kamera hinzufügen", AutoSize = true };
+        var addCamera = new Button { Name = "AddReolinkCamera", Text = UiText.T("Reolink-Kamera hinzufügen"), AutoSize = true };
         var connectionOptions = new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true };
         fields.Controls.Remove(enabled);
         connectionOptions.Controls.Add(addCamera); connectionOptions.Controls.Add(enabled);
@@ -82,11 +82,11 @@ internal sealed class ReolinkEditor : GroupBox
             fields.Controls.Add(new Label { Text = label, AutoSize = true, Anchor = AnchorStyles.Left }, 0, row);
             fields.Controls.Add(control, 1, row);
         }
-        Field("Kamera-UID:", uid, 1);
-        Field("Kamera-Benutzername:", username, 2);
-        Field("Kamera-Passwort:", password, 3);
-        Field("Bildqualität:", stream, 4);
-        Field("Verbindung:", status, 5);
+        Field(UiText.T("Kamera-UID:"), uid, 1);
+        Field(UiText.T("Kamera-Benutzername:"), username, 2);
+        Field(UiText.T("Kamera-Passwort:"), password, 3);
+        Field(UiText.T("Bildqualität:"), stream, 4);
+        Field(UiText.T("Verbindung:"), status, 5);
         var statusRow = new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true };
         fields.Controls.Remove(status);
         statusRow.Controls.Add(test); statusRow.Controls.Add(status);
@@ -98,7 +98,7 @@ internal sealed class ReolinkEditor : GroupBox
             try { config.Validate(); }
             catch (ArgumentException error) { status.Text = error.Message; return; }
             test.Enabled = false; timer.Stop();
-            var entry = new CameraEntry { Name = "Verbindungstest", Reolink = config.Clone() };
+            var entry = new CameraEntry { Name = UiText.T("Verbindungstest"), Reolink = config.Clone() };
             var done = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
             using var bridge = new ReolinkBridge([entry], HelperPath);
             testBridge = bridge;
@@ -106,13 +106,13 @@ internal sealed class ReolinkEditor : GroupBox
             {
                 if (!IsDisposed && IsHandleCreated)
                     BeginInvoke(new Action(() => { if (!IsDisposed && testBridge == bridge) status.Text = text; }));
-                if (text == "Verbunden" || ReolinkDiagnostics.IsFailure(text) || text.Contains("fehlt", StringComparison.Ordinal) || text.Contains("konnte nicht", StringComparison.Ordinal) || text.Contains("prüfen", StringComparison.Ordinal))
+                if (text == UiText.T("Verbunden") || ReolinkDiagnostics.IsFailure(text) || text.Contains("fehlt", StringComparison.Ordinal) || text.Contains("konnte nicht", StringComparison.Ordinal) || text.Contains("prüfen", StringComparison.Ordinal))
                     done.TrySetResult(text);
             };
-            status.Text = "Verbindung wird geprüft …";
+            status.Text = UiText.T("Verbindung wird geprüft …");
             bridge.Start();
             try { status.Text = await done.Task.WaitAsync(TimeSpan.FromSeconds(120), closed.Token); }
-            catch (TimeoutException) { status.Text = "Zeitlimit nach 120 s. Letzter Schritt: " + status.Text; }
+            catch (TimeoutException) { status.Text = UiText.T("Zeitlimit nach 120 s. Letzter Schritt: ") + status.Text; }
             catch (OperationCanceledException) { }
             finally
             {
@@ -122,21 +122,21 @@ internal sealed class ReolinkEditor : GroupBox
             }
             // Keep the test result visible until another camera is selected.
         };
-        var browse = new Button { Text = "Auswählen …", AutoSize = true };
+        var browse = new Button { Text = UiText.T("Auswählen …"), AutoSize = true };
         var helperRow = new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
         helperRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         helperRow.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         helperRow.Controls.Add(helper, 0, 0); helperRow.Controls.Add(browse, 1, 0);
-        Field("Verbindungsdienst:", helperRow, 6);
+        Field(UiText.T("Verbindungsdienst:"), helperRow, 6);
         browse.Click += (_, _) =>
         {
             using var dialog = new OpenFileDialog { Filter = "Neolink (neolink.exe)|neolink.exe", CheckFileExists = true };
             if (dialog.ShowDialog(this) == DialogResult.OK) helper.Text = dialog.FileName;
         };
         var hint = new Label { AutoSize = true, MaximumSize = new Size(700, 0), Margin = new Padding(3, 8, 3, 4),
-            Text = "UID: Reolink-App → Geräteinformationen. Benutzer und Passwort gehören zur Kamera. " +
-                "Nach Speichern startet die Verbindung automatisch. Ein leeres Passwortfeld behält das gespeicherte Passwort. " +
-                "Über UID wird allgemeine Bewegung übertragen. Personenereignisse sind über Home Assistant mit geeigneter Entität möglich. Fahrzeugfilter sind nicht enthalten." };
+            Text = UiText.T("UID: Reolink-App → Geräteinformationen. Benutzer und Passwort gehören zur Kamera. ") +
+                UiText.T("Nach Speichern startet die Verbindung automatisch. Ein leeres Passwortfeld behält das gespeicherte Passwort. ") +
+                UiText.T("Über UID wird allgemeine Bewegung übertragen. Personenereignisse sind über Home Assistant mit geeigneter Entität möglich. Fahrzeugfilter sind nicht enthalten.") };
         fields.Controls.Add(hint, 0, 7); fields.SetColumnSpan(hint, 2);
         Controls.Add(fields);
         cameras.SelectionChanged += (_, _) => SelectCamera();
@@ -201,7 +201,7 @@ internal sealed class ReolinkEditor : GroupBox
             enabled.Enabled = true;
             enabled.Checked = selected is not null && config.Enabled;
             uid.Text = config.Uid; username.Text = config.Username; password.Text = "";
-            password.PlaceholderText = config.ProtectedPassword.Length > 0 ? "Gespeichert – zum Ändern eingeben" : "Kamera-Passwort";
+            password.PlaceholderText = config.ProtectedPassword.Length > 0 ? UiText.T("Gespeichert – zum Ändern eingeben") : UiText.T("Kamera-Passwort");
             stream.SelectedIndex = config.Stream == "mainStream" ? 1 : 0;
             if (selected is not null)
             {
@@ -243,9 +243,9 @@ internal sealed class ReolinkEditor : GroupBox
     }
     private void UpdateStatus()
     {
-        var text = selected is not null && !Convert.ToBoolean(selected.Cells["Active"].Value ?? true) ? "Kamera deaktiviert" :
+        var text = selected is not null && !Convert.ToBoolean(selected.Cells["Active"].Value ?? true) ? UiText.T("Kamera deaktiviert") :
             selected?.Tag is ReolinkCamera { Enabled: true } config
-            ? ReolinkStatus.Read(config.Id) : "UID-Verbindung nicht aktiviert";
+            ? ReolinkStatus.Read(config.Id) : UiText.T("UID-Verbindung nicht aktiviert");
         if (status.Text != text) status.Text = text;
     }
     protected override void Dispose(bool disposing)
@@ -259,7 +259,7 @@ internal static class ReolinkStatus
 {
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> Values = new();
     internal static void Write(string id, string status) => Values[id] = status;
-    internal static string Read(string id) => Values.GetValueOrDefault(id, "Nach Speichern verbinden …");
+    internal static string Read(string id) => Values.GetValueOrDefault(id, UiText.T("Nach Speichern verbinden …"));
 }
 
 internal sealed partial class MonitorForm
@@ -289,7 +289,7 @@ internal sealed partial class MonitorForm
         catch (ArgumentException)
         {
             foreach (var camera in settings.Cameras.Where(c => c.Active && c.Reolink.Enabled))
-                ReolinkStatus.Write(camera.Reolink.Id, "Kamera-Konfiguration prüfen");
+                ReolinkStatus.Write(camera.Reolink.Id, UiText.T("Kamera-Konfiguration prüfen"));
             return true;
         }
         reolink = bridge;

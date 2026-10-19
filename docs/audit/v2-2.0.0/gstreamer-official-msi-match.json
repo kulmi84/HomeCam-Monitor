@@ -1,0 +1,5077 @@
+{
+  "msiSha256": "31cbc21fa0950b5c1e79c80959b2799805cb05a7a35953a13a9f790776137605",
+  "files": [
+    {
+      "path": "bin/ass-9.dll",
+      "sha256": "be3dc122b937e8b06d6ed5e1afc91dcd5ec9f20249a679656b0f09552f1df1e3"
+    },
+    {
+      "path": "bin/avcodec-61.dll",
+      "sha256": "d871f203550e02de688e5aa17323b2ffb8365f2f6fe4603f330eb450d5cadc19"
+    },
+    {
+      "path": "bin/avfilter-10.dll",
+      "sha256": "ae40b79002b86c1e563f3f0374cc0adabfbcc3b0c90c78ea07dce1ef5db7f42d"
+    },
+    {
+      "path": "bin/avformat-61.dll",
+      "sha256": "3dfd6b1a561d005748ceb07df01354668c7765609b1c44836a663be9275e9d0d"
+    },
+    {
+      "path": "bin/avutil-59.dll",
+      "sha256": "d20ee7c1dec0f4211360efb17bc7220863d2ac3b7bb20c7b2c1db0d14d592fc2"
+    },
+    {
+      "path": "bin/bz2.dll",
+      "sha256": "3de90277f29a6324abcf28c5e4a075f2d010be32276b9e1740abec23be860c6f"
+    },
+    {
+      "path": "bin/cairo-2.dll",
+      "sha256": "4827d0495e03e2a00a4bf0c7604edaf16aad9959221bb8bfe1c096f2573c29be"
+    },
+    {
+      "path": "bin/cairo-gobject-2.dll",
+      "sha256": "89b4e8c365a0139a5f117e59f256b233e3cde5ae57a6fd969d1d15bec20ffb70"
+    },
+    {
+      "path": "bin/cairo-script-interpreter-2.dll",
+      "sha256": "c67dd4056aa2db6d9790d446bdedffbc917daa98ba5ab4949bf4df1e56380f32"
+    },
+    {
+      "path": "bin/dav1d.dll",
+      "sha256": "c11db81067c83cd0f740b21ed58a1104b20ba9cd7d6497778cdd06ec7851d351"
+    },
+    {
+      "path": "bin/dca-0.dll",
+      "sha256": "c58a2c35891d972a293c8f4f184df6badc9c007b7b422fc3521190d17a9e31a7"
+    },
+    {
+      "path": "bin/dv-4.dll",
+      "sha256": "11635a4d45459e3da81243301962554bcb15dec4e107939eb417e915b679a0b7"
+    },
+    {
+      "path": "bin/ffi-7.dll",
+      "sha256": "7d38c1319a2209a6293703bc605172cc64f24bece7f67e115520079b4b3b2058"
+    },
+    {
+      "path": "bin/FLAC-8.dll",
+      "sha256": "2e9d4b613075504117b678fb0783afef24c099f512b281b09e27e68826e663a6"
+    },
+    {
+      "path": "bin/fontconfig-1.dll",
+      "sha256": "dcfc5734fae0a762675d2fe34a4639e164e145ddb692c654882d45cee08bdcbd"
+    },
+    {
+      "path": "bin/freetype-6.dll",
+      "sha256": "5abeb2dbaffdf6846271178ef2912829d22e15c165db4688c79fac610592dd06"
+    },
+    {
+      "path": "bin/fribidi-0.dll",
+      "sha256": "aae8c46b0e4e67b43633def3ea1a364ad20b300d9b60d064f119332daf5047bf"
+    },
+    {
+      "path": "bin/gdbus.exe",
+      "sha256": "7f81d59eac8b913fdd7b20ed9d8423b5fc204af1e91c8426a4a363464dc4a619"
+    },
+    {
+      "path": "bin/gdk-pixbuf-csource.exe",
+      "sha256": "5738ab4d0be99229dd4d4aed85ba746c3f3f83ca8bcb8221279fc080108592c8"
+    },
+    {
+      "path": "bin/gdk-pixbuf-query-loaders.exe",
+      "sha256": "f4a46fa9d35a0b33257ee3a2f1b0d97104ac5911de58477df648f07e3ea8b738"
+    },
+    {
+      "path": "bin/gdk_pixbuf-2.0-0.dll",
+      "sha256": "b34e6f58dd00ea1ac29cd9d50f6f227d3596fcae02bb18a6f9bed88d8e398192"
+    },
+    {
+      "path": "bin/ges-1.0-0.dll",
+      "sha256": "aa897f4766ba5cdacfa5a5f600cb0e0a47e4bc9029a0336b430448e6d2876264"
+    },
+    {
+      "path": "bin/ges-launch-1.0.exe",
+      "sha256": "88b932c940e388ecc25c6b66f957779aba9650a7366b7220075069772fb78e32"
+    },
+    {
+      "path": "bin/gio-2.0-0.dll",
+      "sha256": "54a725774a57a19cfeaf98cde26d9ec8783aa396caec1b058718de4190acca32"
+    },
+    {
+      "path": "bin/gio-querymodules.exe",
+      "sha256": "5267aef243182677edecc14cf41f92a5329f89f70ea6d86fe186aef1b8c8e510"
+    },
+    {
+      "path": "bin/girepository-1.0-1.dll",
+      "sha256": "c034eb8d978178f9f25d7db84bcc3e7662887cdeb1f8fc607bd2d9671728e919"
+    },
+    {
+      "path": "bin/glib-2.0-0.dll",
+      "sha256": "52ffcad1def38b1dfaa8a4aeb7abedf3f24b0825ff16cc168d25152a010eb4a4"
+    },
+    {
+      "path": "bin/glib-compile-schemas.exe",
+      "sha256": "4a600ad8963fda67aa99a1cf5c5a91c6abb1c9300a7f605887163e58bf1baa30"
+    },
+    {
+      "path": "bin/gmodule-2.0-0.dll",
+      "sha256": "a5fc50c81d3c0f6d4409677358a439d3e2810e0af4a0ddb46f5948c3e3faebdd"
+    },
+    {
+      "path": "bin/gobject-2.0-0.dll",
+      "sha256": "8306cc2c7ba5d1b64804784335015cb65ccd85296a64e9b55a027288868ef97a"
+    },
+    {
+      "path": "bin/graphene-1.0-0.dll",
+      "sha256": "d73f4bb3a299642e0c2cb0f2cf44668f244428467500045e72dcfd939a996711"
+    },
+    {
+      "path": "bin/gsettings.exe",
+      "sha256": "3f13c6f338361b92c7323290eec2e876a6575a9b7af9d6e34a64f0e5152e983d"
+    },
+    {
+      "path": "bin/gspawn-win64-helper-console.exe",
+      "sha256": "c1cf1b6efe28b3fe1e2f3bc7a13b5092ded12a817f752ffde064e5c626dabf49"
+    },
+    {
+      "path": "bin/gspawn-win64-helper.exe",
+      "sha256": "01ea1074a59cf94940a16526c0807a28c3b2747402ac04a5d06767f2a1b3face"
+    },
+    {
+      "path": "bin/gst-device-monitor-1.0.exe",
+      "sha256": "5c0179df3743206b4a5e2bca2a7ae7677e38a8e142f6969dee4025fe473b946d"
+    },
+    {
+      "path": "bin/gst-discoverer-1.0.exe",
+      "sha256": "445cd0ab068f559a057b793ebc1beed9cd44a6d722c83ee171b1308e9ed0a44f"
+    },
+    {
+      "path": "bin/gst-dots-viewer.exe",
+      "sha256": "bf5398b4f8d8f8cab033c9cb65a64a1b3cf6b8ed65b137c4c1d8268873be287c"
+    },
+    {
+      "path": "bin/gst-inspect-1.0.exe",
+      "sha256": "2fe64504131d3e66671c361d67fdb5ccf7876bc5d061a5f9b97d1f4c03d04acd"
+    },
+    {
+      "path": "bin/gst-launch-1.0.exe",
+      "sha256": "fca9e1c7c020f94fc941f9391dc6b5b3de758a062ff92e77a053f4a589833e34"
+    },
+    {
+      "path": "bin/gst-play-1.0.exe",
+      "sha256": "1e13eb60a0abdf7841accaf980279945b5b91d3e0a9260cbd774e1875369c170"
+    },
+    {
+      "path": "bin/gst-shell",
+      "sha256": "478c87e197017dff1ae0aac4c2522e0a5cdcd8e240cdb0dfcb3565619488fc71"
+    },
+    {
+      "path": "bin/gst-typefind-1.0.exe",
+      "sha256": "49e00ca5ae8d71607ea48a55888b602f1259e25310f6a450432d87d3d0fc5004"
+    },
+    {
+      "path": "bin/gst-validate-1.0.exe",
+      "sha256": "9633ef389d0aef8c5cac2669d4f1f95110bdc86564aa83fe587724a5347f92eb"
+    },
+    {
+      "path": "bin/gst-validate-launcher",
+      "sha256": "96f8778070a67324b8071bfe195ee7232b79a7c77ec2822bf0005607a50b7b49"
+    },
+    {
+      "path": "bin/gst-validate-media-check-1.0.exe",
+      "sha256": "0cb408b44c6d73b646fb921fe780d187f104682df818757470cdd44e2c5dc855"
+    },
+    {
+      "path": "bin/gst-validate-rtsp-server-1.0.exe",
+      "sha256": "2f35752dd4baf9db605b67af5c7fc59fa0df4cd0dce28649cfef13544eb55d62"
+    },
+    {
+      "path": "bin/gst-validate-transcoding-1.0.exe",
+      "sha256": "98b616b0c047e785fe2b972979a470c20f7288b8aa0e8b58c10b400dd0554147"
+    },
+    {
+      "path": "bin/gstadaptivedemux-1.0-0.dll",
+      "sha256": "32054288393e613c3126be3e1ba8ebb2ed2c07539d9a9ec0191cca1640005961"
+    },
+    {
+      "path": "bin/gstallocators-1.0-0.dll",
+      "sha256": "aff56dc96468c4a2362b465a964b99e2cb7ad627d9c781bebe7a2b3ebbbb034f"
+    },
+    {
+      "path": "bin/gstanalytics-1.0-0.dll",
+      "sha256": "16ce4cdcbcfeba9c0785f1ba951b7977c6248c426a515059bf6e0823c27a5adf"
+    },
+    {
+      "path": "bin/gstapp-1.0-0.dll",
+      "sha256": "957f3b1d5c63d4bbcad9360ee2c187245ae58159e6fcbeba8fc3c7700e3ef954"
+    },
+    {
+      "path": "bin/gstaudio-1.0-0.dll",
+      "sha256": "8978f2f4d9b1c6430ba019fa3c6247106b559afb9dcffc66d342a7491307d9d5"
+    },
+    {
+      "path": "bin/gstbadaudio-1.0-0.dll",
+      "sha256": "914b95590caeb006150d1214b3701f9d51a8f5f7c74f2ee7ce1632d22be40fed"
+    },
+    {
+      "path": "bin/gstbase-1.0-0.dll",
+      "sha256": "33160d36af07a794b72d89b40238b6ee1c78aa1d3ad9de3cc68f78fb35a3aa93"
+    },
+    {
+      "path": "bin/gstbasecamerabinsrc-1.0-0.dll",
+      "sha256": "9457b9db59c461e37d9c3ed6e6ade37d7846088678a1ffb21405bc59d34cbc61"
+    },
+    {
+      "path": "bin/gstcheck-1.0-0.dll",
+      "sha256": "eeaf7fa29c216cf0f1ff68320910873d3aa658e56982a03359515f5dfc9d003d"
+    },
+    {
+      "path": "bin/gstcodecparsers-1.0-0.dll",
+      "sha256": "633ea9199b73c9ce9ed1e243a2cfa868715a7a9abed4047054a005312a7ceae9"
+    },
+    {
+      "path": "bin/gstcodecs-1.0-0.dll",
+      "sha256": "8396191cea8c897678a6a442b1fc737d53c613d3bb3ce8ddb790aac078649b5d"
+    },
+    {
+      "path": "bin/gstcontroller-1.0-0.dll",
+      "sha256": "880e4c5d7e7a64edd9cbf4a5606699085a17f5618c24a472d66060f67d3082aa"
+    },
+    {
+      "path": "bin/gstcuda-1.0-0.dll",
+      "sha256": "af1e81fb4b86a24d5424a16ee9c8090e4e4637db0e3f9490bb1fd7712e43c28a"
+    },
+    {
+      "path": "bin/gstd3d11-1.0-0.dll",
+      "sha256": "15109e41ffd990308e4b46beb13db29f49e200b19da71191067bde4e550e699c"
+    },
+    {
+      "path": "bin/gstd3d12-1.0-0.dll",
+      "sha256": "d2bb5a0602c1465f6eabef6fe947b8663f97a18846bcf96c3beb365175774a8e"
+    },
+    {
+      "path": "bin/gstd3dshader-1.0-0.dll",
+      "sha256": "db6548bdcc334e9010162933004e7bdb566fb5d8889d256573367ccd185c0ecf"
+    },
+    {
+      "path": "bin/gstdxva-1.0-0.dll",
+      "sha256": "f202d1887d5d669d6dd7b298dcdec4e99a58e52094f9437323cb5e942640bc36"
+    },
+    {
+      "path": "bin/gstfft-1.0-0.dll",
+      "sha256": "2af53d31f52ca24c02922a56ad77bebc9b04455891d043976d6b1566b4eb944b"
+    },
+    {
+      "path": "bin/gstgl-1.0-0.dll",
+      "sha256": "972713b681d24d4fcd31b307700b5a7474639adadeda6b34e7a4ff6df4ad6a36"
+    },
+    {
+      "path": "bin/gstinsertbin-1.0-0.dll",
+      "sha256": "246ccedc0045fd39146c383d47dca73bc9a343aef77fe70586fcab58313915d4"
+    },
+    {
+      "path": "bin/gstisoff-1.0-0.dll",
+      "sha256": "24bf7834dbabaf35630acb40890590c11f73afc0fca0e0cf11967c52d2a3cfe5"
+    },
+    {
+      "path": "bin/gstmpegts-1.0-0.dll",
+      "sha256": "5a8a00a8c9bb4e02c1cabefd76474f36f12e6344da8f6c39ff2f45da020dd6f0"
+    },
+    {
+      "path": "bin/gstmse-1.0-0.dll",
+      "sha256": "d1374c6f8e5adb5b94426fb23cea274bd94edd48e84ee54105689e2974064968"
+    },
+    {
+      "path": "bin/gstnet-1.0-0.dll",
+      "sha256": "744c6955841397176d61b9ab68ee570a942f3c07a2296c8602035ae51f9e531a"
+    },
+    {
+      "path": "bin/gstpbutils-1.0-0.dll",
+      "sha256": "60da310de8d70ea4a059998801abfcbb0776e487dfe1685da59974e8f7b68a93"
+    },
+    {
+      "path": "bin/gstphotography-1.0-0.dll",
+      "sha256": "f9b6d86f1efc5ffafe3f94e6178e3d865e81c7ff4de7e9db96e92adecbdd0bb7"
+    },
+    {
+      "path": "bin/gstplay-1.0-0.dll",
+      "sha256": "8c22180c7b8a8b0358de38a51b61061a73a1f3dd9f6ef402289a4f0f2ca6d3fb"
+    },
+    {
+      "path": "bin/gstplayer-1.0-0.dll",
+      "sha256": "f01aca9df4a84d0378feff32b1c95442d2e44657a9fa9db4b4b9a4a84fc8d549"
+    },
+    {
+      "path": "bin/gstreamer-1.0-0.dll",
+      "sha256": "2d5a4e511fa2d306811e24ee9fe7e373e01554b07089c9584bcb23342c27e588"
+    },
+    {
+      "path": "bin/gstriff-1.0-0.dll",
+      "sha256": "1d4158345a250b82d615ba558177e9ad2e45613cae17b57b379c728c50dc5f11"
+    },
+    {
+      "path": "bin/gstrtp-1.0-0.dll",
+      "sha256": "93e95ae5794db30eb79711e122554059a31e40d5c02b8fdffa5df1ca4cd012bb"
+    },
+    {
+      "path": "bin/gstrtsp-1.0-0.dll",
+      "sha256": "0d02ccaf72f18bea159bde0e15c2775a97a8a5e00045229f8c22986af7af6a96"
+    },
+    {
+      "path": "bin/gstrtspserver-1.0-0.dll",
+      "sha256": "eb852e5eb6671de7d810265b0694de104a0c3dfc6e47df09f3848174a29081e1"
+    },
+    {
+      "path": "bin/gstsctp-1.0-0.dll",
+      "sha256": "f787257e155630a6a343ef7ad8e650bf48bf7edff1be9ace7b63fcf624eaa91e"
+    },
+    {
+      "path": "bin/gstsdp-1.0-0.dll",
+      "sha256": "e742b36fcaaff9aab42e0dd657cce57d7257139ad00fa1b76aa0ca22ee8e0cc5"
+    },
+    {
+      "path": "bin/gsttag-1.0-0.dll",
+      "sha256": "f2a95b392b5fbfa726a81195ea4f2fcb995284ded1c169e28302f02a5d3ba9d9"
+    },
+    {
+      "path": "bin/gsttranscoder-1.0-0.dll",
+      "sha256": "34e8124014b4e448bce5ef1b0f72885d6df13ff56bc184c5da6ebd4d6356787c"
+    },
+    {
+      "path": "bin/gsturidownloader-1.0-0.dll",
+      "sha256": "b4b19090cd547748409851c3372979430ef07b5b995ed76376933b704bd82ac3"
+    },
+    {
+      "path": "bin/gstvalidate-1.0-0.dll",
+      "sha256": "f131cb8fa8ef86f25a0c69563caf04e5d5992e573a4ba14c30584a7abfe9f828"
+    },
+    {
+      "path": "bin/gstvideo-1.0-0.dll",
+      "sha256": "712354d5711ba65e337f95d65bf835c14af261aa0e74f7a0dda42c4b4027b466"
+    },
+    {
+      "path": "bin/gstwebrtc-1.0-0.dll",
+      "sha256": "f331934751cf85e79f470edfd6d76c697878544e29b78db51e74961a71fe9444"
+    },
+    {
+      "path": "bin/gstwebrtcnice-1.0-0.dll",
+      "sha256": "7468f4c012da2a5d7b17b626ac9a138baf50ee3edc09880fe32423b9268212e4"
+    },
+    {
+      "path": "bin/gstwinrt-1.0-0.dll",
+      "sha256": "fb4c532c68087edecb3c6789e23414063f23c654944f7e682f62edc790ace277"
+    },
+    {
+      "path": "bin/gthread-2.0-0.dll",
+      "sha256": "1a8e8b49e0053588a4b1657d60d14351e7921de7411ebe48284cb4093d33b5a2"
+    },
+    {
+      "path": "bin/harfbuzz-gobject.dll",
+      "sha256": "acd12be89a680b402416d100ae068748833aab7b5d4f25d8700d488f494dc9a4"
+    },
+    {
+      "path": "bin/harfbuzz.dll",
+      "sha256": "20bcecca6841a566b9babbb86a98149c52c21a3e4e1c155ad31539912dbe07ba"
+    },
+    {
+      "path": "bin/intl-8.dll",
+      "sha256": "3e754c4e378f6a4e44268233dcf18dd68d2ef05e8edc1670f28ffa64ff0e0bf7"
+    },
+    {
+      "path": "bin/jpeg8.dll",
+      "sha256": "930870255cac71ef7dd324a7314f9443fbaf49138257239ef9aad7f1e6a8379a"
+    },
+    {
+      "path": "bin/json-glib-1.0-0.dll",
+      "sha256": "198c7cbaad54f6c80519d4e576d5424788ea0fc1f434abbe83234c7ea6cbcb7b"
+    },
+    {
+      "path": "bin/json-glib-1.0-0.dll.duplicate1",
+      "sha256": "198c7cbaad54f6c80519d4e576d5424788ea0fc1f434abbe83234c7ea6cbcb7b"
+    },
+    {
+      "path": "bin/json-glib-format.exe",
+      "sha256": "587389a3e3f2496fd856ef600e67e6c7f4c2c3b4ccf73e1d7a2981d7a7759ba5"
+    },
+    {
+      "path": "bin/json-glib-validate.exe",
+      "sha256": "2b839033864a49e38a6a573ecad79983f49f69d2327da9db4ca93c5fb24b39d3"
+    },
+    {
+      "path": "bin/libcharset-1.dll",
+      "sha256": "65d6bac86082e6d70797b5a7e4b331b125bf0e8ac5b42a5b787387602de0d3d1"
+    },
+    {
+      "path": "bin/libcrypto-3-x64.dll",
+      "sha256": "8a0e2418a3106c814a2c117c591750f34c0c1b9bef23d2e95dd36c61558e37e0"
+    },
+    {
+      "path": "bin/libexpat.dll",
+      "sha256": "d803377865c182c890508d9bb708257c5ab8a2e7be5e7fb0e9170878dcb111bc"
+    },
+    {
+      "path": "bin/libgcc_s_seh-1.dll",
+      "sha256": "323372c82a994267b23140681c41c44f3aee0d0032ff9d884d69b1a1ed7f2ac1"
+    },
+    {
+      "path": "bin/libiconv-2.dll",
+      "sha256": "9d06994674315243228d712e106211ce23bd643de518b3345d86a92d85456f9c"
+    },
+    {
+      "path": "bin/libmpg123-1.dll",
+      "sha256": "b22b4e1411afe8e3694feed5f21b110e9721a17a654fcaa8f508084d0e9c439e"
+    },
+    {
+      "path": "bin/libspandsp-2.dll",
+      "sha256": "3d85831eb24d1cfb537eec66a68de0129e7f41f00a73a6c92e0e85c1c1226098"
+    },
+    {
+      "path": "bin/libsrt.dll",
+      "sha256": "2bf7e00787cc8006a81d65f875e46ae75855e255128f9509edef331011c1a8eb"
+    },
+    {
+      "path": "bin/libssl-3-x64.dll",
+      "sha256": "f3a3074154f51a878be419d99d731c8d00def96f6c06aceed62efa3f75338093"
+    },
+    {
+      "path": "bin/libstdc++-6.dll",
+      "sha256": "6d8c75b04fa69225ee34cb65cd06b1dd6757640fb646851d8d87c453c8895812"
+    },
+    {
+      "path": "bin/libwinpthread-1.dll",
+      "sha256": "1e165b3f54a3f0387e4e3c1b5ae6143652aee4e4afd6e9474fcfde2cd8a92bbb"
+    },
+    {
+      "path": "bin/ltc-11.dll",
+      "sha256": "90b95f4546623980acc406b459e9da86d3b94a9ef1244f9c4abd18eb7585faa7"
+    },
+    {
+      "path": "bin/mp3lame-0.dll",
+      "sha256": "71eb50d6352db86268e25591f2e5d3e54ba098b14c4f895ff495d5653608b14c"
+    },
+    {
+      "path": "bin/nice-10.dll",
+      "sha256": "64e9db827346d1464aef2433c13eb1ca686407d1f7f26bdff9f3ea70368056f2"
+    },
+    {
+      "path": "bin/ogg-0.dll",
+      "sha256": "9f2cd7de77236859294d24f7e9744cf3c2d42b0065357441d4ca24fcc3054de8"
+    },
+    {
+      "path": "bin/opencore-amrnb-0.dll",
+      "sha256": "284518f033624c71ab4611b21d1ed5bfe8117921145b711f724a6192b2d09692"
+    },
+    {
+      "path": "bin/opencore-amrwb-0.dll",
+      "sha256": "a7bd7cdcaac105208526fe3720b34fb49bd3b5115ba17f1c18560426348fb505"
+    },
+    {
+      "path": "bin/openh264-7.dll",
+      "sha256": "5ab2b3bd067c02c91647d886f612b4e870ffdb1f664f5ae1c9290a4d45ff638b"
+    },
+    {
+      "path": "bin/openjp2.dll",
+      "sha256": "1d06986050d48a24aefd26b4302d550a6948b4a160baf7610d72b7aedf18288e"
+    },
+    {
+      "path": "bin/opus-0.dll",
+      "sha256": "cb5fba0cf24d241ea8190cd29bf9d286f1fcb274fd425066f3fadd028a1772ec"
+    },
+    {
+      "path": "bin/orc-0.4-0.dll",
+      "sha256": "42dcb7649c460395ed1f083a1dc3005fa7036f057ac89d30e5ce8947af24feef"
+    },
+    {
+      "path": "bin/orc-test-0.4-0.dll",
+      "sha256": "d7b852a69b589ed33824504a176e770a925d5c4d3c0c49a706840b0d158d1fb8"
+    },
+    {
+      "path": "bin/pango-1.0-0.dll",
+      "sha256": "30f18a5e67ab6b8b0b60bb1e98044e3bca61fcfa765a451419634270c756d8d3"
+    },
+    {
+      "path": "bin/pangocairo-1.0-0.dll",
+      "sha256": "5cf295ac157952783a43509b9175aa9467f7c65de549b589f202aec55b6111d7"
+    },
+    {
+      "path": "bin/pangowin32-1.0-0.dll",
+      "sha256": "5ff18250fcf62c796bdbffce0cfd7eb39c30fceaed765884b349a3af3a3081dc"
+    },
+    {
+      "path": "bin/pcre2-8-0.dll",
+      "sha256": "b7a66d42b86fa4203a58477bb458796a23c1f8923dbd44e897f2361703e5faf7"
+    },
+    {
+      "path": "bin/pixman-1-0.dll",
+      "sha256": "f19f9f40e5f32b24bca7fe4ccdb4aad27e9acf96141a70f28423a2fd03829efb"
+    },
+    {
+      "path": "bin/png16.dll",
+      "sha256": "7e18a3a24bb1c40879d36bf84672e06a6eebcbcf3c469e6fe2daeade545067f4"
+    },
+    {
+      "path": "bin/psl-5.dll",
+      "sha256": "7ec4f15594babaa3d56acd1fe05cc0eb1bbf67d4acfbb00cbb64dec94ebaf5a7"
+    },
+    {
+      "path": "bin/rsvg-2-2.dll",
+      "sha256": "c5307ba548333a019f5a1f69a53603d948986851d78cc66a2fa8ccb5746ee41b"
+    },
+    {
+      "path": "bin/rtmp-1.dll",
+      "sha256": "8634cefdb5f4abe71d706610bc405ce44d04844ae887205796d6e0217cbe398f"
+    },
+    {
+      "path": "bin/sbc-1.dll",
+      "sha256": "c777fd856fbc399e5e9e0f0a8ebd6a601b460b491607259c94627a1db2f9f79d"
+    },
+    {
+      "path": "bin/soup-3.0-0.dll",
+      "sha256": "e293be45d7f749fbc35ce64e85df029245164d0dd5f572921acb76443045fc24"
+    },
+    {
+      "path": "bin/speex-1.dll",
+      "sha256": "8c8fae75bb63120d9ddb2a920b73a7e709839d407a90d3152517c44eabdc35f0"
+    },
+    {
+      "path": "bin/sqlite3-0.dll",
+      "sha256": "50622677a17d41f6c45308cb710c80ea03e98a41d348c323accfc2a98946050d"
+    },
+    {
+      "path": "bin/srtp2-1.dll",
+      "sha256": "2d4c203a3cb18c5c9939758198a5a1df46c7f2e4ae30f051e018b4fafe98ff5a"
+    },
+    {
+      "path": "bin/SvtAv1Enc.dll",
+      "sha256": "c37e8ab5580df2c513f6c1ae1e7475232a08e665e6791c48eceaa7fad25ce2d2"
+    },
+    {
+      "path": "bin/SvtJpegxs.dll",
+      "sha256": "4d5203707db1510c8f590c76dc07d566db72deda87bf802f81ffee5f39142090"
+    },
+    {
+      "path": "bin/swresample-5.dll",
+      "sha256": "090e39ac8a9145379b4d6b788b15b8586b075f2c47fb5c0c6e33facfe0be0a6d"
+    },
+    {
+      "path": "bin/swscale-8.dll",
+      "sha256": "da9ff19a16a413f891233a2d96d550f46ad15f279cede3c2f4e946ae9428f13d"
+    },
+    {
+      "path": "bin/tag.dll",
+      "sha256": "4b6d273650dbdd1b00fb871ca53bab6ed19fd8268b326678672102b3163ec27b"
+    },
+    {
+      "path": "bin/theora-0.dll",
+      "sha256": "d7a461f1f9d3fa56931bce498aa6045223a84f5cafb7063b80c429ec23849aae"
+    },
+    {
+      "path": "bin/theoradec-1.dll",
+      "sha256": "3aed0a0dbf4226104a09733d101a0f2d7c3f9fdacf24326d27e25eafb4d64e1f"
+    },
+    {
+      "path": "bin/theoraenc-1.dll",
+      "sha256": "bb896a8f468814bd37ed13e6de8027e407cfd7ebbfec7f90eff232ee89380749"
+    },
+    {
+      "path": "bin/tiff-6.dll",
+      "sha256": "3620dd44f71b9c76e50558c6365b7cbc3122d77683042ede1f973700fed230c3"
+    },
+    {
+      "path": "bin/tiff-6.dll.duplicate1",
+      "sha256": "3620dd44f71b9c76e50558c6365b7cbc3122d77683042ede1f973700fed230c3"
+    },
+    {
+      "path": "bin/turbojpeg.dll",
+      "sha256": "cf3d0195842f1b6638a530374bcadad81732017244aca0a3b23763998de035d9"
+    },
+    {
+      "path": "bin/vo-aacenc-0.dll",
+      "sha256": "d9a757fff9f8a21da0c23b5e3f887cf9198b130f073b4a85ee7dc700900093e7"
+    },
+    {
+      "path": "bin/vorbis-0.dll",
+      "sha256": "9cdbb4f52e2bae4fd86b5d7013c51a3228e58191ad0779bedb5642042260bd72"
+    },
+    {
+      "path": "bin/vorbisenc-2.dll",
+      "sha256": "01718f36191600fe05ed795e1d62b0e1d4f36b2fc17e5d1029632f3306519897"
+    },
+    {
+      "path": "bin/vorbisfile-3.dll",
+      "sha256": "455d79b8b442d180e1ad255b11f9b6f2b62b92a9cd4cb8f5c32d0119d193120c"
+    },
+    {
+      "path": "bin/wavpack.dll",
+      "sha256": "6a3770715055d6a9c2a9434f902ec1b254329ab4a3017cdc0911efcd592ee5d1"
+    },
+    {
+      "path": "bin/x264-164.dll",
+      "sha256": "4f5b1183cfa786e6d328a3d754b4342204c50cb0e9919cd1209a3f6d0812c506"
+    },
+    {
+      "path": "bin/x265.dll",
+      "sha256": "82443a44115d2e7376adf7e1e16a9a5995cbb47a6625567638796aebb17805f1"
+    },
+    {
+      "path": "bin/xml2-2.dll",
+      "sha256": "a232556f6d2bd307ba82866f9552e5afe2ceeb84014881199313cd908975abce"
+    },
+    {
+      "path": "bin/z-1.dll",
+      "sha256": "fee5151ba5e9bec7835051c54eb5545031edb55e2318b0138e36304fc14144a0"
+    },
+    {
+      "path": "bin/zbar-0.dll",
+      "sha256": "40264f8a490340762a897b7baf59056cceebc3e851167b6a59872153bbfaf17d"
+    },
+    {
+      "path": "etc/fonts/fonts.conf",
+      "sha256": "f141c1b89b172d22f213531646c21e288f0ebf3ec46484698896e1b33c626756"
+    },
+    {
+      "path": "etc/fonts/conf.d/10-hinting-slight.conf",
+      "sha256": "d138eca2bac3f78d45ff7cfb649ad792caa4a6e61f73cea7cf0ea54b091f1ef4"
+    },
+    {
+      "path": "etc/fonts/conf.d/10-scale-bitmap-fonts.conf",
+      "sha256": "df8e99abb6f82384c61978906a45a95794940545da95790d87f01d9391e0894b"
+    },
+    {
+      "path": "etc/fonts/conf.d/10-sub-pixel-none.conf",
+      "sha256": "0f00b5cf0ce07062ec65b9b340aa888f6c5fbc215aafebd26781be2d5a13ff6a"
+    },
+    {
+      "path": "etc/fonts/conf.d/10-yes-antialias.conf",
+      "sha256": "e6d82a642d1b37f7d24dc37f938b999f00ff7aa4303b2602d04164d53f221005"
+    },
+    {
+      "path": "etc/fonts/conf.d/11-lcdfilter-default.conf",
+      "sha256": "76aec9d8dac48faabe1bbde9e887cfb09fa45f30be5f8826e945a394a0097e48"
+    },
+    {
+      "path": "etc/fonts/conf.d/20-unhint-small-vera.conf",
+      "sha256": "278732c68c16177f2aa3c7e4ea318b9f720aee13a433c32eb15ba626806c609d"
+    },
+    {
+      "path": "etc/fonts/conf.d/30-metric-aliases.conf",
+      "sha256": "3baf25c82e1a14c606d45c212296852be06ae9795d60e84aab573226151450a2"
+    },
+    {
+      "path": "etc/fonts/conf.d/40-nonlatin.conf",
+      "sha256": "5c3f7d62a44258d5d9e81a93b1685bee5ab78acb8688b25a43c4c1e749312a84"
+    },
+    {
+      "path": "etc/fonts/conf.d/45-generic.conf",
+      "sha256": "24de9f68189d544bb4cc084d9bd8f3a59d8b988a9dc44b11e9877d5add5fc948"
+    },
+    {
+      "path": "etc/fonts/conf.d/45-latin.conf",
+      "sha256": "b46e539c25dfd5531c8fcf4f22c3d156b09272ffbc6f8a83a8eeb7431c09aee5"
+    },
+    {
+      "path": "etc/fonts/conf.d/48-spacing.conf",
+      "sha256": "99d839cd8aa28854e8f54f26e7200b6e57951f39f56791a0ed473662488bcef6"
+    },
+    {
+      "path": "etc/fonts/conf.d/49-sansserif.conf",
+      "sha256": "7849a11ce5243e8bb3d06bcad558737a8682e5122e73c8e427f4c011a2054818"
+    },
+    {
+      "path": "etc/fonts/conf.d/50-user.conf",
+      "sha256": "449137ccce57d60bca178d57519ba54e1942d757ad171f3a88cd78df2161c970"
+    },
+    {
+      "path": "etc/fonts/conf.d/51-local.conf",
+      "sha256": "dca9d917e1f66f73bfa495943b4d1eaab2d93810a51bc8e600cf4d4e9df03e67"
+    },
+    {
+      "path": "etc/fonts/conf.d/60-generic.conf",
+      "sha256": "195bc8605dd23289d42c10d79cc13a5ce4a4b3cf965df5b30ecc0b7149bb951f"
+    },
+    {
+      "path": "etc/fonts/conf.d/60-latin.conf",
+      "sha256": "5c2c410bc584ba16a5e2ca5830311b0efaba9bdba3261d3247e880f6ea9d5220"
+    },
+    {
+      "path": "etc/fonts/conf.d/65-fonts-persian.conf",
+      "sha256": "c675fab143a3638346874798be45f51f6878ebec591b4362d83cfffb828ec4ca"
+    },
+    {
+      "path": "etc/fonts/conf.d/65-nonlatin.conf",
+      "sha256": "c0b0d517d351834705f7678c4b819e09cb619b116400a9cbe5a70b9d873bfcf1"
+    },
+    {
+      "path": "etc/fonts/conf.d/69-unifont.conf",
+      "sha256": "fa97c0cf5f79d70e2dc3dc48155d4c9220cd7c6a8bc95b89c4ebcc517f97479e"
+    },
+    {
+      "path": "etc/fonts/conf.d/80-delicious.conf",
+      "sha256": "34f27b7fe9cd83b2b6d46f16ef9c477412f2d7ef63634f86b9b38b79bc4f81ad"
+    },
+    {
+      "path": "etc/fonts/conf.d/90-synthetic.conf",
+      "sha256": "cdd0aac7840c664a7127b64db66bdfe8dc22be3774d10bc22f4a41c98de5d85e"
+    },
+    {
+      "path": "etc/fonts/conf.d/README",
+      "sha256": "2b0134fdcc62a0e568402cf162118806be4f5f95fa6d8b1c697acc157ccc2a82"
+    },
+    {
+      "path": "etc/ssl/certs/ca-certificates.crt",
+      "sha256": "23c2469e2a568362a62eecf1b49ed90a15621e6fa30e29947ded3436422de9b9"
+    },
+    {
+      "path": "lib/frei0r-1/3dflippo.dll",
+      "sha256": "a6f7187abd47bc816e0f47a2818679e4d2564d4586d6c3b31f9fa17b707e00b4"
+    },
+    {
+      "path": "lib/frei0r-1/addition.dll",
+      "sha256": "7f32683ae6e9705866d88779ba255c20e5c09e4422f59a9519d2f911a29c89db"
+    },
+    {
+      "path": "lib/frei0r-1/addition_alpha.dll",
+      "sha256": "c6b47460ced6d905728d5ebf9e72b4bd1a86b4729bce63b70f5e64f904a900da"
+    },
+    {
+      "path": "lib/frei0r-1/aech0r.dll",
+      "sha256": "f6374ee126574acaba75d32f6c04bb960fcb550a3bc2da3d3bb58a4cc18ffd0b"
+    },
+    {
+      "path": "lib/frei0r-1/alpha0ps_alpha0ps.dll",
+      "sha256": "092652b3749a0bf18c3e78d6129e56765f3f95838673edeb871660a83a43c947"
+    },
+    {
+      "path": "lib/frei0r-1/alpha0ps_alphagrad.dll",
+      "sha256": "e8cdc92e6b30bbaa8cd5df3d32a5c8bd94a9ffea33881909b12b5507de1879d6"
+    },
+    {
+      "path": "lib/frei0r-1/alpha0ps_alphaspot.dll",
+      "sha256": "de20687c9166ac4745f45c307cfe2d35b40f4cffd5ab0a246bd959d48d6cfbaa"
+    },
+    {
+      "path": "lib/frei0r-1/alphaatop.dll",
+      "sha256": "45530f4c063124f832a65be894e819890604c957785849ce2c625911278d83d9"
+    },
+    {
+      "path": "lib/frei0r-1/alphain.dll",
+      "sha256": "e0a191a4ec865fbb26634463915af10fe676e9ffce43ec9b1324fcc3e08ba41d"
+    },
+    {
+      "path": "lib/frei0r-1/alphainjection.dll",
+      "sha256": "07c49b93a84bc3626dc4bea4700f7a25eefeb046587d025fb54dc335da48977f"
+    },
+    {
+      "path": "lib/frei0r-1/alphaout.dll",
+      "sha256": "c4c5af543d8d260e1e39bedb34b9676dd5c4bbf4002d052cecc2533bbd396944"
+    },
+    {
+      "path": "lib/frei0r-1/alphaover.dll",
+      "sha256": "ad7539b1a449de7f662f207357d9dc3e22a525a49f231516343ca0b053a901ed"
+    },
+    {
+      "path": "lib/frei0r-1/alphaxor.dll",
+      "sha256": "5731bcff8cb58dde340431d68f62a14e27001521189bee15b8dec18b4c78722b"
+    },
+    {
+      "path": "lib/frei0r-1/B.dll",
+      "sha256": "3ddc8ef35fea52977cef7533615a29c165e57df14431bad53bdcf37bb3c8eadc"
+    },
+    {
+      "path": "lib/frei0r-1/balanc0r.dll",
+      "sha256": "1da7cd99ba130472b9fbc38432d838356868ec248515114d867eee7bbb08444f"
+    },
+    {
+      "path": "lib/frei0r-1/baltan.dll",
+      "sha256": "69db82c40d07f686cbcd6bfb342dfe4fc358a7fc2433caf7078ead4d668228e6"
+    },
+    {
+      "path": "lib/frei0r-1/bgsubtract0r.dll",
+      "sha256": "4157b9ad57f78d97d4aace5196a1fabb528a65ec5b00b8a562b35d04a4f14033"
+    },
+    {
+      "path": "lib/frei0r-1/blend.dll",
+      "sha256": "e80d04210705a6f7df3b4154084027af37693e5c66c785bb816fae08aed97a9d"
+    },
+    {
+      "path": "lib/frei0r-1/bluescreen0r.dll",
+      "sha256": "a0b2c8a16148d03db108870b95373e2986fe0ca419c9739c526ce2bba1c3d21a"
+    },
+    {
+      "path": "lib/frei0r-1/brightness.dll",
+      "sha256": "f77bd4f16e2f9f2a145b0cb327a523d24644f71daaf0b2f52d8426422ad584c5"
+    },
+    {
+      "path": "lib/frei0r-1/burn.dll",
+      "sha256": "f1605785b3096985e87ed70fa24979c34ea1df79923ba7b24fcc5dd21526cf48"
+    },
+    {
+      "path": "lib/frei0r-1/bw0r.dll",
+      "sha256": "9ee65a5d0002a75309805727f8070263da3636d85d73a2c24c840e6c34013479"
+    },
+    {
+      "path": "lib/frei0r-1/c0rners.dll",
+      "sha256": "7ae36777c0817c8420e917d7f4b6fd1f502a98d6cf306ba872552501542c4a36"
+    },
+    {
+      "path": "lib/frei0r-1/cairoaffineblend.dll",
+      "sha256": "b97075c7dd92b87a47b9e03d5a8d63301c04ceef761873c92a5c5cfae30b567c"
+    },
+    {
+      "path": "lib/frei0r-1/cairoblend.dll",
+      "sha256": "9a77509193110520eab2c9f025fe9b64d330fab9e75edb61b3f8ecbacb76e3df"
+    },
+    {
+      "path": "lib/frei0r-1/cairogradient.dll",
+      "sha256": "a92e346656132af658e0b0e75a5bd8b17ccec46f2c7b6981d63d5ad635f5bb99"
+    },
+    {
+      "path": "lib/frei0r-1/cairoimagegrid.dll",
+      "sha256": "07a21b044be439457c42bece9bcb5744ee8c31ebac3c83c312eed5b7efacea09"
+    },
+    {
+      "path": "lib/frei0r-1/cartoon.dll",
+      "sha256": "5abc96dcf27d530e19c6c66dc0d031b51e0aa6a1bd5d6d75dff0d0a87e6df3d7"
+    },
+    {
+      "path": "lib/frei0r-1/cluster.dll",
+      "sha256": "7ac269e352e89514e820d3c4204dcacd8a2005d9bd7319565d7b35d851677494"
+    },
+    {
+      "path": "lib/frei0r-1/colgate.dll",
+      "sha256": "1d0184cd0b8f5eabf90354ea6d5da5b55e614030e45def36e75fd576364b8fee"
+    },
+    {
+      "path": "lib/frei0r-1/coloradj_RGB.dll",
+      "sha256": "8e54262907c64d2686c41d6300ce8bb673f61a65a8ab53cfd352e4b8518b3840"
+    },
+    {
+      "path": "lib/frei0r-1/colordistance.dll",
+      "sha256": "eda47f73bdcf97bd436a7de56f750396de5123e0c05bebc8915e288562ba8310"
+    },
+    {
+      "path": "lib/frei0r-1/colorhalftone.dll",
+      "sha256": "fec0d84241bcb1e808a124bbb2af15fd09de7b675e19c7689f7f809f168f17d0"
+    },
+    {
+      "path": "lib/frei0r-1/colorize.dll",
+      "sha256": "612838c171af682ff4cd4dd0845cb1fdec30db2f70ce86c65cb7fa91e4890b60"
+    },
+    {
+      "path": "lib/frei0r-1/colortap.dll",
+      "sha256": "7fb80e1eb767e1e965b1500df4a34b3dafab5aa383c6af6126a2f355323769f9"
+    },
+    {
+      "path": "lib/frei0r-1/color_only.dll",
+      "sha256": "b34a843b962b2853009bb1f1e966190a76137992c5c9badf7e0418c2e4d486a4"
+    },
+    {
+      "path": "lib/frei0r-1/composition.dll",
+      "sha256": "290cedfe2835f11f9f6f38dc6fe46f20033451d663b4dc509cb06dc9d0b02a08"
+    },
+    {
+      "path": "lib/frei0r-1/contrast0r.dll",
+      "sha256": "40eab8a4f7fe1a084159f8bd441871c04b379c401c19efe86da4e98a8e685e2e"
+    },
+    {
+      "path": "lib/frei0r-1/curves.dll",
+      "sha256": "cfe58d837b20e136207af50b935dbda5f73870b8010191d6fb95e109b66585ce"
+    },
+    {
+      "path": "lib/frei0r-1/d90stairsteppingfix.dll",
+      "sha256": "92765a67d482f73fe26f123a36c4c1d72f86068d3ff0f02d9e725e250b5d7290"
+    },
+    {
+      "path": "lib/frei0r-1/darken.dll",
+      "sha256": "a4759e319c255251d86eab260d76e3d7400e4a7d70bee935abe4ecf2b87c180f"
+    },
+    {
+      "path": "lib/frei0r-1/defish0r.dll",
+      "sha256": "c5677758a8cccee031d758df539b8980653e24c213f77d434065b15f6c4b728f"
+    },
+    {
+      "path": "lib/frei0r-1/delay0r.dll",
+      "sha256": "b03383c5231304519f6858eb78db38222d410c6819f8f625c4462a9271daf9f3"
+    },
+    {
+      "path": "lib/frei0r-1/delaygrab.dll",
+      "sha256": "755de4d4f816c576fa1a5c87f6f5acfea61b425d235b97fa63495d6a00fbea7a"
+    },
+    {
+      "path": "lib/frei0r-1/denoise_hqdn3d.dll",
+      "sha256": "50c25d0c1e12a7d3ab5136b050a4168177b001b93456f96bf9a62c75d48be1ac"
+    },
+    {
+      "path": "lib/frei0r-1/difference.dll",
+      "sha256": "b3cb220d17180311776f2fb03e96be18c2ed7066ecd87643a0d545896d6e719f"
+    },
+    {
+      "path": "lib/frei0r-1/distort0r.dll",
+      "sha256": "7f196c40be991fec46a746d8fbe3e9e90c69cda9b458e9a68822103a38dc0d3c"
+    },
+    {
+      "path": "lib/frei0r-1/dither.dll",
+      "sha256": "16c41120c9d4535c38b97cb880cfce6fd063af1b4349859ca2f90cfe906e926d"
+    },
+    {
+      "path": "lib/frei0r-1/divide.dll",
+      "sha256": "a90ae876508ca63d13d2a98d6c83bed63e4fb943ee81ef29c8be8372159da20e"
+    },
+    {
+      "path": "lib/frei0r-1/dodge.dll",
+      "sha256": "16ff2c7e2be9976e78cad285c2fa51b6ee891d0894b2f54118605e8a3b9fe5d9"
+    },
+    {
+      "path": "lib/frei0r-1/edgeglow.dll",
+      "sha256": "2852d63fcd367c6c9317f6609cca99fc29364295cb3d088c66bf7dee1ceb50c4"
+    },
+    {
+      "path": "lib/frei0r-1/elastic_scale.dll",
+      "sha256": "f49c8cf3c243367ba81dddf5e7ee9dd0f10749a8a65522657cb4b2e28e2b8c17"
+    },
+    {
+      "path": "lib/frei0r-1/emboss.dll",
+      "sha256": "b2a1ea371e07eb08f84fcea96187d344a7d248d1018d3d3a0d5fc066b6b05dbc"
+    },
+    {
+      "path": "lib/frei0r-1/equaliz0r.dll",
+      "sha256": "73ee4c9edd537ad047a28ae7ce121cb4075f46175e8128bf099a6e942fc0c552"
+    },
+    {
+      "path": "lib/frei0r-1/filmgrain.dll",
+      "sha256": "c2a6f718f64c3b7a2d22d87e6df8542a537f87789d49084cd9ce0488a01c2f7f"
+    },
+    {
+      "path": "lib/frei0r-1/flippo.dll",
+      "sha256": "353e4107fa7efde9feee686cc8b5a3eb7903a943e391736b661e8651a78a4b7b"
+    },
+    {
+      "path": "lib/frei0r-1/G.dll",
+      "sha256": "63fb8865b0747415b86c9e40dd9e672fafbecd7eb23a6923fba70bb7f375606d"
+    },
+    {
+      "path": "lib/frei0r-1/gamma.dll",
+      "sha256": "a165dedacd4956e3f773b1f55b47b50ceddba512df971aa87d6fb2db9ee0a2dc"
+    },
+    {
+      "path": "lib/frei0r-1/gateweave.dll",
+      "sha256": "c9d7b212a083e7abafe0120a5762acfdc7cda895f92f6055845e5c83e72cf2f5"
+    },
+    {
+      "path": "lib/frei0r-1/glitch0r.dll",
+      "sha256": "268dbef719fefcc969ace7054acd9c4412255c5af88ccd4631bd0b993e07f42b"
+    },
+    {
+      "path": "lib/frei0r-1/glow.dll",
+      "sha256": "c74308b9ad5d1a3caada3890d76f911c754eb694413c6aafb1d59787fdb6f82f"
+    },
+    {
+      "path": "lib/frei0r-1/grain_extract.dll",
+      "sha256": "b89afe9a55b7a61c61c31cc5932ef2a0f1f2d7fef9dbf79a5fdf6cc4dcb3cdc4"
+    },
+    {
+      "path": "lib/frei0r-1/grain_merge.dll",
+      "sha256": "1407a15e7447bb2447e0d2a1c77b345182b66cd0f11f826971d231d1c7955be5"
+    },
+    {
+      "path": "lib/frei0r-1/hardlight.dll",
+      "sha256": "f097455f5b04db4d179bace7895e4cec7a597511c1c58be1cc92f3c248686598"
+    },
+    {
+      "path": "lib/frei0r-1/hue.dll",
+      "sha256": "2f78400bde5d27f2b64db14160bcfc1979260af55794932748b628b2d454cbe0"
+    },
+    {
+      "path": "lib/frei0r-1/hueshift0r.dll",
+      "sha256": "4d67b32ed27ab3087905360ad295b755f875fb9efe637417dfa0f4d0f9a97443"
+    },
+    {
+      "path": "lib/frei0r-1/IIRblur.dll",
+      "sha256": "924c4541489f8691fb5871e72e048caf27e16ece1da10f5332adbf09c5ec986b"
+    },
+    {
+      "path": "lib/frei0r-1/invert0r.dll",
+      "sha256": "2b93262156f5e7727b0021bdf89581f149ec664af18fffdcc10a8e69bd00c799"
+    },
+    {
+      "path": "lib/frei0r-1/ising0r.dll",
+      "sha256": "7b3d1084dc49224287e86b999509e748a01df264d29932d0dac6f4f5f4dbba05"
+    },
+    {
+      "path": "lib/frei0r-1/kaleid0sc0pe.dll",
+      "sha256": "48a38065d865733a98ab3a4fe615d6adb4161f6483662de82d998fc6e796b01d"
+    },
+    {
+      "path": "lib/frei0r-1/keyspillm0pup.dll",
+      "sha256": "306eb35d11cc074b81439cfe4516a551c14d9d2adf5d9e73e73580dc155c2b9a"
+    },
+    {
+      "path": "lib/frei0r-1/lenscorrection.dll",
+      "sha256": "9b1de2a6a17a06b70ed84cdeb37472f49482894705ec0881512cf0417ab31b06"
+    },
+    {
+      "path": "lib/frei0r-1/letterb0xed.dll",
+      "sha256": "3ed9b645f7253157c18201cbc414b36bac2a9f388a7123cf350000c07e56d54c"
+    },
+    {
+      "path": "lib/frei0r-1/levels.dll",
+      "sha256": "f154d5e84d14c9015753e72be614ee4055d6f52d8ab18273a192b3baecce6a52"
+    },
+    {
+      "path": "lib/frei0r-1/lighten.dll",
+      "sha256": "cc4f3b0b33f9c55ad1e88ba428b7d7bd7166328af15804789963f13c99139575"
+    },
+    {
+      "path": "lib/frei0r-1/lightgraffiti.dll",
+      "sha256": "8c5f984c9302775385f6d4e57a999eafebe09cd132ed8067910106d627611ee9"
+    },
+    {
+      "path": "lib/frei0r-1/lissajous0r.dll",
+      "sha256": "824b4f18c4817ef3bf0d5914646e854f8dbaaffbe2d35c6fff55ebd523ed3b72"
+    },
+    {
+      "path": "lib/frei0r-1/luminance.dll",
+      "sha256": "6a45c84b3123f78b19bb2e41098ab39664a512ffc06a1ee892af2c4022f2aaac"
+    },
+    {
+      "path": "lib/frei0r-1/mask0mate.dll",
+      "sha256": "df412ea422a4c23119794ac88480c442d7bd0630b97a0dc47d26f4159034a684"
+    },
+    {
+      "path": "lib/frei0r-1/measure_pr0be.dll",
+      "sha256": "71a58c04d2d2469241c846d9d50f99aa7e2c4b48470d3c7037689f0b34b3c22b"
+    },
+    {
+      "path": "lib/frei0r-1/measure_pr0file.dll",
+      "sha256": "a33f9627e6f3a0de448cfb155989239a8bb79a451cc56bdf38685793dd6d8fab"
+    },
+    {
+      "path": "lib/frei0r-1/medians.dll",
+      "sha256": "20e6f7eca9bc510ab11132d0eb40330c5cd4b642f07eba1b3baab3312e16d03c"
+    },
+    {
+      "path": "lib/frei0r-1/multiply.dll",
+      "sha256": "572d059b35e68569e9eb432f940f09262ed14cd2cdf9a564eea3c4eff564e4a2"
+    },
+    {
+      "path": "lib/frei0r-1/ndvi.dll",
+      "sha256": "3c09736a8dd19b8a6eb9c210d08d8be8479f4ccdac4e41203032e486b4418029"
+    },
+    {
+      "path": "lib/frei0r-1/nervous.dll",
+      "sha256": "116b8d6216a1aea648880fdcd8a8fb1d5bfbec4c668db9972f30522ffb9cfa9f"
+    },
+    {
+      "path": "lib/frei0r-1/nois0r.dll",
+      "sha256": "394607f316ee2affbf1849f0f13070bb17e493fd11d8df49b92b8acb794ff169"
+    },
+    {
+      "path": "lib/frei0r-1/normaliz0r.dll",
+      "sha256": "f765611631c9bd81732298063d46547dfdc5a70224d7b3f25c63c57411409368"
+    },
+    {
+      "path": "lib/frei0r-1/nosync0r.dll",
+      "sha256": "a1ced14a0eac0c386ac44811112b974fb1862c7a0d0ce0124821bd9978cc188b"
+    },
+    {
+      "path": "lib/frei0r-1/onecol0r.dll",
+      "sha256": "8fa638b2009841f510c312e35c6d20c8f12b2e31069e12183d6beee290b505dc"
+    },
+    {
+      "path": "lib/frei0r-1/overlay.dll",
+      "sha256": "0d6a11d2e79b8b787d3758626f72029d35bdee3e0f09254838c7dadfcc078d32"
+    },
+    {
+      "path": "lib/frei0r-1/partik0l.dll",
+      "sha256": "6681b3d431e07abb363193a3b7857b878dc58f786122ee95b5b2f01fd70affc5"
+    },
+    {
+      "path": "lib/frei0r-1/perspective.dll",
+      "sha256": "a7c123a259d8a62beca05b30b8ad662b256b308eb5adb9b9fc5a0cb1f3f01f8e"
+    },
+    {
+      "path": "lib/frei0r-1/pixeliz0r.dll",
+      "sha256": "34f01cf78f6043b63c8b5b4698951683b2bb393d092e16411e66e93158863f00"
+    },
+    {
+      "path": "lib/frei0r-1/pixs0r.dll",
+      "sha256": "a5ea7b47df8c25501ecd6aa78adf5949906a0ce7660087835545e883aaa453bb"
+    },
+    {
+      "path": "lib/frei0r-1/plasma.dll",
+      "sha256": "24c1dc56115ede5990373123d619eb89f6c352d34b3d343b36e50e0caebe7963"
+    },
+    {
+      "path": "lib/frei0r-1/posterize.dll",
+      "sha256": "1c1c0ad85535dc31e041ff63a15bf6bc9755d6d805440c2a440d292e6fdcdc53"
+    },
+    {
+      "path": "lib/frei0r-1/premultiply.dll",
+      "sha256": "e0b868549d54890e410a1471321a48922d5770e83f44361a4d7d49b9beadada6"
+    },
+    {
+      "path": "lib/frei0r-1/primaries.dll",
+      "sha256": "3dacc9c245b847546d1867b8c9c572a2733e9a77d86a5813fb4301105d3a37b6"
+    },
+    {
+      "path": "lib/frei0r-1/R.dll",
+      "sha256": "cf1b57f749a387f1d2a3813b2ca2554d6ed2d6c726f0e7f1ac2d754ac3d1d2c2"
+    },
+    {
+      "path": "lib/frei0r-1/RGB.dll",
+      "sha256": "3d1d6206b001d03fff8b9bfbdbbbcf1de53b935426a544f98dacef2bdc38dcc4"
+    },
+    {
+      "path": "lib/frei0r-1/rgbnoise.dll",
+      "sha256": "c0874690811a5223e0f8cff563346d6cf8adc978ecd1e2b77db8b0e0cf7773eb"
+    },
+    {
+      "path": "lib/frei0r-1/rgbsplit0r.dll",
+      "sha256": "bc7faf1bd20d938938e51b44a5b30dfb68a3c3b44dce758227ae035ba3302fa9"
+    },
+    {
+      "path": "lib/frei0r-1/saturat0r.dll",
+      "sha256": "03a066945cca5a992717c4b67f82ff6b3e48928821de3eef8bc61d9224caf6ec"
+    },
+    {
+      "path": "lib/frei0r-1/saturation.dll",
+      "sha256": "c7712b4ddb6825e58f2e3a48fdb46bc91a76a295b777958ed91c1a86eed7ce37"
+    },
+    {
+      "path": "lib/frei0r-1/scanline0r.dll",
+      "sha256": "5806f2f719a418dad4fe6e80449458781c5174fe1499ee5169d0e73636fe0420"
+    },
+    {
+      "path": "lib/frei0r-1/screen.dll",
+      "sha256": "577057b2367fc4986032b67ee00145439f9418ec29f2939d216c63ac3f7a27bb"
+    },
+    {
+      "path": "lib/frei0r-1/select0r.dll",
+      "sha256": "fbb3feea5161f86f465a4048f7b5870ff25f87521fb6caea379cab21fa6b4bfe"
+    },
+    {
+      "path": "lib/frei0r-1/sharpness.dll",
+      "sha256": "7f3728c2d5582dd54fb409cebb3dbe0934c17240964c3fe07161572fab32e3b1"
+    },
+    {
+      "path": "lib/frei0r-1/sigmoidaltransfer.dll",
+      "sha256": "804e91ce9f9b26c328397222ce656e70a4dd7e7af5c1febf5a1ddef15da93e2f"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_push-down.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_push-left.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_push-right.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_push-up.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_slide-down.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_slide-left.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_slide-right.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_slide-up.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_wipe-barn-door-h.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_wipe-barn-door-v.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_wipe-circle.dll",
+      "sha256": "b65943e1f0451174a4b85928b08bd8d19c5f090ab1ee394fcaeedf6995d8ef68"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_wipe-down.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_wipe-left.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_wipe-rect.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_wipe-right.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sleid0r_wipe-up.dll",
+      "sha256": "611663285346e7f6543ff3971cd46339e264f49f49ee270ccfa894c07b383746"
+    },
+    {
+      "path": "lib/frei0r-1/sobel.dll",
+      "sha256": "79080d65a7d14a551b4c53458ab6285c794fa9ba599f496ebc38b1780425feda"
+    },
+    {
+      "path": "lib/frei0r-1/softglow.dll",
+      "sha256": "bcece3a970970c110988a9e6ff7428abd891c3c5bfede31f5665c7c492c12f4f"
+    },
+    {
+      "path": "lib/frei0r-1/softlight.dll",
+      "sha256": "f1edf238d2c0b45823844f9a924d6f2f9e65645bce909803bcf7852bb71c4f1b"
+    },
+    {
+      "path": "lib/frei0r-1/sopsat.dll",
+      "sha256": "846eb9b4f482103b63ae47038922878f45f6fbf347b2e48a517b782c9c3ca466"
+    },
+    {
+      "path": "lib/frei0r-1/spillsupress.dll",
+      "sha256": "9af81982f1409fce4f77132d01e378348d76874a2518ac4722ad49f53b6aba96"
+    },
+    {
+      "path": "lib/frei0r-1/squareblur.dll",
+      "sha256": "8a673457fdfa72dc4cb1e40e519807579ba46da3bb7f8fcbb8ec5f88b8bb0695"
+    },
+    {
+      "path": "lib/frei0r-1/subtract.dll",
+      "sha256": "33af81e368a577aa20f0c5493ff1d408c656e440cbf07f05eb1dbf91dcea17ae"
+    },
+    {
+      "path": "lib/frei0r-1/tehroxx0r.dll",
+      "sha256": "92265a447340aac1d3da5b2ffa979d2d710a8d75a53d4a15674ecb25970b988e"
+    },
+    {
+      "path": "lib/frei0r-1/test_pat_B.dll",
+      "sha256": "edb81c373f80b8aa43a46a1b3e9a6ce0ef0567120974890adbdbbebba8ef19a4"
+    },
+    {
+      "path": "lib/frei0r-1/test_pat_C.dll",
+      "sha256": "f8cb4e237b31131a384a51981e0d6ac1b443f6d71c1b2b4df91178f33c9f6da7"
+    },
+    {
+      "path": "lib/frei0r-1/test_pat_G.dll",
+      "sha256": "1d12443b5ecb23c79410a66374bedfab0fc2e4c621944969a3456965d6e5cfb4"
+    },
+    {
+      "path": "lib/frei0r-1/test_pat_I.dll",
+      "sha256": "e4f64f52f5f61576355492349f19ed4cb51e1a88fa1c9a7201f4eac160b9133a"
+    },
+    {
+      "path": "lib/frei0r-1/test_pat_L.dll",
+      "sha256": "f12f70760a9d02ca1f63f3773ecae658caeba4039ce6d781030201f25ef9176d"
+    },
+    {
+      "path": "lib/frei0r-1/test_pat_R.dll",
+      "sha256": "f277ed993c258304f152bbe59dd70172167b905fa4d06996bb69e89ac64ad599"
+    },
+    {
+      "path": "lib/frei0r-1/threelay0r.dll",
+      "sha256": "795a2bf1e4139e9223c5714a80f25bed4ac952a322840fc2e044852c45e43d2e"
+    },
+    {
+      "path": "lib/frei0r-1/three_point_balance.dll",
+      "sha256": "17d5816851cc3de52b685ff1c9710b5044487943355eef918e3d2f52e56682b3"
+    },
+    {
+      "path": "lib/frei0r-1/threshold0r.dll",
+      "sha256": "e93a512206366da5bd9ac6070d70b13bef9604939abdde3601699900a0b14217"
+    },
+    {
+      "path": "lib/frei0r-1/timeout.dll",
+      "sha256": "0bd90ac47c83a8301cfbce1c497a8bf6937eb852a3027d0559ae7a4cbf4d4c00"
+    },
+    {
+      "path": "lib/frei0r-1/tint0r.dll",
+      "sha256": "3126bed2882bf651a822924b3e8ed2504c2cacac9f23f6d9089658089a7e9ec5"
+    },
+    {
+      "path": "lib/frei0r-1/transparency.dll",
+      "sha256": "46892b306b828c686aafb2ef28c70ba4c99fe792004c985a426204095e6aec75"
+    },
+    {
+      "path": "lib/frei0r-1/twolay0r.dll",
+      "sha256": "dec868ce89c7dc3f31c6ab06bd06e879a067b7a177438625e0f53c91f54803a2"
+    },
+    {
+      "path": "lib/frei0r-1/uvmap.dll",
+      "sha256": "b61b3b1fe2be879987c663f9fe6e167c0fca8a9d416478f15793cda714b0196b"
+    },
+    {
+      "path": "lib/frei0r-1/value.dll",
+      "sha256": "b0435aa98e6f55f47a0c2d80d0687d48eeb00098352f5c33876e369bc3252550"
+    },
+    {
+      "path": "lib/frei0r-1/vertigo.dll",
+      "sha256": "6851f27742b580deb9f543a9240b7247e363776ade20cde7274bfa462eaf56c5"
+    },
+    {
+      "path": "lib/frei0r-1/vignette.dll",
+      "sha256": "2ea1a75f7d466cc73e7d706dffcd1043859cbfc3829ca237b17f1507318c22dc"
+    },
+    {
+      "path": "lib/frei0r-1/xfade0r.dll",
+      "sha256": "35eeec6a04bad01d6d148bbdcd3e1e55e55bd828d5d865c246928b1ce80cb8eb"
+    },
+    {
+      "path": "lib/girepository-1.0/cairo-1.0.typelib",
+      "sha256": "5f7b8bb6607ff2c50bb79301fc18cc0f471b853f98d666235415be3ba8795513"
+    },
+    {
+      "path": "lib/girepository-1.0/DBus-1.0.typelib",
+      "sha256": "85c9630bdd6fd944672fe2930aa1d70387e8f640f7b20837b9591c6fd8b750f3"
+    },
+    {
+      "path": "lib/girepository-1.0/DBusGLib-1.0.typelib",
+      "sha256": "9384820d2b41564470252f0ff147eba54a2ee76460edb612fa4f3685e89a5c5c"
+    },
+    {
+      "path": "lib/girepository-1.0/fontconfig-2.0.typelib",
+      "sha256": "9578877e206bc83c0ae6dedcc2241773b98e14e7b5399aada4eddc7e3830fbda"
+    },
+    {
+      "path": "lib/girepository-1.0/freetype2-2.0.typelib",
+      "sha256": "76c61e9df4eacfd311e2cf7011bcb7244a48144258ea8211bbd89b462369044b"
+    },
+    {
+      "path": "lib/girepository-1.0/GdkPixbuf-2.0.typelib",
+      "sha256": "3ed634abe420eba0d58a890c6613acb17bf37da4d50810db87e7bcd7784a2863"
+    },
+    {
+      "path": "lib/girepository-1.0/GES-1.0.typelib",
+      "sha256": "983d115ea56796ac20112c16273b4ae2993e41788c4ec8870d2ed80990bdad0e"
+    },
+    {
+      "path": "lib/girepository-1.0/Gio-2.0.typelib",
+      "sha256": "0f65639f98557b94959bad0ec59f39a519ace6679e1d690dcaaf77d1cb512416"
+    },
+    {
+      "path": "lib/girepository-1.0/GIRepository-2.0.typelib",
+      "sha256": "6029589f6da9040393d48c0dd1434552a7a7a964a2ca6b2c92d79028db9ffa81"
+    },
+    {
+      "path": "lib/girepository-1.0/GL-1.0.typelib",
+      "sha256": "6c32bd6d98c8eacb501132b04331e4917e19d6cb9ccba66c8b36e587b8f1e5e7"
+    },
+    {
+      "path": "lib/girepository-1.0/GLib-2.0.typelib",
+      "sha256": "40bb5024bf14d3de81a267151c6481046fc9193106efe24b499daa47b71692b2"
+    },
+    {
+      "path": "lib/girepository-1.0/GModule-2.0.typelib",
+      "sha256": "31b08d3810d0d77c1f85d01923a838232dbdf6921b4ee551315fcd096469a8aa"
+    },
+    {
+      "path": "lib/girepository-1.0/GObject-2.0.typelib",
+      "sha256": "2dd4e6d96ded198c2c1d787e604efdfff51326fc15daf7e96c698eea80eb2541"
+    },
+    {
+      "path": "lib/girepository-1.0/Gst-1.0.typelib",
+      "sha256": "49f8b7ef88371815add6d958d0a4428e7c0ede32ef8bd01fd6e4c6e722f5ba0f"
+    },
+    {
+      "path": "lib/girepository-1.0/GstAllocators-1.0.typelib",
+      "sha256": "9fd107d045d4d4890474ac717fb88923d23c2e7110694bc1afbe448b6837ec6e"
+    },
+    {
+      "path": "lib/girepository-1.0/GstApp-1.0.typelib",
+      "sha256": "1ff8cf21b9ebfa331dc655cd5f72ea7626df68888ee6168c4acfa51c45e27ccc"
+    },
+    {
+      "path": "lib/girepository-1.0/GstAudio-1.0.typelib",
+      "sha256": "23f2e1346e92d74bce11c7abfc8e5ef192bc8199381495eff062a7cc8d14afaa"
+    },
+    {
+      "path": "lib/girepository-1.0/GstBase-1.0.typelib",
+      "sha256": "fbccb12d241cf0c25f0328bae32fb402e075cfb88528bce51294b36b85192ac9"
+    },
+    {
+      "path": "lib/girepository-1.0/GstCheck-1.0.typelib",
+      "sha256": "5be365041c95cb84b3fda065323b927e813dae678ea35ccfa1b165ea8e0994da"
+    },
+    {
+      "path": "lib/girepository-1.0/GstController-1.0.typelib",
+      "sha256": "e68df0cf07e3ecad4ecbaffb5112165371272da8012bcc4a96857bd3a5e30bdd"
+    },
+    {
+      "path": "lib/girepository-1.0/GstGL-1.0.typelib",
+      "sha256": "6b08dfc71531438646bc191ee01379593d437268a267e2ea4284fcab255f3f89"
+    },
+    {
+      "path": "lib/girepository-1.0/GstInsertBin-1.0.typelib",
+      "sha256": "9a80d34f5c08c6a9c1d438be75a4bd80fb015a8bd413d22384a68b2d8529e464"
+    },
+    {
+      "path": "lib/girepository-1.0/GstMpegts-1.0.typelib",
+      "sha256": "bf8de59e6ce9b9312e5c7c0be153958b1be68d778ddde2aff4607753501aee8d"
+    },
+    {
+      "path": "lib/girepository-1.0/GstNet-1.0.typelib",
+      "sha256": "e6d312739c33f837fd620a03050957326a7cba447d480776b48fbef1aefe617f"
+    },
+    {
+      "path": "lib/girepository-1.0/GstPbutils-1.0.typelib",
+      "sha256": "04c75ab62efd7b7611a001b32fbfa271b247b20f63409521afcb9240dffa86bf"
+    },
+    {
+      "path": "lib/girepository-1.0/GstPlay-1.0.typelib",
+      "sha256": "80f6e26eb92c128e8e9d59fa687c8e236dfb518cd0bb1934f16c5eb6e63ff58d"
+    },
+    {
+      "path": "lib/girepository-1.0/GstPlayer-1.0.typelib",
+      "sha256": "5ac0eff200d0b124ee537efabb46829ce5940218078c898fb80128aab62af434"
+    },
+    {
+      "path": "lib/girepository-1.0/GstRtp-1.0.typelib",
+      "sha256": "d43e3a16129039fc0d90225c7076da0807956931f175a22ed015245ee5e17045"
+    },
+    {
+      "path": "lib/girepository-1.0/GstRtsp-1.0.typelib",
+      "sha256": "f2a86fa5fc0dbcb805231f880ba7e3d9c081a95c17dbf75e5342f7ff1c965d95"
+    },
+    {
+      "path": "lib/girepository-1.0/GstRtspServer-1.0.typelib",
+      "sha256": "c56ff1b10d0f567952c48c6b481a9a6597e212ff885277053ca758ea3a6ac321"
+    },
+    {
+      "path": "lib/girepository-1.0/GstSdp-1.0.typelib",
+      "sha256": "149b840a0d6671d3bd1cc4fe13e30655554360c20489e41c673b730fdefcffb1"
+    },
+    {
+      "path": "lib/girepository-1.0/GstTag-1.0.typelib",
+      "sha256": "e50802ffca069f7a640e612517dceea64a2d9f3819db4cd193658f60a08f691d"
+    },
+    {
+      "path": "lib/girepository-1.0/GstTranscoder-1.0.typelib",
+      "sha256": "4a5a0138b6f140e797ec81fe806ca22299209d43ba62af5ca634ca413a1cf5cf"
+    },
+    {
+      "path": "lib/girepository-1.0/GstValidate-1.0.typelib",
+      "sha256": "d797a544ec36fe615361262a3aa23f11a3047174d3764538920afaa1e27ef293"
+    },
+    {
+      "path": "lib/girepository-1.0/GstVideo-1.0.typelib",
+      "sha256": "8fcd066c50e172a7f9a8374a7bf9ea0657f65c71f6e887f89237c874bd48ed72"
+    },
+    {
+      "path": "lib/girepository-1.0/HarfBuzz-0.0.typelib",
+      "sha256": "925224c08230b0e5705750d275610beded856508c445e40447157e6e48534121"
+    },
+    {
+      "path": "lib/girepository-1.0/Json-1.0.typelib",
+      "sha256": "f66474b2371f33d680d0ce817d3035a5d2143012ef0571f2eb5b9e69fe0ba134"
+    },
+    {
+      "path": "lib/girepository-1.0/libxml2-2.0.typelib",
+      "sha256": "49fbae24996f020476f1f9ebf1d765507a7af65aa31cbc5354517fad82a35bd1"
+    },
+    {
+      "path": "lib/girepository-1.0/Pango-1.0.typelib",
+      "sha256": "a28b7c3a0005bc5bcb0970864898a0721bb383ea3497bf8c28eb1eff939d5329"
+    },
+    {
+      "path": "lib/girepository-1.0/PangoCairo-1.0.typelib",
+      "sha256": "b83fa2bc4e34d9127a4ca3f39b9db5cb63edf30398b70a219eda561f3df47a49"
+    },
+    {
+      "path": "lib/girepository-1.0/Soup-3.0.typelib",
+      "sha256": "3684cfbb095583888eb5dabe386fcaacb388c55dc3d6b38dc2ffa3769233cf0b"
+    },
+    {
+      "path": "lib/girepository-1.0/win32-1.0.typelib",
+      "sha256": "c2bdb7412d38ed8ea7bc9f4932dc971b4fd2c9b9f8d1757225df7633fcab2e17"
+    },
+    {
+      "path": "lib/girepository-1.0/xfixes-4.0.typelib",
+      "sha256": "3c764a46e1c2b374dc3b8a33eda885dbb3da3079895b0f11ce9dc5aeaa6851b0"
+    },
+    {
+      "path": "lib/girepository-1.0/xft-2.0.typelib",
+      "sha256": "4a87bda0f0a706e44359b684b6954113ccbce8ca1e908ac638a813807eb259bc"
+    },
+    {
+      "path": "lib/girepository-1.0/xlib-2.0.typelib",
+      "sha256": "038dbeb15ac26d1e461935eb41f9ff601b37a90ba1c0e1b6ea60c34e0c1320b2"
+    },
+    {
+      "path": "lib/girepository-1.0/xrandr-1.3.typelib",
+      "sha256": "42c802672a06d3d2a51bd36ff3d0483681ac5dfb4a1f4a8b41a00bcb9fbb89c4"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsta52dec.dll",
+      "sha256": "c7d386778941b26b4cbf4449b2f36aa4eacfbebaf2e79cabbb14b748fa978f0d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaccurip.dll",
+      "sha256": "b5091ac0c3f62c3b60206782d5bbd84ef2589b6a36afb6db53478f3a8ae1d208"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstadaptivedemux2.dll",
+      "sha256": "66e0af48d264e703c311f2501e4cd85ab9001c91b959a17895d79f430b0f9a76"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstadder.dll",
+      "sha256": "69fb511c022528425cd45faf1ee01605162ded7283109a9992dbe0723a27f41e"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstadpcmdec.dll",
+      "sha256": "41e816465b6d08acb3b488dc89175949158af0e038822df689dae989f60ca826"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstadpcmenc.dll",
+      "sha256": "ea16deebd1728b8ee81404ba21ad58ebe529dbfed9c656ff88e2e086c6e7dce7"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaes.dll",
+      "sha256": "66f91609b49f9aa2642b71ad4e07a6b963367d6bc797b80823a4f75e4a5330b3"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaiff.dll",
+      "sha256": "f972daa511aee2a2a4c3c9830141c4d1f8289618a2c70b3dad9e7d2e9a307c5d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstalaw.dll",
+      "sha256": "09134165a8cc536d7baed12f76c06f81ed72ba51605108ecf27b4a65a46afdb9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstalpha.dll",
+      "sha256": "ad30b98b469b9c1352383338e0060094b62dece8249fe4676c3123a8be50f349"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstalphacolor.dll",
+      "sha256": "0bb8f444f4dda97f989680d5ee256dac652fb94aabc8ff0ff7976a8f84cd596d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstamfcodec.dll",
+      "sha256": "7fdca4cbd67fa89dee640d0c22d05c26946ed9a8eedfa4720990f5e49711a9e0"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstamrnb.dll",
+      "sha256": "2d6508745b056fb1099eeea60b9504bca0b4c71b394c8349be84b4dd86e8c2d2"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstamrwbdec.dll",
+      "sha256": "e7221335e5e73162de27c6ae55efbaff84cd1999d80094bdf1bb7aef7ef5f458"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstapetag.dll",
+      "sha256": "eb7c7e0c06ba7bfda3aa6445c62ef0fb59da87c69101669fe056ac74509f3d85"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstapp.dll",
+      "sha256": "c1d53673bccf0653d935283d495d03250db699d084d0c51c3c13435c466d6d01"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstasf.dll",
+      "sha256": "ac870b11941b634f1e886686ca8c975420ea89ffdcb38fb50133dc2efc16aa6d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstasfmux.dll",
+      "sha256": "e3ded99fb1999894d8dfaefae93c5b57c624acc17442f80d64334207187d37fa"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstasio.dll",
+      "sha256": "2fa79af45856e75a97e9bc1478e88e9c50d5e903ea9ef100187e2ce165d36f09"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstassrender.dll",
+      "sha256": "74659ad3845bc5275e37c30a82e27074abe03a9c8b2ecba506c08b003fa9c875"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiobuffersplit.dll",
+      "sha256": "6078b1f0f2fc2751ca3af8826b6042f394fa1883f017b82292c0ead99f7bf592"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudioconvert.dll",
+      "sha256": "d7fba1a7427e34b225a93671dfac62bc6deda3ebbc7976d2f7e831d162580ec4"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiofx.dll",
+      "sha256": "cc232e7b5659b8b0e07671f73d27797596dfffcf39a3eace81799b98448ecde4"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiofxbad.dll",
+      "sha256": "118c34db652a83851895d5f19811111b813e07085de14c2f417da936389b5307"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiolatency.dll",
+      "sha256": "1d20d97d88aa32873bfab56d8f10d322d0e3477f4c85836932081c4044958b7b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiomixer.dll",
+      "sha256": "d82feb68f8ec70d881395878dd7b6660afe50c8eff71ba3517250af2260ed7e8"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiomixmatrix.dll",
+      "sha256": "7f010680fc3e79d32c432a1dbedc240ed815845af7873b81f4acf21736406c7b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudioparsers.dll",
+      "sha256": "5999671ab934fddfdb4e9d5f35a8a8336e126d39dcde3193c57ac574598ce50f"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiorate.dll",
+      "sha256": "d7efc78fab2ef13422864fc740693c2123f596c56db63a9dc6e0e3102cc011a4"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudioresample.dll",
+      "sha256": "3c02bfe7aff0de91efa70797f5f9b735c38ccdcaf29aa31eb4d0f78a205acee9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiotestsrc.dll",
+      "sha256": "b18807fed4ffd1df004707932cd15794bf507f7f001c3a94213f598b04f71060"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaudiovisualizers.dll",
+      "sha256": "b982e1ff51705c34b522c9e5f9788deffab5cb6d5984c91de9c67d99e1e4ed74"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstauparse.dll",
+      "sha256": "4242149451df3cc3c25ce5acc4941452005fd5c46333a194f583eecd18c36530"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstautoconvert.dll",
+      "sha256": "1daa999f43bd7d4efa58c08d0581f5d5229fa53432acb1103e02c4a1bad02c31"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstautodetect.dll",
+      "sha256": "2c03159c3072f5137b06485f16761927ae1ceedfa1a49b4e5bd10b97329286de"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstavi.dll",
+      "sha256": "e7be0fda338255f963e0e227b23d6f3b63e540dc653541d03755942a97cac46d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstaws.dll",
+      "sha256": "8ce2f56569e5f917973af151a275bb84c500ae92efbe0e43f6cf7d46bff6bd91"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstbayer.dll",
+      "sha256": "82ea833b166f4c61cbdcc52207a482962e60ebd747ac4567da26e13800e71bf2"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstbz2.dll",
+      "sha256": "ea76c2c9bf953f4d94cbbdfc9c0112b70589f737cfe03a5c90e4d37c5d34d693"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcairo.dll",
+      "sha256": "75eb798ee83735ff92001efbf460c8b6b7920b792060edae643ffdce1fba0089"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcamerabin.dll",
+      "sha256": "d32318f679a9e19f2cccf446b4c0d780c8df30b0ebb31387abc542f3b71b524a"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcdg.dll",
+      "sha256": "e627ba3ed43aee908c8ad4f5d37a38994c9a24cea7e6cc6e252a92a6d2aaa9d5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstclaxon.dll",
+      "sha256": "4ab8a4a59f9f68db763ab98c8d448183923cb517d7f5d2844492f455c7920266"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstclosedcaption.dll",
+      "sha256": "dde48bceaab497d9589a047466eef31e75b4ddc772a016d32bdfcee8b3fd933a"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcodecalpha.dll",
+      "sha256": "fdd97c51db89f051d95253f5eacf924c15ea1110868c728e0968c26d05b42e5b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcodectimestamper.dll",
+      "sha256": "a08f1769e67ecb3504341ec88ec6056f24236e4cd8bde761c92ce0a9075c56dd"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcoloreffects.dll",
+      "sha256": "df225f6f41bfb8beb093a07fabf99bbd7c1f0d4bb976225ebbb1f0ec42f1a10d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcompositor.dll",
+      "sha256": "5c3b3928bc849d7e4c231996a73c015b827300c0196c58ba679e5412191695f1"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcoreelements.dll",
+      "sha256": "140e6cd93db3c6d06240360b69b0bab17f91ef693d1d051b154ad64ff0cb444a"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcoretracers.dll",
+      "sha256": "7c7ea113e1d8d0b3afcb5a65c5c28af406db3524119c2a25480632c12c41e0e2"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstcutter.dll",
+      "sha256": "6a2ef9cd0db821c88759ca08f1975524841fc6d3b593a998f00ad8fb4556944e"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstd3d.dll",
+      "sha256": "f1305ef0e9ea28dec8bd035f8a5828a5aee2e5b92dc71f1dda8cf66ff4c90279"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstd3d11.dll",
+      "sha256": "4c3804eedd08ee1e72f18083f38ec454c0a0cb644e116db20929e3a877676776"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstd3d12.dll",
+      "sha256": "090817ad647cdc8665ed480d2b5691b41337992b680eaf9e470f9840c72bf098"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdash.dll",
+      "sha256": "bae84bb6eb22c9cd97408c39a019700ab323b5c702fcd4261fb554eefcf3ab78"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdav1d.dll",
+      "sha256": "2cd3173ecc7e7abdbe59571a2de14a6c3bcf32e252f37ff0256b7db35b992630"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdebug.dll",
+      "sha256": "cda63154923ced88a753ba02facf290726c786a424c3e2fb52dd90ffcbd41161"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdebugutilsbad.dll",
+      "sha256": "a423f8f44ca321003d360328727246cdfe49d6e31aa736a0eac8c8a09e44f221"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdecklink.dll",
+      "sha256": "bb16c89cf7809408cc85246beb9b4722d9bf78623a3f8b10faad7b1ea259e209"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdeinterlace.dll",
+      "sha256": "c92df7fe4fd5b88c9b5f1f2831c1676645abb022f45b2a0398d3a0155c8b27f5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdirectshow.dll",
+      "sha256": "8edf6e7e7eb814afec1e79f6b0ec3959f5bebd4995f336136370994d97d5fa25"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdirectsound.dll",
+      "sha256": "a7228380219a08a4e155ad03015fd8f35a6f3199c261e17612a1409da79362d0"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdirectsoundsrc.dll",
+      "sha256": "60d7f8ecc7217e3b0d6f4efd569713a1a4638c438c3a54edea797d1e4a634763"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdtls.dll",
+      "sha256": "d767af092d5ecc22259b105ef0b9bde485cc3f166dab4fac44b8807cb959bef7"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdtmf.dll",
+      "sha256": "971a8c5c2943e09f8199d16f5f5b9d5a2429650b71d97f268ce7d05d97371432"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdtsdec.dll",
+      "sha256": "86a55aa1793294ee59ce7b0cf5566b7b4fb11a3ce268b69395d1eab1b37632c7"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdv.dll",
+      "sha256": "cc9e258a46b478daeaf7d26f722b63aa77d7eea77cd548be0034926ffae4571f"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdvbsubenc.dll",
+      "sha256": "3c7e97ca39bb2f1bee1a448f9c620109aebbb014cbcd3bae72902c40e980fd7c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdvbsuboverlay.dll",
+      "sha256": "2681a13f520b49061feaf3fa5aaec5f1f7a7b3ea1c9a0344be5c0290a6a384ff"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdvdlpcmdec.dll",
+      "sha256": "66b37c1100d8c4239f4b734b6bb1016ecbefcc350979eaaf14451be875d2ac13"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdvdspu.dll",
+      "sha256": "6a3d760383e0dd2011ba58ecd271ede0471d6f15ae3c31de7143a09358cc3112"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdvdsub.dll",
+      "sha256": "c5968f65cbb679f31896cc5bc0818fecb05b234866aa9eb32fd34f27e3bde531"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstdwrite.dll",
+      "sha256": "c9f4664c7e911dbd915e86b733860e4e80d522e51dffab40efc065f0ef307b7d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsteffectv.dll",
+      "sha256": "797eadd6d2de3fd9704667f3142dc03542992b3e5dec6f9735d57b3612e3f219"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstelevenlabs.dll",
+      "sha256": "3c27fdf468429ad2828725e9634fdb310cf954e79cbd607d774a83f956d5e7f2"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstencoding.dll",
+      "sha256": "96ac7abaa6cc5df211d7ad47e5dca84a2c7ae6256a4409bf1c7e1ddc78b9804b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstequalizer.dll",
+      "sha256": "dede3f5250394e576574819828a73e59b6feaed19e3fda8c0e0b105250d72490"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstfallbackswitch.dll",
+      "sha256": "f64ce22aed05d07c77d80952d90cf71f3d79751edccdc2cee06345cf8ef2c918"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstffv1.dll",
+      "sha256": "82d86540c1f49d7f09de4a2ceff8e65b89b8b130a7aec8cfb0fce46c6acb79d2"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstfieldanalysis.dll",
+      "sha256": "91630760fcd922d03de0a89fd005ce56370068ccd1bf9d9065de87d99176a863"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstflac.dll",
+      "sha256": "0fc0dd74b089a31d1207edf1e8cc59d9db2a6cd103dbd409209d0d77998752d5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstflv.dll",
+      "sha256": "d116de1baf385733b43851e9a234d32fe096eaf858b339811544918f3617385d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstflxdec.dll",
+      "sha256": "fd3b454dcef7b3f4792d77907366692400b2d2ac394c005da60b24a2780bf396"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstfmp4.dll",
+      "sha256": "df67f83ff3d87381be63b32390177738bd4bace024563d39925810d1d3f6d8b3"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstfreeverb.dll",
+      "sha256": "5fdf18f8407ae2d2c0b8b827d605cf1a52a74b77702d9eed22c412cef3407a3c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstfrei0r.dll",
+      "sha256": "125d59f2496be063a5eca72f2cf97dad25ff60a7c0edab27a68829d2fe797273"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgaudieffects.dll",
+      "sha256": "d4b2f38dbafe32bb2b70070a32cc28154b64bc5a3cc5e6a93e5a7a60d30939c9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgdkpixbuf.dll",
+      "sha256": "a3b0f4b592631d242f9860fe7dfc7c82cfea1ca5c398b2ed12601eb1edd57e87"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgdp.dll",
+      "sha256": "a3a8955ba46c398ab01eeca4c9bdc0228d06a78e77ba82c4abebf2796ebff2f9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgeometrictransform.dll",
+      "sha256": "5ce677401599b876d6d577c3c4839173f2e4b9df30bad5239446cf68483917cf"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstges.dll",
+      "sha256": "8ec7f6cc8d6fe209464474e4ecc15928f2813710cfe6d93e2011818b732a6db4"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgif.dll",
+      "sha256": "a7b5aa09662efd5253228bc3c37444ea953355648e93a9df158742f588802ab0"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgio.dll",
+      "sha256": "0dc145c95149c507a84bd2da9a63d4d2e29af9f349fdddfc75a45edaf19def17"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgoom.dll",
+      "sha256": "f3eb0294304358059cdaf3b4adc273e3caffa04536494ee5ef53296cf92641ba"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgoom2k1.dll",
+      "sha256": "b16002fc1dc4ac54cf0310cb321bfb69214af696dd8d5d53752153480f8f8bc2"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstgopbuffer.dll",
+      "sha256": "b9edfdaf18c06cf40b57f77b7330f68a0d239c79474e49e831e0ac574b934fbf"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsthls.dll",
+      "sha256": "2d149ce27b1606365af9008dde26c63b064e1d14385cb534eedb9aecdd88a690"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsthlsmultivariantsink.dll",
+      "sha256": "0373be485a195f11e8ea378484bf94e440ee2986cf801da8dc319a98b62254f3"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsthlssink3.dll",
+      "sha256": "3fff02e75689721c7ce6eee0c7c2d6c2b4c20b7bce8f6c0e90eba4518c0559e0"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsthsv.dll",
+      "sha256": "6915ebbcbdcf3a855d318b3ed3768f2a5b370b74df8fb89232f434136bd12628"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsticydemux.dll",
+      "sha256": "1a6448cf79fc9349800d63fd6084ba83295f96e377854ed6e2b56af246086b83"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstid3demux.dll",
+      "sha256": "fe05a33b7c7ef2df36020c98c7974aaf63d3ce8ca1e367e4fa8954afc9674259"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstid3tag.dll",
+      "sha256": "61203acc18b143e4926fedf3dcc374aec1399d92ceb98e800ff49cd3fe489e3c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstimagefreeze.dll",
+      "sha256": "ed72c18b55d22d3e03458414bae718bad4f560d6d4cbe729b6195492d967184d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstinsertbin.dll",
+      "sha256": "7481ec02780ff61fab0c99f3a02720f8e74295ffb5fb6cf01758e95b3bab9220"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstinter.dll",
+      "sha256": "5c7c44f4aa6128f5de7282f47b69783f372cd9f2b6353003593433127b3a6771"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstinterlace.dll",
+      "sha256": "4d919dc8af290cec0ab7ded02c268b718f228cb4f09ad9610ad2cb4689f0b3dd"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstinterleave.dll",
+      "sha256": "906b6d1a6020a1f108acb5d1684664b3df5bfd16b36022cc11743197b6dd0b8d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstipcpipeline.dll",
+      "sha256": "b5b1fa6fbf128524206644f7a26e5b27022186147c29f1b3de420d2b809b2aff"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstisomp4.dll",
+      "sha256": "c6f1cd874b3ef54e4056a50ae9019c4678b51c4f98f78e2a0fdf853641c037d8"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstivfparse.dll",
+      "sha256": "72cc02d36f3739c751126e5bbe95868cb69623b0f3ab2df042910bb26f5b27cf"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstivtc.dll",
+      "sha256": "c051c291b0797dc90af2e3be2a049373bbe36933be6c592df282c5e0dd3d0ec1"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstjack.dll",
+      "sha256": "70072ac3f0c80f3cc959b408e7128f26adfbab0e7af481f9018cfedeccf1a332"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstjpeg.dll",
+      "sha256": "c6aeba82cb8770d66e4aab1ce67e87f6858e67b3c2efd55f6e8f321292355410"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstjpegformat.dll",
+      "sha256": "d9e85e7a4040e000240b7a78377657e92efb869e4e41ed6e02e4f54a4ba6bafb"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstjson.dll",
+      "sha256": "3d630481e305a942acc988d29debb97679e54546adc41eeafcf390c67500a7ca"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstladspa.dll",
+      "sha256": "30249e1e9c298cec9bcb4086c3de6914166f72f12612a920226e8ddb5a857ddf"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstlame.dll",
+      "sha256": "e83e549e851511e27e0c31d21f7a789f574b797b041ef487e02da148f8adc5f9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstlegacyrawparse.dll",
+      "sha256": "8ef4e746ae4dae9ae0d2c1c24120d58748955d08f09a681e78e5d55c8ea57e88"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstlevel.dll",
+      "sha256": "663bb2c6901d13783f49c6484216d6c6a61f79c7687a2ea46b86706b45482524"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstlewton.dll",
+      "sha256": "65db47da0d666722487e00870ee2b792f3ca6d0d43b1021485b2f29fff03b38d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstlibav.dll",
+      "sha256": "f84ab8e0568c7341cb3ef79631edc1da22b8f1396ab63d75a8b37ad4887ba67f"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstlivesync.dll",
+      "sha256": "a523aed6102bcd4ccfc5d4b3810a13ff6f7e4419901d1a8567e682ab9e17e662"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmatroska.dll",
+      "sha256": "ce85fa1a7929567f6e807ec0afaa454e00da38ba9c27a737f3d23dd5e64b212f"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmediafoundation.dll",
+      "sha256": "2b05110acd55370189b8fcac1fd5277160b8924ce04d07d9e95918738b348a62"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmidi.dll",
+      "sha256": "ab2c988864277a49a9988b5c92779a0f20e92d5920e4235f44d2af8a9c5c5b32"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmp4.dll",
+      "sha256": "5f6ab8665f1744e667419ebf6a17199b1fa799a436a0213dd79e95868fc07bd1"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmpegpsdemux.dll",
+      "sha256": "7d7ddce32d2c54249e3d889477d16b2bd9377f16d0b765e68fb36fd30c59ca19"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmpegpsmux.dll",
+      "sha256": "8bbcc1bb4eddc4d432e25daee0f1257a32dd76d420d74ede83ee6c5c2732020b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmpegtsdemux.dll",
+      "sha256": "eb303caaa8a17f949a15f3cccbe59b95c1397987fce2d2a2e86b4805cef2726c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmpegtslive.dll",
+      "sha256": "8d8de05f18914fc50851c946c3812a3ef8ce27a896597842664eca79d7fa3974"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmpegtsmux.dll",
+      "sha256": "55ae613b0d278ff834565177fe889744333f6d60603a52363ecc3f7f85ddd6a5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmpg123.dll",
+      "sha256": "b0818fff8c094ec14a84390af79474923850823d8ee7483b25bfb942566a8cff"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmse.dll",
+      "sha256": "02271a400125e16335678d084dfa7bd781d894ad500b35e4fb089a8c2f95f529"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmulaw.dll",
+      "sha256": "90bfb95772c27775be14b86fe18e15029352d20035e590f1e74066919bfa5f60"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmultifile.dll",
+      "sha256": "8aebbc5ffd99b64ebdffa7d77af48b0584314356c7b7d051d6b5f2cfd6a40f15"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmultipart.dll",
+      "sha256": "5587c0baf274e02a3b7ae3ec710e21930093c2e85c39e2e15ab365327c83b023"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstmxf.dll",
+      "sha256": "6b73aaa00f479a38fa59fa6b8f730c93f885f107182234aaa20dac648886171d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstndi.dll",
+      "sha256": "3a9b4d3585f9156dded20f78594bf292b5bd8bac1e621ba42db763a5998b5412"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstnetsim.dll",
+      "sha256": "8266853138d8bb6951c7adf1d52d7e42368ea19bac1135786e28499dc35bbb9c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstnice.dll",
+      "sha256": "32dffe14b254f7e5c5a405af5f3ae76b2b01ca7c4a74f0c196adb2801ca670a9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstnle.dll",
+      "sha256": "cf45bf5628ebcf1645356dcd9cc53c5d941d95f5f974bb075be01518e601df45"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstnvcodec.dll",
+      "sha256": "46e7218da21a6ca79112e099c9579de356ecd0f5c4e1ae85b189b1bd501e6eee"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstogg.dll",
+      "sha256": "d11527ae47b4d6a19bbcf8ad81fdbc562595ed129f7694b896d7974b36f66897"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstopengl.dll",
+      "sha256": "303a55600031b793831233e6c12f7597b4d14a4360d955daef446973ca2b0da2"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstopenh264.dll",
+      "sha256": "8036fedff8a91dba2bec7de4988799bfba97b4769abbe4f35454110d2a1b8c67"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstopenjpeg.dll",
+      "sha256": "25690dfc4c094bfe0f9661e8264869878ada6e6863eafc3151269ccce7e8bd48"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstopus.dll",
+      "sha256": "515b48431922322df3706fac3b59ceb589a3c4bb352d9350cd9c699fc1ca1e72"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstopusparse.dll",
+      "sha256": "04adb0e6e564e3b77f8417187216dd1426ee21de56ad881689c1b0ec49ecaca0"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstoriginalbuffer.dll",
+      "sha256": "f7e33671d299c9aa955d85cc01c98f2b0e1fd60b151dcfa24d696263db248a3b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstoverlaycomposition.dll",
+      "sha256": "aef3e5189fd2f1d3a9b86bd90e934b91301c8bdf13f03f2eba0fd962458aed91"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstpango.dll",
+      "sha256": "7dd4c84d2c508fb44b6f478c282ebc87f7909414e0691a588be56bb7a8dfb719"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstpbtypes.dll",
+      "sha256": "63d68defceb973a264d286c22bc4fbdfe7eab4f9eb80c2417523ca95ce708179"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstpcapparse.dll",
+      "sha256": "6e609623499e97a159090495e3713bfe2747cc5befd6be9abddab89705db1b75"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstplayback.dll",
+      "sha256": "199534e86bb36fe5228f02f0c2a98c963221ce63792d998b10b0530d38a5d4b9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstpng.dll",
+      "sha256": "aedd1ff585dc4aeea9c89f8067ce919914c3aa99a29f75d9b4f5ad42ddeeda92"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstpnm.dll",
+      "sha256": "e04ad9a6bbbd1d7bd06780cc868bd3d4810cc6f2a13109d93c5682a1aec081c6"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstproxy.dll",
+      "sha256": "412993d8cdbacc613839f2549fd96a9a10824f5a0b3286f124e68f891c232835"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstpython.dll",
+      "sha256": "1bc9dc415bb75bb3f125341e43e1d1aa3f54294f6bc07315c1b5698186b0bb38"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstqroverlay.dll",
+      "sha256": "a8c14cd2b27ee4c9a55c452f72deb06165e7378c3de0527382fa02e30a558218"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstqsv.dll",
+      "sha256": "7054eaabad3370ad16f42547160f09f79d8c2398294ae27b4417c10940e5cd5b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstquinn.dll",
+      "sha256": "c6aca7da02a17c937327946587114da212ff5b3cb9f4224b6f0a1bd00a89e669"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstraptorq.dll",
+      "sha256": "70d91d07bf89f13390fa3e01c565751adca1bcfba73df99949281829dff4b6bf"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrav1e.dll",
+      "sha256": "8c27f7b06849b0f0e2f04d478b53e19300aba749299b4e32c9bbe65d9a801718"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrawparse.dll",
+      "sha256": "993caf3b3cba42e56f1d4ef6fe73b14cac744b05645628dafe25c5713519a3f6"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrealmedia.dll",
+      "sha256": "ce2c124f21942bd1801af76acf04afa7bb2c3fe40d7110d4f497946e3426dc1f"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstregex.dll",
+      "sha256": "729513b79fa1903f24efef18437d332c8ad5a064eb292e2d5f03da37d559fdc5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstremovesilence.dll",
+      "sha256": "975a3011e0bbc855aec1ae17fad1d889e2ec91fee6b1df0149bd9127236712af"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstreplaygain.dll",
+      "sha256": "93f7f8acb34ddff6b3110d0a704c750c706737a364c61108621ae29924df65c6"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstreqwest.dll",
+      "sha256": "8e8007dcd0fa006c08b1cac6eef8f05972ce5b5847225576506a53b8b37f8971"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrfbsrc.dll",
+      "sha256": "1d80eea01cbb1b0993bb3d7420090facee96bdfc85e4510a09903226178b0213"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrist.dll",
+      "sha256": "fa95d8abbfa66a2aeee23b007ed54550d621d0dea139b60dac25caa46181c3eb"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsanalytics.dll",
+      "sha256": "56872881f351faf91e5a1189d802fd4ca53b577b65be55921ddf617336c66a80"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsaudiofx.dll",
+      "sha256": "629d7dac2d1e5195299412744bbd798fbdc012e1749904740b8c9463c95ce822"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsclosedcaption.dll",
+      "sha256": "06dd1c269eeedca146b2b2833976ed0dc4634298e225a4b0ab4988f885071c22"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsinter.dll",
+      "sha256": "340d9dd147c69736683b54f36e5ce1a739b08ce261e028e446f86dd47ff7c03b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsonvif.dll",
+      "sha256": "60d2e056fe380562c76abbe0e2a2fafb6c6d05e233aad215b6ef219083d2b955"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrspng.dll",
+      "sha256": "b39f533502715ffc45fe7b77ff91c8359dfbeccd9498e4dbe4a73ad16db9db42"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsrtp.dll",
+      "sha256": "05f4bf64308270f3825f406da0c836e348255991024a5df672593841cee2b50f"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsrtsp.dll",
+      "sha256": "3658ed45c20d6e98511f9b4db2a512df5836de893a3622047bc3b0c94dba8d94"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrstracers.dll",
+      "sha256": "a9557095492035774bdff80458b0c4d7bfd6051aa5cde8bb7ba98dc300605b2a"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsvg.dll",
+      "sha256": "857984ed394160257a4a06afcf6c6c7bd431b468df279f2ad8e5236d76df833d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrsvideofx.dll",
+      "sha256": "7e7fc190d2cd01b0fe30f33f034ed27aa843810be7dccf59cabaa48329b9c789"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrswebrtc.dll",
+      "sha256": "159cb07030a7eb664843bd3dbbe88762920bc2b75745d6768c8b7f580c3d506e"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrtmp.dll",
+      "sha256": "2d10e3ad01333153d304118208ae069e036e2cbc60f63a0df3b18ec466f0eca0"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrtmp2.dll",
+      "sha256": "813c46bf936cef37a3f07ad57e87c6bc5316c38ea15f940fb4f20d5669b57f61"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrtp.dll",
+      "sha256": "e897da1f5d9ef538d09b6c42932b9210ac8585aa8c04430ac2b0217a895e33b1"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrtpmanager.dll",
+      "sha256": "e03a81a698eab4b9ff92dd14c6bc39502cbb0198216a6c89a3f3e8e01e6911a7"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrtpmanagerbad.dll",
+      "sha256": "8f8b2e70afe46f38c58b5cdf0fd074c86da3d464dd61bf84db06658e21af6595"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrtponvif.dll",
+      "sha256": "69f8e094f8277e5ba77187b5121bb73c6b76bb710e35d01f83d26b1ee78a24d5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrtsp.dll",
+      "sha256": "03dafcc9f8df8afc02728ff4cc7fc1d43ed50346d370617c81dc4e3472a5a411"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstrtspclientsink.dll",
+      "sha256": "40692d59327b801aa332454396c9c766beae667f82ff93d6162dbf5df5fb77e5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsbc.dll",
+      "sha256": "884c37178e6b8fe4487452fe23c18dad25b1017dde6a9b9f932e34245a315031"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsctp.dll",
+      "sha256": "b0aaccfd5991a86832f43dbcefa8e7adf833d5d5efe14c116e6e15d77b8529e8"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsdpelem.dll",
+      "sha256": "acbccbfd3397a775129147b312e5ecf1f86f803e0115db81e7e26c0adaccc86e"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsegmentclip.dll",
+      "sha256": "baa22bc9600b7fad3b7538ca6a53c44e628a77d338e19208792f672ac5537b97"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstshapewipe.dll",
+      "sha256": "5633bf16a31c8e8c524b03780e5a1e96927f0a549831f911c0c38bd1fb249e45"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsiren.dll",
+      "sha256": "43154a8abc1ec79e96c3a7eeea6c3e0e551ca3ef33076ca1eb00b7a37208bb3b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsmooth.dll",
+      "sha256": "b69765f808f0262c1b729720649cbc614dd8a9a49094c3b5f7f1bbd9d8af3eb5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsmoothstreaming.dll",
+      "sha256": "52cd4233c74b328f69770937b6c878279517f28642a095a15bf3303aa8b47843"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsmpte.dll",
+      "sha256": "cdc79c49eef5e4196ba77cf71b55f65960a7bba79a806beeba2214efc0745f3f"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsoundtouch.dll",
+      "sha256": "f9bb0d5e05f508052cb5647a168e7de0c15b673a5a6d99588028a03afaf54d22"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsoup.dll",
+      "sha256": "5cb5f798201e8986efc8fcaa5375011fe11d04e23f9e7debd1f7ae545d94f4f9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstspandsp.dll",
+      "sha256": "9bf14fcfe188aa84f2c0121df9a5b7a0ba7855407dbba6f5ddc666f42a3c2908"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstspectrum.dll",
+      "sha256": "8a0c145c255ca6fdb6da88ede9c7546761fb3f12e31ea7d203e8e7e5cd630d1c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstspeed.dll",
+      "sha256": "f73a79b64de97b3803e10a1342d0e4199965013eaa9f9258b752cbd8a68c6e40"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstspeex.dll",
+      "sha256": "54d38efd7f5fc1317ed97372650570d29785bcf71e2e91ce70e5a7b231864ade"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsrt.dll",
+      "sha256": "bd6f5fdc71d5c1878e143359fef0468a0edda832977f77228d7bf037ab2805a3"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsrtp.dll",
+      "sha256": "caa24a252dc580d2542551111cc9b529436012810a7068ba770cdcdae2688770"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gststreamgrouper.dll",
+      "sha256": "be5851bed310053a2e8d63dc29ebc4fcf25b7aabe9f6b2a0459e7fee86393edd"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsubenc.dll",
+      "sha256": "be0c57f67e7c0b432e40b3749d5d453e1a8b0d371d5f596999670d069af10d0a"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsubparse.dll",
+      "sha256": "f8a52686d11fc07ed95aa6aecd778f7dbea6805d23f38a6163cc83d18049fa1d"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsvtav1.dll",
+      "sha256": "858a273c140e31bafb7b94e022591c41039669f58bf64f1c7b3c51bd3a742211"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstsvtjpegxs.dll",
+      "sha256": "2395cd2fb104659990702b614b1be8a367a861cb9077098dfc68c5fa21192955"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstswitchbin.dll",
+      "sha256": "112614e5af39b926d440836296f20120740a07545a9bbc66d348f701e4394e19"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttaglib.dll",
+      "sha256": "2f3160f826397e4fca5dbb1c788e7799cab007d7970d0a1fe98945ac9e6d69fd"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttcp.dll",
+      "sha256": "6c46bb0fd2dfbb57213a578dca8fee7daa48e2854163e3be696aaa858eb55f5a"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttextahead.dll",
+      "sha256": "f2a7ebb213273fa2fad7d789c8a33b5f75a494cb850b93cac11001f884e9fe05"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttextwrap.dll",
+      "sha256": "20c62bdf9fdfab741207070965581d1ff0c73ba557d3cc45cff429e390d28aff"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttheora.dll",
+      "sha256": "92b62c543610720cbf86c71921f7ad9d4fe76a789caf0dd1fe13202a9ee826b4"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstthreadshare.dll",
+      "sha256": "7ab2dad76f67257a5605d5bc841a978963606bdf3c7c2ede8cf1b1e07730ef89"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttimecode.dll",
+      "sha256": "445133c2551f0ac88a27774f97cd0fe0652c30e619ecc474424c0a815d6f4b21"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttogglerecord.dll",
+      "sha256": "4ade333b9a58e8846224c445bc4d031306cc735943669d6a96e362001c3e8c92"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttranscode.dll",
+      "sha256": "80dd740b63a59da4a8ec61b6a77802b543065fac7153d8b0cdfe1f4b4aa4ead8"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsttypefindfunctions.dll",
+      "sha256": "0c90120ae30b4a51f98010a4136e12b289e952a2c48c4975c0df3c360ef94594"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstudp.dll",
+      "sha256": "41c6d78885920ef2df9a7d695dc3933938df058c311daa3943975a44511ec129"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsturiplaylistbin.dll",
+      "sha256": "739864cb70f08aa5a2bdfc5bd42e10cfe22b8ff82b20946fcef05d178e4faa0c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideobox.dll",
+      "sha256": "f6a73b0c0a2135932e06a8fe03bc098a037a794029142320513ba8dafb7d7ab6"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideoconvertscale.dll",
+      "sha256": "debf5b1c494433a30846068e5406ecf4208162c28f21ac73e9a1a08d80043e81"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideocrop.dll",
+      "sha256": "255a7a932bfe6b4e1d2771f918652bcb8c47f46ba7030d43cc5e6d361c8c7ad7"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideofilter.dll",
+      "sha256": "53bc895f53b0d3013ec59c4e82e2a75b285c487cf0106efe8feb5fe34fb8d24c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideofiltersbad.dll",
+      "sha256": "eba3247d7626645c07f2f0ec417b0e2a7ec7ec12ed32be7bb68925e4ec59109c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideoframe_audiolevel.dll",
+      "sha256": "ae0f818520e7e7d8a155ad15ee193ca62ec7da0f6d115a8c94622382903c4c44"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideomixer.dll",
+      "sha256": "cac317770cac9f625ecb560a0cfbe8b0897e0f6e778d620f4b7a986b89bbba38"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideoparsersbad.dll",
+      "sha256": "a672f214a3defbfbb81a184096d9177c292971891aed269044861cab5503a576"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideorate.dll",
+      "sha256": "3448011d3821683f4a8cb680acc1e6671d459173c406cd41ee4d5255ec67f4bd"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideosignal.dll",
+      "sha256": "12520415b1026dca181e93bec9cbca2ce85d8233ce9a0d45e27ebda166815804"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvideotestsrc.dll",
+      "sha256": "66b291ab130fac7867978f2d5ac995e874f37fc3f4c3bd2f8b43fcd358665eb5"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvoaacenc.dll",
+      "sha256": "eed9cad54aad9e2a1aecfaac2a0eadf0fa684101ccbd28ebe7c7432087e062dc"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvolume.dll",
+      "sha256": "e68c2057d2755109047caa39180d350178f08a542ffc80310ab828cba457cecb"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvorbis.dll",
+      "sha256": "2611899f90e4c2ffd5b081116c099ab8aad7afa48911a69346eb842826cd8613"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstvpx.dll",
+      "sha256": "0772b5e57f3a3d7494238bf8bdb48a264153a6ecb9c9bcfaac27596655d2562b"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwasapi.dll",
+      "sha256": "a0d4214f8cd58367a017a5b8a572eae13fcc5bbdec044a8973242a627d7e9b08"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwasapi2.dll",
+      "sha256": "a3b3cda7eb8d64b45f8761daf0357007cb47e80ccf3895432d130ac08983eeca"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwavenc.dll",
+      "sha256": "bd7a0c46cf0b01848c0eff17b5ef066e414e209a525ec2a1bd12814fbbaecf2e"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwavpack.dll",
+      "sha256": "ef8cbaa751a8959f0e0508d55bb646f8442282a3bc4d57f47fce07e47919b5a7"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwavparse.dll",
+      "sha256": "123ac7a31dd8c6ae44e5aa116da5c37d6e61456d0c4fbd090f58bf86bd82a73c"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwebrtc.dll",
+      "sha256": "df8501c075b9081c1ab6aceb5fc0f64351cda1df61ad1ceaf81bb851286d01dc"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwebrtcdsp.dll",
+      "sha256": "6b559a751d506efe82c24dd7976428d2ed369d13df8826d2ff3581ced6638af3"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwebrtchttp.dll",
+      "sha256": "ef91edb9e7c7e65d90bc8d2210e1d4c752f7a3b24c8d45f225c503dfded4f0b4"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwebview2.dll",
+      "sha256": "73ef4692eb216a0628e6315d167a531e4138d019d37faa40da80e23fa77925bb"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwic.dll",
+      "sha256": "9420fdddd8f09a5e91a0dced5306d7830b4c6762e3a20dee58e3f480e9cdc9ae"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwin32ipc.dll",
+      "sha256": "f4409593e11e18b4d88196069031e8745ff18c58a20f1a11a4fa860ad805dd32"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwinks.dll",
+      "sha256": "80c5c68725b5b83d103c79282e6a631f335e86fec5182a759bdeb0c2725668eb"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstwinscreencap.dll",
+      "sha256": "4e9dc426d369a6902745a6d4b5cd2963ddb2866e975175b5eed16ef96f35b196"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstx264.dll",
+      "sha256": "e5edcdb3e36dececec46221e10c759632ff7875b4c7f2207a19338068a39b25e"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstx265.dll",
+      "sha256": "e144618911a663af8d26674b01bbd20eabcf3fd75ad61f465a19ca9ff45faeb9"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstxingmux.dll",
+      "sha256": "860cb6a6a9c64f81f5dd3438a2117e898e7adac3c7a5806d262d5179d15705a4"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsty4mdec.dll",
+      "sha256": "c82af67dae953cb53bb5a2c211c05cb24e3c6930c51d4ad638fb58bdc4d70aa2"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gsty4menc.dll",
+      "sha256": "6afbaea1304c4fa7bebbaac49465bfcaa432b20e33f5a70f998316757ac93a82"
+    },
+    {
+      "path": "lib/gstreamer-1.0/gstzbar.dll",
+      "sha256": "7e9242938ddecd0d755f0063f5cfbab2e7625ea0b3701ba46a9e7d229f000874"
+    },
+    {
+      "path": "lib/gio/modules/gioopenssl.dll",
+      "sha256": "3b8fdb7c284d6c220fb16992dacb6fb8898d3f4deb0bcf31fe1942336c53c786"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/baseclasses.py",
+      "sha256": "7639fd0e8648c0220edf5b35e83f9d73710c6a250c7cc0c6682861aa56778d93"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/config.py",
+      "sha256": "f211da39e433ef2c167a50baf36d9f84c07019b7a9bedfe3308fd52439fe19a9"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/httpserver.py",
+      "sha256": "b34982d0ff020cc5002524228f377b27d66e5dadb08ea49e9147cc6fc59ecb86"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/loggable.py",
+      "sha256": "82c7367f0d31455179f2ebfb3148b0bcc4738e4c46c37a38bf91bb8a3856acbd"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/main.py",
+      "sha256": "1ce06e80f99afef657bba979a6d8794d4f88a20672b33394a364d17793633c1f"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/RangeHTTPServer.py",
+      "sha256": "3757e613f9c34e8444d4dfd0531b7259c91a280755199f52e124aa1762f771b3"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/reporters.py",
+      "sha256": "9952a797d5620a80ec1ee14c8b6f40ddb754bff66f45b9c377c50a1463d68e3f"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/utils.py",
+      "sha256": "76fd27f4939fcbfc5fb704b203c8de2c3676e9f25d0febd494bad4b928340765"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/vfb_server.py",
+      "sha256": "dd2cc4bb066b1ca2d9b13463f2de726707617a1fd607806eeb68c4ed7d47f5e9"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/__init__.py",
+      "sha256": "04a200be3f852332a6213528eebae459f08e1cbb8eaa74ca72fe9d5ee874887c"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/apps/gstcheck.py",
+      "sha256": "559c3cd4987b4ff98d77450621bb96f4c95b0ef112137042443edf086fc6b32f"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/apps/gstvalidate.py",
+      "sha256": "0c49928b67e89434e81bf1b33dc6e8a7337e02bb3b584098a9e190e4beb2ca8c"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/apps/pyunittest.py",
+      "sha256": "b3a932e7b6695fe082e3e9bd0242698fc6558ba2df3afd01e67983b221a7ad97"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/apps/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/testsuites/check.py",
+      "sha256": "e489aa6491f18f8651d4d44e68e73ba66ec2d9471df8ddfb6136f04956073909"
+    },
+    {
+      "path": "lib/gst-validate-launcher/python/launcher/testsuites/pyunittest.py",
+      "sha256": "70a9365e49d5e4aa28b62b180871a7761f1b2a18facff1eb12b1031fb173edc3"
+    },
+    {
+      "path": "lib/site-packages/cairo/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "lib/site-packages/cairo/_cairo.cp313-win_amd64.pyd",
+      "sha256": "cec3c45272700c452c043fda4300f261f84df21194954186becca0f57a0c2b8b"
+    },
+    {
+      "path": "lib/site-packages/cairo/__init__.py",
+      "sha256": "5c81ff76ff32f215f157da4f0fb44eef466d7dcc4ff7924ccdcfc19f1bfbf134"
+    },
+    {
+      "path": "lib/site-packages/cairo/__init__.pyi",
+      "sha256": "29f1fde487128966eda90a5c808f5fc5510f5430acf49cf607579c15a7d73558"
+    },
+    {
+      "path": "lib/site-packages/gi/docstring.py",
+      "sha256": "46abcd79831160c540fea77d52b4e05f67b28ed4d581560bab43c4ba9973f752"
+    },
+    {
+      "path": "lib/site-packages/gi/events.py",
+      "sha256": "707ba04d33a2d953323499cb1cc8bc0c41ff3564f87ad0b784b10ccb482ee184"
+    },
+    {
+      "path": "lib/site-packages/gi/importer.py",
+      "sha256": "7b9aff1c19c527a8d4077841a192998752db986c0b3b856b03da98be098535cd"
+    },
+    {
+      "path": "lib/site-packages/gi/module.py",
+      "sha256": "6d35194ecbe51cea15afff774d710802c7e61bc0ef93d6587f3e4974d1edad7f"
+    },
+    {
+      "path": "lib/site-packages/gi/pygtkcompat.py",
+      "sha256": "2d6fb183923cff5af13672a479a77109edb4864f0098c779c91cea560be98f84"
+    },
+    {
+      "path": "lib/site-packages/gi/types.py",
+      "sha256": "018d67aff885ab1f10978aaf4739730515a39b2e2e284ec58890f68bbef40801"
+    },
+    {
+      "path": "lib/site-packages/gi/_constants.py",
+      "sha256": "385f285afd878f81e3632eb5ac82b0de78da8d3cd31deef16d40d388527f5fd5"
+    },
+    {
+      "path": "lib/site-packages/gi/_error.py",
+      "sha256": "cf35897069c0cf53509cb11ea1e9c299ef958a969e4539ef11be28257854d8a7"
+    },
+    {
+      "path": "lib/site-packages/gi/_gi.cp313-win_amd64.pyd",
+      "sha256": "81082bec56a7c3d26648ae8c441ec6abb6b6bbea5d2b776e8b8390c559bace5c"
+    },
+    {
+      "path": "lib/site-packages/gi/_gi_cairo.cp313-win_amd64.pyd",
+      "sha256": "06a3b588d85b1f6f0ab223c0996a375805a434285eaba1f04d672bdc67525994"
+    },
+    {
+      "path": "lib/site-packages/gi/_gtktemplate.py",
+      "sha256": "949108466f2d057fe20b1b54217cc712629b5e23a67c46dfd9f1c37d966c84b2"
+    },
+    {
+      "path": "lib/site-packages/gi/_option.py",
+      "sha256": "3b788eef9c2341180c3610853a076d0c46398d9115e84ba7d0e5f546a551f809"
+    },
+    {
+      "path": "lib/site-packages/gi/_ossighelper.py",
+      "sha256": "dbfed782ee61635e027c9a16842a5d528800129e56b8863846edf2de88ef34e8"
+    },
+    {
+      "path": "lib/site-packages/gi/_propertyhelper.py",
+      "sha256": "2ee25012e4e50602f67b3ff19c69e9da127ef220fffcd522a2a64dc8b884fb3a"
+    },
+    {
+      "path": "lib/site-packages/gi/_signalhelper.py",
+      "sha256": "a6c6310c0ec589c6791af9c4727f2e80a677147af38171bf3f4dc62952e22063"
+    },
+    {
+      "path": "lib/site-packages/gi/__init__.py",
+      "sha256": "9e7da491ae9f2200c6bf9ab4750493bf5a1d9c9f1b04a805ef2ee222bcf9f066"
+    },
+    {
+      "path": "lib/site-packages/pycairo-1.27.0.dist-info/METADATA",
+      "sha256": "a57952a57ec9412f65d0291b226d53df40cd8a9951baf59380318ebc3d810632"
+    },
+    {
+      "path": "lib/site-packages/PyGObject-3.50.2.dist-info/METADATA",
+      "sha256": "4a4e1d47b406f6d272ad8b4273170865f6ab9f50cf319a45f759a00e79401909"
+    },
+    {
+      "path": "lib/site-packages/cairo/include/py3cairo.h",
+      "sha256": "23f1242683f664a5e16271eea48881cf445d4780b2e93a84f18d145dc75571e1"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/Gdk.py",
+      "sha256": "3aabaf1fdbe95adb491f036ee9f4a1e2c6fb27318c810df939d222c6baa3c628"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GdkPixbuf.py",
+      "sha256": "9de15ec2a6c8d30f9514ceae057d40e4efc187f6950c4e1b76bee346aa0b64a4"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GES.py",
+      "sha256": "8b8886167334734260bba790363aa0e9adc4c9130742ff3f27444649af48b679"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GIMarshallingTests.py",
+      "sha256": "8a893c5442e4398cc0129e78467ae8b9d1f80db39adf463f76de70d3a2dfe33d"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/Gio.py",
+      "sha256": "82e011e8adfb3ccf3bddb9946ebf67c189f4692a76e5c2d89ecfe9b85b84b79b"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GLib.py",
+      "sha256": "5322c43f43119c2521e6da92fe72f25fd582877855b22037c1389e8140ba7f34"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GObject.py",
+      "sha256": "5ad56a48856291f1fbc1815de9f580274b284a4cadf3d484924b035c593f27b6"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/Gst.py",
+      "sha256": "4b8bb0fcce8c1ac5f19c788d24f6705f2a1499c8052ec7b65c3b9f5a82778f0f"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GstApp.py",
+      "sha256": "7fa4ef336e4e9ffd00d81c95687db2d31a3c515f7357bd0a221d906b724d90a8"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GstAudio.py",
+      "sha256": "262eb78bbf6cad9f4a69a0b363c5ccf1964abccc8badefce77bfe9ab8a73d487"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GstPbutils.py",
+      "sha256": "e8d1b2cebf22ebdeab5ccb4ea50ad88456d067aaa09fceeacfe1ec44532a06c0"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/GstVideo.py",
+      "sha256": "90dd02b68d9d48b2a4ddc57f26ce49515daed56e3a3a28460f76302e4dfd3ca4"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/Gtk.py",
+      "sha256": "90e7fc3fee2427643dad08bc183f0707b9f944ea92d5fae6ab117795f876859e"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/keysyms.py",
+      "sha256": "2b018f18b9e451114c019b04155cebd081439b2b2bb3c8136d52943b5695d9ce"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/Pango.py",
+      "sha256": "11fbc1a5d6f8fcef50134298ebf4e2fe904cc5032430006854fd74274119cbcb"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/_gi_gst.cp313-win_amd64.pyd",
+      "sha256": "7f2473a3b04bdbc0d33ba33608627ef07aa2f4873bd0fbedac3a7f089c3ed984"
+    },
+    {
+      "path": "lib/site-packages/gi/overrides/__init__.py",
+      "sha256": "582c3851244ef769d50ecd6599e371390fff32b40b0355422d3c96c9cd79cf9a"
+    },
+    {
+      "path": "lib/site-packages/gi/repository/__init__.py",
+      "sha256": "13b40edcdd3d959d6e3e05daa348f7fa3018dcd0eb7145bf2f6967abf7268502"
+    },
+    {
+      "path": "libexec/gstreamer-1.0/gst-plugin-scanner.exe",
+      "sha256": "c8cbb03749393a68533f3bb91886beb833abd24d21156e89a26ec4e0906f6bb6"
+    },
+    {
+      "path": "libexec/gstreamer-1.0/gst-ptp-helper.exe",
+      "sha256": "b2a6e755eab9985f206c91ec93903562b8bd1ae4163fbf38a5c064a6df55fbf9"
+    },
+    {
+      "path": "share/gstreamer/gst-env",
+      "sha256": "2bcca968deea3d70666d55b5218446f922ee199c6e94add2a24d376874066154"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/05-reset-dirs-sample.conf",
+      "sha256": "7dae5045441ce7ab4ce9ee0ccbee84e2ae90daee9cfd2ac64cd887ee85c528df"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/09-autohint-if-no-hinting.conf",
+      "sha256": "f04d1737c2a85925a6294f4b966597d03a30c9e4c551c7a8c270eaad514b2689"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-autohint.conf",
+      "sha256": "9ae4308a18941969ea42f5881c202be052fe12da3fb1fb4fc4b940642ec74db0"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-hinting-full.conf",
+      "sha256": "aa01699d6a43a1be2996233e67daf1570b9000bd1a59763463d3a12b852cdc3a"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-hinting-medium.conf",
+      "sha256": "f0eaec3db6879f3460bd0e1ef3e09dd965168ca460a79d098eb0648c6740095d"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-hinting-none.conf",
+      "sha256": "5970fa53c69874ee51349300ef3412592e46e7f133c06074befcf6ab2a3ef6e2"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-hinting-slight.conf",
+      "sha256": "d138eca2bac3f78d45ff7cfb649ad792caa4a6e61f73cea7cf0ea54b091f1ef4"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-no-antialias.conf",
+      "sha256": "75412c70f3a78ad090c79a9dc63cce6aae41b2cfc2f67f4a1a1b533526216d2e"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-scale-bitmap-fonts.conf",
+      "sha256": "df8e99abb6f82384c61978906a45a95794940545da95790d87f01d9391e0894b"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-sub-pixel-bgr.conf",
+      "sha256": "719006f7887a958da8efe5ad010a2cde689313074607ae20f0be4cd9e8bfffad"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-sub-pixel-none.conf",
+      "sha256": "0f00b5cf0ce07062ec65b9b340aa888f6c5fbc215aafebd26781be2d5a13ff6a"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-sub-pixel-rgb.conf",
+      "sha256": "e4cfc04f5fc5093d2ba20c40f8709c9dfc099997313d0f96bc8256597a15d057"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-sub-pixel-vbgr.conf",
+      "sha256": "15178eb45f3206433bace02053214d5750b9d74a4ece727f48c7fbc8f8c9adb3"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-sub-pixel-vrgb.conf",
+      "sha256": "049680ed134d34c560be493a47301bf6542050e7e89c27d3df25145b41f8133e"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-unhinted.conf",
+      "sha256": "dca27a149268da3aeaa3416dc236fd1d76e2f997b1ba91e1292297e78c9281d4"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/10-yes-antialias.conf",
+      "sha256": "e6d82a642d1b37f7d24dc37f938b999f00ff7aa4303b2602d04164d53f221005"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/11-lcdfilter-default.conf",
+      "sha256": "76aec9d8dac48faabe1bbde9e887cfb09fa45f30be5f8826e945a394a0097e48"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/11-lcdfilter-legacy.conf",
+      "sha256": "0768fd57ae0a50d54f2f2e5efae98437ae8623573b652f246ac22e574d5f38b0"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/11-lcdfilter-light.conf",
+      "sha256": "0708443f97406b100a5ccfa67ea8a1c1473ff60ff03848e536bc62e2b2ddcea3"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/11-lcdfilter-none.conf",
+      "sha256": "8c2b7c2db7bf8e54fb4f449e726ad97d824195085f97a5c19d75914ad7b4b074"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/20-unhint-small-vera.conf",
+      "sha256": "278732c68c16177f2aa3c7e4ea318b9f720aee13a433c32eb15ba626806c609d"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/25-unhint-nonlatin.conf",
+      "sha256": "8b8c05318fb3f4893a9522e7989dd9280d14233adbc21be867bd173add4a0d5c"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/30-metric-aliases.conf",
+      "sha256": "3baf25c82e1a14c606d45c212296852be06ae9795d60e84aab573226151450a2"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/35-lang-normalize.conf",
+      "sha256": "a089c2707a1da1eeba225e688b363ad7bd5958225fb27727893941bb1802e69f"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/40-nonlatin.conf",
+      "sha256": "5c3f7d62a44258d5d9e81a93b1685bee5ab78acb8688b25a43c4c1e749312a84"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/45-generic.conf",
+      "sha256": "24de9f68189d544bb4cc084d9bd8f3a59d8b988a9dc44b11e9877d5add5fc948"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/45-latin.conf",
+      "sha256": "b46e539c25dfd5531c8fcf4f22c3d156b09272ffbc6f8a83a8eeb7431c09aee5"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/48-spacing.conf",
+      "sha256": "99d839cd8aa28854e8f54f26e7200b6e57951f39f56791a0ed473662488bcef6"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/49-sansserif.conf",
+      "sha256": "7849a11ce5243e8bb3d06bcad558737a8682e5122e73c8e427f4c011a2054818"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/50-user.conf",
+      "sha256": "449137ccce57d60bca178d57519ba54e1942d757ad171f3a88cd78df2161c970"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/51-local.conf",
+      "sha256": "dca9d917e1f66f73bfa495943b4d1eaab2d93810a51bc8e600cf4d4e9df03e67"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/60-generic.conf",
+      "sha256": "195bc8605dd23289d42c10d79cc13a5ce4a4b3cf965df5b30ecc0b7149bb951f"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/60-latin.conf",
+      "sha256": "5c2c410bc584ba16a5e2ca5830311b0efaba9bdba3261d3247e880f6ea9d5220"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/65-fonts-persian.conf",
+      "sha256": "c675fab143a3638346874798be45f51f6878ebec591b4362d83cfffb828ec4ca"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/65-khmer.conf",
+      "sha256": "0bc1c077ef01cb409f51f95218b97b144278c0568b5de03683047b2a1963c590"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/65-nonlatin.conf",
+      "sha256": "c0b0d517d351834705f7678c4b819e09cb619b116400a9cbe5a70b9d873bfcf1"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/69-unifont.conf",
+      "sha256": "fa97c0cf5f79d70e2dc3dc48155d4c9220cd7c6a8bc95b89c4ebcc517f97479e"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/70-no-bitmaps-and-emoji.conf",
+      "sha256": "313260028904353a026faa457bacea58df88ceff7dc97b269e526130dc797a7e"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/70-no-bitmaps-except-emoji.conf",
+      "sha256": "bb5df65896bf3011b2f2935b63ab12db1ecf078674ff73a533123445f122a92b"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/70-no-bitmaps.conf",
+      "sha256": "5994ce306887448ec29b2d6624696bb2dd7e333dd51cc5818f9ebe72abc077da"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/70-yes-bitmaps.conf",
+      "sha256": "46fb68f9ec27605f880379b753c1afcc1cacfc75021e3a288f4cf62c945e394f"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/80-delicious.conf",
+      "sha256": "34f27b7fe9cd83b2b6d46f16ef9c477412f2d7ef63634f86b9b38b79bc4f81ad"
+    },
+    {
+      "path": "share/fontconfig/conf.avail/90-synthetic.conf",
+      "sha256": "cdd0aac7840c664a7127b64db66bdfe8dc22be3774d10bc22f4a41c98de5d85e"
+    },
+    {
+      "path": "share/glib-2.0/schemas/gschema.dtd",
+      "sha256": "44a12f339042a3f5568a9cc86bb617fabaf4a25836b8c9510aa9de22431930c6"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/adaptive_video_framerate.scenario",
+      "sha256": "a1274a3d9fa2f0b8ae0f255f7c8c3527c6e27000943d10e9427250067a9ed48a"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/adaptive_video_framerate_size.scenario",
+      "sha256": "59d90f7f01443772f3d7380308928d931ae9e4bd8ef49d08480c3435afdd1afa"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/adaptive_video_size.scenario",
+      "sha256": "887c8a34cb0cf1cb869ff4d3e75b5913bde91d6c7a22c7ed1e9f8399fac6a473"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/alternate_fast_backward_forward.scenario",
+      "sha256": "591bca99c31630728454bd56923d51e4c811a53939b25b27daa519265206a39a"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/change_state_intensive.scenario",
+      "sha256": "7c45213bed3836e83b4211ebb29dcae78a5f319129d596aad069d36dc1138e1d"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/disable_subtitle_track_while_paused.scenario",
+      "sha256": "387a57d8a5e9bdf19ed87b3ebf28631a9a82a4c17499c0cae01c0aa7133adaad"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/fast_backward.scenario",
+      "sha256": "1ffd65a7a6d8880f4f144f4d6858ccba2dbafe0891af0683fee251ac4a8b29b2"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/fast_forward.scenario",
+      "sha256": "7e4e5f57f059b57e3014cbef9d0fb573f56bed9a12cc8ee7529cf7d30df01013"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/force_key_unit.scenario",
+      "sha256": "638825d096456584763f3967a2c3fcee1eee83e1281b16ed4b769f09fbb073ea"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/force_rtsp2.scenario",
+      "sha256": "8bc9b73a64052ceef36fc5748b7aaaa28d18b9db34f38e6ed20ead64f02ab4b5"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/pause_resume.scenario",
+      "sha256": "e970dc7a8902bc68b2d8713495969dfe83c6a6535f9eee4dd22052af2d82264e"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/play_15s.scenario",
+      "sha256": "5ef85135dd9ca28d07cc0daf6e25f1955fa0d77af4e711f587cda99ac1624c62"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/play_5s.scenario",
+      "sha256": "bf52d7adeb5993012f1ad7310da380793313b4399abaf47c56f127d8886857c8"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/reverse_playback.scenario",
+      "sha256": "dbc2e54c92c79235393618ac5530f1144a21f964e9023e27c2a3c8c91c4ff38a"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/scrub_backward_seeking.scenario",
+      "sha256": "ac24a015cddd6e190b53bb69f837333494e4f4dc1d39f50cc4638b9354381d6d"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/scrub_backward_seeking_full.scenario",
+      "sha256": "9de660b0441773a5f020fdc7787fb63b9f351be415599f62e634e4150d3b3f6e"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/scrub_forward_seeking.scenario",
+      "sha256": "944e2a7c347df173356649d7d8204bef7829c237e2c4800674a362561c684125"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/scrub_forward_seeking_full.scenario",
+      "sha256": "21f8ed5036930c193f7e7c8221d58bdcd03023e12ca3c34344c691ede2748345"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/seek_backward.scenario",
+      "sha256": "a6536265e6cea59a8def1f12a7506962e006f9ba9c5ab64157d2c0aee65d1432"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/seek_forward.scenario",
+      "sha256": "d476df4fb2a71838bb1bb08c98835dd51ad9ecabe972331fb8d874086f2e450d"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/seek_forward_backward.scenario",
+      "sha256": "79e86cdd7204fa7f90770d1b0c84780a864584ec6827ee0789b2d14f4f8dd66e"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/seek_with_stop.scenario",
+      "sha256": "0fa0547983da5da9875be9c51208408b47e60adad6e9645f111d110d15dfeb57"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/simple_seeks.scenario",
+      "sha256": "eba4fa1ef0ddc4f4d71fe0cec3930eec078a2ee401fef27b9c4712adbbe8bc1e"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/switch_audio_track.scenario",
+      "sha256": "472ff9aaa3d5b3de6b83d073b025673deefe518f4010d85ae67116d19c97e1f7"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/switch_audio_track_while_paused.scenario",
+      "sha256": "25440ff84393f0e795a941cc22d92b95de49ffe52ceeb7fa00f9d3f20e3155dd"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/switch_subtitle_track.scenario",
+      "sha256": "83b0ee8cc3e8bee1d30b865a44dd2558c79c0cadca7c3fff49fe4735901ae2be"
+    },
+    {
+      "path": "share/gstreamer-1.0/validate/scenarios/switch_subtitle_track_while_paused.scenario",
+      "sha256": "460426c7cbdc082ae57ca2961031a8ed05a5b0b42fe116c3aaad0cfa96fef893"
+    },
+    {
+      "path": "share/locale/ab/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "b7f515f008b1dcc5f8ae58c6bb2e2d44a79a6b3f09ee9800b97dd2accfa14bd0"
+    },
+    {
+      "path": "share/locale/ab/LC_MESSAGES/glib-networking.mo",
+      "sha256": "341b8821433c16e1579376f588452bc954b68d8059c258bacf95baf3c511b859"
+    },
+    {
+      "path": "share/locale/ab/LC_MESSAGES/glib20.mo",
+      "sha256": "03fb6b4227877bab23030f34e97d3e5524906fd86ae6eaab2b70bdb06d3347c6"
+    },
+    {
+      "path": "share/locale/af/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "9aa7406cb50d98be0d31cda6004e9b42bf579b02606e71b48695a6764725b0fd"
+    },
+    {
+      "path": "share/locale/af/LC_MESSAGES/glib20.mo",
+      "sha256": "0f7273b298bed1875b571f36be52802fca6a7aac10fd5ad86c87ccdd7740ff9e"
+    },
+    {
+      "path": "share/locale/af/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "be39a61206de9cec817eb1cc17e26e7a35e2a6279593faddb1732bb3b9376978"
+    },
+    {
+      "path": "share/locale/af/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "b2ff0a5e9dd967b3f384a196c5912e57df6f5adf689c8ee6afc6b1015bd73ed7"
+    },
+    {
+      "path": "share/locale/af/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "e91a92cde5c36fd40bacf1430a592bdf4e551e7dc8a82f22dc0fe7f777657e0d"
+    },
+    {
+      "path": "share/locale/af/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "704612772ae86e7b96e0b2e5ad56f71f7688e1439beeac60ae0539af5d4986fa"
+    },
+    {
+      "path": "share/locale/af/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "b8246939e1282298316737a204cd424e85dcb36aeb9bb5c3fd965256adf8e8d3"
+    },
+    {
+      "path": "share/locale/am/LC_MESSAGES/glib20.mo",
+      "sha256": "af819ea5540729b37d2b6fa50d3686ab6f935c365e9d8535179738c5eeed84b1"
+    },
+    {
+      "path": "share/locale/an/LC_MESSAGES/glib-networking.mo",
+      "sha256": "89f9fe6d79d45c7ff389a5c015ecc5b2804ce7829a1e78c0bf1b4b7b90ccaaec"
+    },
+    {
+      "path": "share/locale/an/LC_MESSAGES/glib20.mo",
+      "sha256": "a32f1baba1453020a6a8d076da2cbd1b202aba728ee10fc3d04ed40b02f6e0dd"
+    },
+    {
+      "path": "share/locale/ang/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "88adbd71d9a387f66de991d75777f795d6dc0244344f0f21e8234f9b9e92a628"
+    },
+    {
+      "path": "share/locale/ar/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "36fa2efdfab435432cdb12759aec3d539c8796e4d280e5d4b09b888ab1acdad0"
+    },
+    {
+      "path": "share/locale/ar/LC_MESSAGES/glib-networking.mo",
+      "sha256": "52cc8f61f60786f844ead7b58ca2c82fc7be9180b866cd82738c19bfc8bdd831"
+    },
+    {
+      "path": "share/locale/ar/LC_MESSAGES/glib20.mo",
+      "sha256": "3c45065c3b2d8877de674eafcb378e26b376706568654fa5ed6748c2de180b64"
+    },
+    {
+      "path": "share/locale/as/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "a029284bd66a425745a105edd82b78b8cc2f065be338ebf9d09b0094462b66b8"
+    },
+    {
+      "path": "share/locale/as/LC_MESSAGES/glib-networking.mo",
+      "sha256": "a729451c0d508e768c26df6754fd23d66c6070440d653cf2d27577b8aa821aeb"
+    },
+    {
+      "path": "share/locale/as/LC_MESSAGES/glib20.mo",
+      "sha256": "ef413ff0de40d316b06ebbb0b2114cf9fd8692ba817829b2e5cf111f38f01430"
+    },
+    {
+      "path": "share/locale/ast/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "37c05587ef87281d188ca5d21faba231e9655b07097f8fcdabc5f51ff7e0db72"
+    },
+    {
+      "path": "share/locale/ast/LC_MESSAGES/glib20.mo",
+      "sha256": "575196a770e745dbc9c94de662d05f8fa34e5eba5e1f3b72c24da3b9ee0b53fd"
+    },
+    {
+      "path": "share/locale/ast/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "ced39a88162a9b1921537c06286503d0a571dd44a41e5384b2f146aad60b5870"
+    },
+    {
+      "path": "share/locale/ast/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "51313407ca7228adf3fd96337ead772816c34e88a53bc57521041dc1e72b5a50"
+    },
+    {
+      "path": "share/locale/ast/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "bad08f2031001859d303139e49e5b8f839238317cc312e328c86bd16f6f4e338"
+    },
+    {
+      "path": "share/locale/az/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "61e1ed36275c0afd06ec5cdc00078098ffb0b35d53559d20b1c9b366aeeeca43"
+    },
+    {
+      "path": "share/locale/az/LC_MESSAGES/glib20.mo",
+      "sha256": "8de2410ffd2dc00431d1ea35df6d91cc924d70ff8970bc67aa0e8f58e2756d7d"
+    },
+    {
+      "path": "share/locale/az/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "5a36ecd00b0aea83216ad2e5035b9f4fb966ef7bacccecb96684d8bd9b5324b7"
+    },
+    {
+      "path": "share/locale/az/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "bec1f9622730af8fd8b16d92c3d2a2fc23e32fae08c4a9d25026e22820989902"
+    },
+    {
+      "path": "share/locale/az/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "2015378e0e154596b048e98daa91cf1054c6ad9b268137bdb2901c24aab8f226"
+    },
+    {
+      "path": "share/locale/az/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "74199730cfcae551b57445fb30b89675143eb03439e6a00e17c101719807ff58"
+    },
+    {
+      "path": "share/locale/az/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "911738e5f4485d3f8c487c218a57145c9b062f4ada0a3565eb253702203d7b02"
+    },
+    {
+      "path": "share/locale/be/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "5f3fc58a6e9c80fce9a400af62c2ec280195aa41a8350326727a860842995e94"
+    },
+    {
+      "path": "share/locale/be/LC_MESSAGES/glib-networking.mo",
+      "sha256": "be45e87c349ddecd8d9903162a1d55ad57b588794505c544f5d66f94279f758d"
+    },
+    {
+      "path": "share/locale/be/LC_MESSAGES/glib20.mo",
+      "sha256": "78ce64fb9fdef97219b90fa6089261bbeb3dcf3b9878bbd4bb18f517db2a46ad"
+    },
+    {
+      "path": "share/locale/be/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "da3d29c6514d4a25a43687035008baf745d80f5412dd4e44780a71632926c8b7"
+    },
+    {
+      "path": "share/locale/be@latin/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "12ec3ff8f8be0f234811cf68015f2dea9c1544f705993868c06d6fd78147d700"
+    },
+    {
+      "path": "share/locale/be@latin/LC_MESSAGES/glib20.mo",
+      "sha256": "0113dc748ed79e6240cea3e67d5f1bfda1362457dc33dba4703bfef506fc04b0"
+    },
+    {
+      "path": "share/locale/bg/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "fda16869b0723495cfb2b515d3ab33a5abcdf2d2b6ff5bcfaf8e01ed19656c17"
+    },
+    {
+      "path": "share/locale/bg/LC_MESSAGES/glib-networking.mo",
+      "sha256": "7e70a56a95aa1f881a9577e2dd46a0e60bd695f71bf56d26253951746023f0c0"
+    },
+    {
+      "path": "share/locale/bg/LC_MESSAGES/glib20.mo",
+      "sha256": "4db8d1967de33546c140c59b6eb6f66abfb89ab3698eb69a72d7207776058d00"
+    },
+    {
+      "path": "share/locale/bg/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "1ac539dcb4d13141ba22ebd7bb331c550dcd363813425cb3eaacdb132faa9f0b"
+    },
+    {
+      "path": "share/locale/bg/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "ddefea9005b96678c20f3d051f17f3b3c36575fcb89c9b200cd1b51a8fd1d07d"
+    },
+    {
+      "path": "share/locale/bg/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "a2f19beaaaadf0cc896d3bf99affa387d3daee58a5d88bcdaef5280166f543c3"
+    },
+    {
+      "path": "share/locale/bg/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "a24b9ef46e5b367415889b8659931f3803b8de3f2a89c6b88c8bff199ae23688"
+    },
+    {
+      "path": "share/locale/bg/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "f273a6293a386461ebf5d0075a6f5082a479b34acfb3b70da6a6d4aee9de9211"
+    },
+    {
+      "path": "share/locale/bn/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "ffb0e81e49500a498cc385918fcd731bed96c9ef0ff45d6847c5de972698e3ba"
+    },
+    {
+      "path": "share/locale/bn/LC_MESSAGES/glib20.mo",
+      "sha256": "231f29eb92d40c768a74f97a6802cebb2c52c30277446ba5d287d3822950fd80"
+    },
+    {
+      "path": "share/locale/bn_IN/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "929ccb451adda15f857b9786378bd7a35b8d35ba574eca56a3739a914d31d1b9"
+    },
+    {
+      "path": "share/locale/bn_IN/LC_MESSAGES/glib-networking.mo",
+      "sha256": "7a96f60172f39da1c2cd0d8c127bcda7d770e83c1a2f93088f7330ed9a66fd04"
+    },
+    {
+      "path": "share/locale/bn_IN/LC_MESSAGES/glib20.mo",
+      "sha256": "769f1f8b2e3ba9d0d366e3be1f69c51865249b316228445f55fed443ce27f8ff"
+    },
+    {
+      "path": "share/locale/br/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "4bce7147cc44edc0ec8901739a6aca22074d6ad89258fbe8a05241609b5d6800"
+    },
+    {
+      "path": "share/locale/bs/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "f0e00a83368412ad5861d595516713a418cdaeb0fe19febacc62082f6008d084"
+    },
+    {
+      "path": "share/locale/bs/LC_MESSAGES/glib-networking.mo",
+      "sha256": "83b744822bd9d77f48463fbbbd302bf25e6e9c766d1db552bffdbb6147b128ed"
+    },
+    {
+      "path": "share/locale/bs/LC_MESSAGES/glib20.mo",
+      "sha256": "5ffc12300fe0b422ef925042798b295a164fed2d5047864f75d0076ec1fc85e5"
+    },
+    {
+      "path": "share/locale/ca/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "14878e8bf110a21a123a6a4c0c8d71f2b29643f762a64cafc2121b62fe9c2f02"
+    },
+    {
+      "path": "share/locale/ca/LC_MESSAGES/glib-networking.mo",
+      "sha256": "db3c60f0abbe6f5c5bb0acc0528e022218ce2e34756b5f27dea6452fa3aba83f"
+    },
+    {
+      "path": "share/locale/ca/LC_MESSAGES/glib20.mo",
+      "sha256": "6507de0c553406e51dc223c311b1b1d5f1ce706651e037910742b010c9b9f342"
+    },
+    {
+      "path": "share/locale/ca/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "35bc64f50e56770441249a29f1b046c30d50db9751b0f3db6206319b20ba5c71"
+    },
+    {
+      "path": "share/locale/ca/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "a9845cee5eedc2b5d7022d4607d2ecc10519ae410bb636719b18c6332e216151"
+    },
+    {
+      "path": "share/locale/ca/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "89030696d6d3db1315ec89c5a8c75ae38c93fb4f9c9264ba54b0febeb883ae11"
+    },
+    {
+      "path": "share/locale/ca/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "7f1ce89749104266b9002375c40e09a8fd5602a30afb1511a7a3d9847816694f"
+    },
+    {
+      "path": "share/locale/ca/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "699059740d9bb7792bca078b219f2519f43dbb7e90c1a780e89e7dd645edded5"
+    },
+    {
+      "path": "share/locale/ca@valencia/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "7315612e1dcb4d412f9c2d296b0e323b18aefa3f09ab6c8562833892b27aabe8"
+    },
+    {
+      "path": "share/locale/ca@valencia/LC_MESSAGES/glib-networking.mo",
+      "sha256": "1ee0e0c8837e749254b5b7cb8b8d7b834618c57c4484045e7d2088a0016a8410"
+    },
+    {
+      "path": "share/locale/ca@valencia/LC_MESSAGES/glib20.mo",
+      "sha256": "c5cd583ce77aa25a66ed0b725ed17113b4ccedcadd838951bccb5d2917dbe74d"
+    },
+    {
+      "path": "share/locale/crh/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "a40b2fab2ef5d84951447b9fcc57c9d7251553a4f20e4b5878ec3b82886d51d5"
+    },
+    {
+      "path": "share/locale/cs/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "5599ee2fb0f4d619fb2c959e54888f06b1675142684c0808d997cd2232a82338"
+    },
+    {
+      "path": "share/locale/cs/LC_MESSAGES/glib-networking.mo",
+      "sha256": "c77cc9da9af60c9fb6f5de3e819e83b3a55667b2cbba5705d47ef53b3c09bdd8"
+    },
+    {
+      "path": "share/locale/cs/LC_MESSAGES/glib20.mo",
+      "sha256": "ad2fa34b15c8d4d349cf27ca0d47927efa578386641c02fd814a0198180cb598"
+    },
+    {
+      "path": "share/locale/cs/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "0ae73edb50958da2f7d54b054592141abe64013ca719f30561e8e4e51ca6bef6"
+    },
+    {
+      "path": "share/locale/cs/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "1f2c156f8295f4962c0ecfbe9c1cbbd8bbb093485b09a50068e440525fbeb26b"
+    },
+    {
+      "path": "share/locale/cs/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "8260998a95d5c11a1d913352dabf5ef6d55639771792383b33afae75e77c9c2e"
+    },
+    {
+      "path": "share/locale/cs/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "8ef9b603763809d46262a6dcaec28c2a27b9b9d20d27800487e474063645afc9"
+    },
+    {
+      "path": "share/locale/cs/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "d64b984f3821f3248813cf316717975c2d35aca3dc0826850ab346ac84b75a10"
+    },
+    {
+      "path": "share/locale/csb/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "5d1b2979687dc70d67606e90ec75576f67f417dfc445bc425feed58b06c9195f"
+    },
+    {
+      "path": "share/locale/cy/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "e658b6cf5eefd9bcc2e9f44991e8999b772dde271c16ae0c69342a93a5eca623"
+    },
+    {
+      "path": "share/locale/cy/LC_MESSAGES/glib20.mo",
+      "sha256": "f3642fe45ec4985d13a625d8b66a50bdfd68bcdac2f48a8702d6ddc384ed9865"
+    },
+    {
+      "path": "share/locale/da/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "79654912a6ee4ff5c6c5c5bd9f6dbfa48bf4dd37ce6f3abba3d72caca5352313"
+    },
+    {
+      "path": "share/locale/da/LC_MESSAGES/glib-networking.mo",
+      "sha256": "6dcb3331975564b8ed5e7e4c2aab84561aa7ec66116db00be11c4efb1d83e4af"
+    },
+    {
+      "path": "share/locale/da/LC_MESSAGES/glib20.mo",
+      "sha256": "3fc9204cf91f3c0f0f9dc5b0b27807da4f3a9d38ee4268755905b048ad6ded3e"
+    },
+    {
+      "path": "share/locale/da/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "b16b216f3476c38b58d549bf0e7d1a777ee551697b9f90bd7cb84f7cf596a631"
+    },
+    {
+      "path": "share/locale/da/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "4f079de49e695daa8b3d89e250788c86851def512303229a169b4bc542639f34"
+    },
+    {
+      "path": "share/locale/da/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "274c639aeebfd6a62411951382f8592bf49dcfbf04d221778f6a92831c9d4914"
+    },
+    {
+      "path": "share/locale/da/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "96f222ae7faead9a7916d55e9a7713a6ac967d3e00fafcae889a11e16301f684"
+    },
+    {
+      "path": "share/locale/da/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "443914eab7cc02d1fdd8479ade09ff4146725e168fe9dd91ae415e7070ae6003"
+    },
+    {
+      "path": "share/locale/de/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "08b1e217a53b11a1de16386b3e5bb619a44a3bdc8f48135bc2238da328aad16c"
+    },
+    {
+      "path": "share/locale/de/LC_MESSAGES/glib-networking.mo",
+      "sha256": "8f6fd5b6a0d62ef16ad368ed2ebfb748555f86fc6bbdfe2439ad1824a3b256ff"
+    },
+    {
+      "path": "share/locale/de/LC_MESSAGES/glib20.mo",
+      "sha256": "d208e7d2cf170c3ebe1c9bfec6cb0b973875dbd0ff6656423a32e7a9cf8ff1f1"
+    },
+    {
+      "path": "share/locale/de/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "8cd432552faa56347c2de47cb0b09d2e9c10df79d2a7771a74fca68d7baf8785"
+    },
+    {
+      "path": "share/locale/de/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "8af93d3df48f987b965b09817805df28682d4e3579e3634e170818dda874be0e"
+    },
+    {
+      "path": "share/locale/de/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "c72a3490c767fb9821c4794efb38de555a164bf805a592fcf5af8105cd3e99a2"
+    },
+    {
+      "path": "share/locale/de/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "aa44eadf719ecfa47a67a535618a2e6ee904101d7b1e4c7db1b49727b26756f0"
+    },
+    {
+      "path": "share/locale/de/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "1f21ad4ec6de91cacbdb2e11c9b824f9db69e27dbc3cbbba71b5b43ee45ecc74"
+    },
+    {
+      "path": "share/locale/dz/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "33b873864e17750e33befe5393b2ae1a3adc390eff30ab95d100618f59b5c73f"
+    },
+    {
+      "path": "share/locale/dz/LC_MESSAGES/glib20.mo",
+      "sha256": "ce0628326eeb7eb49e961557a21b48c7defcd72975a18ee4dd7646537ede1c4f"
+    },
+    {
+      "path": "share/locale/el/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "8231917322b58425b07cc1f78ce928f2277d327e2e03203679206c9746aca9b6"
+    },
+    {
+      "path": "share/locale/el/LC_MESSAGES/glib-networking.mo",
+      "sha256": "039d0b6d41f6c21f8a6ab4714a552eaa2c767c68e9f7ba3a9d69fef9d762253a"
+    },
+    {
+      "path": "share/locale/el/LC_MESSAGES/glib20.mo",
+      "sha256": "675b78010403f8a782d7cbbcea4a39787252c66085de680bfce7d71ab97f0299"
+    },
+    {
+      "path": "share/locale/el/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "1d4355c0bcaeb2d3809935d6bfd237ae88adf44dd2514827e1a01490957b96d7"
+    },
+    {
+      "path": "share/locale/el/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "af680fabafbfad0f6286f9809ac3d1deaba98ce1ec1e6f082f51d5280aeb29df"
+    },
+    {
+      "path": "share/locale/el/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "c1f79f7c0b61bb370b7c2ac660acae020a5d1f517bfc866389d28fd71957c916"
+    },
+    {
+      "path": "share/locale/el/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "31f87b765ed37d5603c85ea81836775b4d7c46805d6d097205d71145e77cd1e4"
+    },
+    {
+      "path": "share/locale/el/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "f1e3063d4fc91b0c45a7f1a5107b774ea998a3ddf6d8a83ad9741468fbd7d20a"
+    },
+    {
+      "path": "share/locale/en@shaw/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "564b084bfbae0823dd5ea33b4beabc8878a02a28f61296f4a27d04c01035583d"
+    },
+    {
+      "path": "share/locale/en@shaw/LC_MESSAGES/glib20.mo",
+      "sha256": "7dc4a6ca9b27541ee580bc5c07b343cf32661b5dccea86b17d7155b0c7a5044c"
+    },
+    {
+      "path": "share/locale/en_CA/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "9ea2cd768889677ff850e111087609e19dc251c792d68d9a3b6ac72e5a83b5ac"
+    },
+    {
+      "path": "share/locale/en_CA/LC_MESSAGES/glib-networking.mo",
+      "sha256": "02ee2e6beec18ee7851be2968ad68c5012436b31f989742c88999a5d919c2c66"
+    },
+    {
+      "path": "share/locale/en_CA/LC_MESSAGES/glib20.mo",
+      "sha256": "07347de635ff077a24809e4db1aa236bcec71ed2e9920118110bd000db8f60c5"
+    },
+    {
+      "path": "share/locale/en_GB/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "5d244a2720bb0f91453dc12a7bb079914009972128bd157c7d6cb569ac411e68"
+    },
+    {
+      "path": "share/locale/en_GB/LC_MESSAGES/glib-networking.mo",
+      "sha256": "f933b94adfb79077b82fb3f86f7744b9cbb8a9931105be97ca551ee2a4280e8f"
+    },
+    {
+      "path": "share/locale/en_GB/LC_MESSAGES/glib20.mo",
+      "sha256": "bfdd666d02d847ae93daf846dc4e165d0f1215ff4318b440c9664629d2598e18"
+    },
+    {
+      "path": "share/locale/en_GB/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "019293a27ac521c267c3659fc90ef38c79850173cedb9b3126b83069f11b8d89"
+    },
+    {
+      "path": "share/locale/en_GB/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "0663e390905f54b988da3b0d3a9ca4db92553e294e892b6bc6044e2fcba58dce"
+    },
+    {
+      "path": "share/locale/en_GB/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "fb6e7561d4fe68a46318344d279f432a704b2c3673e570899e07ce82ab331e24"
+    },
+    {
+      "path": "share/locale/en_GB/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "81d606368aa1d4b0cc57fabbc6da7591b627d357bf745df1549d8e6ef5de9c19"
+    },
+    {
+      "path": "share/locale/en_GB/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "52c832b314d3e37ed4d3c96aefef35994d3eb03d372b1af14a5bdf0f45f88ad3"
+    },
+    {
+      "path": "share/locale/eo/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "b7a48530eb51ad75043b5dedeb81f9b7515ad3f8defd66bd322ed0a830c81a6d"
+    },
+    {
+      "path": "share/locale/eo/LC_MESSAGES/glib-networking.mo",
+      "sha256": "95716a97dea887bde1c5c0c10327b7c31993c5b9533802d1ebe670eda7ab2980"
+    },
+    {
+      "path": "share/locale/eo/LC_MESSAGES/glib20.mo",
+      "sha256": "f4e7071ca307f932584fd6dad8a8de433cbeceb6172fbd160a80d3c65f128776"
+    },
+    {
+      "path": "share/locale/eo/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "7296ac3a2f0531e50f97f937fa29eb5111854d1c9caebfbfdafb94c8085539d3"
+    },
+    {
+      "path": "share/locale/eo/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "ff4dbcab57f6a02d183b43538e625d6ff9973542cfa9b80e27c0eb8ac3020f08"
+    },
+    {
+      "path": "share/locale/eo/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "cd36f9b8717c7a2aafc38578ffbbf9f477344d464650c4fbd5d4c2e3a9f31e7e"
+    },
+    {
+      "path": "share/locale/eo/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "e5e300c252332299c7be6497cf9d57ef9d02d62639461d056eb73b8e0b7e9a2c"
+    },
+    {
+      "path": "share/locale/eo/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "e741c5c6bac8ab980d5007c29d3f53d0a2ee21d7397ca66b45ef2399a7408f6a"
+    },
+    {
+      "path": "share/locale/es/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "5384bb4a19c33779b77ccbf7ee991dc8b5d2c7e96c2b7cde39723cc35ba608a4"
+    },
+    {
+      "path": "share/locale/es/LC_MESSAGES/glib-networking.mo",
+      "sha256": "3dc0a811dabdea931771f26b664e1c0b7439642cc035510fd1bb9f50acb06629"
+    },
+    {
+      "path": "share/locale/es/LC_MESSAGES/glib20.mo",
+      "sha256": "871a0704880292b315d371f261ebfe6510fd08003441eac2b85a7ba99af26e5a"
+    },
+    {
+      "path": "share/locale/es/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "0844c21de71920aaf133cfa82f9734b4af09dfd92f4c1000c30372d2e1a198df"
+    },
+    {
+      "path": "share/locale/es/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "9e0d01f23bf5f5d757b29125dd2e63703b1031f14e85d87f10e5ecdd7493fe4b"
+    },
+    {
+      "path": "share/locale/es/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "30b4cfc547808cb4c4175722c2f7eb780a765298719b34b3d782553cc3988585"
+    },
+    {
+      "path": "share/locale/es/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "1bf49d203ec6de86f184e081b09cade25d52617d1faa7be67165370623898263"
+    },
+    {
+      "path": "share/locale/es/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "e20c584da292bbadf8aa28318b30c996bae6477fc505238bc020b4998f577e70"
+    },
+    {
+      "path": "share/locale/et/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "f37f55e93fcb4d4ef5a3e3c7dd0c97feaa7542681172778b919fa3fc32a9de32"
+    },
+    {
+      "path": "share/locale/et/LC_MESSAGES/glib-networking.mo",
+      "sha256": "7d602040a24dff4238ef056d9c073fb14595c777acb0b2cd6363f97f82a9d55d"
+    },
+    {
+      "path": "share/locale/et/LC_MESSAGES/glib20.mo",
+      "sha256": "c4a10d5de2c960b347180444ffdd53921ee6d820f98be1cb2f02a99145c86e64"
+    },
+    {
+      "path": "share/locale/eu/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "85bdc33bc711c64f2960abeaba32341ee050e93ab1ab78f23f5cb900ed4aae75"
+    },
+    {
+      "path": "share/locale/eu/LC_MESSAGES/glib-networking.mo",
+      "sha256": "06200159d9c8815e8ac4670c8011e5f9023a5685a003380d63aa064599238c6f"
+    },
+    {
+      "path": "share/locale/eu/LC_MESSAGES/glib20.mo",
+      "sha256": "18063df94e8e2bf981187452679a93b3e562981ed535a6bc357fb00cfd7ddfd0"
+    },
+    {
+      "path": "share/locale/eu/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "c2b4fb50f6e2efb58d696e46986e28f5f24d658fff5e63b3674335c0f270f27a"
+    },
+    {
+      "path": "share/locale/eu/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "c84313561421d4e14de0e55ce8a303292493ec5a8cf7661c0c2676b23284d457"
+    },
+    {
+      "path": "share/locale/eu/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "74347555a9d1aff2af0069a7a1a066fddc87d7669be7cf97a012c60eb3341639"
+    },
+    {
+      "path": "share/locale/eu/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "46138669cc840f492a523b9bcbfa54988b526041a3aee33aed9125ee1f5044a9"
+    },
+    {
+      "path": "share/locale/eu/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "c84a7d244e5541b7fc20b6f04d37260ee04636fc096a2548179fcf44f1852cc7"
+    },
+    {
+      "path": "share/locale/fa/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "9fbbaf7b9310c6134d35fbbebe51a7a07c75876d66fd18a1ec90e3490592478c"
+    },
+    {
+      "path": "share/locale/fa/LC_MESSAGES/glib-networking.mo",
+      "sha256": "53ef65145b147f3b7bc506462a2d37ddfc5ca4180d65bbf8d178b943ee04647c"
+    },
+    {
+      "path": "share/locale/fa/LC_MESSAGES/glib20.mo",
+      "sha256": "a5665420fa54539e8b45775ed8bcf5132a0c258e8e8dc4e3038b81463adea0b8"
+    },
+    {
+      "path": "share/locale/fi/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "99a902fdf5664dd35c42fb17ff41f98edd329970215ab9e110c8e9adf9a38399"
+    },
+    {
+      "path": "share/locale/fi/LC_MESSAGES/glib-networking.mo",
+      "sha256": "a6872185202023e6734c04578dab5f746bf162ea9a28782041df70b26a78e106"
+    },
+    {
+      "path": "share/locale/fi/LC_MESSAGES/glib20.mo",
+      "sha256": "81336ad87bcda81a2f5392cbfe80e59724790b9b7272fb41edac77ee2a0c3706"
+    },
+    {
+      "path": "share/locale/fi/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "fd5de237059e928a5ae92fbaa442ca43122e85a7297e0d5deb5ca2b339857f66"
+    },
+    {
+      "path": "share/locale/fi/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "81172031c9d38bbb6c2f4b52999e547fa1afb15d577dffc4e1b542d8d306644c"
+    },
+    {
+      "path": "share/locale/fi/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "dc06bd4bf8cdac0b08c27c2fa6a1fb5cf63b638cb5c77c40517be04114199aaf"
+    },
+    {
+      "path": "share/locale/fi/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "865b20d76903e188c2f5e7de800440519857561ac9ad1609b4d6142f00678400"
+    },
+    {
+      "path": "share/locale/fi/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "cf7335d0bc52a1ea4fd67d96377e03b83408b9bac90bb9a8d94876a7a701450c"
+    },
+    {
+      "path": "share/locale/fr/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "63b5e2936ec4ae64162a956e9bbd19c0a8941cdcc795b30550c294d30c741869"
+    },
+    {
+      "path": "share/locale/fr/LC_MESSAGES/glib-networking.mo",
+      "sha256": "73a5f1a5341cd8765553de3274fb17ffc45b617bfb22557c24c4f0cb29573ba7"
+    },
+    {
+      "path": "share/locale/fr/LC_MESSAGES/glib20.mo",
+      "sha256": "2948e356efc4c23ed90db4d3f462857ea81702fb8cf8488796f01dadae68f5ac"
+    },
+    {
+      "path": "share/locale/fr/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "0282be258d0b48309801255395637db83cdd9f514de58ee901d6d3801b081f8c"
+    },
+    {
+      "path": "share/locale/fr/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "f59dbd75d3e37dd24051b4fd430258faa8b02d4ee95f3433f6dba9f54c2236fb"
+    },
+    {
+      "path": "share/locale/fr/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "e992f7a431309190149cdd2ff5b9ddf626412c2ca901f642dbe2fad4bd431e79"
+    },
+    {
+      "path": "share/locale/fr/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "119d18c0e94fb9fbb406f79997f3ec16cedc6234bddb95a5f65bbaeb47b03400"
+    },
+    {
+      "path": "share/locale/fr/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "b91a0154b2c736e833a8ac8af1645bbc4dc83e911cf9db998b1ef6241baacc1c"
+    },
+    {
+      "path": "share/locale/fur/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "e03e713fd4791ace7485fbf2c3f36d8213d2e0b5e3cd476bbd2e0b10abd8236a"
+    },
+    {
+      "path": "share/locale/fur/LC_MESSAGES/glib-networking.mo",
+      "sha256": "b0537cb6f1766138ecd909eb0caf4c1728070af15b20321cd027d88e6625ea32"
+    },
+    {
+      "path": "share/locale/fur/LC_MESSAGES/glib20.mo",
+      "sha256": "5d4547b0540d459eb280c3dc089440a40a5c1cc15c5865326fa193d7aea92b6c"
+    },
+    {
+      "path": "share/locale/fur/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "3ef5c9833ed01ba33d27f7e2623f63a66130d2e61df2659a7d33bc3df1995f90"
+    },
+    {
+      "path": "share/locale/fur/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "e439bc0414e816aa12ea76a0344c7110cf8cb5a688d999821b78e65b50895b67"
+    },
+    {
+      "path": "share/locale/fur/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "f4d3c7a47967639856e6e204bdf3caa36fad6d122265db31360b6d7d234d87a2"
+    },
+    {
+      "path": "share/locale/fur/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "106cbdfab971ced895f1f291d498a56b8173c0870601bbbd94c7e993ddd9df29"
+    },
+    {
+      "path": "share/locale/fur/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "a8942e96ef596905a158d5c5c09810b9a6b15057f229268d8673c10552a7c8cc"
+    },
+    {
+      "path": "share/locale/ga/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "b2bb69de3e1a0500ccee7bda3542848a5c70a776e85a075e1c7d4351b4d35114"
+    },
+    {
+      "path": "share/locale/ga/LC_MESSAGES/glib20.mo",
+      "sha256": "2bd62bec51fed73df41e274f7e4ce4e54b55e8355fb890d6ded82d8053d1e747"
+    },
+    {
+      "path": "share/locale/gd/LC_MESSAGES/glib-networking.mo",
+      "sha256": "623bfea2d83e3c1621236841eca9ae7f477a575b206dc7bc332fde0bfd37d471"
+    },
+    {
+      "path": "share/locale/gd/LC_MESSAGES/glib20.mo",
+      "sha256": "9530cd6f5289885566a9e5746e9533032023a17a6b6aadefcab4495c57e44fe7"
+    },
+    {
+      "path": "share/locale/gl/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "02f35de9cdd41a707b1d48c42c698f347fae7558823f32db0070dd374c866016"
+    },
+    {
+      "path": "share/locale/gl/LC_MESSAGES/glib-networking.mo",
+      "sha256": "70234c084ba8a854ba3aa013f27166734b31be8795db975c2d353537e917a842"
+    },
+    {
+      "path": "share/locale/gl/LC_MESSAGES/glib20.mo",
+      "sha256": "d9666acffc77b97f7efdb4c8e8564e3c23a12ad32d2a9a08be37fa6bce204807"
+    },
+    {
+      "path": "share/locale/gl/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "abb14a009d6d80d93aff1b00077a9cab2225ca76f4b24116642afe0569617d8e"
+    },
+    {
+      "path": "share/locale/gl/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "e11e4a2abd4ba135d2bc4a44173650541583179cb7b0d9f605330da6c26f64e1"
+    },
+    {
+      "path": "share/locale/gl/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "a032fb33a5e0cdf33a316d9e4155b74f1598e39b05ea818a02944a1e6f955d41"
+    },
+    {
+      "path": "share/locale/gl/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "2e0a1297ed2d1a75ddcebc5515dc998491cffe6f9a9fa4f56076c7fcf65cd939"
+    },
+    {
+      "path": "share/locale/gl/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "cfacb002004ed19bab6a18d928fd74e1d095acc00b570ac8b325568255699980"
+    },
+    {
+      "path": "share/locale/gu/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "36584312b97f085ab6e6ea4a547893c5d511038a77d188934479b44826d4e566"
+    },
+    {
+      "path": "share/locale/gu/LC_MESSAGES/glib-networking.mo",
+      "sha256": "68004a450e1f0899783e7d6e62c3426fb37862044929c2e3abd578f6291f3cea"
+    },
+    {
+      "path": "share/locale/gu/LC_MESSAGES/glib20.mo",
+      "sha256": "8eb12885121c0f83693b52d5f23ba100cf49ac852f36f94d9426758dfbd4e148"
+    },
+    {
+      "path": "share/locale/he/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "c1dda216640ea2f61a801ad9682b417877be263c2ff7a2a10441e258504bf817"
+    },
+    {
+      "path": "share/locale/he/LC_MESSAGES/glib-networking.mo",
+      "sha256": "467470d4ab0cf12039df946c66818bb5af0a8d202bc1d185138bdb359e3735fd"
+    },
+    {
+      "path": "share/locale/he/LC_MESSAGES/glib20.mo",
+      "sha256": "7c8fe2b02ead5f412582eb6f822f7253c00c1dc60558314dab70c6ed18c87a0f"
+    },
+    {
+      "path": "share/locale/hi/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "116a4c3efbf1970cda12b2c7e8df8a5f08cfcc1b043f01559bf2a97e66677cc7"
+    },
+    {
+      "path": "share/locale/hi/LC_MESSAGES/glib-networking.mo",
+      "sha256": "59501c6da8f9f79f7fb0e3300d8e7c54725406ebfb932ec64a010e92cc372ea9"
+    },
+    {
+      "path": "share/locale/hi/LC_MESSAGES/glib20.mo",
+      "sha256": "43f4fa5c0fdc7172fcc0e714fb157fbfd50bd4eaee60f85262e4a2b654272912"
+    },
+    {
+      "path": "share/locale/hr/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "ffb7bf370e66ca1c97a6e7ff900745002ab6422c2dd3cadf1e893d463fdd58cb"
+    },
+    {
+      "path": "share/locale/hr/LC_MESSAGES/glib-networking.mo",
+      "sha256": "faa58d457de6afe03bf405e9356fa4b815db3b489d687525a8017ef4de1a4e6e"
+    },
+    {
+      "path": "share/locale/hr/LC_MESSAGES/glib20.mo",
+      "sha256": "1a031b24f21b45caa91ea9ea96ed6af98c9aed2c7117b5502a004e38acba4acb"
+    },
+    {
+      "path": "share/locale/hr/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "3fd29ba41e6b01582a653d04fc4a49f2df89799f2e12131b6fa4a7aa29d62312"
+    },
+    {
+      "path": "share/locale/hr/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "5d19db50a909831cf0b5f7900835e0a2124fdedc917a81de3ab4f0dfba0e9344"
+    },
+    {
+      "path": "share/locale/hr/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "7354957fe5b3fb78b279b86bfcc305a93fc8d79657395e8214edac01f99032ca"
+    },
+    {
+      "path": "share/locale/hr/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "4906a7779e5421572df14f5725fd7b1c197d065b099725c9139c595435a4574c"
+    },
+    {
+      "path": "share/locale/hr/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "b55d18d4ab606a23c8cacbc51a390880991d178acaa052c49e95ce9522a40c4e"
+    },
+    {
+      "path": "share/locale/hu/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "34efc33b9150c1a1f9fb1b381da138f22139b57b138763488e949c727736d45b"
+    },
+    {
+      "path": "share/locale/hu/LC_MESSAGES/glib-networking.mo",
+      "sha256": "fba74a36813eaca3ce2f51e452d68ff54c60eb93f8ebd94f8abd732806ae6ba2"
+    },
+    {
+      "path": "share/locale/hu/LC_MESSAGES/glib20.mo",
+      "sha256": "052f26b2e464578fe2b2fb775c1ff9ca567be6bb0c600b4cc95ad6baac21275d"
+    },
+    {
+      "path": "share/locale/hu/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "ab8d88ef03e7ca807db94da432b232cfd110447cbcaff3aaf706f8db8341c92e"
+    },
+    {
+      "path": "share/locale/hu/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "c44edc6fc736c50ddbce300161fefd1dea856ee0ebd2e887e6ab5ca83e67c107"
+    },
+    {
+      "path": "share/locale/hu/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "2711bc1014f5cf28ca294b1890cebc21fd941ddf435b251e55e5a4c311e9c9ac"
+    },
+    {
+      "path": "share/locale/hu/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "59faf97985738207e2d9a68b1af44272e9aa3be4c91320044b615007752b6496"
+    },
+    {
+      "path": "share/locale/hu/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "17262f7d1e19ea7d1996c9eee27c6efe0a32dda8820ba44ed49cbfb2e640a952"
+    },
+    {
+      "path": "share/locale/hy/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "39b7e2ce831d45856e1b9684797dc0bc3d84fb08aab2c835385f26a118337310"
+    },
+    {
+      "path": "share/locale/hy/LC_MESSAGES/glib20.mo",
+      "sha256": "8c6d27d4a1fa5304ad16e60577a222e224c1a3a3400c0e8a86ab6a94cf236bda"
+    },
+    {
+      "path": "share/locale/ia/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "5331d0b5739e093f13c5fd17772877c31780894764148e457b4aa113285d42b0"
+    },
+    {
+      "path": "share/locale/id/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "f8b57f900200c40de956137f6971c76e6b20bd55a3d060ed514f297b84185398"
+    },
+    {
+      "path": "share/locale/id/LC_MESSAGES/glib-networking.mo",
+      "sha256": "254d7bef57e5bf33b45b8cea77ea34bd1dac51f0df04ede875bba5b4e703ca90"
+    },
+    {
+      "path": "share/locale/id/LC_MESSAGES/glib20.mo",
+      "sha256": "d4b675fd1cf4e1976b875c409fa8de725ed20828555a6c61d0752d0525cd5626"
+    },
+    {
+      "path": "share/locale/id/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "3cc7a61ada86741fbc842aa1cbfc970e79818a7d333bc7dec17918b5603e211b"
+    },
+    {
+      "path": "share/locale/id/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "065469ce1a63e7d557d2495806a30a7b340cfb231b3d3abcfcfa397c88dfb4fe"
+    },
+    {
+      "path": "share/locale/id/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "3722110d2baf50d038693bc1142acf5d2592afd32f14a25804e190bf42cddc21"
+    },
+    {
+      "path": "share/locale/id/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "19cb6f52183c9c38b2d486d0b96c403f20445ea732536fc9925b3a47b06f6c51"
+    },
+    {
+      "path": "share/locale/id/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "9fd47ca60284ba0050c1a2d7c69117ef6ec136747b8b61c0ee83e360d48db0da"
+    },
+    {
+      "path": "share/locale/ie/LC_MESSAGES/glib20.mo",
+      "sha256": "5b971b516606ac21f3c75e9a9eae3c0b433003473647098525073062235f285f"
+    },
+    {
+      "path": "share/locale/io/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "70ccf226f41c2a0789b4f0fe54ae88a15932dcc6dfcfb0e31cc0814d6d8a4b54"
+    },
+    {
+      "path": "share/locale/is/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "baa97dc7d6fa88129b1a32788b7cf30b8aa44062d8f122f6e9f7f08bdae22590"
+    },
+    {
+      "path": "share/locale/is/LC_MESSAGES/glib20.mo",
+      "sha256": "0650dd77a58290c433c1e3f09a33b40f7fe19cfd1e34bdbc9caad197fd7be9ce"
+    },
+    {
+      "path": "share/locale/it/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "cfa4319096d928c410e6860119d70cb61a27a3dd69028abfd57c8c9952a11cc7"
+    },
+    {
+      "path": "share/locale/it/LC_MESSAGES/glib-networking.mo",
+      "sha256": "3783c1785a48f987a11f3f74c7f1b936dacc5357f39ef73f8a0033823481a7e9"
+    },
+    {
+      "path": "share/locale/it/LC_MESSAGES/glib20.mo",
+      "sha256": "7495849918f7f18a7dcce0fed94bda9354073c040e8cad6c06cb6c272bb40583"
+    },
+    {
+      "path": "share/locale/it/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "964540aed803ece82da21862b871a71b0c521142166ecbc27c7d7fa41e801db9"
+    },
+    {
+      "path": "share/locale/it/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "ad4a828ce2acc553795dac93d61c8c180147dfe505aaee5605351aa324dd690c"
+    },
+    {
+      "path": "share/locale/it/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "ead5dcfff77c7cde71fb7219bacad2b50290327f61e746c43bd7e8191325a9ff"
+    },
+    {
+      "path": "share/locale/it/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "1fe92f558564bf696917cdd7306ed4be4d954937848f0e42c056942340ca61cc"
+    },
+    {
+      "path": "share/locale/it/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "845a2b23160cae507488750c91bb7538e93d36632cfaeb29bf6cd73ec4c4d2a0"
+    },
+    {
+      "path": "share/locale/ja/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "ed81e04add25f5ec2d5ef28474840de9d8818fd996fdcc8f96502238aaaaa0fb"
+    },
+    {
+      "path": "share/locale/ja/LC_MESSAGES/glib-networking.mo",
+      "sha256": "948e75a6b34bb3ffdf9b5bd6d78445446720dc64055be6af3afa2edc23705ae9"
+    },
+    {
+      "path": "share/locale/ja/LC_MESSAGES/glib20.mo",
+      "sha256": "c509dee29d0ba18034d4728df9b1ac45160e4de998c489fe6f8c6dcb5c153424"
+    },
+    {
+      "path": "share/locale/ja/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "55147c4e755a034b53b32db60f3470770b2b0398ad3587c37034df2eafa68ae0"
+    },
+    {
+      "path": "share/locale/ja/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "0c7a5488dc8caf4497a3d1136fa1e48c0e268a1510284ef5480056d7c445505e"
+    },
+    {
+      "path": "share/locale/ja/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "2a84adca8f434d2fee56cd6f93220a4269172fbdac25f657b1e3074d0211ba47"
+    },
+    {
+      "path": "share/locale/ja/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "f3077686140651ca06c37cc6056ea6f59b0776fff84f55beadb5b82db83ce0d7"
+    },
+    {
+      "path": "share/locale/ja/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "019fadf1d38449a92a902fe423222ebd1c55b9faf4df3b0dc5e20dc759d8fb45"
+    },
+    {
+      "path": "share/locale/ka/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "a5d59441c121e6ad9fb1d022a569e27177d7478eee5aa7a6701fa80432a594d5"
+    },
+    {
+      "path": "share/locale/ka/LC_MESSAGES/glib-networking.mo",
+      "sha256": "7a25dadb2950fd5ccf1f6c29cf8ec66fc1f9fb09dd3899f0602d6fd4eae9df00"
+    },
+    {
+      "path": "share/locale/ka/LC_MESSAGES/glib20.mo",
+      "sha256": "faa643c54b27c74647acb487a19854b0a1bc17a4290f6ef13e1738047c909c8d"
+    },
+    {
+      "path": "share/locale/ka/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "725a4edb7eace8434e867dd33d3e146032127ff967c50d6e1d976db1c8a4c04c"
+    },
+    {
+      "path": "share/locale/ka/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "23069ffa526695ffa389c6792b8c158fc1171e228eb730964632d811378fc1d9"
+    },
+    {
+      "path": "share/locale/ka/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "abb8a59a68e16cc8b5647da45651ee731957cb173b4b6d2d92655835b7816981"
+    },
+    {
+      "path": "share/locale/ka/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "6b7b9b154a9943394e9887ae8e1aad6b6c69a7bdfa6fc99a96c5770b57f8b268"
+    },
+    {
+      "path": "share/locale/ka/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "1ffe8278b1ab39a6e9fdd504107825b91494f81f4cc1ddd639e48f36d032b378"
+    },
+    {
+      "path": "share/locale/kab/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "fcc6fcdc364bbebee1763fb91fdd5b065305aed83545a74c87b84fc16c5998b1"
+    },
+    {
+      "path": "share/locale/kab/LC_MESSAGES/glib-networking.mo",
+      "sha256": "74ce85bfeafc3ac18d37c1df7c84696697867dc3c1b2b8f8b054ddf0276c19ec"
+    },
+    {
+      "path": "share/locale/kab/LC_MESSAGES/glib20.mo",
+      "sha256": "b1419fadc0eb8c359189ef62896cc15e4382021c817aacb5db224ed9e874f3fb"
+    },
+    {
+      "path": "share/locale/kk/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "74669a1b183eb45131c540c808afc5e01455b0766e04670330338fdc8e05c8c7"
+    },
+    {
+      "path": "share/locale/kk/LC_MESSAGES/glib-networking.mo",
+      "sha256": "c9a358dcdd404eecadcfecc3cdde02ff65040eba359a858fb55c6fb501ddc79f"
+    },
+    {
+      "path": "share/locale/kk/LC_MESSAGES/glib20.mo",
+      "sha256": "b4721747a9805bf9dc1420a48433417330c337153725848fa7dbd43d847210fc"
+    },
+    {
+      "path": "share/locale/km/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "f4659ea170a3d85bfeee259d395fd5b1c0a2a2c1f036eb45ec0b9d92ff63d2f3"
+    },
+    {
+      "path": "share/locale/km/LC_MESSAGES/glib-networking.mo",
+      "sha256": "21ba2f07c48ebfa1ac1d08394657f2c9b75161b1012d3e0c233a5aa49afa84f1"
+    },
+    {
+      "path": "share/locale/kn/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "4b6927d08282094ab6d51b61cadfcaf45aa5076d5530b31bd62cbfae0f94ef07"
+    },
+    {
+      "path": "share/locale/kn/LC_MESSAGES/glib-networking.mo",
+      "sha256": "2e0b4fefecb4cf8ebf58bde9c6c63c9713c3ede522e64cc393dc41e687f6485c"
+    },
+    {
+      "path": "share/locale/kn/LC_MESSAGES/glib20.mo",
+      "sha256": "7c5198ce8889d51fd1d08e401d218660af87abc501c97ad17be3f7f0146e761e"
+    },
+    {
+      "path": "share/locale/ko/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "f53e75318cc3e7cd941563006a5548ee9fba1a6834d499181e7c964155cee5f0"
+    },
+    {
+      "path": "share/locale/ko/LC_MESSAGES/glib-networking.mo",
+      "sha256": "41e0cef866c6c3e9fbce51969a5919691b6a43b1039d536e301a92314e3e208e"
+    },
+    {
+      "path": "share/locale/ko/LC_MESSAGES/glib20.mo",
+      "sha256": "1a30817eeb2e52e86802604dbf28315eef35eb9f817d3f4221e034c42878886b"
+    },
+    {
+      "path": "share/locale/ko/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "5716eb3629e5fb952f7d3858dba30312d7155268c81f2faf35744e40e5ac9ce6"
+    },
+    {
+      "path": "share/locale/ku/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "28179a30df32c8b9ee6ffaabc8415f3cf0b4a090ba5e8b05ad6f9ee680e0faa2"
+    },
+    {
+      "path": "share/locale/ku/LC_MESSAGES/glib20.mo",
+      "sha256": "5f3c2afac1cdde5006e30aa6816032fb6081c093e7b3eda37552b8f8bbcbc0d1"
+    },
+    {
+      "path": "share/locale/ky/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "ac75fd0ec31e453780ad8d67c5ec9451172a72c208775f7b9d805e8944808aff"
+    },
+    {
+      "path": "share/locale/ky/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "efd89e14e61b454441fb44cbf6f2e4cb8e1089fef0d51230c38f03a34ede2940"
+    },
+    {
+      "path": "share/locale/li/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "6701746b26fd6cbb49321421a03a4a9274c748a369e331842d195fdda124451a"
+    },
+    {
+      "path": "share/locale/lt/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "26e3dc75d8d46df8689d54ddf77efee9bfdad0e9a7b4cbd89a7081218c3edc03"
+    },
+    {
+      "path": "share/locale/lt/LC_MESSAGES/glib-networking.mo",
+      "sha256": "3b8a2368225f0777048c9df8f01b7aae0bd6dfd646ac0548f0bb980638ff89a9"
+    },
+    {
+      "path": "share/locale/lt/LC_MESSAGES/glib20.mo",
+      "sha256": "b2965b17a947edc4945e87c45065cf9e758ada6dd6f4bf935b1b4625d701db33"
+    },
+    {
+      "path": "share/locale/lt/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "243dcb8f8a40214ef550840ed6b018a51de3a549050e654cb8482b83c935a201"
+    },
+    {
+      "path": "share/locale/lt/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "cf12fc3bf96acd3d209a5a899a7243e5a2f1c30be64f89f3ca9c2aa400972e7f"
+    },
+    {
+      "path": "share/locale/lt/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "ac8673feed06ac1798d55b7d97764c5499a786e429b5df9d76a2dc2705a55cd9"
+    },
+    {
+      "path": "share/locale/lt/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "cbf5605fb657c5cedddd7b03c66c211564bc74eb622a69a170fb7afd56d88a4f"
+    },
+    {
+      "path": "share/locale/lt/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "a77d3baffc355e94c2a74561f879240149f34c0c568ef2e4f311c4df35125303"
+    },
+    {
+      "path": "share/locale/lv/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "378ce1a8c41833d03f5586e02d4a4f7936d5d21ff511882d8a7e5ac3302cd75e"
+    },
+    {
+      "path": "share/locale/lv/LC_MESSAGES/glib-networking.mo",
+      "sha256": "3c6e9c4f291cd6527c730dede62c9a75954d722f3f63e121abc33e97c5b9416a"
+    },
+    {
+      "path": "share/locale/lv/LC_MESSAGES/glib20.mo",
+      "sha256": "dedc9b65e5a74c89dfaf9259a779042ca0216eb13d4a59abd71009c25397b40a"
+    },
+    {
+      "path": "share/locale/lv/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "6b479d493a2434e29f4f4ac5ed8e9d97597f332ce10ca96d24c36e207da8addb"
+    },
+    {
+      "path": "share/locale/lv/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "d2462d6caa4cf9223101fac37222e69eebd963b18587e978a5d95deaaf31ad84"
+    },
+    {
+      "path": "share/locale/lv/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "d19daaf7ed89490f6ae8dace24fdd78d6ed32ee2d3cb85a1558a3b0575d958a6"
+    },
+    {
+      "path": "share/locale/lv/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "f64ff78f1fc2bf178b75481df40b6a5b124d91dfe30db87d6f3b969cb7774b2b"
+    },
+    {
+      "path": "share/locale/lv/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "1872c5f972906e0edbca19051a2a57f5104588a7d267f29dfca5952d4727484c"
+    },
+    {
+      "path": "share/locale/mai/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "684a792d2f566e0555ddf5f651cb06a9cbc3f208bd01c3184a50a86ea953b169"
+    },
+    {
+      "path": "share/locale/mai/LC_MESSAGES/glib20.mo",
+      "sha256": "597eea4ce9b35bee0c49f971cea36ca10bd48ee400602ff819d2f21f35ada12f"
+    },
+    {
+      "path": "share/locale/mg/LC_MESSAGES/glib20.mo",
+      "sha256": "ae2812dc3082aa2ae398d5e658a16cca0b37ed8205eb84ec54657a21306cd68a"
+    },
+    {
+      "path": "share/locale/mi/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "ede8071301b115f39fce687ef29d5e05f7c5c253d92cec1a73698096bd650164"
+    },
+    {
+      "path": "share/locale/mk/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "4d5929e4f3bdee2f9b202d88716bd0fa7ce31388127e1538940bbb5992934343"
+    },
+    {
+      "path": "share/locale/mk/LC_MESSAGES/glib20.mo",
+      "sha256": "3cac250d8061f750d26c2725677e85f854ee36f338544276dd07a1fa96455c5e"
+    },
+    {
+      "path": "share/locale/ml/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "be5cc7ca6cf42174fb108f65238a3fbab2e78e34f6e273fa094d6584fe9e0b52"
+    },
+    {
+      "path": "share/locale/ml/LC_MESSAGES/glib-networking.mo",
+      "sha256": "1871f7e081a0998bff666ab75b451f02f0e4fb7b10ada945300003d6a59fbe27"
+    },
+    {
+      "path": "share/locale/ml/LC_MESSAGES/glib20.mo",
+      "sha256": "a68aa650cc0a28e6802e9a560cf12cdded6dc2159bcf5e3af88040dc942f0bca"
+    },
+    {
+      "path": "share/locale/mn/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "fbec27a0594da5cf7d885a857d2ab370978489e28a7b21df1402f7722d4e2135"
+    },
+    {
+      "path": "share/locale/mn/LC_MESSAGES/glib20.mo",
+      "sha256": "b8be20d7b76cf94837dbdf28bd029ae0656aca17617352a68dfa31f12acfded7"
+    },
+    {
+      "path": "share/locale/mr/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "672f66b3ff2cb8c402b3084885a520c01491a9a13a82c9558d7d1d74f4a71d6d"
+    },
+    {
+      "path": "share/locale/mr/LC_MESSAGES/glib-networking.mo",
+      "sha256": "1d7f443515dda4eb11029e91ab5f4c12ef8ae7fd01316645cf9fe6fb80d4a3ff"
+    },
+    {
+      "path": "share/locale/mr/LC_MESSAGES/glib20.mo",
+      "sha256": "2a597f9f5e1d3e8dbd18bc4c40057684aa9cbcbaf260d66854808b155b53bf0d"
+    },
+    {
+      "path": "share/locale/ms/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "ef0e81d3673b15cd979d85ee4a7b59aaaa00722f5843e88141b6b390e1d6ba1d"
+    },
+    {
+      "path": "share/locale/ms/LC_MESSAGES/glib-networking.mo",
+      "sha256": "f438162ce62fe636cf0848749c509591d88bc36298a9f65452962a38f61f2ea3"
+    },
+    {
+      "path": "share/locale/ms/LC_MESSAGES/glib20.mo",
+      "sha256": "2f20ae4426562735beccee1bd85eee65f03a36b9df181e4a96899354a2e340f2"
+    },
+    {
+      "path": "share/locale/ms/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "d851c6df871dff78fbd3e9d999e9268e188c6a0b3a0cb186bbe0f398737d7740"
+    },
+    {
+      "path": "share/locale/mt/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "08018e2e76bb53e74c064001048a6b1b8fdcaec15b3dab36832f49723ba379f4"
+    },
+    {
+      "path": "share/locale/mt/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "f3b8d7a4afe4e9f8c025f76fbf04d938f8edef92a7c732aa14a954a6dd5d01d4"
+    },
+    {
+      "path": "share/locale/mt/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "04e5f51f1c25ff067839b3a338eccc517db567d9edb6d50cc23a57866f61f166"
+    },
+    {
+      "path": "share/locale/my/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "280dca8c8d03fe301fc746ebe7f37662fad4e0d28148abcadfbe1ce12096e6a7"
+    },
+    {
+      "path": "share/locale/nb/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "211048040773b4f81bd95558e9afe0dbc66ca100e27792b2282b171ab0692443"
+    },
+    {
+      "path": "share/locale/nb/LC_MESSAGES/glib-networking.mo",
+      "sha256": "4c445a12816d172ec0bb6d3d36633becd4d35d5615d62dc6d3b7bb31f3559154"
+    },
+    {
+      "path": "share/locale/nb/LC_MESSAGES/glib20.mo",
+      "sha256": "7e6b7639ed482d3de6d9215abf099fe9067d205141671d63ceeae672baba1ff5"
+    },
+    {
+      "path": "share/locale/nb/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "bb86be3901d2b0ef8d361cb92669bf92e65bfd6b64f70f0096a498a77a3006cd"
+    },
+    {
+      "path": "share/locale/nb/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "5873952f93ffd48e76512b577a644a383befaeddeb77fb09d9c6830e49ca7949"
+    },
+    {
+      "path": "share/locale/nb/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "82dc2042d41bb60890a3dbe7cf5e39a58af332a24103fba6b2747158b7fd7c27"
+    },
+    {
+      "path": "share/locale/nb/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "b44d537b117d5aa327b6fe053c49ca98d4a1c74859605e2d3639a01b493b58d1"
+    },
+    {
+      "path": "share/locale/nb/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "26547ea3e74b07f84976e8d4e560d0218544ae5404edeaa2a96fd88fbf0bf8d9"
+    },
+    {
+      "path": "share/locale/nds/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "583a45458b89bece96ba002d943c91e91a6773cfe3eed8afa445eec5c6b49484"
+    },
+    {
+      "path": "share/locale/nds/LC_MESSAGES/glib20.mo",
+      "sha256": "cd96d5455a111800aa7da1880e70be425bcb4f89643086e6d2fb7db3e8be3d99"
+    },
+    {
+      "path": "share/locale/ne/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "3d22a4e7eca7d08e4d6cf547c4734dbe477c0730812e2c670a9b49f017ed9404"
+    },
+    {
+      "path": "share/locale/ne/LC_MESSAGES/glib-networking.mo",
+      "sha256": "fa5a52bc31f6a14bdedbfd2a5a4d5ecd4f3504ef2b9b7d1fbaef0faee1067d38"
+    },
+    {
+      "path": "share/locale/ne/LC_MESSAGES/glib20.mo",
+      "sha256": "4022dc547cff45c9d8956af9b6e6594eb96bc488b2e1fabd598f0f838995e861"
+    },
+    {
+      "path": "share/locale/nl/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "fd589956bde120145ca44d2e422088ce38d0dadcfdbc941dd936a114e6a31c38"
+    },
+    {
+      "path": "share/locale/nl/LC_MESSAGES/glib-networking.mo",
+      "sha256": "8f65cda2c72eca1fbc1cfcd8fdab40c496618c5f2467a9a272c31ff968252350"
+    },
+    {
+      "path": "share/locale/nl/LC_MESSAGES/glib20.mo",
+      "sha256": "a2e711fb5d6c19634a63babf2fd7bc63ca516dbaf8625b7ebb140f6fe5e2b26e"
+    },
+    {
+      "path": "share/locale/nl/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "6a27fdc5ad5a54289a102c9a07c7d5225fe987bfa1280fec3efd17621b21ba7c"
+    },
+    {
+      "path": "share/locale/nl/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "eb186d2c28f7cb4b549b2da4adef8dca951ace6725331882f6d325ad967c3982"
+    },
+    {
+      "path": "share/locale/nl/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "8b2bb97b72d6af8d7bc77dff53895eafb1fff2fcafbcc1cadfccb9e9eef48935"
+    },
+    {
+      "path": "share/locale/nl/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "caf5e589e9d363e9c39b5fd000ab5d55071f53fc2879d29004d2b76aab10243f"
+    },
+    {
+      "path": "share/locale/nl/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "23f0ff0bc665edf28456c7d10610baa56fd088081fc28def86438fe0476cda55"
+    },
+    {
+      "path": "share/locale/nn/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "9a3b025138e6d66820bfd5696a5f1eb845042a3c71b604e3d7fd861e81294daa"
+    },
+    {
+      "path": "share/locale/nn/LC_MESSAGES/glib20.mo",
+      "sha256": "e307542973c16da823bf95fb7b1635c82666e8d67d782ea3d372ff19b1a15c2c"
+    },
+    {
+      "path": "share/locale/nso/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "15e37d825a826c7deb3c1b840dd631107cefaa977d21788bc958dd95ae1d4ed1"
+    },
+    {
+      "path": "share/locale/oc/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "30e0ff2c43e330ded674c8d3e1d74e39eeb18da2e8196c25cda3244f63527491"
+    },
+    {
+      "path": "share/locale/oc/LC_MESSAGES/glib-networking.mo",
+      "sha256": "faea27130f078a1996adb3edb577ee85077c47497332e77038f8abb594693fc3"
+    },
+    {
+      "path": "share/locale/oc/LC_MESSAGES/glib20.mo",
+      "sha256": "2d22b1ebab3b8012faec7d960c5499d502df4aa53ccd3a8185ad005c21b79550"
+    },
+    {
+      "path": "share/locale/or/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "a8385f670c0958c38b9e31878c49e8390fa6fd8f80d7d9625b954c153f0d9ab3"
+    },
+    {
+      "path": "share/locale/or/LC_MESSAGES/glib-networking.mo",
+      "sha256": "04ed2eb2dcc179027f8adb91e8d137416c357db3d8cce39bd8d6aace02843c59"
+    },
+    {
+      "path": "share/locale/or/LC_MESSAGES/glib20.mo",
+      "sha256": "0da7053e02702e1296a7466774971015b53498f31cd4fb6ca9446e6748c25c3d"
+    },
+    {
+      "path": "share/locale/or/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "ced39dfd6ff45f445579f0b5deadebb9e76e8680f7f48f45b8bfd63ed4fb5dfa"
+    },
+    {
+      "path": "share/locale/or/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "493125b897b4bb66fc0847f525d104985890eb4c5652d2f00ba8c12e6c03c9dc"
+    },
+    {
+      "path": "share/locale/or/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "759deca05220d6c2878e959bba406d4070fa38baf2c94a7fcc14d6fecfb0feb9"
+    },
+    {
+      "path": "share/locale/or/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "152c30e856e27bbc64f2afe76efdf2c079d0110c6ca77a5c40710a99ba850f5f"
+    },
+    {
+      "path": "share/locale/pa/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "2e59e112375b8452714a7221f845b76ffc0cffd29537ec68a150c1f00b42b566"
+    },
+    {
+      "path": "share/locale/pa/LC_MESSAGES/glib-networking.mo",
+      "sha256": "5afe184c537aebc2fc6c5f79a312561adbbec0a39a37a8507bdf6d239da671df"
+    },
+    {
+      "path": "share/locale/pa/LC_MESSAGES/glib20.mo",
+      "sha256": "290ac763583be265fc54e5fe92ffdaf8c2dcf515d1cdc9e35dbc7d63f969f6ee"
+    },
+    {
+      "path": "share/locale/pl/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "833e17a061567b28e23341fa37881256863aa2dd45a25a107d4e78bbe1ef4f5d"
+    },
+    {
+      "path": "share/locale/pl/LC_MESSAGES/glib-networking.mo",
+      "sha256": "df6bf73bf4d176ea1d672d5ca64596c6cb9592acb34dee7ad16db603281953a3"
+    },
+    {
+      "path": "share/locale/pl/LC_MESSAGES/glib20.mo",
+      "sha256": "b60ff9262dc9a8eb279bb3c8387d78aa26c5ffff7bde893f1da8a9483af55918"
+    },
+    {
+      "path": "share/locale/pl/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "e74c11474d252623dd02197ce533806ccb5b44872bb4a256cd14ae7bf693b36e"
+    },
+    {
+      "path": "share/locale/pl/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "318e6628cf1dae80d63ede22325f7a899983c666762f8110398b183e0264ca25"
+    },
+    {
+      "path": "share/locale/pl/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "bae8098fff41563c75fbe2b46997e6f03d01538f2c310e7ba0825228c4e3c0f9"
+    },
+    {
+      "path": "share/locale/pl/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "e8ae139db5c965aa4eaa030443a1b8bbba728383627b1728197ff686b4c2e359"
+    },
+    {
+      "path": "share/locale/pl/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "6ffbf139ce487f5fe5e5b9ef969482e2b90e01dd8f22ebfa266c66c681e7e17f"
+    },
+    {
+      "path": "share/locale/ps/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "6027790383d3c1471c6e984888c62319f34efe588e55e8eaaa59948831585115"
+    },
+    {
+      "path": "share/locale/ps/LC_MESSAGES/glib20.mo",
+      "sha256": "3660ccc84d35656539158727854ca0774008adae63b3a4e8d73e6498d2e047d7"
+    },
+    {
+      "path": "share/locale/pt/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "d5f526584643a37ae02775db329d2949129f4472ff50713526eb515a63475d36"
+    },
+    {
+      "path": "share/locale/pt/LC_MESSAGES/glib-networking.mo",
+      "sha256": "397cab88468f0ae72121cb03e5e8dc5275f6080cfb4e5f634560cc6f3205539f"
+    },
+    {
+      "path": "share/locale/pt/LC_MESSAGES/glib20.mo",
+      "sha256": "fc09c6fb483dee04d367eadd54462424a8aaf159feed23e1becf51e17e807107"
+    },
+    {
+      "path": "share/locale/pt_BR/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "f5b4d789043199ec78a1819f18b8c2e56a51271604fb5a21d49a9db2c11d84d2"
+    },
+    {
+      "path": "share/locale/pt_BR/LC_MESSAGES/glib-networking.mo",
+      "sha256": "fe7be6874d1c629aaa958cfeb9043ce6a849d4be6aca5fc351ab3a466ae3e714"
+    },
+    {
+      "path": "share/locale/pt_BR/LC_MESSAGES/glib20.mo",
+      "sha256": "0d7ba2e482aee3b35c1f2135acdeac7ed9d622ca72d61140d23b7913f43e9c64"
+    },
+    {
+      "path": "share/locale/pt_BR/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "a4c551f3bbdef29baaa66a19b39f72ffc1186bc39754741662a689e7d46b5743"
+    },
+    {
+      "path": "share/locale/pt_BR/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "12204580694cd22f2adc7d16cf13640b5b927e97155226eba5a29d6e2fb040d6"
+    },
+    {
+      "path": "share/locale/pt_BR/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "ce308a94a08a49303bd5aa2a3e6a2674ece8b499e72a534d36e171ef1e4dac2b"
+    },
+    {
+      "path": "share/locale/pt_BR/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "ff88ddea48b089140cc83da0cf6d13fb761b371704dccfae14b026b150091d59"
+    },
+    {
+      "path": "share/locale/pt_BR/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "07eee5a0d46b7dd9557bfdfa2213731348ebead8c6b0684915a73b4a243e4770"
+    },
+    {
+      "path": "share/locale/ro/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "6e663c9716f0b41c08fa0754428e7ebc08d3ef8c0d8e4ff25ffc8b3e3ea7584e"
+    },
+    {
+      "path": "share/locale/ro/LC_MESSAGES/glib-networking.mo",
+      "sha256": "505ff4507a5ec4dac40e427032b08f29c46082d018ac2fcf83e4ee0d19a699b3"
+    },
+    {
+      "path": "share/locale/ro/LC_MESSAGES/glib20.mo",
+      "sha256": "e0d6ae40ee399e3dd317567025ca013e31bc3e46f8016ecfb9c18c0ca5c440c0"
+    },
+    {
+      "path": "share/locale/ro/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "95483e6465b916887a002137de9ddc974d76fae9524dd81aec6b271bb3a430db"
+    },
+    {
+      "path": "share/locale/ro/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "7b6622a82c28eb32760d0315e07d1c91fb029aa658b8fb4d46a5957ce1e236cb"
+    },
+    {
+      "path": "share/locale/ro/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "d6eac10c27d401416abccffc38f1b7de258397d539285b4d5a58bc6315fed199"
+    },
+    {
+      "path": "share/locale/ro/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "c75334467aedc8f55071fd8f61f9842c85c54f0adaf87e2f9bd9f7e1d626a39a"
+    },
+    {
+      "path": "share/locale/ro/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "317c012a42668c1b466a3d9d981d41eff649a4a1b63d67a42b9bbd8fa441053d"
+    },
+    {
+      "path": "share/locale/ru/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "7238bda8cce9f8b6646a42f58e0426dc7a6f4bfb847a5117a1f27be8b50265b8"
+    },
+    {
+      "path": "share/locale/ru/LC_MESSAGES/glib-networking.mo",
+      "sha256": "c1ba75e0c192026dde137f361fe088d934287ead5cb3cca601b478c6f64b6e33"
+    },
+    {
+      "path": "share/locale/ru/LC_MESSAGES/glib20.mo",
+      "sha256": "e30a3e13b7803247eec5dca55fe06449c45a5edbfc7e813a1d280c94133a0037"
+    },
+    {
+      "path": "share/locale/ru/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "4e3ebdeb6042d55a850cfd92705e752606741b524c369eca72050ff90d15a4fb"
+    },
+    {
+      "path": "share/locale/ru/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "15b39e7f476a15a08fe333c73e4f1eb3e8dd420c5ad8b2c862b6ba25ebfa85f9"
+    },
+    {
+      "path": "share/locale/ru/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "247cb3a3b7dac25d857a3420a664bc03104fab70a594cf0175ab306b85c5ddb1"
+    },
+    {
+      "path": "share/locale/ru/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "6e7389fee87e8466402ae22576880e8a78261522cc88caee24f58fd612fe1dd1"
+    },
+    {
+      "path": "share/locale/ru/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "82b209bb529392ba63910009031e532022a71d2d548ac598348640e0363d2c1c"
+    },
+    {
+      "path": "share/locale/rw/LC_MESSAGES/glib20.mo",
+      "sha256": "75c08773d1b7632db631b2fe88fd0a3814ebd55c3959874a72f306e46d150dc2"
+    },
+    {
+      "path": "share/locale/rw/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "cd84a29c3e3c5a1f4a12b4e500e54c7c5522eff2bfacdd892b6e6edbbd080dc0"
+    },
+    {
+      "path": "share/locale/si/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "44a83014a12b1fb0fe0a6be425097dfe0d2a213bdc0f51ba6cee8d00f880270b"
+    },
+    {
+      "path": "share/locale/si/LC_MESSAGES/glib20.mo",
+      "sha256": "270e449c45b102b289228fe9bb37c0133c58ab4504b3d2cf5556a48b881f0ab1"
+    },
+    {
+      "path": "share/locale/sk/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "c4a0dc17533eec773e8c7fcf9389d624cef93b1f899583f2cdc71d9419edd74e"
+    },
+    {
+      "path": "share/locale/sk/LC_MESSAGES/glib-networking.mo",
+      "sha256": "61977f399c9f80f6529014e796e4ff89e1209c3d83b0209f4813a100193e6f0d"
+    },
+    {
+      "path": "share/locale/sk/LC_MESSAGES/glib20.mo",
+      "sha256": "f60ddc21ed2f72f21c3952cf03a270e22f90c1c92d6ec4bcfc52a82e4587b6a8"
+    },
+    {
+      "path": "share/locale/sk/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "879f932de2306488b028bd11a59965ace2dc28ff635120ae81b23568aecd515b"
+    },
+    {
+      "path": "share/locale/sk/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "5b25ce668f149f6d0e75d7a87b1e4d2dae7099f1bc79f5a7897320c756c671f9"
+    },
+    {
+      "path": "share/locale/sk/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "cfe14e9d1506fa0681720d5a7f13697117017c7a2988e2a46905d47163a81e1a"
+    },
+    {
+      "path": "share/locale/sk/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "dd614d186dd33424061ae9f6b07280ba5ea092c3957992298d67f1ee53e3b2ae"
+    },
+    {
+      "path": "share/locale/sk/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "7d01aad81d841103279454a2108ef816a7d96d5ed74e639c7a4c3c87d449a166"
+    },
+    {
+      "path": "share/locale/sl/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "fb54fd9e238fffbab04f17d4a75caf5f23eeb1afba94f87054dc5f1b44b5e1b3"
+    },
+    {
+      "path": "share/locale/sl/LC_MESSAGES/glib-networking.mo",
+      "sha256": "011b8753a2eb489775353126692da200fa88229a6861b46dba2f7b763c3eeea7"
+    },
+    {
+      "path": "share/locale/sl/LC_MESSAGES/glib20.mo",
+      "sha256": "217dcdfb8a7c5dfb1a5a77acf74da97ec3006d32db964a3a64ec080aa66d810f"
+    },
+    {
+      "path": "share/locale/sl/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "c9a9c44c9bf34a13b48ffdc27dd96f94297389d91e2ab40cb0f7a92b53c5341d"
+    },
+    {
+      "path": "share/locale/sl/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "018874c96bc80dbc51ddd536273f8ec1f061644a542b96a012c6839a6332ce3d"
+    },
+    {
+      "path": "share/locale/sl/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "1e6ae7c1f7d70f05c04a89c4d062da87d98e23e945179a66c5f8a814083c6f52"
+    },
+    {
+      "path": "share/locale/sl/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "0f3674ddf7c32f7d38a2a0c60d45976164371e8158c98ab71007e0a56609bc64"
+    },
+    {
+      "path": "share/locale/sl/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "0724468f8388435314ddc8c7e668587fd34d8e38c7106e924ecf6643f222e858"
+    },
+    {
+      "path": "share/locale/sq/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "fd3bb35d08076bfec60a7254fc1586a2d0a7d136f3c57645afac1679418cc082"
+    },
+    {
+      "path": "share/locale/sq/LC_MESSAGES/glib20.mo",
+      "sha256": "eecb65ba4e5b5d2fd5dd972d49f4688103db341db9159275b02722556b6c4204"
+    },
+    {
+      "path": "share/locale/sq/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "31644eab9b74425c399807ca592a48567724c614aea0e491a2a02b39c5822b19"
+    },
+    {
+      "path": "share/locale/sq/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "5caad1f1955e8387ec13b7d451e218ceb7361d9ec2b563b2f6939e68accbe34c"
+    },
+    {
+      "path": "share/locale/sq/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "23ee2fa7acae02b29b1936f694de5395cc4f53ebf140c3eb97a36695040e4dee"
+    },
+    {
+      "path": "share/locale/sq/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "105b9412bdc22f7a750cb15012ac0e209a0296a0b48d11ee0445ebd24db20dd0"
+    },
+    {
+      "path": "share/locale/sq/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "537c1ddcfd37123711e43cb357a307f54b7c7a4707ca0229362fa28404549af6"
+    },
+    {
+      "path": "share/locale/sr/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "73da90d3af8b347002dc548b0f22c26338a34575b54964f77fba33930524d477"
+    },
+    {
+      "path": "share/locale/sr/LC_MESSAGES/glib-networking.mo",
+      "sha256": "1920a6729f8d7044247e9faeaf59398718ff3d0a11484e3a87ebc8261a4c4ae9"
+    },
+    {
+      "path": "share/locale/sr/LC_MESSAGES/glib20.mo",
+      "sha256": "702ee29af0315a24e8449ceea1b8f67598754b137c5deeb64171bfc06e2fd6b6"
+    },
+    {
+      "path": "share/locale/sr/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "d8f7d761ae3816b4e0f74822ec95c53c4187c84e7f0928c97446846942fb065c"
+    },
+    {
+      "path": "share/locale/sr/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "1381cc2e9406ef2222c1c8885775b3396859b22537cacd8c7e257698879ffa57"
+    },
+    {
+      "path": "share/locale/sr/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "9b74cd115e3d734f416a78cd54bf4017e507a1ab1b6165b5e3eb7fb682ccfb5b"
+    },
+    {
+      "path": "share/locale/sr/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "852abdd8d64f80afc2867042c62b8d04cad878e6b1d2a203a50fa19b150a4da9"
+    },
+    {
+      "path": "share/locale/sr/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "140522893dcbf03291309873192cac65b30b14f3e4f238e9e23af1b9aaa54314"
+    },
+    {
+      "path": "share/locale/sr@ije/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "97c52983c0421d71255f2132756e8d23ea5676396d2de906e9db2f239f4824fe"
+    },
+    {
+      "path": "share/locale/sr@ije/LC_MESSAGES/glib20.mo",
+      "sha256": "93212a801da103e0a10edf53cf23ad599eb45a13c865b2118fb6722140ae8ee1"
+    },
+    {
+      "path": "share/locale/sr@latin/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "b904875ce70c51b7d3792ba8155a6511c2eb1b058dd7c402f6e7416ae89155da"
+    },
+    {
+      "path": "share/locale/sr@latin/LC_MESSAGES/glib-networking.mo",
+      "sha256": "9fb36b31d955a8ae252afd16341e8025e5d88e8d5d5186f8095b8e806e690e87"
+    },
+    {
+      "path": "share/locale/sr@latin/LC_MESSAGES/glib20.mo",
+      "sha256": "f5ab5b1d51cc4425131a3fe84fede61c95ce81973331385b4ec5df689ab07a7b"
+    },
+    {
+      "path": "share/locale/sv/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "2dd8c0fbba5c4d7dded86b44db103df2958474485816915625085fad8c9fe179"
+    },
+    {
+      "path": "share/locale/sv/LC_MESSAGES/glib-networking.mo",
+      "sha256": "187c2e9999a74f8652218398a6534c956b19cd18756df189662d3313f0c222f3"
+    },
+    {
+      "path": "share/locale/sv/LC_MESSAGES/glib20.mo",
+      "sha256": "1befdfbaf8718510cf96fc9d92fb02441390d44c653e0368a1c0944319d1b326"
+    },
+    {
+      "path": "share/locale/sv/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "3d1eb7910ba9b6fbcbaf873d47b39c048c39953ef3ac5febda8f88b361a8d31c"
+    },
+    {
+      "path": "share/locale/sv/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "81658d0f9ab160437135b91fb987d3dc09afc0350bc2e3c865f2ae55ca10a82b"
+    },
+    {
+      "path": "share/locale/sv/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "ad2725832063825189ba7546962279a589c27d79ab878723cf69f698473a45cd"
+    },
+    {
+      "path": "share/locale/sv/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "cd755905736229bffcb1ad5748088a58c6b9e3e7bff4b9d355482179fb5efdff"
+    },
+    {
+      "path": "share/locale/sv/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "017fdb533d06183f6a7180a639e232caa6453874a9398f1054d0a2e1effbbac8"
+    },
+    {
+      "path": "share/locale/ta/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "23470d394c030212cce445c997055785ba76ca8f5514b83ce64dd3fe50bae4f3"
+    },
+    {
+      "path": "share/locale/ta/LC_MESSAGES/glib-networking.mo",
+      "sha256": "6e308afa51b6a3457447e3b192af4e0814fe5f7cdc8ace8301a023b79e3e0b80"
+    },
+    {
+      "path": "share/locale/ta/LC_MESSAGES/glib20.mo",
+      "sha256": "38ebf11f4fe243895659488eaccc1e6bd7f95dc5d58bcefb6f353a1aa442168c"
+    },
+    {
+      "path": "share/locale/ta/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "cd3b0f66be195534fbde88a3f8d632d8ff81e3cb21a93c787b0388327e4255ea"
+    },
+    {
+      "path": "share/locale/te/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "28307bbbc8cc821ca8d3cc9d23131c0ee85ea2e1663101b5b8123b4a9bd1cac1"
+    },
+    {
+      "path": "share/locale/te/LC_MESSAGES/glib-networking.mo",
+      "sha256": "5a00efa613c725d0c1ef916c25f09bad627fafd5e3c8dfdd61d66ab415723f45"
+    },
+    {
+      "path": "share/locale/te/LC_MESSAGES/glib20.mo",
+      "sha256": "1f425562583e563c7ef2b53265c182a126b37224c984708bdaa6ebf8d9fa87c0"
+    },
+    {
+      "path": "share/locale/tg/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "27586505d937d62e0ae0c18875c5c636d1fd9e317b902aa7ef3440bfd6a98b31"
+    },
+    {
+      "path": "share/locale/tg/LC_MESSAGES/glib-networking.mo",
+      "sha256": "43c1777e3df730e25a336007974884b7c6b572923010bdc9caebd53ab1647b45"
+    },
+    {
+      "path": "share/locale/tg/LC_MESSAGES/glib20.mo",
+      "sha256": "485857faa06295c8f84c4153c1fc79daa37b31a697f3b3ad83a42171f77aa1fc"
+    },
+    {
+      "path": "share/locale/th/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "08493d313834a41461f0f9506cc6d7d7c1aacb6c97f2ba8576797414f62e1675"
+    },
+    {
+      "path": "share/locale/th/LC_MESSAGES/glib-networking.mo",
+      "sha256": "57a1fe8a396562f321e229ac51273b58e04c5a5356aff21ae41d92feaf6030cf"
+    },
+    {
+      "path": "share/locale/th/LC_MESSAGES/glib20.mo",
+      "sha256": "bbc51283591d5410987b93a882b5153b0eac544965bcabbfd657dfa767725b87"
+    },
+    {
+      "path": "share/locale/tk/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "c274dac226e005f0595fad87c179deb7d6386da7b59aa592e05004fe852894e1"
+    },
+    {
+      "path": "share/locale/tl/LC_MESSAGES/glib20.mo",
+      "sha256": "4856cd45b80b3c6599c829ea751403f837be50bb8cd432aedbb9b677748a3955"
+    },
+    {
+      "path": "share/locale/tr/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "9dce343918cbd7414e9bedafa27999b37e6321f550ab545cbedee8de2792d9fd"
+    },
+    {
+      "path": "share/locale/tr/LC_MESSAGES/glib-networking.mo",
+      "sha256": "766f4b2dd2820cb6ce6757b483b9f8b8b77304811a2efa537125f7087810842f"
+    },
+    {
+      "path": "share/locale/tr/LC_MESSAGES/glib20.mo",
+      "sha256": "cfb00c3578458208b5b93b09611460352682d970c2c0b3178ccf148d12f90f59"
+    },
+    {
+      "path": "share/locale/tr/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "3cf71ecd1fc45cc32ca4dcbec378e8f46c58b7d4ff95f4bce3e92a7df314a43d"
+    },
+    {
+      "path": "share/locale/tr/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "6ec81fe61979a51699267667d7a62e90b7a30c924898022576504458cb6c5a5d"
+    },
+    {
+      "path": "share/locale/tr/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "8be5c48b22753d852c0fe5d698c29e2058e74e0694642141a7572df112b35a55"
+    },
+    {
+      "path": "share/locale/tr/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "cd3c8d29609b5a078f1d5000631939388da457fda95d9cadc39f92505d9a5e27"
+    },
+    {
+      "path": "share/locale/tr/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "dd0dc15ff65ca98739422f0d563bdc355e145907b5dead01effaf103d363a612"
+    },
+    {
+      "path": "share/locale/tt/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "a5122d7ceda95aa95ae0a6e67768063f92bcbd3bf7702a6acab9de2caa2779dd"
+    },
+    {
+      "path": "share/locale/tt/LC_MESSAGES/glib20.mo",
+      "sha256": "f28e14834e925948ad873f9c7b71fb513fe508e75c690ad8ac255b451d298779"
+    },
+    {
+      "path": "share/locale/ug/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "98909dd136feda4685ec23daad23c544cd4a1b94b3307888fca760bf33f9cf76"
+    },
+    {
+      "path": "share/locale/ug/LC_MESSAGES/glib-networking.mo",
+      "sha256": "7ca0ef0ad438b8e2ca825ba6d93fe3db9841978d7ee1771ccdaba6eea0342b47"
+    },
+    {
+      "path": "share/locale/ug/LC_MESSAGES/glib20.mo",
+      "sha256": "230c0fed5bf3f3cb15acafc338151dfea6650a68db2ac560ff1735757cd69f1f"
+    },
+    {
+      "path": "share/locale/uk/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "fb6475ff83653247214eabc7c356514c038800cd13bda8e7cfd6d2684f4afc03"
+    },
+    {
+      "path": "share/locale/uk/LC_MESSAGES/glib-networking.mo",
+      "sha256": "227fe74e8122e7bb905e40675dcbf944a6e3aa1be11b9c8d4176ec218559ad43"
+    },
+    {
+      "path": "share/locale/uk/LC_MESSAGES/glib20.mo",
+      "sha256": "db6cfc81f59d3c1fac4ae567a9e87cf864797eee6226ae62fb36fb4c255e2601"
+    },
+    {
+      "path": "share/locale/uk/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "3ad8b58c57c35f5cdf787d02df5a677764234ba14656fd349d1332141d69c47d"
+    },
+    {
+      "path": "share/locale/uk/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "d0b0472570e68df24b122c7108b70996c77b5a959c76aa94712ab7692819fc23"
+    },
+    {
+      "path": "share/locale/uk/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "c4a112131b781ae7c73469e8d7f3a1fc04adf8630f20841cf8f8445ec976e160"
+    },
+    {
+      "path": "share/locale/uk/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "56f5339b9e821a43d27ba42fca5ac61672d167c9ac9c8fcff18fb00a63286baa"
+    },
+    {
+      "path": "share/locale/uk/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "43b710fd9ed6322073caa742ab534b76861b3ba6df060e04806a35c6fd9cb3b1"
+    },
+    {
+      "path": "share/locale/uz/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "2d1ed8491fd297452e4fce771238cabf88650c7ed633ecc5551d0f874886dd26"
+    },
+    {
+      "path": "share/locale/uz@cyrillic/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "a0ee7c979c8900675d831df2f0cc169f491f4c49b6e051b61cae96b805877515"
+    },
+    {
+      "path": "share/locale/vi/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "2e7ef3b4e1f33e0292a2bbacf350f2115e7ee377df41dc7fc1d3b3b52c8180a9"
+    },
+    {
+      "path": "share/locale/vi/LC_MESSAGES/glib-networking.mo",
+      "sha256": "4cd9187646b9e5f46c1ddf91f1161a9d37641ff22bfe7251aed09f723b16854e"
+    },
+    {
+      "path": "share/locale/vi/LC_MESSAGES/glib20.mo",
+      "sha256": "0dac862e110ebb74f31a9b3674f7108da81349a7bc1ba9917b477eb6b7ed73cd"
+    },
+    {
+      "path": "share/locale/vi/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "4e50f749307c0425cd9e70f3a1fff14af9e78f1be3cdcd0c93ad156058c45569"
+    },
+    {
+      "path": "share/locale/vi/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "e51bcdb614cd6c7a6d594057afc4ad99c7c583c38f3fe208fe57f4ba9a6a1870"
+    },
+    {
+      "path": "share/locale/vi/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "0561b2764df92ccf783b9f3ecf1890b7aee4a5eef944728aaca6563262100d33"
+    },
+    {
+      "path": "share/locale/vi/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "19cccf579a232da6ee74633ed8c2d046823db26f9a3863774ac17779274505f8"
+    },
+    {
+      "path": "share/locale/vi/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "51e9e94edbefe34d88e0fb5876cf5667aa74fcac689552057e95f3f7a35ecabc"
+    },
+    {
+      "path": "share/locale/wa/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "3ccf400587d27004cfbb9b3e5777263b81812e7a78ee8567a91bb75ed9c55c29"
+    },
+    {
+      "path": "share/locale/wa/LC_MESSAGES/glib20.mo",
+      "sha256": "b881da4646e3a8a8123dc16322bdc0b62c626b29b663bb01beb66042bef1feca"
+    },
+    {
+      "path": "share/locale/xh/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "07bee4aa88c37ce8f1e0010e6aba35ec0c2cd52872d7b150181749699c3be6c3"
+    },
+    {
+      "path": "share/locale/xh/LC_MESSAGES/glib20.mo",
+      "sha256": "c0453713d44a35e7cf16ae4fbcc0e04979037433cc12e71eb8c9ce73ce4c1938"
+    },
+    {
+      "path": "share/locale/yi/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "5d2798c3e3c2132c8b1ff72796497d28beb3d33f54f07ceb1dda709bb6130938"
+    },
+    {
+      "path": "share/locale/yi/LC_MESSAGES/glib20.mo",
+      "sha256": "51c8c79caf3a90905961c664645fd64d8d1d144e9c18e2784f29729de3cb2a14"
+    },
+    {
+      "path": "share/locale/zh_CN/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "c209a0ca3c337d6c3bbfa5c659b2a93b732f9282cdc4db4fc318c8e4406dfc4d"
+    },
+    {
+      "path": "share/locale/zh_CN/LC_MESSAGES/glib-networking.mo",
+      "sha256": "b3e0d0d2546d4aa46c86846f3ad69198d8abbf53353d15c805324646e27444fa"
+    },
+    {
+      "path": "share/locale/zh_CN/LC_MESSAGES/glib20.mo",
+      "sha256": "48aac0130b9f8ff4ea9b2dd2e2ffbfa261185eba73d1a057fa6c2762623d45f6"
+    },
+    {
+      "path": "share/locale/zh_CN/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "1bf030b11b692339b2b5d60e4b73c2d62b067d30b8f288e478fe4d7f5a620dca"
+    },
+    {
+      "path": "share/locale/zh_CN/LC_MESSAGES/gst-plugins-base-1.0.mo",
+      "sha256": "63f746a1b0889e50050b63764e7c682c631ec30184e4f9836edb02eaf177de62"
+    },
+    {
+      "path": "share/locale/zh_CN/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "b28dc4b650421b86971b7bc6b458a680ecae04a53e23b1a2b045157fa092377b"
+    },
+    {
+      "path": "share/locale/zh_CN/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "a4fa802d9a5ec0666b31f68da48c7a2b76b5f241c240f5314405639e275228ab"
+    },
+    {
+      "path": "share/locale/zh_CN/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "a76bd09bc962c6838e74917d4767cba143d12a94d1345446a6af5ccf412bf5af"
+    },
+    {
+      "path": "share/locale/zh_HK/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "d6b593bb9cac5cb75a6323c0e2d4cfa6bba773adbad925fba03e0fbe15c6eeea"
+    },
+    {
+      "path": "share/locale/zh_HK/LC_MESSAGES/glib-networking.mo",
+      "sha256": "4036bcf0f4fa1ef96f41b9d41efc307b50c1236c809a1e46cec9d2052f69b4e9"
+    },
+    {
+      "path": "share/locale/zh_HK/LC_MESSAGES/glib20.mo",
+      "sha256": "85e128e819f82b6eadf1f0798b1603e653f97b1f2ff071df30fd70c458505b71"
+    },
+    {
+      "path": "share/locale/zh_HK/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "80f96012309518d597e3af731ef796cf0cef980227d7e93676e3cdc0a280fcb0"
+    },
+    {
+      "path": "share/locale/zh_TW/LC_MESSAGES/gdk-pixbuf.mo",
+      "sha256": "e540e0158e501d90e1f0094b8d8048698960fe6f7666a5b215d2e45fd95a7603"
+    },
+    {
+      "path": "share/locale/zh_TW/LC_MESSAGES/glib-networking.mo",
+      "sha256": "22e2e4b6b0c876444b35b8dcd48e1b8d14c453d75aec31e5b6b6097618a42a54"
+    },
+    {
+      "path": "share/locale/zh_TW/LC_MESSAGES/glib20.mo",
+      "sha256": "d88503b1499413686f865337800ccce0a81acfaa2fabad075673eeaf96855ce4"
+    },
+    {
+      "path": "share/locale/zh_TW/LC_MESSAGES/gst-plugins-bad-1.0.mo",
+      "sha256": "b3ff2bc6bd3c3006fd687cf769bbe3a68ea810f6490dcfe9ee8a4b8e5113290b"
+    },
+    {
+      "path": "share/locale/zh_TW/LC_MESSAGES/gst-plugins-good-1.0.mo",
+      "sha256": "5a0a7faace2ad9101d80f53b11937a623daed70c5ecfa314da359733b85e3863"
+    },
+    {
+      "path": "share/locale/zh_TW/LC_MESSAGES/gst-plugins-ugly-1.0.mo",
+      "sha256": "b5de9dc5f38748a1ef9245e2fcce3e23feeb99a67381ecbfb7f7d97bfdb44481"
+    },
+    {
+      "path": "share/locale/zh_TW/LC_MESSAGES/gstreamer-1.0.mo",
+      "sha256": "ea7231e3fb5072335e0cda9abf99a68fd8bda8bed6e2d6c3df2cb6d262a9ce3b"
+    }
+  ]
+}

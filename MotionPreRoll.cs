@@ -44,7 +44,7 @@ internal sealed class MotionPreRoll : IDisposable
                     "-pix_fmt", "yuv420p", "-r", "15", "-g", "15", 
                     "-f", "segment", "-segment_time", "1", "-reset_timestamps", "1", "-segment_list", Path.Combine(folder, "segments.csv"),
                     "-segment_list_type", "csv", "-segment_list_size", "20", "-y", Path.Combine(folder, "%09d.mkv")]);
-                recorder = Process.Start(Command(args)) ?? throw new IOException("Vorlauf-Puffer konnte nicht starten.");
+                recorder = Process.Start(Command(args)) ?? throw new IOException(UiText.T("Vorlauf-Puffer konnte nicht starten."));
                 var errors = recorder.StandardError.ReadToEndAsync();
                 while (!stop.IsCancellationRequested && !recorder.HasExited)
                 {
@@ -135,7 +135,7 @@ internal sealed class MotionPreRoll : IDisposable
                         saved.Add(segment.StartUtc, copy);
                         latest = segment.EndUtc > latest ? segment.EndUtc : latest;
                     }
-                    if (DateTime.UtcNow > deadline) throw new IOException("Vorlauf-Aufnahme: Stream liefert keine weiteren Bilder.");
+                    if (DateTime.UtcNow > deadline) throw new IOException(UiText.T("Vorlauf-Aufnahme: Stream liefert keine weiteren Bilder."));
                     if (latest < end) await Task.Delay(250, stop.Token);
                 }
                 var manifest = Path.Combine(work, "concat.txt");
@@ -144,7 +144,7 @@ internal sealed class MotionPreRoll : IDisposable
                     "-ss", Seconds((target - saved.Keys.First()).TotalSeconds), "-t", Seconds(before + after),
                     "-an", "-c:v", "mpeg4", "-q:v", "2", "-y", output]);
             }
-            if (!File.Exists(output) || new FileInfo(output).Length < 64) throw new IOException("Vorlauf-Aufnahme ist leer.");
+            if (!File.Exists(output) || new FileInfo(output).Length < 64) throw new IOException(UiText.T("Vorlauf-Aufnahme ist leer."));
             return true;
         }
         catch { try { File.Delete(output); } catch { } throw; }
@@ -155,7 +155,7 @@ internal sealed class MotionPreRoll : IDisposable
     private async Task ExportAsync(IEnumerable<string> arguments)
     {
         stop.Token.ThrowIfCancellationRequested();
-        using var process = Process.Start(Command(arguments)) ?? throw new IOException("Vorlauf-Export konnte nicht starten.");
+        using var process = Process.Start(Command(arguments)) ?? throw new IOException(UiText.T("Vorlauf-Export konnte nicht starten."));
         exports.Add(process);
         try
         {
@@ -163,7 +163,7 @@ internal sealed class MotionPreRoll : IDisposable
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(stop.Token);
             timeout.CancelAfter(TimeSpan.FromSeconds(90));
             await process.WaitForExitAsync(timeout.Token);
-            if (process.ExitCode != 0) throw new IOException("Vorlauf-Export fehlgeschlagen: " + (await error).Trim());
+            if (process.ExitCode != 0) throw new IOException(UiText.T("Vorlauf-Export fehlgeschlagen: ") + (await error).Trim());
         }
         finally
         {

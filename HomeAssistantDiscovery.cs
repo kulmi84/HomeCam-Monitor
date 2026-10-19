@@ -7,7 +7,7 @@ namespace HomeCamMonitor;
 internal sealed record HaEntity(string Id, string Name, string State, string DeviceId, string DeviceClass)
 {
     internal bool Available => State is not ("unavailable" or "unknown");
-    public override string ToString() => Id.Length == 0 ? "Keine Zuordnung" : $"{Name} — {Id} ({State})";
+    public override string ToString() => Id.Length == 0 ? UiText.T("Keine Zuordnung") : $"{Name} — {Id} ({State})";
 }
 internal sealed record HaCatalog(IReadOnlyList<HaEntity> Cameras, IReadOnlyList<HaEntity> Sensors, bool RegistryAvailable)
 {
@@ -28,20 +28,20 @@ internal sealed class HaApi : IDisposable
     {
         if (!Uri.TryCreate(address.Trim().TrimEnd('/') + "/", UriKind.Absolute, out var uri) ||
             uri.Scheme is not ("http" or "https") || uri.UserInfo.Length > 0 || uri.Query.Length > 0 || uri.Fragment.Length > 0)
-            throw new ArgumentException("Eine gültige HTTP-/HTTPS-Adresse von Home Assistant eintragen.");
+            throw new ArgumentException(UiText.T("Eine gültige HTTP-/HTTPS-Adresse von Home Assistant eintragen."));
         return uri;
     }
     internal async Task Connect(string address, string token, bool ignoreCertificate, CancellationToken cancel)
     {
         var baseUri = Address(address);
-        if (string.IsNullOrWhiteSpace(token)) throw new ArgumentException("Den Home-Assistant-Langzeit-Token eintragen.");
+        if (string.IsNullOrWhiteSpace(token)) throw new ArgumentException(UiText.T("Den Home-Assistant-Langzeit-Token eintragen."));
         if (ignoreCertificate) socket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
         await socket.ConnectAsync(MonitorForm.BuildHomeAssistantWebSocketUri(baseUri.AbsoluteUri), cancel).ConfigureAwait(false);
         using var required = await Receive(cancel).ConfigureAwait(false);
-        if (Text(required.RootElement, "type") != "auth_required") throw new InvalidDataException("Unerwartete HA-Anmeldung.");
+        if (Text(required.RootElement, "type") != "auth_required") throw new InvalidDataException(UiText.T("Unerwartete HA-Anmeldung."));
         await MonitorForm.SendHomeAssistantMessageAsync(socket, new { type = "auth", access_token = token }, cancel).ConfigureAwait(false);
         using var auth = await Receive(cancel).ConfigureAwait(false);
-        if (Text(auth.RootElement, "type") != "auth_ok") throw new InvalidDataException("HA-Anmeldung fehlgeschlagen. Langzeit-Token prüfen.");
+        if (Text(auth.RootElement, "type") != "auth_ok") throw new InvalidDataException(UiText.T("HA-Anmeldung fehlgeschlagen. Langzeit-Token prüfen."));
     }
     private async Task<JsonDocument> Receive(CancellationToken cancel)
     {
@@ -51,7 +51,7 @@ internal sealed class HaApi : IDisposable
         {
             result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancel).ConfigureAwait(false);
             if (result.MessageType != WebSocketMessageType.Text || memory.Length + result.Count > 8 * 1024 * 1024)
-                throw new InvalidDataException("Ungültige oder zu große HA-Antwort.");
+                throw new InvalidDataException(UiText.T("Ungültige oder zu große HA-Antwort."));
             memory.Write(buffer, 0, result.Count);
         } while (!result.EndOfMessage);
         return JsonDocument.Parse(memory.ToArray());
@@ -69,7 +69,7 @@ internal sealed class HaApi : IDisposable
             if (!root.TryGetProperty("success", out var success) || success.ValueKind != JsonValueKind.True)
             {
                 if (optional) return null;
-                throw new InvalidDataException(type == "camera/stream" ? "Home Assistant stellt für diese Kamera keinen HLS-Stream bereit. Alternativ eine vorhandene RTSP-/HTTP-Adresse verwenden." : "Home Assistant konnte die Entitäten nicht liefern. Benutzerrechte prüfen.");
+                throw new InvalidDataException(type == "camera/stream" ? UiText.T("Home Assistant stellt für diese Kamera keinen HLS-Stream bereit. Alternativ eine vorhandene RTSP-/HTTP-Adresse verwenden.") : UiText.T("Home Assistant konnte die Entitäten nicht liefern. Benutzerrechte prüfen."));
             }
             return root.TryGetProperty("result", out var value) ? value.Clone() : null;
         }
@@ -80,11 +80,11 @@ internal sealed class HaApi : IDisposable
         using var api = new HaApi(); await api.Connect(address, token, ignoreCertificate, timeout.Token).ConfigureAwait(false);
         var states = await api.Request("get_states", timeout.Token).ConfigureAwait(false);
         var registry = await api.Request("config/entity_registry/list", timeout.Token, optional: true).ConfigureAwait(false);
-        return Parse(states ?? throw new InvalidDataException("Keine HA-Entitäten geliefert."), registry);
+        return Parse(states ?? throw new InvalidDataException(UiText.T("Keine HA-Entitäten geliefert.")), registry);
     }
     internal static HaCatalog Parse(JsonElement states, JsonElement? registry)
     {
-        if (states.ValueKind != JsonValueKind.Array) throw new InvalidDataException("Ungültige HA-Entitätenliste.");
+        if (states.ValueKind != JsonValueKind.Array) throw new InvalidDataException(UiText.T("Ungültige HA-Entitätenliste."));
         var devices = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (registry is { ValueKind: JsonValueKind.Array } entries)
             foreach (var entry in entries.EnumerateArray()) devices[Text(entry, "entity_id")] = Text(entry, "device_id");

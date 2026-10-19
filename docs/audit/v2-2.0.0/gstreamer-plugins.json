@@ -1,0 +1,2102 @@
+{
+  "plugins": [
+    {
+      "file": "gsta52dec.dll",
+      "sha256": "c7d386778941b26b4cbf4449b2f36aa4eacfbebaf2e79cabbb14b748fa978f0d",
+      "returncode": 0,
+      "license": "GPL",
+      "module": "gst-plugins-ugly",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaccurip.dll",
+      "sha256": "b5091ac0c3f62c3b60206782d5bbd84ef2589b6a36afb6db53478f3a8ae1d208",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstadaptivedemux2.dll",
+      "sha256": "66e0af48d264e703c311f2501e4cd85ab9001c91b959a17895d79f430b0f9a76",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstadder.dll",
+      "sha256": "69fb511c022528425cd45faf1ee01605162ded7283109a9992dbe0723a27f41e",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstadpcmdec.dll",
+      "sha256": "41e816465b6d08acb3b488dc89175949158af0e038822df689dae989f60ca826",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstadpcmenc.dll",
+      "sha256": "ea16deebd1728b8ee81404ba21ad58ebe529dbfed9c656ff88e2e086c6e7dce7",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaes.dll",
+      "sha256": "66f91609b49f9aa2642b71ad4e07a6b963367d6bc797b80823a4f75e4a5330b3",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaiff.dll",
+      "sha256": "f972daa511aee2a2a4c3c9830141c4d1f8289618a2c70b3dad9e7d2e9a307c5d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstalaw.dll",
+      "sha256": "09134165a8cc536d7baed12f76c06f81ed72ba51605108ecf27b4a65a46afdb9",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstalpha.dll",
+      "sha256": "ad30b98b469b9c1352383338e0060094b62dece8249fe4676c3123a8be50f349",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstalphacolor.dll",
+      "sha256": "0bb8f444f4dda97f989680d5ee256dac652fb94aabc8ff0ff7976a8f84cd596d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstamfcodec.dll",
+      "sha256": "7fdca4cbd67fa89dee640d0c22d05c26946ed9a8eedfa4720990f5e49711a9e0",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstamrnb.dll",
+      "sha256": "2d6508745b056fb1099eeea60b9504bca0b4c71b394c8349be84b4dd86e8c2d2",
+      "returncode": 0,
+      "license": "unknown",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstamrwbdec.dll",
+      "sha256": "e7221335e5e73162de27c6ae55efbaff84cd1999d80094bdf1bb7aef7ef5f458",
+      "returncode": 0,
+      "license": "unknown",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstapetag.dll",
+      "sha256": "eb7c7e0c06ba7bfda3aa6445c62ef0fb59da87c69101669fe056ac74509f3d85",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstapp.dll",
+      "sha256": "c1d53673bccf0653d935283d495d03250db699d084d0c51c3c13435c466d6d01",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstasf.dll",
+      "sha256": "ac870b11941b634f1e886686ca8c975420ea89ffdcb38fb50133dc2efc16aa6d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-ugly",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstasfmux.dll",
+      "sha256": "e3ded99fb1999894d8dfaefae93c5b57c624acc17442f80d64334207187d37fa",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstasio.dll",
+      "sha256": "2fa79af45856e75a97e9bc1478e88e9c50d5e903ea9ef100187e2ce165d36f09",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstassrender.dll",
+      "sha256": "74659ad3845bc5275e37c30a82e27074abe03a9c8b2ecba506c08b003fa9c875",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiobuffersplit.dll",
+      "sha256": "6078b1f0f2fc2751ca3af8826b6042f394fa1883f017b82292c0ead99f7bf592",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudioconvert.dll",
+      "sha256": "d7fba1a7427e34b225a93671dfac62bc6deda3ebbc7976d2f7e831d162580ec4",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiofx.dll",
+      "sha256": "cc232e7b5659b8b0e07671f73d27797596dfffcf39a3eace81799b98448ecde4",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiofxbad.dll",
+      "sha256": "118c34db652a83851895d5f19811111b813e07085de14c2f417da936389b5307",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiolatency.dll",
+      "sha256": "1d20d97d88aa32873bfab56d8f10d322d0e3477f4c85836932081c4044958b7b",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiomixer.dll",
+      "sha256": "d82feb68f8ec70d881395878dd7b6660afe50c8eff71ba3517250af2260ed7e8",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiomixmatrix.dll",
+      "sha256": "7f010680fc3e79d32c432a1dbedc240ed815845af7873b81f4acf21736406c7b",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudioparsers.dll",
+      "sha256": "5999671ab934fddfdb4e9d5f35a8a8336e126d39dcde3193c57ac574598ce50f",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiorate.dll",
+      "sha256": "d7efc78fab2ef13422864fc740693c2123f596c56db63a9dc6e0e3102cc011a4",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudioresample.dll",
+      "sha256": "3c02bfe7aff0de91efa70797f5f9b735c38ccdcaf29aa31eb4d0f78a205acee9",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiotestsrc.dll",
+      "sha256": "b18807fed4ffd1df004707932cd15794bf507f7f001c3a94213f598b04f71060",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaudiovisualizers.dll",
+      "sha256": "b982e1ff51705c34b522c9e5f9788deffab5cb6d5984c91de9c67d99e1e4ed74",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstauparse.dll",
+      "sha256": "4242149451df3cc3c25ce5acc4941452005fd5c46333a194f583eecd18c36530",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstautoconvert.dll",
+      "sha256": "1daa999f43bd7d4efa58c08d0581f5d5229fa53432acb1103e02c4a1bad02c31",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstautodetect.dll",
+      "sha256": "2c03159c3072f5137b06485f16761927ae1ceedfa1a49b4e5bd10b97329286de",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstavi.dll",
+      "sha256": "e7be0fda338255f963e0e227b23d6f3b63e540dc653541d03755942a97cac46d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstaws.dll",
+      "sha256": "8ce2f56569e5f917973af151a275bb84c500ae92efbe0e43f6cf7d46bff6bd91",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-aws",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstbayer.dll",
+      "sha256": "82ea833b166f4c61cbdcc52207a482962e60ebd747ac4567da26e13800e71bf2",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstbz2.dll",
+      "sha256": "ea76c2c9bf953f4d94cbbdfc9c0112b70589f737cfe03a5c90e4d37c5d34d693",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcairo.dll",
+      "sha256": "75eb798ee83735ff92001efbf460c8b6b7920b792060edae643ffdce1fba0089",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcamerabin.dll",
+      "sha256": "d32318f679a9e19f2cccf446b4c0d780c8df30b0ebb31387abc542f3b71b524a",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcdg.dll",
+      "sha256": "e627ba3ed43aee908c8ad4f5d37a38994c9a24cea7e6cc6e252a92a6d2aaa9d5",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-cdg",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstclaxon.dll",
+      "sha256": "4ab8a4a59f9f68db763ab98c8d448183923cb517d7f5d2844492f455c7920266",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-claxon",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstclosedcaption.dll",
+      "sha256": "dde48bceaab497d9589a047466eef31e75b4ddc772a016d32bdfcee8b3fd933a",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcodecalpha.dll",
+      "sha256": "fdd97c51db89f051d95253f5eacf924c15ea1110868c728e0968c26d05b42e5b",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcodectimestamper.dll",
+      "sha256": "a08f1769e67ecb3504341ec88ec6056f24236e4cd8bde761c92ce0a9075c56dd",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcoloreffects.dll",
+      "sha256": "df225f6f41bfb8beb093a07fabf99bbd7c1f0d4bb976225ebbb1f0ec42f1a10d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcompositor.dll",
+      "sha256": "5c3b3928bc849d7e4c231996a73c015b827300c0196c58ba679e5412191695f1",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcoreelements.dll",
+      "sha256": "140e6cd93db3c6d06240360b69b0bab17f91ef693d1d051b154ad64ff0cb444a",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gstreamer",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcoretracers.dll",
+      "sha256": "7c7ea113e1d8d0b3afcb5a65c5c28af406db3524119c2a25480632c12c41e0e2",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gstreamer",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstcutter.dll",
+      "sha256": "6a2ef9cd0db821c88759ca08f1975524841fc6d3b593a998f00ad8fb4556944e",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstd3d.dll",
+      "sha256": "f1305ef0e9ea28dec8bd035f8a5828a5aee2e5b92dc71f1dda8cf66ff4c90279",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstd3d11.dll",
+      "sha256": "4c3804eedd08ee1e72f18083f38ec454c0a0cb644e116db20929e3a877676776",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstd3d12.dll",
+      "sha256": "090817ad647cdc8665ed480d2b5691b41337992b680eaf9e470f9840c72bf098",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdash.dll",
+      "sha256": "bae84bb6eb22c9cd97408c39a019700ab323b5c702fcd4261fb554eefcf3ab78",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdav1d.dll",
+      "sha256": "2cd3173ecc7e7abdbe59571a2de14a6c3bcf32e252f37ff0256b7db35b992630",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-dav1d",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstdebug.dll",
+      "sha256": "cda63154923ced88a753ba02facf290726c786a424c3e2fb52dd90ffcbd41161",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdebugutilsbad.dll",
+      "sha256": "a423f8f44ca321003d360328727246cdfe49d6e31aa736a0eac8c8a09e44f221",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdecklink.dll",
+      "sha256": "bb16c89cf7809408cc85246beb9b4722d9bf78623a3f8b10faad7b1ea259e209",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdeinterlace.dll",
+      "sha256": "c92df7fe4fd5b88c9b5f1f2831c1676645abb022f45b2a0398d3a0155c8b27f5",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdirectshow.dll",
+      "sha256": "8edf6e7e7eb814afec1e79f6b0ec3959f5bebd4995f336136370994d97d5fa25",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdirectsound.dll",
+      "sha256": "a7228380219a08a4e155ad03015fd8f35a6f3199c261e17612a1409da79362d0",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdirectsoundsrc.dll",
+      "sha256": "60d7f8ecc7217e3b0d6f4efd569713a1a4638c438c3a54edea797d1e4a634763",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdtls.dll",
+      "sha256": "d767af092d5ecc22259b105ef0b9bde485cc3f166dab4fac44b8807cb959bef7",
+      "returncode": 0,
+      "license": "BSD",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdtmf.dll",
+      "sha256": "971a8c5c2943e09f8199d16f5f5b9d5a2429650b71d97f268ce7d05d97371432",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdtsdec.dll",
+      "sha256": "86a55aa1793294ee59ce7b0cf5566b7b4fb11a3ce268b69395d1eab1b37632c7",
+      "returncode": 0,
+      "license": "GPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdv.dll",
+      "sha256": "cc9e258a46b478daeaf7d26f722b63aa77d7eea77cd548be0034926ffae4571f",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdvbsubenc.dll",
+      "sha256": "3c7e97ca39bb2f1bee1a448f9c620109aebbb014cbcd3bae72902c40e980fd7c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdvbsuboverlay.dll",
+      "sha256": "2681a13f520b49061feaf3fa5aaec5f1f7a7b3ea1c9a0344be5c0290a6a384ff",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdvdlpcmdec.dll",
+      "sha256": "66b37c1100d8c4239f4b734b6bb1016ecbefcc350979eaaf14451be875d2ac13",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-ugly",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdvdspu.dll",
+      "sha256": "6a3d760383e0dd2011ba58ecd271ede0471d6f15ae3c31de7143a09358cc3112",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdvdsub.dll",
+      "sha256": "c5968f65cbb679f31896cc5bc0818fecb05b234866aa9eb32fd34f27e3bde531",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-ugly",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstdwrite.dll",
+      "sha256": "c9f4664c7e911dbd915e86b733860e4e80d522e51dffab40efc065f0ef307b7d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsteffectv.dll",
+      "sha256": "797eadd6d2de3fd9704667f3142dc03542992b3e5dec6f9735d57b3612e3f219",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstelevenlabs.dll",
+      "sha256": "3c27fdf468429ad2828725e9634fdb310cf954e79cbd607d774a83f956d5e7f2",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-elevenlabs",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstencoding.dll",
+      "sha256": "96ac7abaa6cc5df211d7ad47e5dca84a2c7ae6256a4409bf1c7e1ddc78b9804b",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstequalizer.dll",
+      "sha256": "dede3f5250394e576574819828a73e59b6feaed19e3fda8c0e0b105250d72490",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstfallbackswitch.dll",
+      "sha256": "f64ce22aed05d07c77d80952d90cf71f3d79751edccdc2cee06345cf8ef2c918",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-fallbackswitch",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstffv1.dll",
+      "sha256": "82d86540c1f49d7f09de4a2ceff8e65b89b8b130a7aec8cfb0fce46c6acb79d2",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-ffv1",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstfieldanalysis.dll",
+      "sha256": "91630760fcd922d03de0a89fd005ce56370068ccd1bf9d9065de87d99176a863",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstflac.dll",
+      "sha256": "0fc0dd74b089a31d1207edf1e8cc59d9db2a6cd103dbd409209d0d77998752d5",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstflv.dll",
+      "sha256": "d116de1baf385733b43851e9a234d32fe096eaf858b339811544918f3617385d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstflxdec.dll",
+      "sha256": "fd3b454dcef7b3f4792d77907366692400b2d2ac394c005da60b24a2780bf396",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstfmp4.dll",
+      "sha256": "df67f83ff3d87381be63b32390177738bd4bace024563d39925810d1d3f6d8b3",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-fmp4",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstfreeverb.dll",
+      "sha256": "5fdf18f8407ae2d2c0b8b827d605cf1a52a74b77702d9eed22c412cef3407a3c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstfrei0r.dll",
+      "sha256": "125d59f2496be063a5eca72f2cf97dad25ff60a7c0edab27a68829d2fe797273",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstgaudieffects.dll",
+      "sha256": "d4b2f38dbafe32bb2b70070a32cc28154b64bc5a3cc5e6a93e5a7a60d30939c9",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstgdkpixbuf.dll",
+      "sha256": "a3b0f4b592631d242f9860fe7dfc7c82cfea1ca5c398b2ed12601eb1edd57e87",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstgdp.dll",
+      "sha256": "a3a8955ba46c398ab01eeca4c9bdc0228d06a78e77ba82c4abebf2796ebff2f9",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstgeometrictransform.dll",
+      "sha256": "5ce677401599b876d6d577c3c4839173f2e4b9df30bad5239446cf68483917cf",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstges.dll",
+      "sha256": "8ec7f6cc8d6fe209464474e4ecc15928f2813710cfe6d93e2011818b732a6db4",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-editing-services",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstgif.dll",
+      "sha256": "a7b5aa09662efd5253228bc3c37444ea953355648e93a9df158742f588802ab0",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-gif",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstgio.dll",
+      "sha256": "0dc145c95149c507a84bd2da9a63d4d2e29af9f349fdddfc75a45edaf19def17",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstgoom.dll",
+      "sha256": "f3eb0294304358059cdaf3b4adc273e3caffa04536494ee5ef53296cf92641ba",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstgoom2k1.dll",
+      "sha256": "b16002fc1dc4ac54cf0310cb321bfb69214af696dd8d5d53752153480f8f8bc2",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstgopbuffer.dll",
+      "sha256": "b9edfdaf18c06cf40b57f77b7330f68a0d239c79474e49e831e0ac574b934fbf",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-gopbuffer",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gsthls.dll",
+      "sha256": "2d149ce27b1606365af9008dde26c63b064e1d14385cb534eedb9aecdd88a690",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsthlsmultivariantsink.dll",
+      "sha256": "0373be485a195f11e8ea378484bf94e440ee2986cf801da8dc319a98b62254f3",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-hlsmultivariantsink",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gsthlssink3.dll",
+      "sha256": "3fff02e75689721c7ce6eee0c7c2d6c2b4c20b7bce8f6c0e90eba4518c0559e0",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-hlssink3",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gsthsv.dll",
+      "sha256": "6915ebbcbdcf3a855d318b3ed3768f2a5b370b74df8fb89232f434136bd12628",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-hsv",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gsticydemux.dll",
+      "sha256": "1a6448cf79fc9349800d63fd6084ba83295f96e377854ed6e2b56af246086b83",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstid3demux.dll",
+      "sha256": "fe05a33b7c7ef2df36020c98c7974aaf63d3ce8ca1e367e4fa8954afc9674259",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstid3tag.dll",
+      "sha256": "61203acc18b143e4926fedf3dcc374aec1399d92ceb98e800ff49cd3fe489e3c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstimagefreeze.dll",
+      "sha256": "ed72c18b55d22d3e03458414bae718bad4f560d6d4cbe729b6195492d967184d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstinsertbin.dll",
+      "sha256": "7481ec02780ff61fab0c99f3a02720f8e74295ffb5fb6cf01758e95b3bab9220",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstinter.dll",
+      "sha256": "5c7c44f4aa6128f5de7282f47b69783f372cd9f2b6353003593433127b3a6771",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstinterlace.dll",
+      "sha256": "4d919dc8af290cec0ab7ded02c268b718f228cb4f09ad9610ad2cb4689f0b3dd",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstinterleave.dll",
+      "sha256": "906b6d1a6020a1f108acb5d1684664b3df5bfd16b36022cc11743197b6dd0b8d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstipcpipeline.dll",
+      "sha256": "b5b1fa6fbf128524206644f7a26e5b27022186147c29f1b3de420d2b809b2aff",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstisomp4.dll",
+      "sha256": "c6f1cd874b3ef54e4056a50ae9019c4678b51c4f98f78e2a0fdf853641c037d8",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstivfparse.dll",
+      "sha256": "72cc02d36f3739c751126e5bbe95868cb69623b0f3ab2df042910bb26f5b27cf",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstivtc.dll",
+      "sha256": "c051c291b0797dc90af2e3be2a049373bbe36933be6c592df282c5e0dd3d0ec1",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstjack.dll",
+      "sha256": "70072ac3f0c80f3cc959b408e7128f26adfbab0e7af481f9018cfedeccf1a332",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstjpeg.dll",
+      "sha256": "c6aeba82cb8770d66e4aab1ce67e87f6858e67b3c2efd55f6e8f321292355410",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstjpegformat.dll",
+      "sha256": "d9e85e7a4040e000240b7a78377657e92efb869e4e41ed6e02e4f54a4ba6bafb",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstjson.dll",
+      "sha256": "3d630481e305a942acc988d29debb97679e54546adc41eeafcf390c67500a7ca",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-json",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstladspa.dll",
+      "sha256": "30249e1e9c298cec9bcb4086c3de6914166f72f12612a920226e8ddb5a857ddf",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstlame.dll",
+      "sha256": "e83e549e851511e27e0c31d21f7a789f574b797b041ef487e02da148f8adc5f9",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstlegacyrawparse.dll",
+      "sha256": "8ef4e746ae4dae9ae0d2c1c24120d58748955d08f09a681e78e5d55c8ea57e88",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstlevel.dll",
+      "sha256": "663bb2c6901d13783f49c6484216d6c6a61f79c7687a2ea46b86706b45482524",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstlewton.dll",
+      "sha256": "65db47da0d666722487e00870ee2b792f3ca6d0d43b1021485b2f29fff03b38d",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-lewton",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstlibav.dll",
+      "sha256": "f84ab8e0568c7341cb3ef79631edc1da22b8f1396ab63d75a8b37ad4887ba67f",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-libav",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstlivesync.dll",
+      "sha256": "a523aed6102bcd4ccfc5d4b3810a13ff6f7e4419901d1a8567e682ab9e17e662",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-livesync",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstmatroska.dll",
+      "sha256": "ce85fa1a7929567f6e807ec0afaa454e00da38ba9c27a737f3d23dd5e64b212f",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmediafoundation.dll",
+      "sha256": "2b05110acd55370189b8fcac1fd5277160b8924ce04d07d9e95918738b348a62",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmidi.dll",
+      "sha256": "ab2c988864277a49a9988b5c92779a0f20e92d5920e4235f44d2af8a9c5c5b32",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmp4.dll",
+      "sha256": "5f6ab8665f1744e667419ebf6a17199b1fa799a436a0213dd79e95868fc07bd1",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-mp4",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstmpegpsdemux.dll",
+      "sha256": "7d7ddce32d2c54249e3d889477d16b2bd9377f16d0b765e68fb36fd30c59ca19",
+      "returncode": 0,
+      "license": "unknown",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmpegpsmux.dll",
+      "sha256": "8bbcc1bb4eddc4d432e25daee0f1257a32dd76d420d74ede83ee6c5c2732020b",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmpegtsdemux.dll",
+      "sha256": "eb303caaa8a17f949a15f3cccbe59b95c1397987fce2d2a2e86b4805cef2726c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmpegtslive.dll",
+      "sha256": "8d8de05f18914fc50851c946c3812a3ef8ce27a896597842664eca79d7fa3974",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-mpegtslive",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstmpegtsmux.dll",
+      "sha256": "55ae613b0d278ff834565177fe889744333f6d60603a52363ecc3f7f85ddd6a5",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmpg123.dll",
+      "sha256": "b0818fff8c094ec14a84390af79474923850823d8ee7483b25bfb942566a8cff",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmse.dll",
+      "sha256": "02271a400125e16335678d084dfa7bd781d894ad500b35e4fb089a8c2f95f529",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmulaw.dll",
+      "sha256": "90bfb95772c27775be14b86fe18e15029352d20035e590f1e74066919bfa5f60",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmultifile.dll",
+      "sha256": "8aebbc5ffd99b64ebdffa7d77af48b0584314356c7b7d051d6b5f2cfd6a40f15",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmultipart.dll",
+      "sha256": "5587c0baf274e02a3b7ae3ec710e21930093c2e85c39e2e15ab365327c83b023",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstmxf.dll",
+      "sha256": "6b73aaa00f479a38fa59fa6b8f730c93f885f107182234aaa20dac648886171d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstndi.dll",
+      "sha256": "3a9b4d3585f9156dded20f78594bf292b5bd8bac1e621ba42db763a5998b5412",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-ndi",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstnetsim.dll",
+      "sha256": "8266853138d8bb6951c7adf1d52d7e42368ea19bac1135786e28499dc35bbb9c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstnice.dll",
+      "sha256": "32dffe14b254f7e5c5a405af5f3ae76b2b01ca7c4a74f0c196adb2801ca670a9",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "libnice",
+      "version": "0.1.22"
+    },
+    {
+      "file": "gstnle.dll",
+      "sha256": "cf45bf5628ebcf1645356dcd9cc53c5d941d95f5f974bb075be01518e601df45",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-editing-services",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstnvcodec.dll",
+      "sha256": "46e7218da21a6ca79112e099c9579de356ecd0f5c4e1ae85b189b1bd501e6eee",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstogg.dll",
+      "sha256": "d11527ae47b4d6a19bbcf8ad81fdbc562595ed129f7694b896d7974b36f66897",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstopengl.dll",
+      "sha256": "303a55600031b793831233e6c12f7597b4d14a4360d955daef446973ca2b0da2",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstopenh264.dll",
+      "sha256": "8036fedff8a91dba2bec7de4988799bfba97b4769abbe4f35454110d2a1b8c67",
+      "returncode": 0,
+      "license": "BSD",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstopenjpeg.dll",
+      "sha256": "25690dfc4c094bfe0f9661e8264869878ada6e6863eafc3151269ccce7e8bd48",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstopus.dll",
+      "sha256": "515b48431922322df3706fac3b59ceb589a3c4bb352d9350cd9c699fc1ca1e72",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstopusparse.dll",
+      "sha256": "04adb0e6e564e3b77f8417187216dd1426ee21de56ad881689c1b0ec49ecaca0",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstoriginalbuffer.dll",
+      "sha256": "f7e33671d299c9aa955d85cc01c98f2b0e1fd60b151dcfa24d696263db248a3b",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-originalbuffer",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstoverlaycomposition.dll",
+      "sha256": "aef3e5189fd2f1d3a9b86bd90e934b91301c8bdf13f03f2eba0fd962458aed91",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstpango.dll",
+      "sha256": "7dd4c84d2c508fb44b6f478c282ebc87f7909414e0691a588be56bb7a8dfb719",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstpbtypes.dll",
+      "sha256": "63d68defceb973a264d286c22bc4fbdfe7eab4f9eb80c2417523ca95ce708179",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstpcapparse.dll",
+      "sha256": "6e609623499e97a159090495e3713bfe2747cc5befd6be9abddab89705db1b75",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstplayback.dll",
+      "sha256": "199534e86bb36fe5228f02f0c2a98c963221ce63792d998b10b0530d38a5d4b9",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstpng.dll",
+      "sha256": "aedd1ff585dc4aeea9c89f8067ce919914c3aa99a29f75d9b4f5ad42ddeeda92",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstpnm.dll",
+      "sha256": "e04ad9a6bbbd1d7bd06780cc868bd3d4810cc6f2a13109d93c5682a1aec081c6",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstproxy.dll",
+      "sha256": "412993d8cdbacc613839f2549fd96a9a10824f5a0b3286f124e68f891c232835",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstpython.dll",
+      "sha256": "1bc9dc415bb75bb3f125341e43e1d1aa3f54294f6bc07315c1b5698186b0bb38",
+      "returncode": 4294967295,
+      "license": null,
+      "module": null,
+      "version": null
+    },
+    {
+      "file": "gstqroverlay.dll",
+      "sha256": "a8c14cd2b27ee4c9a55c452f72deb06165e7378c3de0527382fa02e30a558218",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstqsv.dll",
+      "sha256": "7054eaabad3370ad16f42547160f09f79d8c2398294ae27b4417c10940e5cd5b",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstquinn.dll",
+      "sha256": "c6aca7da02a17c937327946587114da212ff5b3cb9f4224b6f0a1bd00a89e669",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-quinn",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstraptorq.dll",
+      "sha256": "70d91d07bf89f13390fa3e01c565751adca1bcfba73df99949281829dff4b6bf",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-raptorq",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrav1e.dll",
+      "sha256": "8c27f7b06849b0f0e2f04d478b53e19300aba749299b4e32c9bbe65d9a801718",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-rav1e",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrawparse.dll",
+      "sha256": "993caf3b3cba42e56f1d4ef6fe73b14cac744b05645628dafe25c5713519a3f6",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrealmedia.dll",
+      "sha256": "ce2c124f21942bd1801af76acf04afa7bb2c3fe40d7110d4f497946e3426dc1f",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-ugly",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstregex.dll",
+      "sha256": "729513b79fa1903f24efef18437d332c8ad5a064eb292e2d5f03da37d559fdc5",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-regex",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstremovesilence.dll",
+      "sha256": "975a3011e0bbc855aec1ae17fad1d889e2ec91fee6b1df0149bd9127236712af",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstreplaygain.dll",
+      "sha256": "93f7f8acb34ddff6b3110d0a704c750c706737a364c61108621ae29924df65c6",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstreqwest.dll",
+      "sha256": "8e8007dcd0fa006c08b1cac6eef8f05972ce5b5847225576506a53b8b37f8971",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-reqwest",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrfbsrc.dll",
+      "sha256": "1d80eea01cbb1b0993bb3d7420090facee96bdfc85e4510a09903226178b0213",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrist.dll",
+      "sha256": "fa95d8abbfa66a2aeee23b007ed54550d621d0dea139b60dac25caa46181c3eb",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrsanalytics.dll",
+      "sha256": "56872881f351faf91e5a1189d802fd4ca53b577b65be55921ddf617336c66a80",
+      "returncode": 0,
+      "license": "MPL-2.0",
+      "module": "gst-plugin-analytics",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrsaudiofx.dll",
+      "sha256": "629d7dac2d1e5195299412744bbd798fbdc012e1749904740b8c9463c95ce822",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-audiofx",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrsclosedcaption.dll",
+      "sha256": "06dd1c269eeedca146b2b2833976ed0dc4634298e225a4b0ab4988f885071c22",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-closedcaption",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrsinter.dll",
+      "sha256": "340d9dd147c69736683b54f36e5ce1a739b08ce261e028e446f86dd47ff7c03b",
+      "returncode": 0,
+      "license": "MPL-2.0",
+      "module": "gst-plugin-inter",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrsonvif.dll",
+      "sha256": "60d2e056fe380562c76abbe0e2a2fafb6c6d05e233aad215b6ef219083d2b955",
+      "returncode": 0,
+      "license": "MPL-2.0",
+      "module": "gst-plugin-onvif",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrspng.dll",
+      "sha256": "b39f533502715ffc45fe7b77ff91c8359dfbeccd9498e4dbe4a73ad16db9db42",
+      "returncode": 0,
+      "license": "MIT/X11",
+      "module": "gst-plugin-png",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrsrtp.dll",
+      "sha256": "05f4bf64308270f3825f406da0c836e348255991024a5df672593841cee2b50f",
+      "returncode": 0,
+      "license": "MPL-2.0",
+      "module": "gst-plugin-rtp",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrsrtsp.dll",
+      "sha256": "3658ed45c20d6e98511f9b4db2a512df5836de893a3622047bc3b0c94dba8d94",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-rtsp",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrstracers.dll",
+      "sha256": "a9557095492035774bdff80458b0c4d7bfd6051aa5cde8bb7ba98dc300605b2a",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-tracers",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrsvg.dll",
+      "sha256": "857984ed394160257a4a06afcf6c6c7bd431b468df279f2ad8e5236d76df833d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrsvideofx.dll",
+      "sha256": "7e7fc190d2cd01b0fe30f33f034ed27aa843810be7dccf59cabaa48329b9c789",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-videofx",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrswebrtc.dll",
+      "sha256": "159cb07030a7eb664843bd3dbbe88762920bc2b75745d6768c8b7f580c3d506e",
+      "returncode": 0,
+      "license": "MPL-2.0",
+      "module": "gst-plugin-webrtc",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstrtmp.dll",
+      "sha256": "2d10e3ad01333153d304118208ae069e036e2cbc60f63a0df3b18ec466f0eca0",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrtmp2.dll",
+      "sha256": "813c46bf936cef37a3f07ad57e87c6bc5316c38ea15f940fb4f20d5669b57f61",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrtp.dll",
+      "sha256": "e897da1f5d9ef538d09b6c42932b9210ac8585aa8c04430ac2b0217a895e33b1",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrtpmanager.dll",
+      "sha256": "e03a81a698eab4b9ff92dd14c6bc39502cbb0198216a6c89a3f3e8e01e6911a7",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrtpmanagerbad.dll",
+      "sha256": "8f8b2e70afe46f38c58b5cdf0fd074c86da3d464dd61bf84db06658e21af6595",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrtponvif.dll",
+      "sha256": "69f8e094f8277e5ba77187b5121bb73c6b76bb710e35d01f83d26b1ee78a24d5",
+      "returncode": 0,
+      "license": "unknown",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrtsp.dll",
+      "sha256": "03dafcc9f8df8afc02728ff4cc7fc1d43ed50346d370617c81dc4e3472a5a411",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstrtspclientsink.dll",
+      "sha256": "40692d59327b801aa332454396c9c766beae667f82ff93d6162dbf5df5fb77e5",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-rtsp-server",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsbc.dll",
+      "sha256": "884c37178e6b8fe4487452fe23c18dad25b1017dde6a9b9f932e34245a315031",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsctp.dll",
+      "sha256": "b0aaccfd5991a86832f43dbcefa8e7adf833d5d5efe14c116e6e15d77b8529e8",
+      "returncode": 0,
+      "license": "BSD",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsdpelem.dll",
+      "sha256": "acbccbfd3397a775129147b312e5ecf1f86f803e0115db81e7e26c0adaccc86e",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsegmentclip.dll",
+      "sha256": "baa22bc9600b7fad3b7538ca6a53c44e628a77d338e19208792f672ac5537b97",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstshapewipe.dll",
+      "sha256": "5633bf16a31c8e8c524b03780e5a1e96927f0a549831f911c0c38bd1fb249e45",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsiren.dll",
+      "sha256": "43154a8abc1ec79e96c3a7eeea6c3e0e551ca3ef33076ca1eb00b7a37208bb3b",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsmooth.dll",
+      "sha256": "b69765f808f0262c1b729720649cbc614dd8a9a49094c3b5f7f1bbd9d8af3eb5",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsmoothstreaming.dll",
+      "sha256": "52cd4233c74b328f69770937b6c878279517f28642a095a15bf3303aa8b47843",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsmpte.dll",
+      "sha256": "cdc79c49eef5e4196ba77cf71b55f65960a7bba79a806beeba2214efc0745f3f",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsoundtouch.dll",
+      "sha256": "f9bb0d5e05f508052cb5647a168e7de0c15b673a5a6d99588028a03afaf54d22",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsoup.dll",
+      "sha256": "5cb5f798201e8986efc8fcaa5375011fe11d04e23f9e7debd1f7ae545d94f4f9",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstspandsp.dll",
+      "sha256": "9bf14fcfe188aa84f2c0121df9a5b7a0ba7855407dbba6f5ddc666f42a3c2908",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstspectrum.dll",
+      "sha256": "8a0c145c255ca6fdb6da88ede9c7546761fb3f12e31ea7d203e8e7e5cd630d1c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstspeed.dll",
+      "sha256": "f73a79b64de97b3803e10a1342d0e4199965013eaa9f9258b752cbd8a68c6e40",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstspeex.dll",
+      "sha256": "54d38efd7f5fc1317ed97372650570d29785bcf71e2e91ce70e5a7b231864ade",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsrt.dll",
+      "sha256": "bd6f5fdc71d5c1878e143359fef0468a0edda832977f77228d7bf037ab2805a3",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsrtp.dll",
+      "sha256": "caa24a252dc580d2542551111cc9b529436012810a7068ba770cdcdae2688770",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gststreamgrouper.dll",
+      "sha256": "be5851bed310053a2e8d63dc29ebc4fcf25b7aabe9f6b2a0459e7fee86393edd",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-streamgrouper",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstsubenc.dll",
+      "sha256": "be0c57f67e7c0b432e40b3749d5d453e1a8b0d371d5f596999670d069af10d0a",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsubparse.dll",
+      "sha256": "f8a52686d11fc07ed95aa6aecd778f7dbea6805d23f38a6163cc83d18049fa1d",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsvtav1.dll",
+      "sha256": "858a273c140e31bafb7b94e022591c41039669f58bf64f1c7b3c51bd3a742211",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstsvtjpegxs.dll",
+      "sha256": "2395cd2fb104659990702b614b1be8a367a861cb9077098dfc68c5fa21192955",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstswitchbin.dll",
+      "sha256": "112614e5af39b926d440836296f20120740a07545a9bbc66d348f701e4394e19",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsttaglib.dll",
+      "sha256": "2f3160f826397e4fca5dbb1c788e7799cab007d7970d0a1fe98945ac9e6d69fd",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsttcp.dll",
+      "sha256": "6c46bb0fd2dfbb57213a578dca8fee7daa48e2854163e3be696aaa858eb55f5a",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsttextahead.dll",
+      "sha256": "f2a7ebb213273fa2fad7d789c8a33b5f75a494cb850b93cac11001f884e9fe05",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-textahead",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gsttextwrap.dll",
+      "sha256": "20c62bdf9fdfab741207070965581d1ff0c73ba557d3cc45cff429e390d28aff",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-textwrap",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gsttheora.dll",
+      "sha256": "92b62c543610720cbf86c71921f7ad9d4fe76a789caf0dd1fe13202a9ee826b4",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstthreadshare.dll",
+      "sha256": "7ab2dad76f67257a5605d5bc841a978963606bdf3c7c2ede8cf1b1e07730ef89",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugin-threadshare",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gsttimecode.dll",
+      "sha256": "445133c2551f0ac88a27774f97cd0fe0652c30e619ecc474424c0a815d6f4b21",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsttogglerecord.dll",
+      "sha256": "4ade333b9a58e8846224c445bc4d031306cc735943669d6a96e362001c3e8c92",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-togglerecord",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gsttranscode.dll",
+      "sha256": "80dd740b63a59da4a8ec61b6a77802b543065fac7153d8b0cdfe1f4b4aa4ead8",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsttypefindfunctions.dll",
+      "sha256": "0c90120ae30b4a51f98010a4136e12b289e952a2c48c4975c0df3c360ef94594",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstudp.dll",
+      "sha256": "41c6d78885920ef2df9a7d695dc3933938df058c311daa3943975a44511ec129",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsturiplaylistbin.dll",
+      "sha256": "739864cb70f08aa5a2bdfc5bd42e10cfe22b8ff82b20946fcef05d178e4faa0c",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-uriplaylistbin",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstvideobox.dll",
+      "sha256": "f6a73b0c0a2135932e06a8fe03bc098a037a794029142320513ba8dafb7d7ab6",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideoconvertscale.dll",
+      "sha256": "debf5b1c494433a30846068e5406ecf4208162c28f21ac73e9a1a08d80043e81",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideocrop.dll",
+      "sha256": "255a7a932bfe6b4e1d2771f918652bcb8c47f46ba7030d43cc5e6d361c8c7ad7",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideofilter.dll",
+      "sha256": "53bc895f53b0d3013ec59c4e82e2a75b285c487cf0106efe8feb5fe34fb8d24c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideofiltersbad.dll",
+      "sha256": "eba3247d7626645c07f2f0ec417b0e2a7ec7ec12ed32be7bb68925e4ec59109c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideoframe_audiolevel.dll",
+      "sha256": "ae0f818520e7e7d8a155ad15ee193ca62ec7da0f6d115a8c94622382903c4c44",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideomixer.dll",
+      "sha256": "cac317770cac9f625ecb560a0cfbe8b0897e0f6e778d620f4b7a986b89bbba38",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideoparsersbad.dll",
+      "sha256": "a672f214a3defbfbb81a184096d9177c292971891aed269044861cab5503a576",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideorate.dll",
+      "sha256": "3448011d3821683f4a8cb680acc1e6671d459173c406cd41ee4d5255ec67f4bd",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideosignal.dll",
+      "sha256": "12520415b1026dca181e93bec9cbca2ce85d8233ce9a0d45e27ebda166815804",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvideotestsrc.dll",
+      "sha256": "66b291ab130fac7867978f2d5ac995e874f37fc3f4c3bd2f8b43fcd358665eb5",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvoaacenc.dll",
+      "sha256": "eed9cad54aad9e2a1aecfaac2a0eadf0fa684101ccbd28ebe7c7432087e062dc",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvolume.dll",
+      "sha256": "e68c2057d2755109047caa39180d350178f08a542ffc80310ab828cba457cecb",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvorbis.dll",
+      "sha256": "2611899f90e4c2ffd5b081116c099ab8aad7afa48911a69346eb842826cd8613",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-base",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstvpx.dll",
+      "sha256": "0772b5e57f3a3d7494238bf8bdb48a264153a6ecb9c9bcfaac27596655d2562b",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwasapi.dll",
+      "sha256": "a0d4214f8cd58367a017a5b8a572eae13fcc5bbdec044a8973242a627d7e9b08",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwasapi2.dll",
+      "sha256": "a3b3cda7eb8d64b45f8761daf0357007cb47e80ccf3895432d130ac08983eeca",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwavenc.dll",
+      "sha256": "bd7a0c46cf0b01848c0eff17b5ef066e414e209a525ec2a1bd12814fbbaecf2e",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwavpack.dll",
+      "sha256": "ef8cbaa751a8959f0e0508d55bb646f8442282a3bc4d57f47fce07e47919b5a7",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwavparse.dll",
+      "sha256": "123ac7a31dd8c6ae44e5aa116da5c37d6e61456d0c4fbd090f58bf86bd82a73c",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwebrtc.dll",
+      "sha256": "df8501c075b9081c1ab6aceb5fc0f64351cda1df61ad1ceaf81bb851286d01dc",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwebrtcdsp.dll",
+      "sha256": "6b559a751d506efe82c24dd7976428d2ed369d13df8826d2ff3581ced6638af3",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwebrtchttp.dll",
+      "sha256": "ef91edb9e7c7e65d90bc8d2210e1d4c752f7a3b24c8d45f225c503dfded4f0b4",
+      "returncode": 0,
+      "license": "MPL",
+      "module": "gst-plugin-webrtchttp",
+      "version": "0.14.5-07ea11aaa"
+    },
+    {
+      "file": "gstwebview2.dll",
+      "sha256": "73ef4692eb216a0628e6315d167a531e4138d019d37faa40da80e23fa77925bb",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwic.dll",
+      "sha256": "9420fdddd8f09a5e91a0dced5306d7830b4c6762e3a20dee58e3f480e9cdc9ae",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwin32ipc.dll",
+      "sha256": "f4409593e11e18b4d88196069031e8745ff18c58a20f1a11a4fa860ad805dd32",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwinks.dll",
+      "sha256": "80c5c68725b5b83d103c79282e6a631f335e86fec5182a759bdeb0c2725668eb",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstwinscreencap.dll",
+      "sha256": "4e9dc426d369a6902745a6d4b5cd2963ddb2866e975175b5eed16ef96f35b196",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstx264.dll",
+      "sha256": "e5edcdb3e36dececec46221e10c759632ff7875b4c7f2207a19338068a39b25e",
+      "returncode": 0,
+      "license": "GPL",
+      "module": "gst-plugins-ugly",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstx265.dll",
+      "sha256": "e144618911a663af8d26674b01bbd20eabcf3fd75ad61f465a19ca9ff45faeb9",
+      "returncode": 0,
+      "license": "GPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstxingmux.dll",
+      "sha256": "860cb6a6a9c64f81f5dd3438a2117e898e7adac3c7a5806d262d5179d15705a4",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsty4mdec.dll",
+      "sha256": "c82af67dae953cb53bb5a2c211c05cb24e3c6930c51d4ad638fb58bdc4d70aa2",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gsty4menc.dll",
+      "sha256": "6afbaea1304c4fa7bebbaac49465bfcaa432b20e33f5a70f998316757ac93a82",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-good",
+      "version": "1.26.11"
+    },
+    {
+      "file": "gstzbar.dll",
+      "sha256": "7e9242938ddecd0d755f0063f5cfbab2e7625ea0b3701ba46a9e7d229f000874",
+      "returncode": 0,
+      "license": "LGPL",
+      "module": "gst-plugins-bad",
+      "version": "1.26.11"
+    }
+  ],
+  "licenseCounts": {
+    "GPL": 4,
+    "LGPL": 207,
+    "unknown": 4,
+    "MPL": 27,
+    "MIT/X11": 10,
+    "BSD": 3,
+    "unresolved": 1,
+    "MPL-2.0": 5
+  }
+}

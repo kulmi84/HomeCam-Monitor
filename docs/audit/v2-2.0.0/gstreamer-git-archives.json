@@ -1,0 +1,50 @@
+[
+  {
+    "name": "cerbero",
+    "commit": "cebb549ade5b73048fc29be5a45332246f1c14f6",
+    "file": "git-source-archives/cerbero.tar",
+    "sha256": "01dc3a394a5238361d64f1ced5355ef2ca8cb7f811901c39918c966107bca783"
+  },
+  {
+    "name": "libffi",
+    "commit": "258a091198308063770643cf74a0deb6e121196c",
+    "file": "git-source-archives/libffi.tar",
+    "sha256": "2f66f0dbb712ba243286f4a304e4bc3f1b677c49bdd8dbdc24a07fd871334906"
+  },
+  {
+    "name": "gst-plugins-rs",
+    "commit": "07ea11aaa3bdca8c983cc2bfb7573a83da3b0f5b",
+    "file": "git-source-archives/gst-plugins-rs.tar",
+    "sha256": "1efd1bb6f1b45c3179aae907ed09035c55241db9e80a4e98e9e384f6489f1d4c"
+  },
+  {
+    "name": "gtk-rs-core-8b654067dcac",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "file": "git-source-archives/gtk-rs-core-8b654067dcac.tar",
+    "sha256": "8cb5b2ba831aa788d2f83a4e0bb98e86fda706e20f581947e8135b3c9ce1177e"
+  },
+  {
+    "name": "ffv1-bd9eabfc14c9",
+    "commit": "bd9eabfc14c9ad53c37b32279e276619f4390ab8",
+    "file": "git-source-archives/ffv1-bd9eabfc14c9.tar",
+    "sha256": "2c953b388d6cdb9a32fc106e2cc5b834087a5f445e494e5d81419f2152f936e9"
+  },
+  {
+    "name": "flavors-833508af656d",
+    "commit": "833508af656d298c269f2397c8541a084264d992",
+    "file": "git-source-archives/flavors-833508af656d.tar",
+    "sha256": "c9405a31d950de366b0cacdd70e88bb8dad3009995d8049dd696a70fdf6f7f6b"
+  },
+  {
+    "name": "gtk4-rs-ceeaddfd20bb",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "file": "git-source-archives/gtk4-rs-ceeaddfd20bb.tar",
+    "sha256": "b1c3380cb5ca4fc2a68e51ce7b157878084e9524a9c1cd4b6279ebb8001f526d"
+  },
+  {
+    "name": "gstreamer-rs-040f13c29167",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "file": "git-source-archives/gstreamer-rs-040f13c29167.tar",
+    "sha256": "10902e800c48bc9bfad8b87e38cd7a9a155cf6fac4d92c60f301661bd0ec0044"
+  }
+]

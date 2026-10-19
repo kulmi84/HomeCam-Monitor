@@ -56,7 +56,7 @@ internal sealed class MotionZoneCanvas : Control
     {
         base.OnPaint(e); var c = Content; if (c.Width <= 0 || c.Height <= 0) return;
         if (image is not null) e.Graphics.DrawImage(image, c);
-        else TextRenderer.DrawText(e.Graphics, "Vorschaubild laden, um Bereiche einzuzeichnen", Font, ClientRectangle, Color.LightGray, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        else TextRenderer.DrawText(e.Graphics, UiText.T("Vorschaubild laden, um Bereiche einzuzeichnen"), Font, ClientRectangle, Color.LightGray, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         using var pen = new Pen(Color.DeepSkyBlue, 2); using var fill = new SolidBrush(Color.FromArgb(35, Color.DeepSkyBlue));
         void Draw(MotionZone z) { var r = new RectangleF(c.Left + (float)z.X * c.Width, c.Top + (float)z.Y * c.Height, (float)z.Width * c.Width, (float)z.Height * c.Height); e.Graphics.FillRectangle(fill, r); e.Graphics.DrawRectangle(pen, r.X, r.Y, r.Width, r.Height); }
         foreach (var zone in Zones) Draw(zone);
@@ -82,7 +82,7 @@ internal sealed class LocalMotionEditor : GroupBox
     private readonly Label status = new() { Name = "LocalMotionStatus", AutoSize = true, MaximumSize = new Size(800, 0) };
     private readonly Label zonesLabel = new() { AutoSize = true };
     private readonly SettingsLayoutPanel options = new() { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
-    private readonly Button preview = new() { Name = "LoadMotionPreview", Text = "Vorschaubild laden", AutoSize = true };
+    private readonly Button preview = new() { Name = "LoadMotionPreview", Text = UiText.T("Vorschaubild laden"), AutoSize = true };
     private readonly System.Windows.Forms.Timer timer = new() { Interval = 1000 };
     private readonly Control externalFields;
     private readonly MotionDetailsSection details;
@@ -95,18 +95,18 @@ internal sealed class LocalMotionEditor : GroupBox
     {
         this.externalFields = externalFields;
         this.cameras = cameras; this.haAddress = haAddress; this.haToken = haToken; this.ignoreCertificate = ignoreCertificate;
-        Name = "LocalMotionSettings"; Text = "Bewegungserkennung"; AutoSize = true; Dock = DockStyle.Top; Padding = new Padding(10, 18, 10, 10);
+        Name = "LocalMotionSettings"; Text = UiText.T("Bewegungserkennung"); AutoSize = true; Dock = DockStyle.Top; Padding = new Padding(10, 18, 10, 10);
         var root = new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1 };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); root.Controls.Add(mode, 0, 0);
         options.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); options.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         void Field(string label, Control input, int row) { options.Controls.Add(new Label { Text = label, AutoSize = true, Anchor = AnchorStyles.Left }, 0, row); options.Controls.Add(input, 1, row); }
-        Field("Empfindlichkeit (höher = empfindlicher):", sensitivity, 0); Field("Mindestfläche (% des überwachten Bereichs):", area, 1);
-        Field("Mindestdauer (Sekunden):", duration, 2); Field("Nachlauf bis zum nächsten Ereignis (Sekunden):", hold, 3);
+        Field(UiText.T("Empfindlichkeit (höher = empfindlicher):"), sensitivity, 0); Field(UiText.T("Mindestfläche (% des überwachten Bereichs):"), area, 1);
+        Field(UiText.T("Mindestdauer (Sekunden):"), duration, 2); Field(UiText.T("Nachlauf bis zum nächsten Ereignis (Sekunden):"), hold, 3);
         var tools = new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true };
-        var clear = new Button { Text = "Gesamtes Bild überwachen", AutoSize = true };
+        var clear = new Button { Text = UiText.T("Gesamtes Bild überwachen"), AutoSize = true };
         tools.Controls.AddRange([preview, clear, zonesLabel]); options.Controls.Add(tools, 0, 4); options.SetColumnSpan(tools, 2);
         options.Controls.Add(canvas, 0, 5); options.SetColumnSpan(canvas, 2);
-        var hint = new Label { Text = "Linke Maustaste: Bereich aufziehen. Rechtsklick: Bereich entfernen. Ohne Bereiche wird das ganze Bild überwacht. Maximal 16 Bereiche.\n320 × 180 Pixel, maximal 5 Bilder/s, Einlernphase nach Start/Abbruch. Allgemeine Bewegung, keine Personenerkennung. Zusätzlicher Decoder benötigt CPU-Leistung.\nMarkierung und Aufnahmeaktionen verwenden die Optionen dieser Kamera. „Bewegung“ oben muss aktiv sein; Aufnahmen zusätzlich freigeben.", AutoSize = true, MaximumSize = new Size(850, 0) };
+        var hint = new Label { Text = UiText.T("Linke Maustaste: Bereich aufziehen. Rechtsklick: Bereich entfernen. Ohne Bereiche wird das ganze Bild überwacht. Maximal 16 Bereiche.\n320 × 180 Pixel, maximal 5 Bilder/s, Einlernphase nach Start/Abbruch. Allgemeine Bewegung, keine Personenerkennung. Zusätzlicher Decoder benötigt CPU-Leistung.\nMarkierung und Aufnahmeaktionen verwenden die Optionen dieser Kamera. „Bewegung“ oben muss aktiv sein; Aufnahmen zusätzlich freigeben."), AutoSize = true, MaximumSize = new Size(850, 0) };
         options.Controls.Add(hint, 0, 6); options.SetColumnSpan(hint, 2);
         var body = new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1 };
         body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -140,14 +140,14 @@ internal sealed class LocalMotionEditor : GroupBox
             Visible = show;
             if (!show) { details.Expanded = false; previewCancel?.Cancel(); canvas.ClearImage(); }
             var config = row is null ? new LocalMotionSettings() : LocalMotionSettings.ForRow(row);
-            config.Validate(); Text = "Bewegungserkennung – " + (row is null ? "Keine Kamera ausgewählt" : Convert.ToString(row.Cells["CameraName"].Value));
+            config.Validate(); Text = UiText.T("Bewegungserkennung – ") + (row is null ? UiText.T("Keine Kamera ausgewählt") : Convert.ToString(row.Cells["CameraName"].Value));
             var direct = row is not null && DirectCamera.ForRow(row).Enabled;
             if (direct && show) config.Enabled = true;
             UpdateSourceChoices(row, direct);
             mode.SelectedIndex = direct ? 0 : config.Enabled ? 1 : 0;
             sensitivity.Value = config.Sensitivity; area.Value = (decimal)config.MinimumAreaPercent;
             duration.Value = (decimal)config.MinimumSeconds; hold.Value = (decimal)config.HoldSeconds;
-            canvas.Zones = config.Zones.ToList(); UpdateDetails(config); zonesLabel.Text = config.Zones.Count == 0 ? "Gesamtes Bild" : config.Zones.Count + " Bereich(e)";
+            canvas.Zones = config.Zones.ToList(); UpdateDetails(config); zonesLabel.Text = config.Zones.Count == 0 ? UiText.T("Gesamtes Bild") : config.Zones.Count + UiText.T(" Bereich(e)");
         }
         finally { loading = false; }
         RefreshStatus();
@@ -155,10 +155,10 @@ internal sealed class LocalMotionEditor : GroupBox
     private void UpdateSourceChoices(DataGridViewRow? row, bool direct)
     {
         var external = row?.Tag is ReolinkCamera { Enabled: true }
-            ? "Bewegungserkennung der Reolink-Kamera" : "Externer Home-Assistant-Sensor";
+            ? UiText.T("Bewegungserkennung der Reolink-Kamera") : UiText.T("Externer Home-Assistant-Sensor");
         var choices = direct
-            ? new[] { new MotionSourceOption(true, "Lokale Bildanalyse (OpenCV/MOG2)") }
-            : new[] { new MotionSourceOption(false, external), new MotionSourceOption(true, "Lokale Bildanalyse (OpenCV/MOG2)") };
+            ? new[] { new MotionSourceOption(true, UiText.T("Lokale Bildanalyse (OpenCV/MOG2)")) }
+            : new[] { new MotionSourceOption(false, external), new MotionSourceOption(true, UiText.T("Lokale Bildanalyse (OpenCV/MOG2)")) };
         if (mode.Items.Cast<MotionSourceOption>().SequenceEqual(choices)) return;
         mode.Items.Clear(); mode.Items.AddRange(choices.Cast<object>().ToArray());
     }
@@ -170,20 +170,20 @@ internal sealed class LocalMotionEditor : GroupBox
         var row = cameras.CurrentRow;
         var ha = row is { IsNewRow: false } && row.Tag is not ReolinkCamera { Enabled: true } && !DirectCamera.ForRow(row).Enabled;
         externalFields.Visible = !config.Enabled && ha;
-        details.Caption = config.Enabled ? "Lokale Bildanalyse – Einstellungen und Bereiche" : row?.Tag is ReolinkCamera { Enabled: true } ? "Reolink-Kamera – Bewegungsereignisse" : "Home Assistant – Einstellungen und Sensoren";
+        details.Caption = config.Enabled ? UiText.T("Lokale Bildanalyse – Einstellungen und Bereiche") : row?.Tag is ReolinkCamera { Enabled: true } ? UiText.T("Reolink-Kamera – Bewegungsereignisse") : UiText.T("Home Assistant – Einstellungen und Sensoren");
     }
     private void Store()
     {
         if (loading || cameras.CurrentRow is not { IsNewRow: false } row) return;
         var config = LocalMotionSettings.ForRow(row); config.Sensitivity = (int)sensitivity.Value; config.MinimumAreaPercent = (double)area.Value;
         config.MinimumSeconds = (double)duration.Value; config.HoldSeconds = (double)hold.Value; config.Zones = canvas.Zones.ToList();
-        zonesLabel.Text = config.Zones.Count == 0 ? "Gesamtes Bild" : config.Zones.Count + " Bereich(e)"; Changed?.Invoke(); RefreshStatus();
+        zonesLabel.Text = config.Zones.Count == 0 ? UiText.T("Gesamtes Bild") : config.Zones.Count + UiText.T(" Bereich(e)"); Changed?.Invoke(); RefreshStatus();
     }
     private void RefreshStatus()
     {
-        if (cameras.CurrentRow is not { IsNewRow: false } row) { status.Text = "Kamera auswählen."; return; }
+        if (cameras.CurrentRow is not { IsNewRow: false } row) { status.Text = UiText.T("Kamera auswählen."); return; }
         var config = LocalMotionSettings.ForRow(row);
-        status.Text = config.Enabled ? (!Convert.ToBoolean(row.Cells["Active"].Value ?? true) || !Convert.ToBoolean(row.Cells["MotionEnabled"].Value ?? false) ? "Lokale Analyse ausgeschaltet: Kamera bzw. Bewegung ist deaktiviert." : LocalMotionStatus.Get(config.Id)) : (row.Tag is ReolinkCamera { Enabled: true } ? "Bewegungsereignisse werden direkt über Reolink-UID empfangen. Eine Sensorzuordnung ist nicht erforderlich." : DirectCamera.ForRow(row).Enabled ? "Diese direkte Bildverbindung liefert keine externen Ereignisse. Für Bewegung bitte lokale Bildanalyse auswählen." : "Externe HA-Sensoren verwenden die bestehende Home-Assistant-Verbindung. Personenereignisse bleiben auch bei lokaler Bildanalyse unabhängig nutzbar.");
+        status.Text = config.Enabled ? (!Convert.ToBoolean(row.Cells["Active"].Value ?? true) || !Convert.ToBoolean(row.Cells["MotionEnabled"].Value ?? false) ? UiText.T("Lokale Analyse ausgeschaltet: Kamera bzw. Bewegung ist deaktiviert.") : LocalMotionStatus.Get(config.Id)) : (row.Tag is ReolinkCamera { Enabled: true } ? UiText.T("Bewegungsereignisse werden direkt über Reolink-UID empfangen. Eine Sensorzuordnung ist nicht erforderlich.") : DirectCamera.ForRow(row).Enabled ? UiText.T("Diese direkte Bildverbindung liefert keine externen Ereignisse. Für Bewegung bitte lokale Bildanalyse auswählen.") : UiText.T("Externe HA-Sensoren verwenden die bestehende Home-Assistant-Verbindung. Personenereignisse bleiben auch bei lokaler Bildanalyse unabhängig nutzbar."));
     }
     private async Task LoadPreview()
     {
@@ -199,7 +199,7 @@ internal sealed class LocalMotionEditor : GroupBox
             if (!IsDisposed && ReferenceEquals(row, cameras.CurrentRow)) canvas.SetFrame(pixels);
         }
         catch (Exception e) when (e is OperationCanceledException or IOException or ArgumentException or System.ComponentModel.Win32Exception or OpenCVException or DllNotFoundException or TypeInitializationException)
-        { if (!IsDisposed) status.Text = "Vorschaubild nicht verfügbar. Kamera zuerst speichern/verbinden und erneut versuchen."; }
+        { if (!IsDisposed) status.Text = UiText.T("Vorschaubild nicht verfügbar. Kamera zuerst speichern/verbinden und erneut versuchen."); }
         finally { if (ReferenceEquals(previewCancel, active)) previewCancel = null; if (!IsDisposed) preview.Enabled = true; }
     }
     protected override void Dispose(bool disposing) { if (disposing) { previewCancel?.Cancel(); timer.Dispose(); } base.Dispose(disposing); }

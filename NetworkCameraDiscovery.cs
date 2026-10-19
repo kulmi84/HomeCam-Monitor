@@ -34,11 +34,11 @@ internal sealed class CameraNetworkRange
         var parts = value.Trim().Split('/');
         if (parts.Length > 2 || !IPAddress.TryParse(parts[0], out var ip) || ip.AddressFamily != AddressFamily.InterNetwork ||
             !int.TryParse(parts.Length == 2 ? parts[1] : "32", out var prefix) || prefix is < 20 or > 32)
-            throw new ArgumentException("IPv4-Adresse oder CIDR-Bereich /20 bis /32 eingeben, z. B. 192.168.189.0/24 (höchstens 4096 Adressen).");
+            throw new ArgumentException(UiText.T("IPv4-Adresse oder CIDR-Bereich /20 bis /32 eingeben, z. B. 192.168.189.0/24 (höchstens 4096 Adressen)."));
         var b = ip.GetAddressBytes();
         if (!(b[0] == 10 || b[0] == 172 && b[1] is >= 16 and <= 31 || b[0] == 192 && b[1] == 168 ||
             b[0] == 169 && b[1] == 254 || b[0] == 100 && b[1] is >= 64 and <= 127 || allowLoopback && b[0] == 127))
-            throw new ArgumentException("Bitte einen lokalen privaten IPv4-Bereich auswählen.");
+            throw new ArgumentException(UiText.T("Bitte einen lokalen privaten IPv4-Bereich auswählen."));
         var mask = prefix == 32 ? uint.MaxValue : uint.MaxValue << (32 - prefix);
         var network = Number(ip) & mask; var broadcast = network | ~mask;
         return new CameraNetworkRange(prefix < 31 ? network + 1 : network, prefix < 31 ? broadcast - 1 : broadcast);
@@ -47,7 +47,7 @@ internal sealed class CameraNetworkRange
 
 internal sealed record NetworkCameraCandidate(IPAddress Address, string Name, string Manufacturer, string DeviceUrl, string Identity, int Port, bool RtspService)
 {
-    internal string Status => DeviceUrl.Length > 0 ? "ONVIF gefunden" : RtspService ? "RTSP-Dienst – Stream noch ungeprüft" : "Port offen – RTSP unbestätigt";
+    internal string Status => DeviceUrl.Length > 0 ? UiText.T("ONVIF gefunden") : RtspService ? UiText.T("RTSP-Dienst – Stream noch ungeprüft") : UiText.T("Port offen – RTSP unbestätigt");
 }
 
 internal static class NetworkCameraDiscovery
@@ -132,7 +132,7 @@ internal static class NetworkCameraDiscovery
     {
         var fields = text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (fields.Length is 0 or > 16 || fields.Any(s => !int.TryParse(s, out var n) || n is < 1 or > 65535))
-            throw new ArgumentException("Bis zu 16 TCP-Ports mit Komma trennen, z. B. 554,8554,10554.");
+            throw new ArgumentException(UiText.T("Bis zu 16 TCP-Ports mit Komma trennen, z. B. 554,8554,10554."));
         return fields.Select(int.Parse).Distinct().ToArray();
     }
     internal static bool IsRtspResponse(string text) => Regex.IsMatch(text, @"^RTSP/(?:1\.0|2\.0) [1-5][0-9]{2}(?: |\r?$)", RegexOptions.CultureInvariant);

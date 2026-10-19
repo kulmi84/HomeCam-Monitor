@@ -108,13 +108,13 @@ internal static partial class Check
         for (var pass = 0; pass < 2; pass++)
         {
             grid.CurrentCell = grid.Rows[0].Cells[0];
-            if (mode.Items.Count != 2 || Convert.ToString(mode.Items[0]) != "Externer Home-Assistant-Sensor") throw new Exception("HA source label incorrect after camera switch.");
+            if (mode.Items.Count != 2 || Convert.ToString(mode.Items[0]) != UiText.T("Externer Home-Assistant-Sensor")) throw new Exception("HA source label incorrect after camera switch.");
             mode.SelectedIndex = 1;
             if (!LocalMotionSettings.ForRow(grid.Rows[0]).Enabled) throw new Exception("HA local selection mapping failed.");
             mode.SelectedIndex = 0;
             if (LocalMotionSettings.ForRow(grid.Rows[0]).Enabled || Convert.ToString(grid.Rows[0].Cells["MotionEntityId"].Value) != "binary_sensor.keep") throw new Exception("External HA mapping or retained sensor failed.");
             grid.CurrentCell = grid.Rows[1].Cells[0];
-            if (mode.Items.Count != 2 || Convert.ToString(mode.Items[0]) != "Bewegungserkennung der Reolink-Kamera") throw new Exception("UID source label incorrectly mentions HA.");
+            if (mode.Items.Count != 2 || Convert.ToString(mode.Items[0]) != UiText.T("Bewegungserkennung der Reolink-Kamera")) throw new Exception("UID source label incorrectly mentions HA.");
             mode.SelectedIndex = 1;
             if (!LocalMotionSettings.ForRow(grid.Rows[1]).Enabled) throw new Exception("UID local selection mapping failed.");
             mode.SelectedIndex = 0;

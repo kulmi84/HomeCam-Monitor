@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "version": "2.0.0",
+  "checkedOn": "2026-10-18",
+  "releaseReady": false,
+  "binaries": [
+    {
+      "path": "mpv.exe",
+      "bytes": 120872448,
+      "sha256": "b519b1f7b616a79c73877f857d6448da4f3544e7e3405bac41cbacae4665f766"
+    },
+    {
+      "path": "ffmpeg.exe",
+      "bytes": 138240000,
+      "sha256": "859f02a1b007989d3642d0702850030e5bfd169e647786bde6064a1acf578d05"
+    },
+    {
+      "path": "tools/neolink/neolink.exe",
+      "bytes": 16604672,
+      "sha256": "e70dbe88731ed37313004d9dfffd0b3862e30b1f353571e51a0da6a387b99bc6"
+    },
+    {
+      "path": "OpenCvSharp.dll",
+      "bytes": 1003008,
+      "sha256": "a26fd4bfff04fe2a351b3b0b417cc9847ef8e10721a8e484e3b33850f510b509"
+    },
+    {
+      "path": "OpenCvSharpExtern.dll",
+      "bytes": 68575744,
+      "sha256": "41e6a418637b7992814a668272e3197306f75c01b151ddb24ac2de183fb9c3f3"
+    }
+  ],
+  "pluginHashesMatched": 261,
+  "checks": {
+    "gstreamerTarballChecksums": "85/85 verified",
+    "neolinkRegistryVendor": "294 packages / 16640 files verified",
+    "gstreamerRustRegistryVendor": "812 packages / 39055 files; Git revision mapping incomplete"
+  },
+  "openItems": [
+    "Corresponding source/build coverage for current mpv and FFmpeg binaries",
+    "Complete GStreamer DLL/source/license mapping, Git dependencies and source archive",
+    "Final runtime/NuGet/OpenCV notice completeness",
+    "Audited end-package checksums and permanent source release assets"
+  ]
+}

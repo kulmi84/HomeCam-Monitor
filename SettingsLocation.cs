@@ -5,13 +5,25 @@ namespace HomeCamMonitor;
 internal static class SettingsLocation
 {
     internal const string RegistryPath = ApplicationChannel.RegistryPath;
-    internal static string DefaultFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationChannel.StorageName);
+    internal static string DefaultFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationChannel.DefaultSettingsFolderName);
     internal static string CurrentFolder => ReadFolder(RegistryPath);
     internal static string ReadFolder(string registryPath)
     {
-            using var key = Registry.CurrentUser.OpenSubKey(registryPath);
-            var value = key?.GetValue("SettingsFolder") as string;
-            return string.IsNullOrWhiteSpace(value) ? DefaultFolder : Normalize(value);
+        using var key = Registry.CurrentUser.OpenSubKey(registryPath);
+        var value = key?.GetValue("SettingsFolder") as string;
+        // Keep explicit user locations and existing V2/Beta installations.
+        // Only a fresh final installation uses the new, non-Beta default.
+        var previousDefault = string.Equals(registryPath, RegistryPath, StringComparison.OrdinalIgnoreCase)
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationChannel.StorageName)
+            : null;
+        return ResolveFolder(value, DefaultFolder, previousDefault);
+    }
+    internal static string ResolveFolder(string? configured, string defaultFolder, string? previousDefault)
+    {
+        if (!string.IsNullOrWhiteSpace(configured)) return Normalize(configured);
+        if (File.Exists(Path.Combine(defaultFolder, "settings.json"))) return defaultFolder;
+        if (previousDefault is not null && File.Exists(Path.Combine(previousDefault, "settings.json"))) return previousDefault;
+        return defaultFolder;
     }
     internal static string Normalize(string folder)
     {
@@ -34,7 +46,7 @@ internal static class SettingsLocation
     internal static void Relocate(string source, string target, string json, Action commitLocation, bool overwrite)
     {
         var previous = File.Exists(target) ? File.ReadAllBytes(target) : null;
-        if (previous is not null && !overwrite) throw new IOException("Im Zielordner gibt es bereits eine settings.json.");
+        if (previous is not null && !overwrite) throw new IOException(UiText.T("Im Zielordner gibt es bereits eine settings.json."));
         Directory.CreateDirectory(Path.GetDirectoryName(target)!);
         var temporary = target + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try

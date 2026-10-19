@@ -1,0 +1,17 @@
+[
+  {
+    "file": "libgcc_s_seh-1.dll",
+    "toolchainMember": "lib/libgcc_s_seh-1.dll",
+    "sha256": "323372c82a994267b23140681c41c44f3aee0d0032ff9d884d69b1a1ed7f2ac1"
+  },
+  {
+    "file": "libstdc++-6.dll",
+    "toolchainMember": "lib/libstdc++-6.dll",
+    "sha256": "6d8c75b04fa69225ee34cb65cd06b1dd6757640fb646851d8d87c453c8895812"
+  },
+  {
+    "file": "libwinpthread-1.dll",
+    "toolchainMember": "x86_64-w64-mingw32/sysroot/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll",
+    "sha256": "1e165b3f54a3f0387e4e3c1b5ae6143652aee4e4afd6e9474fcfde2cd8a92bbb"
+  }
+]

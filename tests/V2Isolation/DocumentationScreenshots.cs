@@ -14,8 +14,9 @@ internal static partial class Check
                 new() { Name = "Garten", StreamUrl = "rtsp://127.0.0.1:18554/garten", MotionEnabled = true, Reolink = new ReolinkCamera { Enabled = true, Uid = "DEMO0123456789AB", Username = "demo" } },
                 new() { Name = "Garage", StreamUrl = "rtsp://camera.example:554/stream", MotionEnabled = true, MotionAction = "Both", Direct = new DirectCamera { Enabled = true, RtspUrl = "rtsp://camera.example:554/stream" }, LocalMotion = new LocalMotionSettings { Enabled = true, Zones = [new MotionZone(.1,.2,.6,.6)] } }
             ] };
-        var output = Path.Combine(Environment.CurrentDirectory, "docs", "screenshots"); Directory.CreateDirectory(output);
-        using var host = new RenderHost { Opacity = 0, ShowInTaskbar = false, StartPosition = FormStartPosition.Manual, Location = new Point(-30000,-30000), ClientSize = new Size(1160,900) };
+        var output = Path.Combine(Environment.CurrentDirectory, "docs", "screenshots", UiText.IsEnglish ? "en" : "de"); Directory.CreateDirectory(output);
+        if (UiText.IsEnglish) { settings.Cameras[0].Name = "Driveway"; settings.Cameras[1].Name = "Garden"; }
+        using var host = new RenderHost { Opacity = 0, ShowInTaskbar = false, StartPosition = FormStartPosition.Manual, Location = new Point(-30000,-30000), ClientSize = new Size(1366,900) };
         using var form = new SettingsForm(settings, SettingsLocation.DefaultFolder) { TopLevel = false, FormBorderStyle = FormBorderStyle.None, Dock = DockStyle.Fill };
         host.Controls.Add(form); host.Show(); form.Show(); Pump(200);
         var grid = FindGrid(form);

@@ -1,4 +1,4 @@
-# HomeCam Monitor – IP-Kamera-Monitor und RTSP-Player für Windows
+# HomeCam Monitor V2 – IP-Kamera-Monitor und RTSP-Player für Windows
 
 <p align="center">
   <img src="assets/homecam-monitor-logo-default.png" alt="HomeCam Monitor Logo" width="128">
@@ -93,3 +93,7 @@ Die Anleitung zu [Paketbau und Upgrade](docs/release-v2.0.0.md) beschreibt die e
 HomeCam Monitor ist als proprietäre Freeware vorgesehen. Die unveränderte offizielle Anwendung darf kostenlos genutzt werden. Änderungen, Weitergabe von Paketen, Forks, Weiterentwicklung und Verwendung des geschützten HomeCam-Codes für eigene Projekte erfordern die vorherige Zustimmung des Rechteinhabers, soweit keine zwingenden Rechte entgegenstehen. Benutzerkonfiguration und Links zu offiziellen Downloads dürfen frei geändert bzw. geteilt werden.
 
 Der [vorbereitete Lizenztext](LICENSE.txt) nennt Marcin Kulmaczewski als Rechteinhaber und liegt zur abschließenden Prüfung vor. Die Rechte an mpv, FFmpeg, .NET und anderen Fremdkomponenten richten sich ausschließlich nach ihren eigenen Lizenzen; siehe [Fremdkomponenten-Hinweise](THIRD-PARTY-NOTICES.md). Das derzeit öffentliche Quellcode-Repository ist noch nicht in private Entwicklung und öffentliche Downloads getrennt.
+
+## Sprachen der Store-Ausgabe
+
+Die V2-Store-Ausgabe unterstützt Deutsch und Englisch. Sie folgt der Windows-Anzeigesprache: Deutsch bei de-* und Englisch als weitere Sprache. Kamera- und Verbindungsdaten bleiben erhalten. Technische Details und Teststand: [Lokalisierung](docs/localization.md).

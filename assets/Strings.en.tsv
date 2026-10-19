@@ -1,0 +1,453 @@
+Abbrechen	Cancel
+Abgebrochen oder Zeitlimit erreicht.	Cancelled or timed out.
+Aktiv	Active
+Aktivitätssymbole anzeigen:	Show activity indicators:
+Aktuelle Kamera	Current camera
+Aktuellen Stream neu verbinden	Reconnect current stream
+Alle Einstellungen	All settings
+Allgemeine Einstellungen	General settings
+Als neue Kamera übernehmen	Add as a new camera
+Analyse nicht verfügbar. Stream und Einstellungen prüfen.	Analysis unavailable. Check the stream and settings.
+Anmeldung abgelehnt: Kamera-Benutzername und Kamera-Passwort prüfen [AUTH]	Login rejected: check the camera username and password [AUTH]
+Anmeldung fehlgeschlagen – bitte Langzeit-Token prüfen.	Login failed – check the long-lived access token.
+Anzeige und Bedienung	Display and controls
+Aufbewahrung:	Retention:
+Aufnahme beenden und speichern	Stop and save recording
+Aufnahme fehlgeschlagen	Recording failed
+Aufnahme gespeichert	Recording saved
+Aufnahme läuft	Recording in progress
+Aufnahme starten	Start recording
+Aufnahme zuerst beenden	Stop the recording first
+Aufnahmen	Recordings
+Aus	Off
+Ausgewählt	Selected
+Ausgewählte Kamera:	Selected camera:
+Außenrahmen	Outer border
+Auswählen …	Browse …
+Automatische Aufnahmen (alle Kameras)	Automatic recordings (all cameras)
+Automatische Aufnahmen für diese Kamera erlauben und Aufnahmeoptionen unten anzeigen. Ohne Haken bleiben die Optionen gespeichert.	Allow automatic recordings for this camera and show the options below. Unchecking keeps the saved options.
+Automatische Aufnahmen für diese Kamera konfigurieren.	Configure automatic recordings for this camera.
+Automatische Bewegungsaufnahme läuft	Automatic motion recording in progress
+Automatische Ereignisaufnahmen benötigen Bewegungs- oder Personenereignisse. Manuelle Aufnahmen sind weiterhin möglich.	Automatic event recordings require motion or person events. Manual recording remains available.
+Bedienleiste automatisch skalieren	Scale the toolbar automatically
+Bedienleiste:	Toolbar:
+Bei Bewegung (ausgewählte Kamera)	On motion (selected camera)
+Bei Inaktivität minimieren	Minimize when inactive
+Bei Personenerkennung: Snapshot je Ereignis – aktiviert durch „Person“ oben.	On person detection: one snapshot per event – enabled by “Person” above.
+Beim Speichern wird die settings.json in den gewählten Ordner mitgenommen.	Saving moves settings.json to the selected folder.
+Beim Start:	On startup:
+Benötigt eine aktive HA-Kamera, aktivierte HA-Ereignisse und eine Personen-Entität. Reolink-UID unterstützt derzeit nur allgemeine Bewegung.	Requires an active HA camera, enabled HA events and a person entity. Reolink UID currently supports general motion only.
+Bewegung	Motion
+Bewegung erkannt	Motion detected
+Bewegung im 4er-Raster hervorheben	Highlight motion in the four-camera grid
+Bewegung pro Kamera und Home Assistant	Per-camera motion and Home Assistant
+Bewegung und Aktivitätsanzeige	Motion and activity indicators
+Bewegung:	Motion:
+Bewegungs- und Personenereignisse von Home Assistant empfangen	Receive motion and person events from Home Assistant
+Bewegungs- und Personenerkennung aktiv	Motion and person detection enabled
+Bewegungs-Entität:	Motion entity:
+Bewegungsaktionen pausieren	Pause motion actions
+Bewegungseinstellungen ausklappen	Expand motion settings
+Bewegungseinstellungen einklappen	Collapse motion settings
+Bewegungsereignisse verarbeiten.	Process motion events.
+Bewegungsereignisse werden direkt über Reolink-UID empfangen. Eine Sensorzuordnung ist nicht erforderlich.	Motion events are received directly over Reolink UID. No sensor assignment is needed.
+Bewegungserkennung	Motion detection
+Bewegungserkennung – 	Motion detection – 
+Bewegungserkennung der Reolink-Kamera	Reolink camera motion detection
+Bild empfangen – RTSP-Verbindung funktioniert.	Image received – the RTSP connection works.
+Bild wird geprüft …	Checking image …
+Bildqualität:	Image quality:
+Bildquelle:	Image source:
+Bis zu 16 TCP-Ports mit Komma trennen, z. B. 554,8554,10554.	Enter up to 16 comma-separated TCP ports, e.g. 554,8554,10554.
+Bitte den Reolink-Verbindungsdienst (neolink.exe) auswählen.	Select the Reolink connection helper (neolink.exe).
+Bitte eine gültige ONVIF-Adresse mit Port eintragen.	Enter a valid ONVIF address including the port.
+Bitte eine gültige RTSP-Streamadresse eintragen oder über ONVIF ermitteln.	Enter a valid RTSP stream address or discover it using ONVIF.
+Bitte eine Startkamera auswählen.	Select a startup camera.
+Bitte einen lokalen privaten IPv4-Bereich auswählen.	Select a local private IPv4 range.
+Bitte einen vollständigen Speicherpfad wählen.	Choose a full storage path.
+Bitte gültige Streamadressen eintragen.	Enter valid stream addresses.
+Bitte HA-Adresse und Langzeit-Token eintragen sowie für mindestens eine aktivierte Kamera eine Sensor-Entität hinterlegen.	Enter the HA address and long-lived access token, and assign a sensor entity to at least one enabled camera.
+Bitte jeder Kamera einen eindeutigen Namen geben.	Give each camera a unique name.
+Bitte Kamera-UID, Kamera-Benutzername und Passwort vollständig eintragen.	Enter the camera UID, camera username and password.
+Bitte laufende Aufnahmen zuerst beenden und danach die Einstellungen wiederherstellen.	Stop active recordings before restoring settings.
+Bitte laufende Aufnahmen zuerst beenden und danach zurücksetzen.	Stop active recordings before resetting settings.
+Darstellungsdiagnose	Display diagnostics
+Das Einzelbild ist leer.	The image is empty.
+Das Kamera-Passwort ist auf diesem Windows-Konto nicht lesbar. Bitte erneut eingeben.	The camera password cannot be read by this Windows account. Enter it again.
+Den Home-Assistant-Langzeit-Token eintragen.	Enter the Home Assistant long-lived access token.
+Der Aufnahmeprozess konnte nicht gestartet werden.	The recording process could not be started.
+Der Autostart wurde in Windows deaktiviert. Bitte aktiviere HomeCam Monitor unter Windows-Einstellungen → Apps → Autostart erneut.	Startup was disabled in Windows. Enable HomeCam Monitor again under Windows Settings → Apps → Startup.
+Der gemeldete Mediendienst liegt auf einem anderen Gerät. Adresse bitte manuell prüfen.	The reported media service is on another device. Check the address manually.
+Der Snapshot hat das Zeitlimit überschritten.	The snapshot timed out.
+Der Vorlauf benötigt einen kurzen Pufferaufbau. Bis dahin erfolgt die normale Aufnahme.	Pre-recording needs a short time to fill its buffer. Normal recording is used until then.
+Der Windows-Autostart wird durch eine Systemrichtlinie verwaltet.	Windows startup is managed by a system policy.
+Der Windows-Autostartstatus konnte nicht gelesen werden: 	Could not read the Windows startup status: 
+Diagnose exportieren	Export diagnostics
+Diagnose exportieren …	Export diagnostics …
+Diagnose wurde exportiert.	Diagnostics exported.
+Diagnose: Versionen, bereinigte Einstellungen und Stream-Ereignisse der laufenden Sitzung, ohne Zugangsdaten.	Diagnostics: versions, sanitized settings and stream events from this session, without credentials.
+Diagnoseexport fehlgeschlagen	Diagnostic export failed
+Die Aufbewahrungsfrist gilt nur für automatische Bewegungsaufnahmen. Manuelle Aufnahmen bleiben erhalten.	Retention applies only to automatic motion recordings. Manual recordings are kept.
+Die Datei enthält keine HomeCamMonitor-Einstellungen.	The file does not contain HomeCamMonitor settings.
+Die Einstellungsdatei ist zu groß.	The settings file is too large.
+Die Kamera konnte die ONVIF-Anfrage nicht ausführen. ONVIF-Freigabe und Benutzerrechte prüfen.	The camera could not process the ONVIF request. Check ONVIF access and user permissions.
+Die Kamera lehnt die ONVIF-Anmeldung ab. Kamera-Benutzer und Passwort prüfen.	The camera rejected the ONVIF login. Check the camera username and password.
+Die Kamera meldet keine unterstützten RTSP-Profile.	The camera reports no supported RTSP profiles.
+Die Kamera meldet keinen Hersteller.	The camera reports no manufacturer.
+Die Kamera meldet keinen unterstützten ONVIF-Mediendienst.	The camera reports no supported ONVIF media service.
+Die Kamera muss vom PC erreichbar sein. ONVIF und RTSP müssen an der Kamera freigegeben sein. 	The camera must be reachable from this PC. ONVIF and RTSP must be enabled on the camera. 
+Die Kameraaufnahme enthielt keine Videodaten und wurde entfernt.	The camera recording contained no video data and was removed.
+Die Videoaufnahme hat das Zeitlimit überschritten.	The video recording timed out.
+Diese direkte Bildverbindung liefert keine externen Ereignisse. Für Bewegung bitte lokale Bildanalyse auswählen.	This direct video connection provides no external events. Select local image analysis for motion detection.
+Diese HA-Kamera ist bereits eingerichtet. Der vorhandene Eintrag wurde ausgewählt und bleibt unverändert.	This HA camera is already configured. The existing entry was selected and remains unchanged.
+Diese Kamera ist bereits eingerichtet. Der vorhandene Eintrag wurde ausgewählt und bleibt unverändert.	This camera is already configured. The existing entry was selected and remains unchanged.
+Dieses Sicherungsformat wird nicht unterstützt.	This backup format is not supported.
+Direkt mit Home Assistant verbinden (empfohlen)	Connect directly to Home Assistant (recommended)
+Direkt über Reolink-UID verbinden	Connect directly using Reolink UID
+Direkte Bildverbindung ausgewählt	Direct video connection selected
+Direkte P2P-Verbindung wird versucht … [P2P]	Trying a direct P2P connection … [P2P]
+Direkte Verbindung nicht aktiviert	Direct connection is not enabled
+Durchsuchen …	Browse …
+Ein leeres Passwortfeld behält das gespeicherte Passwort. Diese Verbindungsart überträgt derzeit das Bild, keine Bewegungs- oder Personenereignisse.	An empty password field keeps the saved password. This connection currently provides video, without motion or person events.
+Eine gültige HTTP-/HTTPS-Adresse von Home Assistant eintragen.	Enter a valid HTTP/HTTPS address for Home Assistant.
+Eine gültige RTSP-/HTTP-Streamadresse eintragen.	Enter a valid RTSP/HTTP stream address.
+Eine RTSP-Adresse mit dem Stream-Pfad dieses Geräts eintragen oder ein ONVIF-Profil wählen.	Enter an RTSP address with this device's stream path, or select an ONVIF profile.
+Einstellungen	Settings
+Einstellungen konnten nicht gespeichert werden	Could not save settings
+Einstellungen öffnen	Open settings
+Einstellungen öffnen.	Open settings.
+Einstellungen sichern	Back up settings
+Einstellungen sichern …	Back up settings …
+Einstellungen sichern und wiederherstellen	Back up and restore settings
+Einstellungen sichern, zurücksetzen und Diagnose	Settings backup, reset and diagnostics
+Einstellungen vertikal scrollen	Scroll settings vertically
+Einstellungen wiederherstellen	Restore settings
+Einstellungen wiederherstellen …	Restore settings …
+Einstellungen wurden gesichert.	Settings backed up.
+Einstellungen zurücksetzen	Reset settings
+Einstellungen:	Settings:
+Einstellungsordner wechseln	Change settings folder
+Einzelansicht	Single-camera view
+Empfindlichkeit (höher = empfindlicher):	Sensitivity (higher = more sensitive):
+Entfernt alle Kameras, Sensorzuordnungen und die Home-Assistant-Verbindung einschließlich Token. Die Kameras müssen danach neu eingerichtet werden. Speicherpfade und Aufnahmevorgaben bleiben erhalten.	Removes all cameras, sensor assignments and the Home Assistant connection including its token. Cameras must be configured again. Storage paths and recording defaults are kept.
+Externe HA-Sensoren verwenden die bestehende Home-Assistant-Verbindung. Personenereignisse bleiben auch bei lokaler Bildanalyse unabhängig nutzbar.	External HA sensors use the existing Home Assistant connection. Person events remain independently available when using local image analysis.
+Externer Home-Assistant-Sensor	External Home Assistant sensor
+Falsche Analysebildgröße.	Incorrect analysis image size.
+Fensterposition und Größe	Window position and size
+Fensterprotokollierung aktivieren	Enable window logging
+FFmpeg konnte nicht gestartet werden.	FFmpeg could not be started.
+Flüssig (Substream)	Smooth (substream)
+Fund / Prüfstatus	Discovery / test status
+Für ausgewählte Kamera verwenden	Use for selected camera
+Geöffnete Einstellungen.	Settings opened.
+Geräteregister nicht verfügbar (ggf. Benutzerrechte). Sensoren bitte selbst auswählen.	Device registry unavailable (possibly due to permissions). Select sensors manually.
+Gesamtes Bild	Entire image
+Gesamtes Bild überwachen	Monitor the entire image
+Gespeichert	Saved
+Gespeichert – zum Ändern eingeben	Saved – enter a new value to change
+Gilt für Snapshots bei Bewegung und bei Personenerkennung. „Keine“ deaktiviert nur Aufnahmen bei Bewegung.	Applies to motion and person snapshots. “None” disables only motion recordings.
+GStreamer-Laufzeit fehlt	GStreamer runtime missing
+Gültige HA-Adresse und Langzeit-Token eintragen.	Enter a valid HA address and long-lived access token.
+HA-Adresse:	HA address:
+HA-Anmeldung fehlgeschlagen. Langzeit-Token prüfen.	HA login failed. Check the long-lived access token.
+HA-Kamera hinzufügen	Add HA camera
+HA-Stream verweist auf eine unerwartete Adresse.	The HA stream points to an unexpected address.
+HA-Verbindung oder Videotest fehlgeschlagen. Adresse, Token, Zertifikat und Freigaben prüfen.	HA connection or video test failed. Check the address, token, certificate and permissions.
+Hersteller	Manufacturer
+Hersteller konnte nicht abgefragt werden.	Could not query the manufacturer.
+Hersteller: 	Manufacturer: 
+Hintergrund wird eingelernt …	Learning the background …
+Hohe Auflösung (Hauptstream)	High resolution (main stream)
+Home Assistant – Einstellungen und Sensoren	Home Assistant – settings and sensors
+Home Assistant – Kameras und Sensoren	Home Assistant – cameras and sensors
+Home Assistant – Verbindung	Home Assistant – connection
+Home Assistant erwartet keine Anmeldung.	Home Assistant is not expecting a login.
+Home Assistant hat die Verbindung beendet.	Home Assistant closed the connection.
+Home Assistant hat keine Entitäten geliefert.	Home Assistant returned no entities.
+Home Assistant konnte die Entitäten nicht liefern.	Home Assistant could not return the entities.
+Home Assistant konnte die Entitäten nicht liefern. Benutzerrechte prüfen.	Home Assistant could not return the entities. Check user permissions.
+Home Assistant stellt für diese Kamera keinen HLS-Stream bereit. Alternativ eine vorhandene RTSP-/HTTP-Adresse verwenden.	Home Assistant provides no HLS stream for this camera. Use an existing RTSP/HTTP address instead.
+Home Assistant unvollständig	Home Assistant setup incomplete
+Home Assistant wird abgefragt …	Querying Home Assistant …
+Home-Assistant-Anmeldung fehlgeschlagen.	Home Assistant login failed.
+HomeCam Monitor – Autostart	HomeCam Monitor – startup
+HomeCam Monitor – Einstellungen	HomeCam Monitor – settings
+HomeCam Monitor beenden	Quit HomeCam Monitor
+HomeCamMonitor-Diagnose (*.json)|*.json	HomeCamMonitor diagnostics (*.json)|*.json
+HomeCamMonitor-Einstellungen (*.json)|*.json	HomeCamMonitor settings (*.json)|*.json
+Im Zielordner existiert bereits eine settings.json. Diese durch die aktuellen Einstellungen ersetzen?	The target folder already contains settings.json. Replace it with the current settings?
+Im Zielordner gibt es bereits eine settings.json.	The target folder already contains settings.json.
+Immer im Vordergrund	Always on top
+IP-Adresse	IP address
+IPv4-Adresse oder CIDR-Bereich /20 bis /32 eingeben, z. B. 192.168.189.0/24 (höchstens 4096 Adressen).	Enter an IPv4 address or CIDR range from /20 to /32, e.g. 192.168.189.0/24 (up to 4096 addresses).
+IPv4-Bereich (CIDR):	IPv4 range (CIDR):
+Jede Reolink-Kamera benötigt eine eigene interne Kennung.	Each Reolink camera needs a unique internal identifier.
+Kamera	Camera
+Kamera anklicken, Sensoren unten eintragen und Bewegung oder Person in der Liste aktivieren.	Select a camera, enter sensors below and enable Motion or Person in the list.
+Kamera auswählen und Verbindung unter Reolink oder Home Assistant einrichten. „Aktiv“ schaltet die Kamera vollständig ein oder aus.	Select a camera and configure its connection under Reolink or Home Assistant. “Active” turns the camera completely on or off.
+Kamera auswählen.	Select a camera.
+Kamera bereits vorhanden	Camera already exists
+Kamera deaktiviert	Camera disabled
+Kamera doppelt anklicken	Double-click the camera
+Kamera erreicht – Anmeldung läuft … [LOGIN]	Camera reached – logging in … [LOGIN]
+Kamera löschen	Delete camera
+Kamera offline	Camera offline
+Kamera übernehmen	Add camera
+Kamera verwendet eine nicht unterstützte Verschlüsselung [PROTOCOL]	Camera uses unsupported encryption [PROTOCOL]
+Kamera zuerst aktivieren.	Enable the camera first.
+Kamera-Benutzer:	Camera username:
+Kamera-Benutzername:	Camera username:
+Kamera-Konfiguration prüfen	Check camera configuration
+Kamera-Passwort	Camera password
+Kamera-Passwort:	Camera password:
+Kamera-UID:	Camera UID:
+Kamera:	Camera:
+Kameraeinstellungen	Camera settings
+Kameranamen im 4er-Raster anzeigen	Show camera names in the four-camera grid
+Kameras im Netzwerk suchen	Find cameras on the network
+Kameras und binäre Sensoren aus dem angegebenen Home Assistant. Vorschläge gelten nur bei eindeutiger Zuordnung zum selben Gerät; bitte prüfen.	Cameras and binary sensors from the specified Home Assistant. Suggestions require a unique match to the same device; please verify them.
+Kameras und Sensoren suchen	Find cameras and sensors
+Kein aktuelles Videobild – Verbindung wird erneut versucht.	No current video image – retrying the connection.
+Kein Bild empfangen oder Zeitlimit erreicht. Adresse und Zugangsdaten prüfen.	No image received or the request timed out. Check the address and credentials.
+Kein Bild empfangen. Streamadresse, RTSP-Freigabe und Kamera-Zugangsdaten prüfen.	No image received. Check the stream address, RTSP access and camera credentials.
+Kein Bild vom Stream: 	No image from stream: 
+Kein gültiges Video: 	No valid video: 
+Kein HA-Stream.	No HA stream.
+Kein Videobild empfangen. Pfad, Kamera-Zugangsdaten und RTSP-Freigabe prüfen.	No video received. Check the path, camera credentials and RTSP access.
+Kein Videobild. HA-Stream-Unterstützung prüfen oder vorhandene RTSP-/HTTP-Adresse verwenden.	No video. Check HA stream support or use an existing RTSP/HTTP address.
+Keine	None
+Keine aktive Kamera	No active camera
+Keine gültige Einstellungsdatei.	Not a valid settings file.
+Keine HA-Entitäten geliefert.	No HA entities returned.
+Keine Kamera ausgewählt	No camera selected
+Keine Namen, Speicherpfade, HA-Token, Zugangsdaten, URL-Pfade/-Parameter, Rohprotokolle oder Bilder. Ereignisse gelten nur für diese Sitzung; maximal 200 letzte Ereignisse.	No names, storage paths, HA tokens, credentials, URL paths/parameters, raw logs or images. Events cover this session only, up to the most recent 200.
+Keine ONVIF-Antwort. Optional den Bereich mit „RTSP-Ports gezielt prüfen“ untersuchen. Multicast erreicht andere VLANs üblicherweise nicht.	No ONVIF response. Optionally scan the range using “Scan RTSP ports”. Multicast usually does not reach other VLANs.
+Keine Zuordnung	No assignment
+Langzeit-Token:	Long-lived access token:
+Leere Einstellungsdatei.	Empty settings file.
+Linke Maustaste: Bereich aufziehen. Rechtsklick: Bereich entfernen. Ohne Bereiche wird das ganze Bild überwacht. Maximal 16 Bereiche.\n320 × 180 Pixel, maximal 5 Bilder/s, Einlernphase nach Start/Abbruch. Allgemeine Bewegung, keine Personenerkennung. Zusätzlicher Decoder benötigt CPU-Leistung.\nMarkierung und Aufnahmeaktionen verwenden die Optionen dieser Kamera. „Bewegung“ oben muss aktiv sein; Aufnahmen zusätzlich freigeben.	Left mouse button: draw a zone. Right-click: remove a zone. Without zones the entire image is monitored. Up to 16 zones.\n320 × 180 pixels, up to 5 fps, learning period after start/reset. General motion, no person detection. An additional decoder uses CPU resources.\nHighlighting and recording use this camera's options. “Motion” above must be enabled; recording must also be allowed.
+Logo in leeren Kamerafeldern anzeigen	Show logo in empty camera tiles
+Lokale Analyse aktiv – keine Bewegung	Local analysis active – no motion
+Lokale Analyse ausgeschaltet: Kamera bzw. Bewegung ist deaktiviert.	Local analysis is off: camera or motion detection is disabled.
+Lokale Bildanalyse – Einstellungen und Bereiche	Local image analysis – settings and zones
+Lokale Bildanalyse (OpenCV/MOG2)	Local image analysis (OpenCV/MOG2)
+Lokale Bildanalyse für diese Netzwerkkamera aktivieren.	Enable local image analysis for this network camera.
+Manuelle Snapshots:	Manual snapshots:
+Manuelle Videos:	Manual videos:
+Mindestdauer (Sekunden):	Minimum duration (seconds):
+Mindestens 2 Kameras	At least 2 cameras
+Mindestfläche (% des überwachten Bereichs):	Minimum area (% of monitored zone):
+Minimieren	Minimize
+Minimiert starten	Start minimized
+Mit Kamera starten	Start with a camera
+Mit Windows starten	Start with Windows
+mpv konnte nicht gestartet werden.	mpv could not be started.
+mpv.exe fehlt. Bitte den vollständigen Ordner aus dem GitHub-Artefakt entpacken.	mpv.exe is missing. Extract the complete folder from the GitHub download.
+Nach oben	Move up
+Nach Speichern startet die Verbindung automatisch. Ein leeres Passwortfeld behält das gespeicherte Passwort. 	The connection starts automatically after saving. An empty password field keeps the saved password. 
+Nach Speichern verbinden …	Connect after saving …
+Nach unten	Move down
+Nachlauf bis zum nächsten Ereignis (Sekunden):	Hold time before the next event (seconds):
+Nächste Kamera	Next camera
+Name / Modell	Name / model
+Netzwerk 	Network 
+Netzwerkadapter auswählen.	Select a network adapter.
+Netzwerkadapter konnten nicht gelesen werden.	Could not read network adapters.
+Netzwerkadapter und Bereich wählen. Es wird erst nach Klick gesucht.	Select a network adapter and range. Searching starts only when you click.
+Netzwerkadapter:	Network adapter:
+Netzwerkkamera hinzufügen	Add network camera
+Netzwerkzugriff oder Anmeldung fehlgeschlagen. Erreichbarkeit, Freigabe und Kamera-Zugangsdaten prüfen.	Network access or login failed. Check reachability, access and camera credentials.
+Neue Kamera	New camera
+Nicht gemeldet	Not reported
+Noch nicht abgefragt	Not queried yet
+Noch nicht gestartet. Änderungen mit Speichern übernehmen.	Not started yet. Save to apply changes.
+Noch unbekannt	Not known yet
+Nur Sensoren für die ausgewählte Kamera	Only sensors for the selected camera
+Ohne ONVIF unbekannt	Unknown without ONVIF
+ONVIF / RTSP – direkt	ONVIF / RTSP – direct
+ONVIF / RTSP – direkte Netzwerkverbindung	ONVIF / RTSP – direct network connection
+ONVIF gefunden	ONVIF found
+ONVIF liest die verfügbaren Bildprofile; alternativ die RTSP-Adresse direkt eintragen. 	ONVIF reads the available video profiles; alternatively, enter the RTSP address directly. 
+ONVIF-Adresse:	ONVIF address:
+ONVIF-Anfrage beendet oder Zeitlimit erreicht.	ONVIF request cancelled or timed out.
+ONVIF-Anmeldung und Profile werden geprüft …	Checking ONVIF login and profiles …
+ONVIF-Profil:	ONVIF profile:
+ONVIF-Profile laden	Load ONVIF profiles
+ONVIF-Profile werden gelesen …	Reading ONVIF profiles …
+ONVIF-Suche läuft …	Searching for ONVIF devices …
+ONVIF-Verbindung fehlgeschlagen. Adresse, Port, Freigabe und Zugangsdaten prüfen.	ONVIF connection failed. Check the address, port, access and credentials.
+ONVIF: lokale Multicast-Suche. Hersteller/Modell werden nach Anmeldung über „ONVIF-Profile laden“ abgefragt. Portsuche: nur gewählter Bereich (max. 4096 IPv4-Adressen).	ONVIF: local multicast discovery. Manufacturer/model are queried after login using “Load ONVIF profiles”. Port scanning covers only the selected range (up to 4096 IPv4 addresses).
+OpenCV konnte nicht geladen werden. Installation und Windows-Medienkomponenten prüfen.	OpenCV could not be loaded. Check the installation and Windows media components.
+Pause beenden	Resume
+Personen-Entität (Snapshot):	Person entity (snapshot):
+Personen-Snapshots benötigen eine unterstützte Home-Assistant-Personen-Entität. Bei Reolink-UID ist „Person“ gesperrt.	Person snapshots require a supported Home Assistant person entity. “Person” is unavailable with Reolink UID.
+Port offen – RTSP unbestätigt	Port open – RTSP not confirmed
+Raster starten	Start in grid view
+Reolink – direkte UID-Verbindung	Reolink – direct UID connection
+Reolink – flüssig	Reolink – smooth
+Reolink – hohe Auflösung	Reolink – high resolution
+Reolink-Kamera – Bewegungsereignisse	Reolink camera – motion events
+Reolink-Kamera hinzufügen	Add Reolink camera
+Reolink-Konfiguration	Reolink configuration
+Reolink-Verbindung konnte nicht gestartet werden	Could not start Reolink connection
+Reolink-Verbindungsdienst fehlt	Reolink connection helper missing
+Reolink-Verbindungsdienst konnte nicht starten.	The Reolink connection helper could not start.
+RTSP-/HTTP-Streamadresse	RTSP/HTTP stream address
+RTSP-/HTTP-Streamadresse dieser Kamera:	This camera's RTSP/HTTP stream address:
+RTSP-Adresse:	RTSP address:
+RTSP-Dienst – Stream noch ungeprüft	RTSP service – stream not tested yet
+RTSP-Pfad wählen oder eintragen; ein offener Port bestätigt noch keinen Stream.	Select or enter an RTSP path; an open port does not confirm a working stream.
+RTSP-Ports gezielt prüfen	Scan RTSP ports
+Schließen	Close
+Sekunden	seconds
+Sensoren zu ausgewählter Kamera übernehmen	Apply sensors to selected camera
+Setzt alle Programmeinstellungen einschließlich Kameras und Home-Assistant-Zugangsdaten auf die Vorgaben einer neuen Installation zurück.	Resets all application settings, including cameras and Home Assistant credentials, to new installation defaults.
+Setzt Anzeige, Bedienleiste, Startverhalten, Windows-Autostart und Darstellung bei Bewegung zurück. Kameras, Sensoren, Aufnahmeoptionen und Speicherpfade bleiben erhalten.	Resets display, toolbar, startup behavior, Windows startup and motion display. Cameras, sensors, recording options and storage paths are kept.
+Setzt Position und Größe des Kamerafensters sowie die Größe des Einstellungsfensters zurück. Kameraauswahl und Raster bleiben erhalten.	Resets the camera window position and size and the settings window size. Camera selection and grid view are kept.
+Sichert die gespeicherten Einstellungen einschließlich Kameras, Speicherpfaden und HA-Token.	Backs up saved settings, including cameras, storage paths and the HA token.
+Sicherung fehlgeschlagen	Backup failed
+Snapshot + Videoaufnahme	Snapshot + video recording
+Snapshot bei einem Personenereignis speichern.	Save a snapshot on a person event.
+Snapshot fehlgeschlagen	Snapshot failed
+Snapshot speichern	Save snapshot
+Snapshot-Vorlauf:	Snapshot pre-recording:
+Snapshots bei Bewegung:	Motion snapshots:
+Speichern	Save
+Speicherpfade	Storage paths
+Speichert einen Snapshot je Personen-Ereignis. Unabhängig von der Aufnahmeaktion bei Bewegung.	Saves one snapshot per person event, independently of the motion recording action.
+Startverhalten	Startup behavior
+Stream testen	Test stream
+Stream-Profil:	Stream profile:
+Streamadresse wie in V1 eintragen. Sensoren werden unter Bewegungserkennung zugeordnet.	Enter the stream address as in V1. Assign sensors under Motion detection.
+Streamadresse:	Stream address:
+Suche abbrechen	Cancel search
+Über UID wird allgemeine Bewegung übertragen. Personenereignisse sind über Home Assistant mit geeigneter Entität möglich. Fahrzeugfilter sind nicht enthalten.	UID provides general motion events. Person events are available through Home Assistant with a suitable entity. Vehicle filters are not included.
+UID wird gesucht … [UID-SEARCH]	Searching for UID … [UID-SEARCH]
+UID wurde gefunden – Verbindung wird aufgebaut … [UID-FOUND]	UID found – connecting … [UID-FOUND]
+UID-Registrierung beim Reolink-Dienst fehlgeschlagen [UID-REG]	UID registration with the Reolink service failed [UID-REG]
+UID-Verbindung nicht aktiviert	UID connection is not enabled
+UID-Verbindung über direkte P2P-Strecke hergestellt [P2P-ACTIVE]	UID connected over a direct P2P link [P2P-ACTIVE]
+UID-Verbindung über entfernte Erkennung hergestellt [REMOTE-ACTIVE]	UID connected using remote discovery [REMOTE-ACTIVE]
+UID-Verbindung über Relay hergestellt [RELAY-ACTIVE]	UID connected through a relay [RELAY-ACTIVE]
+UID-Verbindung: keine Antwort von Kamera oder Vermittlungsdienst [UID-TIMEOUT]	UID connection: no response from the camera or mediation service [UID-TIMEOUT]
+UID: Reolink-App → Geräteinformationen. Benutzer und Passwort gehören zur Kamera. 	UID: Reolink app → Device information. Use the camera's username and password. 
+Unbegrenzt	Unlimited
+Unerwartete Antwort von Home Assistant.	Unexpected response from Home Assistant.
+Unerwartete HA-Anmeldung.	Unexpected HA authentication request.
+Ungültige Einstellungen für die lokale Bewegungserkennung.	Invalid local motion detection settings.
+Ungültige Einstellungswerte in der Datei.	Invalid settings values in the file.
+Ungültige HA-Entitätenliste.	Invalid HA entity list.
+Ungültige Home-Assistant-Adresse.	Invalid Home Assistant address.
+Ungültige Kamera	Invalid camera
+Ungültige Kamerakonfiguration in der Datei.	Invalid camera configuration in the file.
+Ungültige lokale Bewegungserkennung in der Sicherung.	Invalid local motion detection settings in the backup.
+Ungültige oder widersprüchliche Kamera-Verbindungsart.	Invalid or conflicting camera connection type.
+Ungültige oder zu große HA-Antwort.	Invalid or oversized HA response.
+Ungültiger Speicherpfad	Invalid storage path
+Ungültiger Speicherpfad.	Invalid storage path.
+Ungültiger UID-Verbindungsmodus.	Invalid UID connection mode.
+Ungültiges HA-Zertifikat erlauben (nur lokales Netzwerk)	Allow an invalid HA certificate (local network only)
+Verbinde …	Connecting …
+Verbinde neu …	Reconnecting …
+Verbinde über UID …	Connecting using UID …
+Verbindung testen	Test connection
+Verbindung über Reolink-Relay wird versucht … [RELAY]	Trying a Reolink relay connection … [RELAY]
+Verbindung unterbrochen – neuer Versuch …	Connection interrupted – retrying …
+Verbindung wird geprüft …	Testing connection …
+Verbindung:	Connection:
+Verbindungsdaten wurden geändert. ONVIF-Profile bitte erneut laden.	Connection details changed. Load the ONVIF profiles again.
+Verbindungsdienst:	Connection helper:
+Verbindungseinstellungen ausklappen	Expand connection settings
+Verbindungseinstellungen einklappen	Collapse connection settings
+Verbindungskonfiguration ungültig [CONFIG]	Invalid connection configuration [CONFIG]
+Verbindungstest	Connection test
+Verbunden	Connected
+Verbunden – Anmeldung erfolgreich.	Connected – login successful.
+Verbunden – eingetragene Sensoren gefunden.	Connected – configured sensors found.
+Video-Vorlauf:	Video pre-recording:
+Videoaufnahme	Video recording
+Videobild empfangen – Stream bestätigt. Die Kamera kann übernommen werden.	Video received – stream confirmed. You can add the camera.
+Videobild empfangen. Kamera kann übernommen werden; Sensorvorschläge prüfen.	Video received. You can add the camera; verify the suggested sensors.
+Videobild wird geprüft …	Testing video …
+Videobild wird geprüft (max. 25 Sekunden) …	Testing video (up to 25 seconds) …
+Videos bei Bewegung:	Motion videos:
+Videostream bestätigt	Video stream confirmed
+Videotest konnte nicht gestartet werden.	The video test could not be started.
+Vordergrunddauer:	Foreground duration:
+Vorgang abbrechen	Cancel operation
+Vorgang abgebrochen; bisherige Funde bleiben erhalten.	Operation cancelled; existing results are kept.
+Vorhandene / eigene RTSP-/HTTP-Adresse	Existing / custom RTSP/HTTP address
+Vorherige Kamera	Previous camera
+Vorherige Kamera wiederherstellen	Restore previous camera
+Vorlauf-Aufnahme ist leer.	Pre-recording is empty.
+Vorlauf-Aufnahme: Stream liefert keine weiteren Bilder.	Pre-recording: the stream is no longer providing images.
+Vorlauf-Export fehlgeschlagen: 	Pre-recording export failed: 
+Vorlauf-Export konnte nicht starten.	Pre-recording export could not start.
+Vorlauf-Puffer konnte nicht starten.	Pre-recording buffer could not start.
+Vorschaubild laden	Load preview image
+Vorschaubild laden, um Bereiche einzuzeichnen	Load a preview image to draw zones
+Vorschaubild nicht verfügbar. Kamera zuerst speichern/verbinden und erneut versuchen.	Preview unavailable. Save/connect the camera first and try again.
+Vorschläge anhand der Gerätezuordnung; ohne eindeutigen Treffer bitte selbst wählen.	Suggestions are based on device assignments; select manually if there is no unique match.
+Wie zuletzt	As last used
+Wiederherstellung fehlgeschlagen	Restore failed
+Windows hat den Autostart nicht aktiviert. Bitte prüfe Windows-Einstellungen → Apps → Autostart.	Windows did not enable startup. Check Windows Settings → Apps → Startup.
+Zeitlimit nach 120 s. Letzter Schritt: 	Timed out after 120 s. Last step: 
+Zeitüberschreitung – HA-Adresse oder Netzwerk prüfen.	Timed out – check the HA address or network.
+Zertifikat	Certificate
+Zertifikatsfehler – gültigen HA-Namen verwenden oder die lokale Zertifikatsausnahme aktivieren.	Certificate error – use a valid HA hostname or enable the local certificate exception.
+Zugangsdaten bitte ausschließlich in Benutzer- und Passwortfeld eintragen.	Enter credentials only in the username and password fields.
+Zur Fehlersuche bei Darstellungsproblemen. Änderungen gelten nach dem Speichern.	For troubleshooting display issues. Changes apply after saving.
+Zurücksetzen …	Reset …
+Zurücksetzen fehlgeschlagen	Reset failed
+Zurücksetzen gilt sofort nach Bestätigung. Aufnahmedateien und der gewählte Einstellungsordner bleiben erhalten.	Reset takes effect immediately after confirmation. Recording files and the selected settings folder are kept.
+1 Sekunde	1 second
+1 Stunde	1 hour
+1 Tag	1 day
+14 Tage	14 days
+15 Minuten	15 minutes
+15 Sekunden	15 seconds
+3 Sekunden	3 seconds
+3 Tage	3 days
+30 Minuten	30 minutes
+30 Sekunden	30 seconds
+30 Tage	30 days
+4 Kameras	4 cameras
+4-Kamera-Raster	Four-camera grid
+5 Sekunden	5 seconds
+60 Sekunden	60 seconds
+7 Tage	7 days
+ – Einstellungen	 – settings
+ – Stream nicht verfügbar	 – stream unavailable
+ · Kamera deaktiviert	 · camera disabled
+ Bereich(e)	 zone(s)
+ Verbindungseinstellungen – 	 Connection settings – 
+[lokale Datei oder anderes Protokoll]	[local file or other protocol]
+[nicht angegeben oder ungültig]	[not specified or invalid]
+\n\nUngespeicherte Änderungen werden verworfen. Aufnahmedateien bleiben erhalten.\nJetzt zurücksetzen?	\n\nUnsaved changes will be discarded. Recording files will be kept.\nReset now?
+Aufnahmen – {0}	Recordings – {0}
+Bewegung: {0}	Motion: {0}
+Bewegungsaktionen pausiert bis {0:HH:mm}	Motion actions paused until {0:HH:mm}
+Der Snapshot konnte nicht gespeichert werden.\n\nZiel: {0}\n\n{1}	Could not save the snapshot.\n\nDestination: {0}\n\n{1}
+Die Aufnahme konnte nicht gestartet oder beendet werden.\n\nZiel: {0}\n\n{1}	Could not start or stop recording.\n\nDestination: {0}\n\n{1}
+Die Bewegungserkennung konnte Port 8765 nicht öffnen.\n\n{0}	Motion detection could not open port 8765.\n\n{0}
+Die Einstellungen im gewählten Ordner konnten nicht geladen werden: {0}	Could not load settings from the selected folder: {0}
+Die Einstellungsdatei ist nicht erreichbar: {0}\nBitte den gewählten Ordner bzw. die Netzwerkverbindung prüfen.	The settings file is unreachable: {0}\nCheck the selected folder and network connection.
+Die aktuellen Einstellungen durch diese Sicherung mit {0} Kameras ersetzen?\nUngespeicherte Änderungen werden verworfen. Aufnahmen bleiben erhalten.	Replace the current settings with this backup containing {0} cameras?\nUnsaved changes will be discarded. Recordings will be kept.
+Entität nicht gefunden: {0}	Entity not found: {0}
+ONVIF-Anfrage fehlgeschlagen (HTTP {0}).	ONVIF request failed (HTTP {0}).
+ONVIF-Suche beendet: {0} Gerät(e). Für Hersteller und Stream-Profile: Gerät wählen, Kamera-Zugangsdaten eintragen und „ONVIF-Profile laden“ klicken.	ONVIF search finished: {0} device(s). For manufacturer and stream profiles, select a device, enter camera credentials and click “Load ONVIF profiles”.
+Portsuche beendet: {0} Kandidat(en). Offene Ports sind keine bestätigten Streams. RTSP-Pfad eintragen und Verbindung testen.	Port scan finished: {0} candidate(s). Open ports are not confirmed streams. Enter an RTSP path and test the connection.
+Portsuche läuft: {0} Adressen, {1} Port(s) …	Scanning ports: {0} addresses, {1} port(s) …
+Portsuche: {0}/{1} geprüft. {2} Kandidat(en).	Port scan: {0}/{1} checked. {2} candidate(s).
+Vordergrunddauer: {0} Sekunden	Foreground duration: {0} seconds
+{0} Kamera(s), {1} binäre Sensoren. 	{0} camera(s), {1} binary sensors. 
+{0} ONVIF-Profile gefunden. Profil auswählen und direkte Verbindung aktivieren.	{0} ONVIF profiles found. Select a profile and enable the direct connection.
+{0} Profil(e) geladen. {1} Profil wählen und „Verbindung testen“ ausführen.	{0} profile(s) loaded. {1} Select a profile and run “Test connection”.
+{0} Sekunden	{0} seconds
+{0} fehlt	{0} missing
+http://Kamera-IP:Port/onvif/device_service	http://camera-IP:port/onvif/device_service
+rtsp://Kamera-IP:554/Stream-Pfad	rtsp://camera-IP:554/stream-path
+Weiß auf Schwarz (Standard)	White on black (default)
+Weiß – transparent	White – transparent
+Schwarz – transparent	Black – transparent
+Logo / Icon:	Logo / icon:

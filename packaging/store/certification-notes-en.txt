@@ -1,0 +1,60 @@
+HomeCam Monitor V2 – certification notes for package 2.0.8.0 (x64)
+
+Purpose and access
+This is a Windows desktop camera viewer/recorder, not a public video catalogue. The app requires no publisher account, subscription or purchase. A compatible user-configured camera or RTSP test stream is required for video. The interface uses German for German Windows display languages and English otherwise. No private camera credentials are provided or required for the synthetic test below.
+
+Initial UI checks
+Start HomeCam Monitor V2 from the Start menu or its desktop shortcut, then open Settings from its toolbar. A new installation has no cameras and does not connect to Home Assistant automatically. Settings, camera configuration, storage options and help/status messages can be inspected without camera hardware. If the app is minimized, restore it from the Windows taskbar.
+
+Reproducible RTSP test without camera hardware
+An existing RTSP test server can be used. Alternatively, download MediaMTX v1.21.2 for Windows x64 from its official release:
+https://github.com/bluenviron/mediamtx/releases/tag/v1.21.2
+ZIP: mediamtx_v1.21.2_windows_amd64.zip
+SHA-256: a84224f5a490855684e62ba6fb71e80ea2a5e16aed61883bb58380290e93e467
+This is an external test tool; it is not an app dependency or installed by HomeCam Monitor.
+
+Save the following as loopback.yml beside mediamtx.exe:
+logLevel: info
+rtsp: true
+rtspAddress: 127.0.0.1:18556
+rtspTransports: [tcp]
+rtmp: false
+hls: false
+webrtc: false
+srt: false
+moq: false
+api: false
+metrics: false
+pprof: false
+playback: false
+authInternalUsers:
+  - user: any
+    ips: [127.0.0.1]
+    permissions:
+      - action: publish
+        path: demo
+      - action: read
+        path: demo
+paths:
+  demo:
+    source: publisher
+
+Run mediamtx.exe loopback.yml in a console. In a second console with an FFmpeg build supporting libx264, publish a synthetic moving pattern:
+ffmpeg.exe -hide_banner -re -f lavfi -i testsrc2=size=640x360:rate=10 -an -c:v libx264 -preset ultrafast -tune zerolatency -g 10 -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:18556/demo
+Keep both processes running during testing and stop them afterwards. The server configuration listens only on local IPv4 loopback and requires no public firewall opening. The exact FFmpeg included in this app was used to publish, record and decode this test source successfully.
+
+In HomeCam Monitor Settings add a network camera under ONVIF / RTSP. Enter rtsp://127.0.0.1:18556/demo as the RTSP address, enable use for the selected camera, give it a name and save. ONVIF discovery is not required for an explicitly entered RTSP address. Verify live video, a snapshot and a short manual recording. Open the saved recording in a compatible local player. Configure Local image analysis for this camera to inspect motion zones and automatic motion actions. Local analysis detects general movement, not people.
+
+Optional hardware integrations
+ONVIF discovery/profile retrieval requires a reachable ONVIF-enabled camera and its credentials. Reolink UID testing requires a supported Reolink camera owned by the tester. Home Assistant testing requires the tester's reachable instance and a long-lived access token. These optional integrations are not needed for the RTSP test above. A Windows Firewall prompt for the separate Neolink helper may appear during UID networking; no global firewall disabling is required.
+
+Capabilities and behavior
+runFullTrust is needed for the WinForms desktop UI, separate mpv/FFmpeg/Neolink media processes, camera networking and user-selected recording/storage folders. The Windows startup task is disabled by default. The app requests it only when the user enables Start with Windows and respects user/policy disabling in Windows. Settings and recording paths remain under user control.
+
+Testing evidence and limitations
+The user confirmed the corrected logo in 2.0.7.0 and the desktop shortcut in 2.0.8.0 on a separate Windows 11 VM. Package 2.0.8.0 retains the application EXE, DLL and base icon images from 2.0.7.0 byte-for-byte; it adds the Windows-managed desktop shortcut and its icon. Its 5,045 payload hashes, package identity, languages and shortcut declaration were checked. Automated checks cover the three logo variants, transparency/colors, settings round-trip/reset and the German/English UI (453 translations). Camera streaming, recording/playback and upgrade behavior were tested on earlier candidates; a complete repeat of every camera test on 2.0.8.0 is not claimed. A Windows App Certification Kit run and a separate uninstall/data-retention test have not been completed.
+
+Third-party component notices and source downloads are documented in the package. Corresponding media, Neolink and GStreamer sources:
+https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.0
+Support: https://github.com/kulmi84/HomeCam-Monitor/issues
+Contact: support@dorisundmarcin.de

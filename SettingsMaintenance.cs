@@ -9,10 +9,10 @@ internal static class SettingsReset
 {
     internal static string Describe(SettingsResetScope scope) => scope switch
     {
-        SettingsResetScope.Window => "Setzt Position und Größe des Kamerafensters sowie die Größe des Einstellungsfensters zurück. Kameraauswahl und Raster bleiben erhalten.",
-        SettingsResetScope.Display => "Setzt Anzeige, Bedienleiste, Startverhalten, Windows-Autostart und Darstellung bei Bewegung zurück. Kameras, Sensoren, Aufnahmeoptionen und Speicherpfade bleiben erhalten.",
-        SettingsResetScope.Cameras => "Entfernt alle Kameras, Sensorzuordnungen und die Home-Assistant-Verbindung einschließlich Token. Die Kameras müssen danach neu eingerichtet werden. Speicherpfade und Aufnahmevorgaben bleiben erhalten.",
-        SettingsResetScope.All => "Setzt alle Programmeinstellungen einschließlich Kameras und Home-Assistant-Zugangsdaten auf die Vorgaben einer neuen Installation zurück.",
+        SettingsResetScope.Window => UiText.T("Setzt Position und Größe des Kamerafensters sowie die Größe des Einstellungsfensters zurück. Kameraauswahl und Raster bleiben erhalten."),
+        SettingsResetScope.Display => UiText.T("Setzt Anzeige, Bedienleiste, Startverhalten, Windows-Autostart und Darstellung bei Bewegung zurück. Kameras, Sensoren, Aufnahmeoptionen und Speicherpfade bleiben erhalten."),
+        SettingsResetScope.Cameras => UiText.T("Entfernt alle Kameras, Sensorzuordnungen und die Home-Assistant-Verbindung einschließlich Token. Die Kameras müssen danach neu eingerichtet werden. Speicherpfade und Aufnahmevorgaben bleiben erhalten."),
+        SettingsResetScope.All => UiText.T("Setzt alle Programmeinstellungen einschließlich Kameras und Home-Assistant-Zugangsdaten auf die Vorgaben einer neuen Installation zurück."),
         _ => throw new ArgumentOutOfRangeException(nameof(scope))
     };
 
@@ -28,7 +28,7 @@ internal static class SettingsReset
                 nameof(Settings.SettingsWindowWidth), nameof(Settings.SettingsWindowHeight)],
             SettingsResetScope.Display => [nameof(Settings.AlwaysOnTop), nameof(Settings.StartWithWindows), nameof(Settings.StartBehavior),
                 nameof(Settings.StartCameraIndex), nameof(Settings.ToolbarSizePercent), nameof(Settings.AutoScaleToolbar),
-                nameof(Settings.ShowGridCameraNames), nameof(Settings.ShowEmptyCameraLogo), nameof(Settings.ShowEmptyFourthFieldBorder),
+                nameof(Settings.LogoVariant), nameof(Settings.ShowGridCameraNames), nameof(Settings.ShowEmptyCameraLogo), nameof(Settings.ShowEmptyFourthFieldBorder),
                 nameof(Settings.MotionForegroundSeconds), nameof(Settings.MotionIndicatorSeconds), nameof(Settings.HighlightMotionInGrid),
                 nameof(Settings.MinimizeWhenInactive), nameof(Settings.RestorePreviousCameraAfterMotion)],
             SettingsResetScope.Cameras => [nameof(Settings.Cameras), nameof(Settings.SelectedCamera), nameof(Settings.StartCameraIndex),
@@ -75,8 +75,8 @@ internal static class DiagnosticExport
     // Export addresses only as scheme/host/port: credentials, path, query and fragments may contain secrets.
     internal static string SafeAddress(string address)
     {
-        if (!Uri.TryCreate(address, UriKind.Absolute, out var uri)) return "[nicht angegeben oder ungültig]";
-        if (uri.Scheme is not ("rtsp" or "rtsps" or "http" or "https")) return "[lokale Datei oder anderes Protokoll]";
+        if (!Uri.TryCreate(address, UriKind.Absolute, out var uri)) return UiText.T("[nicht angegeben oder ungültig]");
+        if (uri.Scheme is not ("rtsp" or "rtsps" or "http" or "https")) return UiText.T("[lokale Datei oder anderes Protokoll]");
         var safe = new UriBuilder(uri) { UserName = "", Password = "", Path = "", Query = "", Fragment = "" };
         return safe.Uri.GetLeftPart(UriPartial.Authority);
     }
@@ -104,7 +104,7 @@ internal static class DiagnosticExport
                 MotionAction = camera.MotionAction is "None" or "Snapshot" or "Video" or "Both" ? camera.MotionAction : "Unknown", camera.MotionVideoSeconds
             }).ToArray(),
             Runtime = runtime, Streams = streamState,
-            Privacy = "Keine Namen, Speicherpfade, HA-Token, Zugangsdaten, URL-Pfade/-Parameter, Rohprotokolle oder Bilder. Ereignisse gelten nur für diese Sitzung; maximal 200 letzte Ereignisse."
+            Privacy = UiText.T("Keine Namen, Speicherpfade, HA-Token, Zugangsdaten, URL-Pfade/-Parameter, Rohprotokolle oder Bilder. Ereignisse gelten nur für diese Sitzung; maximal 200 letzte Ereignisse.")
         };
         return JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
     }

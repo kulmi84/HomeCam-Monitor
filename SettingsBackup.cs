@@ -14,45 +14,45 @@ internal static class SettingsBackup
     {
         using var document = JsonDocument.Parse(json);
         var root = document.RootElement;
-        if (root.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Keine gültige Einstellungsdatei.");
+        if (root.ValueKind != JsonValueKind.Object) throw new InvalidDataException(UiText.T("Keine gültige Einstellungsdatei."));
         var payload = root;
         if (root.TryGetProperty("Format", out var format))
         {
             if (format.GetString() != "HomeCamMonitor.Settings" || !root.TryGetProperty("Version", out var version) ||
                 !version.TryGetInt32(out var number) || number != 1 || !root.TryGetProperty("Settings", out payload))
-                throw new InvalidDataException("Dieses Sicherungsformat wird nicht unterstützt.");
+                throw new InvalidDataException(UiText.T("Dieses Sicherungsformat wird nicht unterstützt."));
         }
         // Also accept HomeCamMonitor's existing settings.json files.
         if (payload.ValueKind != JsonValueKind.Object || !payload.TryGetProperty("Cameras", out var cameras) || cameras.ValueKind != JsonValueKind.Array)
-            throw new InvalidDataException("Die Datei enthält keine HomeCamMonitor-Einstellungen.");
-        var settings = payload.Deserialize<Settings>() ?? throw new InvalidDataException("Leere Einstellungsdatei.");
+            throw new InvalidDataException(UiText.T("Die Datei enthält keine HomeCamMonitor-Einstellungen."));
+        var settings = payload.Deserialize<Settings>() ?? throw new InvalidDataException(UiText.T("Leere Einstellungsdatei."));
 #if V2_BETA
         if (settings.Cameras is not null && settings.Cameras.Any(c => c is not null &&
             (c.Direct is null || c.Reolink is null || c.Direct.Enabled && c.Reolink.Enabled)))
-            throw new InvalidDataException("Ungültige oder widersprüchliche Kamera-Verbindungsart.");
+            throw new InvalidDataException(UiText.T("Ungültige oder widersprüchliche Kamera-Verbindungsart."));
 #endif
         if (settings.Cameras is null || settings.Cameras.Count > 1000 || settings.Cameras.Any(camera => camera is null ||
             camera.Name is null || (camera.Active && !Uri.TryCreate(camera.StreamUrl, UriKind.Absolute, out _)) ||
             camera.MotionEntityId is null || camera.PersonEntityId is null || camera.MotionAction is not ("None" or "Snapshot" or "Video" or "Both") ||
             camera.MotionVideoSeconds is not (15 or 30 or 60)))
-            throw new InvalidDataException("Ungültige Kamerakonfiguration in der Datei.");
+            throw new InvalidDataException(UiText.T("Ungültige Kamerakonfiguration in der Datei."));
         if (settings.ToolbarSizePercent is < 50 or > 100 || settings.Width is < 240 or > 20000 || settings.Height is < 150 or > 20000 ||
             settings.MotionForegroundSeconds is < 3 or > 300 || settings.MotionIndicatorSeconds is < 1 or > 10 ||
             settings.StartBehavior is not ("Last" or "Minimized" or "Camera" or "Grid") ||
             settings.SnapshotPreRollSeconds is not (0 or 1 or 3 or 5) || settings.VideoPreRollSeconds is not (0 or 1 or 3 or 5) ||
             settings.MotionRetentionDays is not (0 or 1 or 3 or 7 or 14 or 30) || settings.HomeAssistantToken is null || settings.HomeAssistantUrl is null ||
             settings.MotionCameraName is null || settings.MotionEntityId is null || settings.LastMonitorDeviceName is null)
-            throw new InvalidDataException("Ungültige Einstellungswerte in der Datei.");
+            throw new InvalidDataException(UiText.T("Ungültige Einstellungswerte in der Datei."));
         if (settings.HomeAssistantUrl.Length > 0 && (!Uri.TryCreate(settings.HomeAssistantUrl, UriKind.Absolute, out var ha) || ha.Scheme is not ("http" or "https")))
-            throw new InvalidDataException("Ungültige Home-Assistant-Adresse.");
+            throw new InvalidDataException(UiText.T("Ungültige Home-Assistant-Adresse."));
         foreach (var path in new[] { settings.ManualSnapshotFolder, settings.ManualVideoFolder, settings.MotionSnapshotFolder, settings.MotionVideoFolder })
         {
-            if (path is null) throw new InvalidDataException("Ungültiger Speicherpfad.");
+            if (path is null) throw new InvalidDataException(UiText.T("Ungültiger Speicherpfad."));
             _ = RecordingStorage.Resolve(path, RecordingStorage.MotionDefault);
         }
 #if V2_BETA
         foreach (var camera in settings.Cameras)
-            try { camera.LocalMotion.Validate(); } catch (ArgumentException e) { throw new InvalidDataException("Ungültige lokale Bewegungserkennung in der Sicherung.", e); }
+            try { camera.LocalMotion.Validate(); } catch (ArgumentException e) { throw new InvalidDataException(UiText.T("Ungültige lokale Bewegungserkennung in der Sicherung."), e); }
 #endif
         settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, Math.Max(0, settings.Cameras.Count - 1));
         settings.StartCameraIndex = Math.Clamp(settings.StartCameraIndex, 0, Math.Max(0, settings.Cameras.Count - 1));
@@ -68,7 +68,7 @@ internal static class SettingsBackup
 
     internal static Settings Read(string path)
     {
-        if (new FileInfo(path).Length > 2 * 1024 * 1024) throw new InvalidDataException("Die Einstellungsdatei ist zu groß.");
+        if (new FileInfo(path).Length > 2 * 1024 * 1024) throw new InvalidDataException(UiText.T("Die Einstellungsdatei ist zu groß."));
         return Parse(File.ReadAllText(path));
     }
 

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework Condition="'$(StoreRelease)' == 'true'">net8.0-windows10.0.19041.0</TargetFramework>
     <RuntimeFrameworkVersion>8.0.32</RuntimeFrameworkVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -16,26 +17,55 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <DefineConstants>$(DefineConstants);BETA;V2_BETA</DefineConstants>
     <!-- Keep the deployed V2 identity so Beta upgrades retain settings and secrets. -->
-    <Version Condition="'$(FinalRelease)' == 'true'">2.0.0</Version>
+    <Version Condition="'$(FinalRelease)' == 'true'">$(HomeCamV2Version)</Version>
+    <AssemblyVersion Condition="'$(FinalRelease)' == 'true'">$(HomeCamV2Version)</AssemblyVersion>
+    <FileVersion Condition="'$(FinalRelease)' == 'true'">$(HomeCamV2Version)</FileVersion>
     <Product Condition="'$(FinalRelease)' == 'true'">HomeCam Monitor V2</Product>
     <Title Condition="'$(FinalRelease)' == 'true'">HomeCam Monitor V2</Title>
     <DefineConstants Condition="'$(FinalRelease)' == 'true'">$(DefineConstants);RELEASE_V2</DefineConstants>
+    <DefineConstants Condition="'$(StoreRelease)' == 'true'">$(DefineConstants);STORE_PACKAGE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="assets/homecam-logo-Default.png" LogicalName="HomeCamMonitor.Logo.Default" />
+    <EmbeddedResource Include="assets/homecam-icon-Default.ico" LogicalName="HomeCamMonitor.Icon.Default" />
+    <EmbeddedResource Include="assets/homecam-logo-White.png" LogicalName="HomeCamMonitor.Logo.White" />
+    <EmbeddedResource Include="assets/homecam-icon-White.ico" LogicalName="HomeCamMonitor.Icon.White" />
+    <EmbeddedResource Include="assets/homecam-logo-Black.png" LogicalName="HomeCamMonitor.Logo.Black" />
+    <EmbeddedResource Include="assets/homecam-icon-Black.ico" LogicalName="HomeCamMonitor.Icon.Black" />
+
+    <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" RuntimeFrameworkVersion="10.0.19041.56" Condition="'$(StoreRelease)' == 'true'" />
     <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" ExcludeAssets="analyzers" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260627" />
     <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     <EmbeddedResource Include="assets/HomeCamMonitor-V2-Beta.ico" LogicalName="HomeCamMonitor.ApplicationIcon" />
     <EmbeddedResource Include="assets/homecam-monitor-logo-default.png" LogicalName="HomeCamMonitor.OfflineLogo" />
+    <EmbeddedResource Include="assets/Strings.en.tsv" LogicalName="HomeCamMonitor.Strings.en.tsv" WithCulture="false" />
     <Compile Remove="tests/**/*.cs" />
   </ItemGroup>
+  <Target Name="WriteStoreBuildMarker" AfterTargets="Publish" Condition="'$(StoreRelease)' == 'true'">
+    <WriteLinesToFile File="$(PublishDir)HomeCamMonitor.StoreBuild.json" Lines="{ &quot;startupTaskId&quot;: &quot;HomeCamMonitorStartup&quot; }" Overwrite="true" />
+  </Target>
   <!-- The package analyzer needs a newer Roslyn than this .NET 8 project. -->
   <Target Name="RemoveIncompatibleOpenCvAnalyzer" BeforeTargets="CoreCompile">
-    <ItemGroup><Analyzer Remove="@(Analyzer)" Condition="'%(Filename)' == 'OpenCvSharp.Analyzers'" /></ItemGroup>
+    <ItemGroup>
+    <EmbeddedResource Include="assets/homecam-logo-Default.png" LogicalName="HomeCamMonitor.Logo.Default" />
+    <EmbeddedResource Include="assets/homecam-icon-Default.ico" LogicalName="HomeCamMonitor.Icon.Default" />
+    <EmbeddedResource Include="assets/homecam-logo-White.png" LogicalName="HomeCamMonitor.Logo.White" />
+    <EmbeddedResource Include="assets/homecam-icon-White.ico" LogicalName="HomeCamMonitor.Icon.White" />
+    <EmbeddedResource Include="assets/homecam-logo-Black.png" LogicalName="HomeCamMonitor.Logo.Black" />
+    <EmbeddedResource Include="assets/homecam-icon-Black.ico" LogicalName="HomeCamMonitor.Icon.Black" />
+<Analyzer Remove="@(Analyzer)" Condition="'%(Filename)' == 'OpenCvSharp.Analyzers'" /></ItemGroup>
   </Target>
   <!-- Analysis uses the existing FFmpeg executable, not OpenCV videoio. -->
   <Target Name="RemoveUnusedOpenCvVideoPlugin" AfterTargets="ComputeFilesToPublish">
-    <ItemGroup><ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('opencv_videoio_ffmpeg'))" /></ItemGroup>
+    <ItemGroup>
+    <EmbeddedResource Include="assets/homecam-logo-Default.png" LogicalName="HomeCamMonitor.Logo.Default" />
+    <EmbeddedResource Include="assets/homecam-icon-Default.ico" LogicalName="HomeCamMonitor.Icon.Default" />
+    <EmbeddedResource Include="assets/homecam-logo-White.png" LogicalName="HomeCamMonitor.Logo.White" />
+    <EmbeddedResource Include="assets/homecam-icon-White.ico" LogicalName="HomeCamMonitor.Icon.White" />
+    <EmbeddedResource Include="assets/homecam-logo-Black.png" LogicalName="HomeCamMonitor.Logo.Black" />
+    <EmbeddedResource Include="assets/homecam-icon-Black.ico" LogicalName="HomeCamMonitor.Icon.Black" />
+<ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('opencv_videoio_ffmpeg'))" /></ItemGroup>
   </Target>
 </Project>

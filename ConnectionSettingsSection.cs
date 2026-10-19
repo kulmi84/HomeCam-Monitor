@@ -41,15 +41,15 @@ internal sealed class ConnectionSettingsSection : UserControl
     }
     private void UpdateSummary()
     {
-        toggle.Text = (expanded ? "▼" : "▶") + " Verbindungseinstellungen – " + tabs.ConnectionSummary;
-        toggle.AccessibleDescription = expanded ? "Verbindungseinstellungen einklappen" : "Verbindungseinstellungen ausklappen";
+        toggle.Text = (expanded ? "▼" : "▶") + UiText.T(" Verbindungseinstellungen – ") + tabs.ConnectionSummary;
+        toggle.AccessibleDescription = expanded ? UiText.T("Verbindungseinstellungen einklappen") : UiText.T("Verbindungseinstellungen ausklappen");
     }
 }
 internal sealed class MotionDetailsSection : UserControl
 {
     private readonly Button toggle = new() { Name = "ToggleMotionDetails", AutoSize = true, Dock = DockStyle.Top, TextAlign = ContentAlignment.MiddleLeft };
     private readonly Control content;
-    private string caption = "Einstellungen";
+    private string caption = UiText.T("Einstellungen");
     private bool expanded;
     internal bool Expanded
     {
@@ -82,7 +82,7 @@ internal sealed class MotionDetailsSection : UserControl
     private void UpdateCaption()
     {
         toggle.Text = (expanded ? "▼" : "▶") + " " + caption;
-        toggle.AccessibleDescription = expanded ? "Bewegungseinstellungen einklappen" : "Bewegungseinstellungen ausklappen";
+        toggle.AccessibleDescription = expanded ? UiText.T("Bewegungseinstellungen einklappen") : UiText.T("Bewegungseinstellungen ausklappen");
     }
 }
 #endif

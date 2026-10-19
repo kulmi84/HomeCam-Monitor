@@ -1,0 +1,546 @@
+[
+  {
+    "name": "cairo-rs",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "cairo",
+    "checkedFiles": 38,
+    "errors": []
+  },
+  {
+    "name": "cairo-sys-rs",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "cairo/sys",
+    "checkedFiles": 4,
+    "errors": []
+  },
+  {
+    "name": "gdk-pixbuf",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "gdk-pixbuf",
+    "checkedFiles": 25,
+    "errors": []
+  },
+  {
+    "name": "gdk-pixbuf-sys",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "gdk-pixbuf/sys",
+    "checkedFiles": 9,
+    "errors": []
+  },
+  {
+    "name": "gio",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "gio",
+    "checkedFiles": 259,
+    "errors": []
+  },
+  {
+    "name": "gio-sys",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "gio/sys",
+    "checkedFiles": 10,
+    "errors": []
+  },
+  {
+    "name": "glib",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "glib",
+    "checkedFiles": 138,
+    "errors": []
+  },
+  {
+    "name": "glib-macros",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "glib-macros",
+    "checkedFiles": 31,
+    "errors": []
+  },
+  {
+    "name": "glib-sys",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "glib/sys",
+    "checkedFiles": 10,
+    "errors": []
+  },
+  {
+    "name": "gobject-sys",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "glib/gobject-sys",
+    "checkedFiles": 9,
+    "errors": []
+  },
+  {
+    "name": "graphene-rs",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "graphene",
+    "checkedFiles": 46,
+    "errors": []
+  },
+  {
+    "name": "graphene-sys",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "graphene/sys",
+    "checkedFiles": 9,
+    "errors": []
+  },
+  {
+    "name": "pango",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "pango",
+    "checkedFiles": 65,
+    "errors": []
+  },
+  {
+    "name": "pango-sys",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "pango/sys",
+    "checkedFiles": 9,
+    "errors": []
+  },
+  {
+    "name": "pangocairo",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "pangocairo",
+    "checkedFiles": 14,
+    "errors": []
+  },
+  {
+    "name": "pangocairo-sys",
+    "commit": "8b654067dcac04ebb3c7cce6a7aa5926155776fa",
+    "source": "https://github.com/gtk-rs/gtk-rs-core",
+    "path": "pangocairo/sys",
+    "checkedFiles": 5,
+    "errors": []
+  },
+  {
+    "name": "ffv1",
+    "commit": "bd9eabfc14c9ad53c37b32279e276619f4390ab8",
+    "source": "https://github.com/rust-av/ffv1.git",
+    "path": ".",
+    "checkedFiles": 35,
+    "errors": []
+  },
+  {
+    "name": "flavors",
+    "commit": "833508af656d298c269f2397c8541a084264d992",
+    "source": "https://github.com/rust-av/flavors",
+    "path": ".",
+    "checkedFiles": 4,
+    "errors": []
+  },
+  {
+    "name": "gdk4",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gdk4",
+    "checkedFiles": 118,
+    "errors": []
+  },
+  {
+    "name": "gdk4-sys",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gdk4/sys",
+    "checkedFiles": 10,
+    "errors": []
+  },
+  {
+    "name": "gdk4-wayland",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gdk4-wayland",
+    "checkedFiles": 23,
+    "errors": []
+  },
+  {
+    "name": "gdk4-wayland-sys",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gdk4-wayland/sys",
+    "checkedFiles": 5,
+    "errors": []
+  },
+  {
+    "name": "gdk4-win32",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gdk4-win32",
+    "checkedFiles": 22,
+    "errors": []
+  },
+  {
+    "name": "gdk4-win32-sys",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gdk4-win32/sys",
+    "checkedFiles": 9,
+    "errors": []
+  },
+  {
+    "name": "gdk4-x11",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gdk4-x11",
+    "checkedFiles": 27,
+    "errors": []
+  },
+  {
+    "name": "gdk4-x11-sys",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gdk4-x11/sys",
+    "checkedFiles": 9,
+    "errors": []
+  },
+  {
+    "name": "gsk4",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gsk4",
+    "checkedFiles": 98,
+    "errors": []
+  },
+  {
+    "name": "gsk4-sys",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gsk4/sys",
+    "checkedFiles": 9,
+    "errors": []
+  },
+  {
+    "name": "gtk4",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gtk4",
+    "checkedFiles": 0,
+    "errors": []
+  },
+  {
+    "name": "gtk4-macros",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gtk4-macros",
+    "checkedFiles": 24,
+    "errors": []
+  },
+  {
+    "name": "gtk4-sys",
+    "commit": "ceeaddfd20bbba8acceafba1abf6c7c850273f4c",
+    "source": "https://github.com/gtk-rs/gtk4-rs",
+    "path": "gtk4/sys",
+    "checkedFiles": 9,
+    "errors": []
+  },
+  {
+    "name": "gstreamer",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer",
+    "checkedFiles": 176,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-allocators",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-allocators",
+    "checkedFiles": 28,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-allocators-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-allocators/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-analytics",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-analytics",
+    "checkedFiles": 22,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-analytics-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-analytics/sys",
+    "checkedFiles": 13,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-app",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-app",
+    "checkedFiles": 15,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-app-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-app/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-audio",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-audio",
+    "checkedFiles": 53,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-audio-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-audio/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-base",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-base",
+    "checkedFiles": 39,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-base-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-base/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-check",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-check",
+    "checkedFiles": 13,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-check-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-check/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-gl",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-gl",
+    "checkedFiles": 48,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-gl-egl",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-gl/egl",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-gl-egl-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-gl/egl/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-gl-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-gl/sys",
+    "checkedFiles": 13,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-gl-wayland",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-gl/wayland",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-gl-wayland-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-gl/wayland/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-gl-x11",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-gl/x11",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-gl-x11-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-gl/x11/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-net",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-net",
+    "checkedFiles": 16,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-net-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-net/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-pbutils",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-pbutils",
+    "checkedFiles": 41,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-pbutils-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-pbutils/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-rtp",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-rtp",
+    "checkedFiles": 27,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-rtp-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-rtp/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-sdp",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-sdp",
+    "checkedFiles": 19,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-sdp-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-sdp/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer/sys",
+    "checkedFiles": 14,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-tag",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-tag",
+    "checkedFiles": 15,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-tag-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-tag/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-utils",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-utils",
+    "checkedFiles": 7,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-video",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-video",
+    "checkedFiles": 71,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-video-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-video/sys",
+    "checkedFiles": 12,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-webrtc",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-webrtc",
+    "checkedFiles": 29,
+    "errors": []
+  },
+  {
+    "name": "gstreamer-webrtc-sys",
+    "commit": "040f13c291671df58d5454308e4d5a8bb5a4da1a",
+    "source": "https://gitlab.freedesktop.org/gstreamer/gstreamer-rs",
+    "path": "gstreamer-webrtc/sys",
+    "checkedFiles": 12,
+    "errors": []
+  }
+]

@@ -153,7 +153,7 @@ internal sealed class DarkSettingsScrollBar : Control
     }
     internal DarkSettingsScrollBar()
     {
-        Name = "ModernVerticalScrollBar"; AccessibleName = "Einstellungen vertikal scrollen";
+        Name = "ModernVerticalScrollBar"; AccessibleName = UiText.T("Einstellungen vertikal scrollen");
         AccessibleRole = AccessibleRole.ScrollBar; TabStop = true;
         SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.Selectable, true);
     }

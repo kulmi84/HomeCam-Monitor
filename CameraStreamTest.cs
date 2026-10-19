@@ -14,7 +14,7 @@ internal static class CameraStreamTest
             foreach (var arg in new[] { "-rtsp_transport", "tcp" }) start.ArgumentList.Add(arg);
         foreach (var arg in new[] { "-i", url,
             "-frames:v", "1", "-an", "-progress", "pipe:1", "-nostats", "-f", "null", "-" }) start.ArgumentList.Add(arg);
-        using var process = Process.Start(start) ?? throw new IOException("Videotest konnte nicht gestartet werden.");
+        using var process = Process.Start(start) ?? throw new IOException(UiText.T("Videotest konnte nicht gestartet werden."));
         var decoded = false;
         async Task Progress()
         {
