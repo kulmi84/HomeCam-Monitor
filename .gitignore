@@ -1,6 +1,7 @@
 bin/
 store-artifacts/
 obj/
+__pycache__/
 publish/
 *.user
 *.suo

@@ -149,7 +149,8 @@ internal static partial class Check
     }
     private static async Task TestLocalMotionWorker()
     {
-        var executable = Path.Combine(Environment.CurrentDirectory,"publish-v2-beta","ffmpeg.exe");
+        var runtime = Environment.GetEnvironmentVariable("HOMECAM_TEST_RUNTIME") ?? Path.Combine(Environment.CurrentDirectory, "publish-v2-beta");
+        var executable = Path.Combine(runtime, "ffmpeg.exe");
         var fixture = Path.Combine(Environment.CurrentDirectory,"local-motion-test-" + Guid.NewGuid().ToString("N") + ".mkv");
         try
         {
