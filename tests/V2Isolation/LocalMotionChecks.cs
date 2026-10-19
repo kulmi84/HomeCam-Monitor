@@ -81,7 +81,7 @@ internal static partial class Check
         host.Hide();
         var source = (ComboBox)editor.Controls.Find("MotionSource",true).Single();
         host.Show(); details.Expanded = true;
-        if (source.Items.Count != 1 || source.SelectedIndex != 0 || !source.Text.StartsWith("Lokale Bildanalyse")) throw new Exception("Direct RTSP offers unsupported external event source.");
+        if (source.Items.Count != 1 || source.SelectedIndex != 0 || source.Text != UiText.T("Lokale Bildanalyse (OpenCV/MOG2)")) throw new Exception("Direct RTSP offers unsupported external event source.");
         grid.Rows[0].Cells["MotionEnabled"].Value = false;
         grid.Rows[0].Cells["MotionEnabled"].Value = true;
         if (!LocalMotionSettings.ForRow(grid.Rows[0]).Enabled || source.SelectedIndex != 0) throw new Exception("Direct motion checkbox cannot restore local analysis while editor is hidden.");
