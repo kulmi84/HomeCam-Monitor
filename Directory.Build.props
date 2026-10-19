@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
+    <HomeCamV2Version>2.0.12.0</HomeCamV2Version>
     <!-- Generated installer sources and package contents are never app sources. -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);**/v2-release-downloads/**;**/publish-v2-release/**;**/reolink-component-cache/**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/v2-release-downloads/**;**/publish-v2-release/**;**/reolink-component-cache/**;**/store-artifacts/**</DefaultItemExcludes>
   </PropertyGroup>
 </Project>

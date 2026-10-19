@@ -37,7 +37,7 @@ internal sealed class ReolinkBridge : IDisposable
     {
         cameras = entries.Where(c => c.Active && c.Reolink.Enabled).ToArray();
         if (cameras.Select(camera => camera.Reolink.Id).Distinct(StringComparer.Ordinal).Count() != cameras.Length)
-            throw new ArgumentException("Jede Reolink-Kamera benötigt eine eigene interne Kennung.");
+            throw new ArgumentException(UiText.T("Jede Reolink-Kamera benötigt eine eigene interne Kennung."));
         this.executable = executable;
         this.discoveryMethod = discoveryMethod;
         this.runtimeRoot = runtimeRoot ?? Path.Combine(SettingsLocation.DefaultFolder, "reolink-runtime");
@@ -87,7 +87,7 @@ internal sealed class ReolinkBridge : IDisposable
         var token = cancellation.Token;
         try
         {
-            if (!File.Exists(executable)) { Report("Reolink-Verbindungsdienst fehlt"); return; }
+            if (!File.Exists(executable)) { Report(UiText.T("Reolink-Verbindungsdienst fehlt")); return; }
             using var lifetime = new ReolinkProcessLifetime();
             var mqttPort = FreePort();
             while (mqttPort == RtspPort) mqttPort = FreePort();
@@ -122,14 +122,14 @@ internal sealed class ReolinkBridge : IDisposable
             var retrySeconds = 2;
             while (!token.IsCancellationRequested)
             {
-                Report("Verbinde über UID …");
+                Report(UiText.T("Verbinde über UID …"));
                 ready.Clear();
                 events.Reset();
                 using var process = new Process { StartInfo = StartInfo(executable, config) };
                 lock (gate)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (!process.Start()) throw new IOException("Reolink-Verbindungsdienst konnte nicht starten.");
+                    if (!process.Start()) throw new IOException(UiText.T("Reolink-Verbindungsdienst konnte nicht starten."));
                     lifetime.Attach(process);
                     child = process;
                 }
@@ -151,15 +151,15 @@ internal sealed class ReolinkBridge : IDisposable
                 if (token.IsCancellationRequested) break;
                 if (credentialsRejected) break;
                 if (process.ExitCode == unchecked((int)0xC0000135))
-                { Report("GStreamer-Laufzeit fehlt"); break; }
-                Report("Verbindung unterbrochen – neuer Versuch …");
+                { Report(UiText.T("GStreamer-Laufzeit fehlt")); break; }
+                Report(UiText.T("Verbindung unterbrochen – neuer Versuch …"));
                 retrySeconds = DateTime.UtcNow - started > TimeSpan.FromMinutes(1) ? 2 : Math.Min(30, retrySeconds * 2);
                 await Task.Delay(TimeSpan.FromSeconds(retrySeconds), token);
             }
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
-        catch (ArgumentException) { Report("Kamera-Konfiguration prüfen"); }
-        catch (Exception) { Report("Reolink-Verbindung konnte nicht gestartet werden"); }
+        catch (ArgumentException) { Report(UiText.T("Kamera-Konfiguration prüfen")); }
+        catch (Exception) { Report(UiText.T("Reolink-Verbindung konnte nicht gestartet werden")); }
         finally
         {
             if (server is not null) { try { await server.StopAsync(); } catch { } server.Dispose(); }

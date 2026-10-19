@@ -23,7 +23,7 @@ internal sealed class LocalMotionSettings
     {
         if (Id is null || Id.Length > 100 || Sensitivity is < 1 or > 100 || !double.IsFinite(MinimumAreaPercent) || MinimumAreaPercent is < 0.05 or > 50 ||
             !double.IsFinite(MinimumSeconds) || MinimumSeconds is < 0.2 or > 10 || !double.IsFinite(HoldSeconds) || HoldSeconds is < 0.5 or > 30 ||
-            Zones is null || Zones.Count > 16 || Zones.Any(z => z is null || !z.Valid)) throw new ArgumentException("Ungültige Einstellungen für die lokale Bewegungserkennung.");
+            Zones is null || Zones.Count > 16 || Zones.Any(z => z is null || !z.Valid)) throw new ArgumentException(UiText.T("Ungültige Einstellungen für die lokale Bewegungserkennung."));
     }
     internal static LocalMotionSettings ForRow(DataGridViewRow row)
     {
@@ -62,7 +62,7 @@ internal sealed class LocalMotionModel : IDisposable
     }
     internal MotionAnalysis Analyze(byte[] pixels, TimeSpan now)
     {
-        if (pixels.Length != FrameBytes) throw new ArgumentException("Falsche Analysebildgröße.");
+        if (pixels.Length != FrameBytes) throw new ArgumentException(UiText.T("Falsche Analysebildgröße."));
         first ??= now; frames++;
         Marshal.Copy(pixels, 0, frame.Data, pixels.Length);
         Cv2.GaussianBlur(frame, blurred, new OpenCvSharp.Size(5, 5), 0);
@@ -102,6 +102,6 @@ internal static class LocalMotionStatus
 {
     private static readonly ConcurrentDictionary<string, string> values = new();
     internal static void Set(string id, string message) => values[id] = message;
-    internal static string Get(string id) => values.GetValueOrDefault(id, "Noch nicht gestartet. Änderungen mit Speichern übernehmen.");
+    internal static string Get(string id) => values.GetValueOrDefault(id, UiText.T("Noch nicht gestartet. Änderungen mit Speichern übernehmen."));
 }
 #endif

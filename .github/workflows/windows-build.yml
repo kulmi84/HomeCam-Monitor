@@ -159,16 +159,17 @@ jobs:
         with:
           name: HomeCamMonitor-V2-Beta-2.0.0-beta.37
           path: v2-beta-downloads/
-      - name: Finale V2.0.0 mit gleicher Funktionsprüfung testen
+      - name: Finale V2 mit gleicher Funktionsprüfung testen
         run: dotnet run --project tests/V2Isolation/V2Isolation.csproj -c Release -p:FinalRelease=true
-      - name: Finales V2.0.0-Paket erstellen
+      - name: Finales V2-Paket erstellen
         run: .github/scripts/build-v2-release.ps1
       - name: Finales V2-Setup und Upgrade prüfen
         shell: pwsh
         run: |
-          $setup = (Resolve-Path v2-release-downloads/HomeCamMonitor-V2-2.0.0-Setup.exe).Path
+          $version = & .github/scripts/get-v2-version.ps1
+          $setup = (Resolve-Path "v2-release-downloads/HomeCamMonitor-V2-$version-Setup.exe").Path
           $info = [Diagnostics.FileVersionInfo]::GetVersionInfo($setup)
-          if ($info.FileVersion -ne '2.0.0.0') { throw 'Finale Setup-Version falsch.' }
+          if ($info.FileVersion -ne $version) { throw 'Finale Setup-Version falsch.' }
           $check = Start-Process $setup -ArgumentList '--verify-setup' -WindowStyle Hidden -PassThru -Wait
           if ($check.ExitCode -ne 0) { throw 'Finale Setup-/Verknüpfungsprüfung fehlgeschlagen.' }
           $verification = Join-Path $env:RUNNER_TEMP 'v2-final-package-check'
@@ -177,7 +178,7 @@ jobs:
       # Temporary CI evidence only; no public release/tag is created here.
       - uses: actions/upload-artifact@v4
         with:
-          name: HomeCamMonitor-V2-2.0.0-Pruefpaket
+          name: HomeCamMonitor-V2-Final-Pruefpaket
           path: |
             v2-release-downloads/*.exe
             v2-release-downloads/*.zip

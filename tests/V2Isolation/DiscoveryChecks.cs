@@ -16,10 +16,10 @@ internal static partial class Check
         var ip = IPAddress.Parse("192.168.42.10");
         var port = new NetworkCameraCandidate(ip, "", "", "", "one", 554, false);
         dialog.AddCandidate(port); dialog.AddCandidate(port with { RtspService = true });
-        var onvif = port with { Name = "Kamera", Manufacturer = "Test", DeviceUrl = "http://192.168.42.10/onvif/device_service" };
+        var onvif = port with { Name = UiText.T("Kamera"), Manufacturer = "Test", DeviceUrl = "http://192.168.42.10/onvif/device_service" };
         if (CameraDiscoveryForm.ManufacturerText(onvif) != "Test" ||
-            CameraDiscoveryForm.ManufacturerText(onvif with { Manufacturer = "" }) != "Noch nicht abgefragt" ||
-            CameraDiscoveryForm.ManufacturerText(port) != "Ohne ONVIF unbekannt") throw new Exception("Manufacturer discovery states are misleading.");
+            CameraDiscoveryForm.ManufacturerText(onvif with { Manufacturer = "" }) != UiText.T("Noch nicht abgefragt") ||
+            CameraDiscoveryForm.ManufacturerText(port) != UiText.T("Ohne ONVIF unbekannt")) throw new Exception("Manufacturer discovery states are misleading.");
         dialog.AddCandidate(onvif); dialog.AddCandidate(port);
         dialog.AddCandidate(onvif with { Address = IPAddress.Parse("192.168.42.11") });
         var grid = (DataGridView)dialog.Controls.Find("DiscoveredCameras", true).Single();

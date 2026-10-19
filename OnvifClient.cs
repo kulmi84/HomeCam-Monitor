@@ -43,7 +43,7 @@ internal sealed class OnvifClient : IDisposable
         var text = address.Trim();
         if (!text.Contains("://", StringComparison.Ordinal)) text = "http://" + text;
         if (!Uri.TryCreate(text, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https") ||
-            uri.UserInfo.Length > 0 || string.IsNullOrEmpty(uri.Host)) throw new ArgumentException("Bitte eine gültige ONVIF-Adresse mit Port eintragen.");
+            uri.UserInfo.Length > 0 || string.IsNullOrEmpty(uri.Host)) throw new ArgumentException(UiText.T("Bitte eine gültige ONVIF-Adresse mit Port eintragen."));
         return uri.AbsolutePath == "/" ? new Uri(uri, "/onvif/device_service") : uri;
     }
     internal async Task<IReadOnlyList<OnvifProfile>> Profiles(string address, CancellationToken token)
@@ -63,9 +63,9 @@ internal sealed class OnvifClient : IDisposable
         var capabilities = await Call(device, Device + "GetCapabilities", new XElement(Device + "GetCapabilities", new XElement(Device + "Category", "Media")), token);
         var mediaAddress = capabilities.Descendants(Schema + "Media").Elements(Schema + "XAddr").FirstOrDefault()?.Value;
         if (!Uri.TryCreate(mediaAddress, UriKind.Absolute, out var media) || media.Scheme is not ("http" or "https") || media.UserInfo.Length > 0)
-            throw new InvalidDataException("Die Kamera meldet keinen unterstützten ONVIF-Mediendienst.");
+            throw new InvalidDataException(UiText.T("Die Kamera meldet keinen unterstützten ONVIF-Mediendienst."));
         if (sameHostOnly && !media.Host.Equals(device.Host, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Der gemeldete Mediendienst liegt auf einem anderen Gerät. Adresse bitte manuell prüfen.");
+            throw new InvalidDataException(UiText.T("Der gemeldete Mediendienst liegt auf einem anderen Gerät. Adresse bitte manuell prüfen."));
         var response = await Call(media, Media + "GetProfiles", new XElement(Media + "GetProfiles"), token);
         var result = new List<OnvifProfile>();
         foreach (var profile in response.Descendants(Media + "Profiles").Take(64))
@@ -84,7 +84,7 @@ internal sealed class OnvifClient : IDisposable
                 result.Add(new OnvifProfile(id, name, clean));
             }
         }
-        if (result.Count == 0) throw new InvalidDataException("Die Kamera meldet keine unterstützten RTSP-Profile.");
+        if (result.Count == 0) throw new InvalidDataException(UiText.T("Die Kamera meldet keine unterstützten RTSP-Profile."));
         return result;
     }
     private async Task<XDocument> Call(Uri endpoint, XName action, XElement body, CancellationToken token, bool authenticate = true)
@@ -105,12 +105,12 @@ internal sealed class OnvifClient : IDisposable
         using var request = new HttpRequestMessage(HttpMethod.Post, endpoint) { Content = new StringContent(envelope.ToString(SaveOptions.DisableFormatting), Encoding.UTF8) };
         request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/soap+xml; charset=utf-8; action=\"{action.NamespaceName}/{action.LocalName}\"");
         using var response = await client.SendAsync(request, token).ConfigureAwait(false);
-        if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden) throw new InvalidDataException("Die Kamera lehnt die ONVIF-Anmeldung ab. Kamera-Benutzer und Passwort prüfen.");
-        if (!response.IsSuccessStatusCode) throw new InvalidDataException($"ONVIF-Anfrage fehlgeschlagen (HTTP {(int)response.StatusCode}).");
+        if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden) throw new InvalidDataException(UiText.T("Die Kamera lehnt die ONVIF-Anmeldung ab. Kamera-Benutzer und Passwort prüfen."));
+        if (!response.IsSuccessStatusCode) throw new InvalidDataException(UiText.F("ONVIF-Anfrage fehlgeschlagen (HTTP {0}).", (int)response.StatusCode));
         var xml = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
         using var reader = XmlReader.Create(new StringReader(xml), new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 2 * 1024 * 1024 });
         var document = XDocument.Load(reader);
-        if (document.Descendants(Soap + "Fault").Any()) throw new InvalidDataException("Die Kamera konnte die ONVIF-Anfrage nicht ausführen. ONVIF-Freigabe und Benutzerrechte prüfen.");
+        if (document.Descendants(Soap + "Fault").Any()) throw new InvalidDataException(UiText.T("Die Kamera konnte die ONVIF-Anfrage nicht ausführen. ONVIF-Freigabe und Benutzerrechte prüfen."));
         return document;
     }
     public void Dispose() => client.Dispose();

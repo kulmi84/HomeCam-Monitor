@@ -1,0 +1,22 @@
+Datenschutzhinweise für HomeCam Monitor
+Stand: 18. Oktober 2026
+Herausgeber: Marcin Kulmaczewski
+Kontakt für Datenschutz und Support: support@dorisundmarcin.de
+
+HomeCam Monitor verbindet sich mit den von Ihnen eingerichteten Kameras und optional Ihrer Home-Assistant-Instanz. Die App verarbeitet Kameraadressen und -namen, Zugangsdaten, Einstellungen sowie Bild-, Ton- und Ereignisdaten. Bei aktivierten Aufnahmen entstehen Video- oder Bilddateien. Die lokale Bewegungserkennung verarbeitet Kamerabilder auf Ihrem Windows-Gerät.
+
+Die Anwendung enthält keinen eigenen Telemetrie- oder Uploaddienst des Herausgebers. Für die gewählten Funktionen verbindet sie sich mit den von Ihnen eingerichteten Gegenstellen. Diese erhalten Ihre Netzwerkadresse und die für die Verbindung erforderlichen Daten. Die Verschlüsselung hängt vom verwendeten Protokoll und der Gegenstelle ab.
+
+Direkte Kameraverbindungen laufen zu den gewählten Kameraadressen. Die optionale Home-Assistant-Anbindung verwendet die konfigurierte Serveradresse und das hinterlegte Zugriffstoken. Bei Reolink-UID-Verbindungen können Vermittlungs- oder Relay-Dienste des Kameraherstellers beteiligt sein. Für diese Dienste gelten zusätzlich deren eigene Datenschutzinformationen. Eine ausschließlich auf das Heimnetz beschränkte Übertragung wird für UID-Verbindungen nicht zugesagt.
+
+Einstellungen werden im verwendeten Einstellungsordner gespeichert. Über die dafür vorgesehenen Passwortfelder erfasste Kamera-Passwörter werden mit dem Windows-Datenschutzdienst für das aktuelle Benutzerkonto geschützt. Dies verschlüsselt nicht alle Einstellungen: Das Home-Assistant-Token und gegebenenfalls Zugangsdaten in Streamadressen können in Einstellungsdateien lesbar sein. Für den Reolink-Hilfsprozess entsteht vorübergehend eine zugriffsbeschränkte Verbindungsdatei mit Zugangsdaten; sie wird beim regulären Beenden entfernt.
+
+Exportierte Einstellungs-Backups können sensible Verbindungsdaten enthalten. Schützen Sie sie vor fremdem Zugriff. Aufnahmen werden im gewählten Aufnahmeordner gespeichert. Netzwerkordner oder durch andere Software synchronisierte Ordner können Dateien auch auf anderen Geräten oder bei Ihrem gewählten Cloudanbieter speichern.
+
+Diagnosedateien werden auf Ihre Veranlassung exportiert. Der Export entfernt bestimmte Geheimnisse, kann jedoch weiterhin technische Angaben, Kamera-Hostnamen oder IP-Adressen enthalten. Prüfen Sie ihn vor der Weitergabe. Bei einer Supportanfrage erhält der Herausgeber die von Ihnen mitgeteilten Kontaktdaten, Inhalte und Anhänge zur Bearbeitung der Anfrage. Senden Sie keine Kamera-Passwörter oder Zugriffstoken.
+
+Sie können Verbindungen in der App entfernen und Einstellungen, Backups sowie Aufnahmen in ihren jeweiligen Ordnern löschen. Die optionale Aufbewahrungsfunktion gilt für die von ihr verwalteten automatischen Aufnahmen. Eine Deinstallation entfernt nicht zwangsläufig selbst gewählte Einstellungs- und Aufnahmeordner. Löschen Sie solche Dateien bei Bedarf gesondert.
+
+Für Fragen zur Verarbeitung durch den Herausgeber und zur Ausübung Ihrer datenschutzrechtlichen Rechte erreichen Sie uns unter support@dorisundmarcin.de. Hierzu gehören nach Maßgabe der anwendbaren Vorschriften Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch sowie das Beschwerderecht bei einer Datenschutzaufsichtsbehörde. Für Daten bei Ihrem Kamerahersteller oder einem anderen genutzten Dienst wenden Sie sich an den jeweiligen Verantwortlichen.
+
+Installation, Store-Updates und etwaige Diagnosedaten von Windows oder Microsoft Store werden von Microsoft verwaltet. Hierfür gelten die Datenschutzinformationen von Microsoft.

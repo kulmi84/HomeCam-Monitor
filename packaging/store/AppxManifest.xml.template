@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:uap6="http://schemas.microsoft.com/appx/manifest/uap/windows10/6"
+         xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+         xmlns:desktop7="http://schemas.microsoft.com/appx/manifest/desktop/windows10/7"
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+         IgnorableNamespaces="uap uap6 desktop desktop7 rescap">
+  <Identity Name="{{IdentityName}}" Publisher="{{Publisher}}" Version="{{PackageVersion}}" ProcessorArchitecture="x64" />
+  <Properties>
+    <DisplayName>HomeCam Monitor V2</DisplayName>
+    <PublisherDisplayName>{{PublisherDisplayName}}</PublisherDisplayName>
+    <Logo>StoreAssets\StoreLogo.png</Logo>
+  </Properties>
+  <Resources><Resource Language="de-de" /><Resource Language="en-us" /></Resources>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+    <PackageDependency Name="Microsoft.VCLibs.140.00.UWPDesktop" MinVersion="14.0.33321.0" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" />
+  </Dependencies>
+  <Applications>
+    <Application Id="HomeCamMonitor" Executable="HomeCamMonitor-V2-Beta.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="HomeCam Monitor V2" Description="Kamerabilder, Bewegungserkennung und lokale Aufnahmen."
+          BackgroundColor="transparent" Square150x150Logo="StoreAssets\Square150x150Logo.png"
+          Square44x44Logo="StoreAssets\Square44x44Logo.png" />
+      <Extensions>
+        <desktop7:Extension Category="windows.shortcut" Executable="HomeCamMonitor-V2-Beta.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop7:Shortcut File="$(Desktop)\HomeCam Monitor V2.lnk" Icon="StoreAssets\HomeCamMonitor.ico" Description="HomeCam Monitor V2" />
+        </desktop7:Extension>
+        <desktop:Extension Category="windows.startupTask" Executable="HomeCamMonitor-V2-Beta.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="HomeCamMonitorStartup" Enabled="false" DisplayName="HomeCam Monitor V2" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Extensions>
+    <uap6:Extension Category="windows.loaderSearchPathOverride">
+      <uap6:LoaderSearchPathOverride>
+        <uap6:LoaderSearchPathEntry FolderPath="" />
+        <uap6:LoaderSearchPathEntry FolderPath="tools\gstreamer\bin" />
+      </uap6:LoaderSearchPathOverride>
+    </uap6:Extension>
+  </Extensions>
+  <Capabilities><rescap:Capability Name="runFullTrust" /></Capabilities>
+</Package>

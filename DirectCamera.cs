@@ -20,12 +20,12 @@ internal sealed class DirectCamera
     internal string StreamUrl()
     {
         if (!Uri.TryCreate(RtspUrl, UriKind.Absolute, out var uri) || uri.Scheme is not ("rtsp" or "rtsps"))
-            throw new ArgumentException("Bitte eine gültige RTSP-Streamadresse eintragen oder über ONVIF ermitteln.");
+            throw new ArgumentException(UiText.T("Bitte eine gültige RTSP-Streamadresse eintragen oder über ONVIF ermitteln."));
         if (string.IsNullOrWhiteSpace(Username)) return uri.AbsoluteUri;
         string password;
         try { password = ProtectedPassword.Length == 0 ? "" : CameraPassword.Unprotect(ProtectedPassword); }
         catch (Exception e) when (e is System.Security.Cryptography.CryptographicException or FormatException)
-        { throw new ArgumentException("Das Kamera-Passwort ist auf diesem Windows-Konto nicht lesbar. Bitte erneut eingeben."); }
+        { throw new ArgumentException(UiText.T("Das Kamera-Passwort ist auf diesem Windows-Konto nicht lesbar. Bitte erneut eingeben.")); }
         var builder = new UriBuilder(uri) { UserName = Uri.EscapeDataString(Username), Password = Uri.EscapeDataString(password) };
         return builder.Uri.AbsoluteUri;
     }

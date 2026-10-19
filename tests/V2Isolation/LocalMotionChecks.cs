@@ -81,7 +81,7 @@ internal static partial class Check
         host.Hide();
         var source = (ComboBox)editor.Controls.Find("MotionSource",true).Single();
         host.Show(); details.Expanded = true;
-        if (source.Items.Count != 1 || source.SelectedIndex != 0 || !source.Text.StartsWith("Lokale Bildanalyse")) throw new Exception("Direct RTSP offers unsupported external event source.");
+        if (source.Items.Count != 1 || source.SelectedIndex != 0 || source.Text != UiText.T("Lokale Bildanalyse (OpenCV/MOG2)")) throw new Exception("Direct RTSP offers unsupported external event source.");
         grid.Rows[0].Cells["MotionEnabled"].Value = false;
         grid.Rows[0].Cells["MotionEnabled"].Value = true;
         if (!LocalMotionSettings.ForRow(grid.Rows[0]).Enabled || source.SelectedIndex != 0) throw new Exception("Direct motion checkbox cannot restore local analysis while editor is hidden.");
@@ -108,13 +108,13 @@ internal static partial class Check
         for (var pass = 0; pass < 2; pass++)
         {
             grid.CurrentCell = grid.Rows[0].Cells[0];
-            if (mode.Items.Count != 2 || Convert.ToString(mode.Items[0]) != "Externer Home-Assistant-Sensor") throw new Exception("HA source label incorrect after camera switch.");
+            if (mode.Items.Count != 2 || Convert.ToString(mode.Items[0]) != UiText.T("Externer Home-Assistant-Sensor")) throw new Exception("HA source label incorrect after camera switch.");
             mode.SelectedIndex = 1;
             if (!LocalMotionSettings.ForRow(grid.Rows[0]).Enabled) throw new Exception("HA local selection mapping failed.");
             mode.SelectedIndex = 0;
             if (LocalMotionSettings.ForRow(grid.Rows[0]).Enabled || Convert.ToString(grid.Rows[0].Cells["MotionEntityId"].Value) != "binary_sensor.keep") throw new Exception("External HA mapping or retained sensor failed.");
             grid.CurrentCell = grid.Rows[1].Cells[0];
-            if (mode.Items.Count != 2 || Convert.ToString(mode.Items[0]) != "Bewegungserkennung der Reolink-Kamera") throw new Exception("UID source label incorrectly mentions HA.");
+            if (mode.Items.Count != 2 || Convert.ToString(mode.Items[0]) != UiText.T("Bewegungserkennung der Reolink-Kamera")) throw new Exception("UID source label incorrectly mentions HA.");
             mode.SelectedIndex = 1;
             if (!LocalMotionSettings.ForRow(grid.Rows[1]).Enabled) throw new Exception("UID local selection mapping failed.");
             mode.SelectedIndex = 0;

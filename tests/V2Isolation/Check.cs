@@ -10,12 +10,20 @@ internal static partial class Check
     [STAThread]
     private static void Main(string[] args)
     {
+        if (args.Contains("--english"))
+        {
+            System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.CurrentUICulture;
+            args = args.Where(a => a != "--english").ToArray();
+        }
         if (args.Contains("-progress") && Environment.GetEnvironmentVariable("HOMECAM_FAKE_FRAME_TEST") is { } frameMode)
         {
             if (frameMode == "wait") Thread.Sleep(30000);
             Console.WriteLine(frameMode == "frame" ? "frame=1" : "frame=0"); return;
         }
         Application.EnableVisualStyles();
+        if (args.Contains("--logo-variants")) { TestLogoVariants(); return; }
+        if (args.Length == 1 && args[0] == "--localization") { TestLocalization(); return; }
 #if RELEASE_V2
         if (ApplicationBranding.ProductName != "HomeCam Monitor V2") throw new Exception("Final V2 branding is incorrect.");
 #endif
@@ -42,12 +50,14 @@ internal static partial class Check
         if (args.Length == 1 && args[0] == "--settings-presentation") { TestSettingsPresentation(); return; }
         if (args.Length == 1 && args[0] == "--settings-tabs") { TestCameraAvailabilityAndSources(); return; }
         if (args.Length == 1 && args[0] == "--direct") { TestDirectConnection(); return; }
+        TestStorageDefaults();
+        if (args.Contains("--storage-defaults")) return;
         if (ApplicationChannel.StorageName != "HomeCamMonitor-V2-Beta" ||
             SettingsLocation.RegistryPath != @"Software\HomeCamMonitor-V2-Beta" ||
-            Path.GetFileName(SettingsLocation.DefaultFolder) != "HomeCamMonitor-V2-Beta")
+            Path.GetFileName(SettingsLocation.DefaultFolder) != ApplicationChannel.DefaultSettingsFolderName)
             throw new Exception("V2 settings identity is not isolated.");
-        if (Path.GetFileName(RecordingStorage.ManualSnapshots) != "HomeCam Monitor V2 Beta" ||
-            Path.GetFileName(RecordingStorage.ManualVideos) != "HomeCam Monitor V2 Beta")
+        if (Path.GetFileName(RecordingStorage.ManualSnapshots) != ApplicationChannel.RecordingFolderName ||
+            Path.GetFileName(RecordingStorage.ManualVideos) != ApplicationChannel.RecordingFolderName)
             throw new Exception("V2 recording folders overlap with V1.");
         var settings = SettingsStore.CreateForNewInstallation();
         if (settings.DirectHomeAssistantEnabled || settings.MotionDetectionEnabled || settings.Cameras.Count != 0)
@@ -362,7 +372,7 @@ internal static partial class Check
         var haButton = (Button)form.Controls.Find("HomeAssistantTabButton", true).Single();
         var uidButton = (Button)form.Controls.Find("ReolinkTabButton", true).Single();
         var general = form.Controls.Find("SettingsContent", true).Single().Controls.Cast<Control>()
-            .Single(c => c.Text == "Allgemeine Einstellungen");
+            .Single(c => c.Text == UiText.T("Allgemeine Einstellungen"));
         if (connections.PointToScreen(System.Drawing.Point.Empty).Y >= general.PointToScreen(System.Drawing.Point.Empty).Y)
             throw new Exception("Connection settings are not directly below the camera list.");
         if (haButton.Text != "Home Assistant" || haButton.BackColor.GetBrightness() > .3 || haButton.ForeColor.GetBrightness() < .8)
@@ -702,7 +712,7 @@ internal static partial class Check
                 if (bridge.IsStreamReady(failed) || bridge.StreamUrl(camera) == bridge.StreamUrl(failed) || camera.StreamUrl != bridge.StreamUrl(camera))
                     throw new Exception("Camera failure/RTSP endpoint isolation failed.");
             }
-            lock (statuses) if (!statuses.Contains("Verbunden")) throw new Exception("Camera status did not reach connected.");
+            lock (statuses) if (!statuses.Contains(UiText.T("Verbunden"))) throw new Exception("Camera status did not reach connected.");
         }
         finally
         {
@@ -763,9 +773,9 @@ internal static partial class Check
         var elapsed = System.Diagnostics.Stopwatch.StartNew();
         bridge.Status += (_, text) =>
         {
-            if (text == "Verbunden") connected = true;
+            if (text == UiText.T("Verbunden")) connected = true;
             if (last != text) { Console.WriteLine($"{elapsed.Elapsed.TotalSeconds:F1}s: {text}"); last = text; }
-            if (text == "Verbunden" || ReolinkDiagnostics.IsFailure(text)) done.TrySetResult();
+            if (text == UiText.T("Verbunden") || ReolinkDiagnostics.IsFailure(text)) done.TrySetResult();
         };
         bridge.Start();
         try

@@ -141,6 +141,9 @@ internal static class V2BetaUninstaller
                 if (location != null) location.DeleteValue("SettingsFolder", false);
             }
             DeleteSettingsFiles(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-V2-Beta"), includeDiagnostics);
+#if RELEASE_V2
+            DeleteSettingsFiles(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-V2"), includeDiagnostics);
+#endif
     }
     internal static void DeleteSettingsFiles(string folder, bool includeDiagnostics)
     {
@@ -149,6 +152,9 @@ internal static class V2BetaUninstaller
     }
     internal static bool HasSettings()
     {
+#if RELEASE_V2
+        if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-V2", "settings.json"))) return true;
+#endif
         string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeCamMonitor-V2-Beta");
         using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\HomeCamMonitor-V2-Beta"))
         {

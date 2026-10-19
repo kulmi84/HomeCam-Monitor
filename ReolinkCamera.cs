@@ -23,10 +23,10 @@ internal sealed class ReolinkCamera
             !Regex.IsMatch(Uid ?? "", "^[A-Za-z0-9]{10,32}$") ||
             string.IsNullOrWhiteSpace(Username) || Username.Length > 128 ||
             Stream is not ("mainStream" or "subStream") || string.IsNullOrEmpty(ProtectedPassword))
-            throw new ArgumentException("Bitte Kamera-UID, Kamera-Benutzername und Passwort vollständig eintragen.");
+            throw new ArgumentException(UiText.T("Bitte Kamera-UID, Kamera-Benutzername und Passwort vollständig eintragen."));
         try { _ = CameraPassword.Unprotect(ProtectedPassword); }
         catch (Exception e) when (e is CryptographicException or FormatException)
-        { throw new ArgumentException("Das Kamera-Passwort ist auf diesem Windows-Konto nicht lesbar. Bitte erneut eingeben."); }
+        { throw new ArgumentException(UiText.T("Das Kamera-Passwort ist auf diesem Windows-Konto nicht lesbar. Bitte erneut eingeben.")); }
     }
 }
 
@@ -59,7 +59,7 @@ internal static class ReolinkConfig
     }
     internal static string Build(IEnumerable<CameraEntry> cameras, int rtspPort, int mqttPort, string mqttPassword, string discoveryMethod = "cellular")
     {
-        if (discoveryMethod is not ("relay" or "cellular" or "debug")) throw new ArgumentException("Ungültiger UID-Verbindungsmodus.");
+        if (discoveryMethod is not ("relay" or "cellular" or "debug")) throw new ArgumentException(UiText.T("Ungültiger UID-Verbindungsmodus."));
         var enabled = cameras.Where(c => c.Active && c.Reolink.Enabled).ToArray();
         var text = new StringBuilder();
         text.AppendLine("bind = \"127.0.0.1\"");
@@ -74,7 +74,7 @@ internal static class ReolinkConfig
         {
             var config = camera.Reolink;
             config.Validate();
-            if (!ids.Add(config.Id)) throw new ArgumentException("Jede Reolink-Kamera benötigt eine eigene interne Kennung.");
+            if (!ids.Add(config.Id)) throw new ArgumentException(UiText.T("Jede Reolink-Kamera benötigt eine eigene interne Kennung."));
             text.AppendLine("[[cameras]]");
             text.AppendLine($"name = {Quote(config.MountName)}");
             text.AppendLine($"uid = {Quote(config.Uid)}");
@@ -110,7 +110,7 @@ internal sealed class ReolinkEvents
         {
             if (payload is not ("connected" or "disconnected")) return;
             if (payload == "disconnected") lock (gate) motion.Remove(parts[1]);
-            Status?.Invoke(camera, payload == "connected" ? "Verbunden" : "Verbinde neu …");
+            Status?.Invoke(camera, payload == "connected" ? UiText.T("Verbunden") : UiText.T("Verbinde neu …"));
         }
         if (parts.Length != 4 || parts[2] != "status" || parts[3] != "motion") return;
         bool trigger = false;

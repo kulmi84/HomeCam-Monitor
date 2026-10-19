@@ -7,8 +7,8 @@ internal static class RecordingStorage
 {
     internal static string ManualSnapshots => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), ApplicationChannel.RecordingFolderName);
     internal static string ManualVideos => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), ApplicationChannel.RecordingFolderName);
-    internal static string MotionSnapshots => Path.Combine(ManualSnapshots, "Bewegung");
-    internal static string MotionDefault => Path.Combine(ManualVideos, "Bewegung");
+    internal static string MotionSnapshots => Path.Combine(ManualSnapshots, UiText.T("Bewegung"));
+    internal static string MotionDefault => Path.Combine(ManualVideos, UiText.T("Bewegung"));
     internal static string ResolveMotionSnapshots(string value)
     {
         var folder = Resolve(value, MotionSnapshots);
@@ -20,7 +20,7 @@ internal static class RecordingStorage
     internal static string Resolve(string value, string fallback)
     {
         if (string.IsNullOrWhiteSpace(value)) return fallback;
-        if (!Path.IsPathFullyQualified(value.Trim())) throw new ArgumentException("Bitte einen vollständigen Speicherpfad wählen.");
+        if (!Path.IsPathFullyQualified(value.Trim())) throw new ArgumentException(UiText.T("Bitte einen vollständigen Speicherpfad wählen."));
         return Path.GetFullPath(value.Trim());
     }
     internal static bool IsMotionFile(string file) => Regex.IsMatch(Path.GetFileName(file), @"_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}_[0-9a-f]{32}\.(png|mkv)$", RegexOptions.IgnoreCase);

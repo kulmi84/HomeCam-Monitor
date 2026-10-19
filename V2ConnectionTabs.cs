@@ -18,10 +18,10 @@ internal sealed class V2ConnectionTabs : UserControl
         get
         {
             var row = cameras.CurrentRow;
-            if (row is null || row.IsNewRow) return "Keine Kamera ausgewählt";
+            if (row is null || row.IsNewRow) return UiText.T("Keine Kamera ausgewählt");
             var source = row.Tag is ReolinkCamera { Enabled: true } ? "Reolink-UID" : DirectCamera.ForRow(row).Enabled ? "ONVIF / RTSP" : "Home Assistant";
             return $"{Convert.ToString(row.Cells["CameraName"].Value)} · {source}" +
-                (Convert.ToBoolean(row.Cells["Active"].Value ?? true) ? "" : " · Kamera deaktiviert");
+                (Convert.ToBoolean(row.Cells["Active"].Value ?? true) ? "" : UiText.T(" · Kamera deaktiviert"));
         }
     }
     internal void UpdateTabAppearance()
@@ -40,7 +40,7 @@ internal sealed class V2ConnectionTabs : UserControl
             button.FlatAppearance.MouseOverBackColor = Color.FromArgb(62, 62, 69);
             button.FlatAppearance.MouseDownBackColor = Color.FromArgb(72, 72, 80);
             button.Font = i == selectedIndex ? selectedFont : Font;
-            button.AccessibleDescription = i == selectedIndex ? "Geöffnete Einstellungen." : "Einstellungen öffnen.";
+            button.AccessibleDescription = i == selectedIndex ? UiText.T("Geöffnete Einstellungen.") : UiText.T("Einstellungen öffnen.");
         }
     }
     internal int SelectedIndex
@@ -59,9 +59,9 @@ internal sealed class V2ConnectionTabs : UserControl
                 uidTab.Font = value == 0 ? selectedFont : Font;
                 haTab.Font = value == 1 ? selectedFont : Font;
                 directTab.Font = value == 2 ? selectedFont : Font;
-                uidTab.AccessibleDescription = value == 0 ? "Ausgewählt" : "";
-                haTab.AccessibleDescription = value == 1 ? "Ausgewählt" : "";
-                directTab.AccessibleDescription = value == 2 ? "Ausgewählt" : "";
+                uidTab.AccessibleDescription = value == 0 ? UiText.T("Ausgewählt") : "";
+                haTab.AccessibleDescription = value == 1 ? UiText.T("Ausgewählt") : "";
+                directTab.AccessibleDescription = value == 2 ? UiText.T("Ausgewählt") : "";
                 UpdateTabAppearance();
             }
             finally { ResumeLayout(true); }
@@ -75,7 +75,7 @@ internal sealed class V2ConnectionTabs : UserControl
     private readonly CheckBox detection;
     private readonly TextBox personEntity;
     private readonly TextBox motionEntity;
-    private readonly CheckBox useHomeAssistant = new() { Name = "UseHomeAssistantCamera", Text = "Für ausgewählte Kamera verwenden", AutoSize = true };
+    private readonly CheckBox useHomeAssistant = new() { Name = "UseHomeAssistantCamera", Text = UiText.T("Für ausgewählte Kamera verwenden"), AutoSize = true };
     private readonly TextBox streamUrl = new() { Name = "HomeAssistantCameraStream", Dock = DockStyle.Fill };
     private bool loading;
 
@@ -118,16 +118,16 @@ internal sealed class V2ConnectionTabs : UserControl
             using var search = new CameraDiscoveryForm();
             if (search.ShowDialog(FindForm()) == DialogResult.OK && search.Result is { } camera)
             {
-                if (!ImportDiscovered(camera)) MessageBox.Show(FindForm(), "Diese Kamera ist bereits eingerichtet. Der vorhandene Eintrag wurde ausgewählt und bleibt unverändert.",
-                    "Kamera bereits vorhanden", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!ImportDiscovered(camera)) MessageBox.Show(FindForm(), UiText.T("Diese Kamera ist bereits eingerichtet. Der vorhandene Eintrag wurde ausgewählt und bleibt unverändert."),
+                    UiText.T("Kamera bereits vorhanden"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         };
         directEditor.AddRequested += () =>
         {
             reolink.Store();
             var names = cameras.Rows.Cast<DataGridViewRow>().Where(r => !r.IsNewRow).Select(r => Convert.ToString(r.Cells["CameraName"].Value)).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var number = 1; while (names.Contains("Netzwerk " + number)) number++;
-            var index = cameras.Rows.Add("Netzwerk " + number, "", false, false, "", "None", 30, "", true, "");
+            var number = 1; while (names.Contains(UiText.T("Netzwerk ") + number)) number++;
+            var index = cameras.Rows.Add(UiText.T("Netzwerk ") + number, "", false, false, "", "None", 30, "", true, "");
             var row = cameras.Rows[index]; row.Tag = new ReolinkCamera(); DirectCamera.ForRow(row).Enabled = true;
             cameras.CurrentCell = row.Cells["CameraName"]; row.Selected = true;
             reolink.SelectNonUid(true, ""); LoadSelection(); SelectedIndex = 2;
@@ -135,17 +135,17 @@ internal sealed class V2ConnectionTabs : UserControl
         cameras.CellFormatting += (_, e) =>
         {
             if (e.RowIndex >= 0 && e.ColumnIndex == cameras.Columns["StreamUrl"].Index && !cameras.Rows[e.RowIndex].IsNewRow && DirectCamera.ForRow(cameras.Rows[e.RowIndex]).Enabled)
-            { e.Value = "ONVIF / RTSP – direkt"; e.FormattingApplied = true; }
+            { e.Value = UiText.T("ONVIF / RTSP – direkt"); e.FormattingApplied = true; }
         };
         uidPage.Controls.Add(reolink);
-        homeAssistantEvents.Text = "Bewegungs- und Personenereignisse von Home Assistant empfangen";
+        homeAssistantEvents.Text = UiText.T("Bewegungs- und Personenereignisse von Home Assistant empfangen");
         homeAssistantEvents.Name = "HomeAssistantEventsEnabled";
         var haLayout = new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 5 };
         haLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         for (var row = 0; row < 5; row++) haLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        var add = new Button { Name = "AddHomeAssistantCamera", Text = "HA-Kamera hinzufügen", AutoSize = true };
+        var add = new Button { Name = "AddHomeAssistantCamera", Text = UiText.T("HA-Kamera hinzufügen"), AutoSize = true };
         var source = new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true };
-        var searchHa = new Button { Name = "SearchHomeAssistantCameras", Text = "Kameras und Sensoren suchen", AutoSize = true };
+        var searchHa = new Button { Name = "SearchHomeAssistantCameras", Text = UiText.T("Kameras und Sensoren suchen"), AutoSize = true };
         source.Controls.Add(add); source.Controls.Add(searchHa); source.Controls.Add(useHomeAssistant);
         searchHa.Click += (_, _) =>
         {
@@ -154,16 +154,16 @@ internal sealed class V2ConnectionTabs : UserControl
                 selected ? streamUrl.Text.Trim() : "", selected);
             if (search.ShowDialog(FindForm()) == DialogResult.OK && search.Result is { } result)
             {
-                if (!ImportHomeAssistant(result)) MessageBox.Show(FindForm(), "Diese HA-Kamera ist bereits eingerichtet. Der vorhandene Eintrag wurde ausgewählt und bleibt unverändert.", "Kamera bereits vorhanden", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!ImportHomeAssistant(result)) MessageBox.Show(FindForm(), UiText.T("Diese HA-Kamera ist bereits eingerichtet. Der vorhandene Eintrag wurde ausgewählt und bleibt unverändert."), UiText.T("Kamera bereits vorhanden"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         };
         haLayout.Controls.Add(source, 0, 0);
-        haLayout.Controls.Add(new Label { Text = "RTSP-/HTTP-Streamadresse dieser Kamera:", AutoSize = true }, 0, 1);
+        haLayout.Controls.Add(new Label { Text = UiText.T("RTSP-/HTTP-Streamadresse dieser Kamera:"), AutoSize = true }, 0, 1);
         haLayout.Controls.Add(streamUrl, 0, 2);
-        haLayout.Controls.Add(new Label { Text = "Streamadresse wie in V1 eintragen. Sensoren werden unter Bewegungserkennung zugeordnet.",
+        haLayout.Controls.Add(new Label { Text = UiText.T("Streamadresse wie in V1 eintragen. Sensoren werden unter Bewegungserkennung zugeordnet."),
             AutoSize = true, MaximumSize = new Size(700, 0), Margin = new Padding(3, 5, 3, 10) }, 0, 3);
         haLayout.Controls.Add(haFields, 0, 4);
-        var haGroup = new GroupBox { Name = "HomeAssistantConnection", Text = "Home Assistant – Verbindung",
+        var haGroup = new GroupBox { Name = "HomeAssistantConnection", Text = UiText.T("Home Assistant – Verbindung"),
             Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10, 18, 10, 10) };
         haGroup.Controls.Add(haLayout);
         haPage.Controls.Add(haGroup);
@@ -307,13 +307,13 @@ internal sealed class V2ConnectionTabs : UserControl
         {
             var cell = row.Cells["PersonEnabled"];
             cell.ReadOnly = !SupportsPerson(row);
-            cell.ToolTipText = cell.ReadOnly ? "Benötigt eine aktive HA-Kamera, aktivierte HA-Ereignisse und eine Personen-Entität. Reolink-UID unterstützt derzeit nur allgemeine Bewegung." : "Snapshot bei einem Personenereignis speichern.";
+            cell.ToolTipText = cell.ReadOnly ? UiText.T("Benötigt eine aktive HA-Kamera, aktivierte HA-Ereignisse und eine Personen-Entität. Reolink-UID unterstützt derzeit nur allgemeine Bewegung.") : UiText.T("Snapshot bei einem Personenereignis speichern.");
             var active = !row.IsNewRow && Convert.ToBoolean(row.Cells["Active"].Value ?? true);
             var direct = !row.IsNewRow && DirectCamera.ForRow(row).Enabled && !LocalMotionSettings.ForRow(row).Enabled;
             row.Cells["MotionEnabled"].ReadOnly = !active;
-            row.Cells["MotionEnabled"].ToolTipText = !active ? "Kamera zuerst aktivieren." : DirectCamera.ForRow(row).Enabled ? "Lokale Bildanalyse für diese Netzwerkkamera aktivieren." : "Bewegungsereignisse verarbeiten.";
+            row.Cells["MotionEnabled"].ToolTipText = !active ? UiText.T("Kamera zuerst aktivieren.") : DirectCamera.ForRow(row).Enabled ? UiText.T("Lokale Bildanalyse für diese Netzwerkkamera aktivieren.") : UiText.T("Bewegungsereignisse verarbeiten.");
             row.Cells["RecordingEnabled"].ReadOnly = !active || direct;
-            row.Cells["RecordingEnabled"].ToolTipText = !active ? "Kamera zuerst aktivieren." : direct ? "Automatische Ereignisaufnahmen benötigen Bewegungs- oder Personenereignisse. Manuelle Aufnahmen sind weiterhin möglich." : "Automatische Aufnahmen für diese Kamera konfigurieren.";
+            row.Cells["RecordingEnabled"].ToolTipText = !active ? UiText.T("Kamera zuerst aktivieren.") : direct ? UiText.T("Automatische Ereignisaufnahmen benötigen Bewegungs- oder Personenereignisse. Manuelle Aufnahmen sind weiterhin möglich.") : UiText.T("Automatische Aufnahmen für diese Kamera konfigurieren.");
         }
         var selectedHa = cameras.CurrentRow is { IsNewRow: false } selected && selected.Tag is not ReolinkCamera { Enabled: true } && !DirectCamera.ForRow(selected).Enabled;
         motionEntity.Enabled = personEntity.Enabled = selectedHa && homeAssistantEvents.Checked && detection.Checked;

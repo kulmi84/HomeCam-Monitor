@@ -61,7 +61,7 @@ internal sealed class LocalMotionWorker : IDisposable
                     {
                         if (clock.Elapsed - image.Time > TimeSpan.FromSeconds(1)) continue;
                         var result = model.Analyze(image.Pixels, image.Time);
-                        LocalMotionStatus.Set(camera.LocalMotion.Id, result.WarmingUp ? "Hintergrund wird eingelernt …" : result.Active ? "Bewegung erkannt" : "Lokale Analyse aktiv – keine Bewegung");
+                        LocalMotionStatus.Set(camera.LocalMotion.Id, result.WarmingUp ? UiText.T("Hintergrund wird eingelernt …") : result.Active ? UiText.T("Bewegung erkannt") : UiText.T("Lokale Analyse aktiv – keine Bewegung"));
                         if (result.Triggered || result.Active != wasActive || result.Active && image.Time - lastReport >= TimeSpan.FromSeconds(1))
                         { report(result); lastReport = image.Time; wasActive = result.Active; }
                     }
@@ -72,13 +72,13 @@ internal sealed class LocalMotionWorker : IDisposable
                     if (!process.HasExited) { try { process.Kill(true); } catch (InvalidOperationException) { } }
                     await process.WaitForExitAsync().ConfigureAwait(false); await reading.ConfigureAwait(false); await errors.ConfigureAwait(false);
                 }
-                if (!cancel.IsCancellationRequested) LocalMotionStatus.Set(camera.LocalMotion.Id, "Kein aktuelles Videobild – Verbindung wird erneut versucht.");
+                if (!cancel.IsCancellationRequested) LocalMotionStatus.Set(camera.LocalMotion.Id, UiText.T("Kein aktuelles Videobild – Verbindung wird erneut versucht."));
             }
             catch (OperationCanceledException) when (cancel.IsCancellationRequested) { break; }
             catch (Exception e) when (e is OpenCvSharp.OpenCVException or DllNotFoundException or TypeInitializationException or BadImageFormatException)
-            { LocalMotionStatus.Set(camera.LocalMotion.Id, "OpenCV konnte nicht geladen werden. Installation und Windows-Medienkomponenten prüfen."); break; }
+            { LocalMotionStatus.Set(camera.LocalMotion.Id, UiText.T("OpenCV konnte nicht geladen werden. Installation und Windows-Medienkomponenten prüfen.")); break; }
             catch (Exception e) when (e is IOException or ArgumentException or System.ComponentModel.Win32Exception or InvalidOperationException)
-            { LocalMotionStatus.Set(camera.LocalMotion.Id, "Analyse nicht verfügbar. Stream und Einstellungen prüfen."); }
+            { LocalMotionStatus.Set(camera.LocalMotion.Id, UiText.T("Analyse nicht verfügbar. Stream und Einstellungen prüfen.")); }
             if (!cancel.IsCancellationRequested)
             {
                 report(new MotionAnalysis(false, false, false, 0));
