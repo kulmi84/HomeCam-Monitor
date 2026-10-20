@@ -5,6 +5,12 @@ namespace HomeCamMonitor;
 // account names or passwords and are never displayed or written to disk.
 internal static class ReolinkDiagnostics
 {
+    internal static string? HelperFailure(int exitCode) => unchecked((uint)exitCode) switch
+    {
+        0xC0000022 => UiText.T("Reolink-Verbindungsdienst: Zugriff verweigert (0xC0000022) [HELPER-ACCESS]"),
+        0xC0000135 => UiText.T("GStreamer-Laufzeit fehlt [HELPER-RUNTIME]"),
+        _ => null
+    };
     internal static string? Classify(string line)
     {
         if (Environment.GetEnvironmentVariable("HOMECAM_DIAG_TRACE") == "1" &&
@@ -33,6 +39,7 @@ internal static class ReolinkDiagnostics
         return null;
     }
     internal static bool IsFailure(string text) => text.Contains("[AUTH]", StringComparison.Ordinal) ||
+        text.Contains("[HELPER-ACCESS]", StringComparison.Ordinal) || text.Contains("[HELPER-RUNTIME]", StringComparison.Ordinal) ||
         text.Contains("[CONFIG]", StringComparison.Ordinal) || text.Contains("[PROTOCOL]", StringComparison.Ordinal);
 }
 #endif

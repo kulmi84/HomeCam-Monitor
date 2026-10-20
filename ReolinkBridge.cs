@@ -38,7 +38,7 @@ internal sealed class ReolinkBridge : IDisposable
         cameras = entries.Where(c => c.Active && c.Reolink.Enabled).ToArray();
         if (cameras.Select(camera => camera.Reolink.Id).Distinct(StringComparer.Ordinal).Count() != cameras.Length)
             throw new ArgumentException(UiText.T("Jede Reolink-Kamera benötigt eine eigene interne Kennung."));
-        this.executable = executable;
+        this.executable = ReolinkHelper.Resolve(executable);
         this.discoveryMethod = discoveryMethod;
         this.runtimeRoot = runtimeRoot ?? Path.Combine(SettingsLocation.DefaultFolder, "reolink-runtime");
         events = new ReolinkEvents(cameras);
@@ -150,14 +150,16 @@ internal sealed class ReolinkBridge : IDisposable
                 }
                 if (token.IsCancellationRequested) break;
                 if (credentialsRejected) break;
-                if (process.ExitCode == unchecked((int)0xC0000135))
-                { Report(UiText.T("GStreamer-Laufzeit fehlt")); break; }
+                if (ReolinkDiagnostics.HelperFailure(process.ExitCode) is { } helperFailure)
+                { Report(helperFailure); break; }
                 Report(UiText.T("Verbindung unterbrochen – neuer Versuch …"));
                 retrySeconds = DateTime.UtcNow - started > TimeSpan.FromMinutes(1) ? 2 : Math.Min(30, retrySeconds * 2);
                 await Task.Delay(TimeSpan.FromSeconds(retrySeconds), token);
             }
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        catch (System.ComponentModel.Win32Exception error) when (error.NativeErrorCode == 5)
+        { Report(UiText.T("Reolink-Verbindungsdienst: Zugriff verweigert [HELPER-ACCESS]")); }
         catch (ArgumentException) { Report(UiText.T("Kamera-Konfiguration prüfen")); }
         catch (Exception) { Report(UiText.T("Reolink-Verbindung konnte nicht gestartet werden")); }
         finally

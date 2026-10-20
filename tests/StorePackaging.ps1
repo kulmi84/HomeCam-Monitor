@@ -15,6 +15,7 @@ $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 if ($LASTEXITCODE -ne 0) { throw 'Fixture compilation failed' }
 foreach ($name in @('HomeCamMonitor-V2-Beta.runtimeconfig.json', 'coreclr.dll', 'hostfxr.dll',
     'mpv.exe', 'ffmpeg.exe', 'OpenCvSharpExtern.dll', 'tools/neolink/neolink.exe',
+    'HomeCam-Standard.ico', 'HomeCam-Weiss-transparent.ico', 'HomeCam-Schwarz-transparent.ico', 'Icons-anpassen.txt',
     'tools/gstreamer/bin/gstreamer-1.0-0.dll', 'tools/gstreamer/bin/glib-2.0-0.dll', 'THIRD-PARTY-NOTICES.md', 'licenses/test.txt',
     'HomeCamMonitor-V2-Beta-Uninstall.exe')) {
     $target = Join-Path $fixture $name
@@ -37,7 +38,7 @@ if ($xml.Package.Applications.Application.Extensions.Extension.StartupTask.TaskI
 $shortcut = @($xml.Package.Applications.Application.Extensions.Extension | Where-Object Category -eq 'windows.shortcut')
 if ($shortcut.Count -ne 1 -or $shortcut[0].Executable -ne 'HomeCamMonitor-V2-Beta.exe' -or
     $shortcut[0].Shortcut.File -ne '$(Desktop)\HomeCam Monitor V2.lnk' -or
-    $shortcut[0].Shortcut.Icon -ne 'StoreAssets\HomeCamMonitor.ico') { throw 'Desktop shortcut declaration incorrect' }
+    $shortcut[0].Shortcut.Icon -ne 'HomeCamMonitor-V2-Beta.exe') { throw 'Desktop shortcut must select icons directly from the application EXE' }
 if ((Get-FileHash (Join-Path $payload 'StoreAssets/HomeCamMonitor.ico')).Hash -ne
     (Get-FileHash (Join-Path $root 'assets/HomeCamMonitor-V2-Beta.ico')).Hash) { throw 'Desktop shortcut icon does not match confirmed icon' }
 $paths = @($xml.Package.Extensions.Extension.LoaderSearchPathOverride.LoaderSearchPathEntry | ForEach-Object { $_.GetAttribute('FolderPath') })

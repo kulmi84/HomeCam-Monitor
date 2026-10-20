@@ -447,7 +447,6 @@ Vordergrunddauer: {0} Sekunden	Foreground duration: {0} seconds
 {0} fehlt	{0} missing
 http://Kamera-IP:Port/onvif/device_service	http://camera-IP:port/onvif/device_service
 rtsp://Kamera-IP:554/Stream-Pfad	rtsp://camera-IP:554/stream-path
-Weiß auf Schwarz (Standard)	White on black (default)
-Weiß – transparent	White – transparent
-Schwarz – transparent	Black – transparent
-Logo / Icon:	Logo / icon:
+Reolink-Verbindungsdienst: Zugriff verweigert (0xC0000022) [HELPER-ACCESS]	Reolink helper: access denied (0xC0000022) [HELPER-ACCESS]
+GStreamer-Laufzeit fehlt [HELPER-RUNTIME]	GStreamer runtime is missing [HELPER-RUNTIME]
+Reolink-Verbindungsdienst: Zugriff verweigert [HELPER-ACCESS]	Reolink helper: access denied [HELPER-ACCESS]

@@ -2,9 +2,7 @@ namespace HomeCamMonitor;
 
 internal static class LogoVariants
 {
-    internal static int Selected { get; set; }
     internal static int Normalize(int value) => value is >= 0 and <= 2 ? value : 0;
-    internal static string[] Labels => [UiText.T("Weiß auf Schwarz (Standard)"), UiText.T("Weiß – transparent"), UiText.T("Schwarz – transparent")];
     internal static Bitmap LoadImage(int variant)
     {
         var suffix = Normalize(variant) switch { 1 => "White", 2 => "Black", _ => "Default" };

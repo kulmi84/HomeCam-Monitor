@@ -39,8 +39,8 @@ internal static class ApplicationBranding
 #else
     internal const string ProductName = "HomeCamMonitor Beta";
 #endif
-    private static readonly Icon[] icons = [LogoVariants.LoadIcon(0), LogoVariants.LoadIcon(1), LogoVariants.LoadIcon(2)];
-    internal static Icon WindowIcon => icons[LogoVariants.Normalize(LogoVariants.Selected)];
+    private static readonly Icon icon = LogoVariants.LoadIcon(0);
+    internal static Icon WindowIcon => icon;
 
 }
 #endif
@@ -71,7 +71,6 @@ internal sealed class Settings
     public bool AutoScaleToolbar { get; set; }
     public bool ShowGridCameraNames { get; set; } = true;
     public bool ShowEmptyCameraLogo { get; set; } = true;
-    public int LogoVariant { get; set; }
     public bool ShowEmptyFourthFieldBorder { get; set; }
 #if V2_BETA
     // Legacy master switch is ignored on import; only per-camera choices gate events.
@@ -448,9 +447,7 @@ internal sealed partial class MonitorForm : Form
 #endif
 #if BETA
         Icon = ApplicationBranding.WindowIcon;
-        LogoVariants.Selected = LogoVariants.Normalize(settings.LogoVariant);
-        offlinePlaceholder.SetLogoVariant(LogoVariants.Selected);
-        Icon = ApplicationBranding.WindowIcon;
+        offlinePlaceholder.SetLogoVariant(0);
         CleanupMotionStorage();
         // Windows uses the title for taskbar previews and Alt+Tab. CreateParams
         // and non-client painting keep the camera window itself captionless.
@@ -1399,10 +1396,9 @@ internal sealed partial class MonitorForm : Form
             changedSettings.MotionActionsPausedUntilUtc = null;
 #endif
         var previousSettings = settings;
-        LogoVariants.Selected = LogoVariants.Normalize(changedSettings.LogoVariant);
         Icon = ApplicationBranding.WindowIcon;
-        offlinePlaceholder.SetLogoVariant(LogoVariants.Selected);
-        foreach (var slot in gridSlots) slot.Placeholder.SetLogoVariant(LogoVariants.Selected);
+        offlinePlaceholder.SetLogoVariant(0);
+        foreach (var slot in gridSlots) slot.Placeholder.SetLogoVariant(0);
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, Math.Max(0, settings.Cameras.Count - 1));
         NormalizeCameraSelection();
 #if BETA
@@ -2750,10 +2746,7 @@ internal sealed partial class MonitorForm : Form
         {
             var snapshotFolder = RecordingStorage.ResolveMotionSnapshots(settings.MotionSnapshotFolder);
             var videoFolder = RecordingStorage.Resolve(settings.MotionVideoFolder, RecordingStorage.MotionDefault);
-            LogoVariants.Selected = LogoVariants.Normalize(settings.LogoVariant);
-        offlinePlaceholder.SetLogoVariant(LogoVariants.Selected);
-        Icon = ApplicationBranding.WindowIcon;
-        CleanupMotionStorage();
+            CleanupMotionStorage();
             var safeName = string.Concat(camera.Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
             var baseName = $"{safeName}_{(personDetected ? "Person_" : "")}{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}_{Guid.NewGuid():N}";
             var captureSnapshot = (personDetected || camera.MotionAction is "Snapshot" or "Both") ? CaptureSnapshotAsync() : Task.CompletedTask;
@@ -3225,7 +3218,7 @@ internal sealed class CameraPlaceholderPanel : Panel
             using var source = Image.FromStream(resource);
             logo = new Bitmap(source);
         }
-        SetLogoVariant(LogoVariants.Selected);
+        SetLogoVariant(0);
     }
 
     public void SetLogoVariant(int variant)
@@ -4152,8 +4145,6 @@ internal sealed class SettingsForm : Form
     private readonly NumericUpDown toolbarSize = new() { Minimum = 50, Maximum = 100, Increment = 5, Width = 60 };
     private readonly CheckBox autoScaleToolbar = new() { Text = UiText.T("Bedienleiste automatisch skalieren"), AutoSize = true };
     private readonly CheckBox showEmptyFourthFieldBorder = new() { Text = UiText.T("Außenrahmen"), AutoSize = true };
-    private readonly ComboBox logoVariant = new DarkComboBox() { Name = "LogoVariant", DropDownStyle = ComboBoxStyle.DropDownList, Width = 230 };
-    private readonly CheckBox showEmptyCameraLogo = new() { Text = UiText.T("Logo in leeren Kamerafeldern anzeigen"), AutoSize = true };
     private readonly CheckBox showGridCameraNames = new() { Text = UiText.T("Kameranamen im 4er-Raster anzeigen"), AutoSize = true };
     private readonly CheckBox motionDetection = new() { Name = "DetectionEnabled", Text = UiText.T("Bewegungs- und Personenerkennung aktiv"), AutoSize = true };
     private readonly CheckBox minimizeWhenInactive = new() { Text = UiText.T("Bei Inaktivität minimieren"), AutoSize = true };
@@ -4309,9 +4300,6 @@ internal sealed class SettingsForm : Form
         toolbarSize.Value = Math.Clamp(current.ToolbarSizePercent, 50, 100);
         autoScaleToolbar.Checked = current.AutoScaleToolbar;
         showGridCameraNames.Checked = current.ShowGridCameraNames;
-        showEmptyCameraLogo.Checked = current.ShowEmptyCameraLogo;
-        logoVariant.Items.AddRange(LogoVariants.Labels);
-        logoVariant.SelectedIndex = LogoVariants.Normalize(current.LogoVariant);
         showEmptyFourthFieldBorder.Checked = current.ShowEmptyFourthFieldBorder;
         toolbarSize.Enabled = !autoScaleToolbar.Checked;
         autoScaleToolbar.CheckedChanged += (_, _) => toolbarSize.Enabled = !autoScaleToolbar.Checked;
@@ -4458,25 +4446,9 @@ internal sealed class SettingsForm : Form
         options.Controls.Add(toolbarOptions, 0, 1);
         var cameraAppearance = Batch(new SettingsFlowPanel { Name = "CameraAppearance", Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
         cameraAppearance.Controls.Add(showGridCameraNames);
-        cameraAppearance.Controls.Add(showEmptyCameraLogo);
         cameraAppearance.Controls.Add(showEmptyFourthFieldBorder);
-        cameraAppearance.Controls.Add(new Label { Text = UiText.T("Logo / Icon:"), AutoSize = true, Margin = new Padding(3, 6, 3, 0) });
-        cameraAppearance.Controls.Add(logoVariant);
-        var logoPreview = new LogoPreview();
-        void RefreshLogoPreview()
-        {
-            var previous = logoPreview.Image;
-            logoPreview.Image = LogoVariants.LoadImage(logoVariant.SelectedIndex);
-            logoPreview.ShowWhiteFrame = LogoVariants.Normalize(logoVariant.SelectedIndex) == 0;
-            logoPreview.BackColor = cameraAppearance.BackColor;
-            logoPreview.Invalidate();
-            previous?.Dispose();
-        }
-        logoVariant.SelectedIndexChanged += (_, _) => RefreshLogoPreview();
-        logoPreview.Disposed += (_, _) => logoPreview.Image?.Dispose();
-        RefreshLogoPreview();
-        cameraAppearance.Controls.Add(logoPreview);
         options.Controls.Add(cameraAppearance, 0, 2);
+
 #else
         var options = Batch(new SettingsFlowPanel { Dock = DockStyle.Fill, AutoSize = true });
         options.Controls.Add(top);
@@ -5067,8 +5039,7 @@ internal sealed class SettingsForm : Form
                 ToolbarSizePercent = (int)toolbarSize.Value,
                 AutoScaleToolbar = autoScaleToolbar.Checked,
                 ShowGridCameraNames = showGridCameraNames.Checked,
-                ShowEmptyCameraLogo = showEmptyCameraLogo.Checked,
-                LogoVariant = LogoVariants.Normalize(logoVariant.SelectedIndex),
+                ShowEmptyCameraLogo = current.ShowEmptyCameraLogo,
                 ShowEmptyFourthFieldBorder = showEmptyFourthFieldBorder.Checked,
 #if !V2_BETA
                 MotionDetectionEnabled = motionDetection.Checked,

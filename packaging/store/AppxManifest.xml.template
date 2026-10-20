@@ -24,7 +24,7 @@
           Square44x44Logo="StoreAssets\Square44x44Logo.png" />
       <Extensions>
         <desktop7:Extension Category="windows.shortcut" Executable="HomeCamMonitor-V2-Beta.exe" EntryPoint="Windows.FullTrustApplication">
-          <desktop7:Shortcut File="$(Desktop)\HomeCam Monitor V2.lnk" Icon="StoreAssets\HomeCamMonitor.ico" Description="HomeCam Monitor V2" />
+          <desktop7:Shortcut File="$(Desktop)\HomeCam Monitor V2.lnk" Icon="HomeCamMonitor-V2-Beta.exe" Description="HomeCam Monitor V2" />
         </desktop7:Extension>
         <desktop:Extension Category="windows.startupTask" Executable="HomeCamMonitor-V2-Beta.exe" EntryPoint="Windows.FullTrustApplication">
           <desktop:StartupTask TaskId="HomeCamMonitorStartup" Enabled="false" DisplayName="HomeCam Monitor V2" />

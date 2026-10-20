@@ -25,6 +25,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Final V2 publish failed.' }
 $executable = Join-Path $publish 'HomeCamMonitor-V2-Beta.exe'
 $info = [Diagnostics.FileVersionInfo]::GetVersionInfo($executable)
 if ($info.ProductVersion -ne $version -or $info.ProductName -ne 'HomeCam Monitor V2') { throw 'Incorrect final application branding/version.' }
+& (Join-Path $root 'tests/ExeIconResources.ps1') -Executable $executable
 Copy-Item -LiteralPath (Join-Path $root 'docs') -Destination $publish -Recurse -Force
 $readme = [IO.File]::ReadAllText((Join-Path $root "docs/release-v$version.md")).Replace('(release-notes-v2-beta37.md)', '(docs/release-notes-v2-beta37.md)').Replace('(reolink-v2-components.md)', '(docs/reolink-v2-components.md)')
 $readme = $readme.Replace('(v2.0.0.md)', '(docs/v2.0.0.md)').Replace('(screenshots/', '(docs/screenshots/')

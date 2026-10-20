@@ -28,7 +28,7 @@ internal static class SettingsReset
                 nameof(Settings.SettingsWindowWidth), nameof(Settings.SettingsWindowHeight)],
             SettingsResetScope.Display => [nameof(Settings.AlwaysOnTop), nameof(Settings.StartWithWindows), nameof(Settings.StartBehavior),
                 nameof(Settings.StartCameraIndex), nameof(Settings.ToolbarSizePercent), nameof(Settings.AutoScaleToolbar),
-                nameof(Settings.LogoVariant), nameof(Settings.ShowGridCameraNames), nameof(Settings.ShowEmptyCameraLogo), nameof(Settings.ShowEmptyFourthFieldBorder),
+                nameof(Settings.ShowGridCameraNames), nameof(Settings.ShowEmptyCameraLogo), nameof(Settings.ShowEmptyFourthFieldBorder),
                 nameof(Settings.MotionForegroundSeconds), nameof(Settings.MotionIndicatorSeconds), nameof(Settings.HighlightMotionInGrid),
                 nameof(Settings.MinimizeWhenInactive), nameof(Settings.RestorePreviousCameraAfterMotion)],
             SettingsResetScope.Cameras => [nameof(Settings.Cameras), nameof(Settings.SelectedCamera), nameof(Settings.StartCameraIndex),
