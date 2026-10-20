@@ -7,6 +7,12 @@ Dieses Update vereinheitlicht die Versionsnummer in der App, dem Microsoft-Store
 - Die Logoauswahl verwendet wie die übrigen Auswahllisten die dunkle Darstellung.
 - Enthalten sind die deutschen/englischen Oberflächentexte, die drei Iconvarianten und die bisherigen Store-Korrekturen für Desktopverknüpfung, Autostart und Medien-Hilfsprogramme.
 
+## Einzelkamera und Vierer-Raster
+
+![HomeCam Monitor V2: Einzelkamera mit Bedienleiste](screenshots/v2-single-camera.png)
+
+![HomeCam Monitor V2: Vierer-Raster mit drei Kameras und einem freien Feld](screenshots/v2-four-camera-grid.png)
+
 ## Installation und Upgrade
 
 Der GitHub-Download enthält eine portable Windows-x64-ZIP und ein Windows-Setup. Bestehende V2-Einstellungen werden weiterverwendet. Die interne Dateikennung `HomeCamMonitor-V2-Beta` bleibt für die Upgrade-Kompatibilität erhalten; die sichtbare finale Version lautet 2.0.12.0. V1 bleibt getrennt.

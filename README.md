@@ -20,6 +20,18 @@ HomeCam Monitor V2 ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Win
 
 Die Store-Freigabe erfolgt durch Microsoft. Beide Ausgaben werden aus derselben Versionsangabe in `Directory.Build.props` gebaut. Gespeicherte Kameraeinstellungen und selbst gewählte Speicherpfade bleiben erhalten.
 
+### Einzelkamera
+
+Ein Kamerabild im rahmenlosen Fenster mit direkt erreichbarer Bedienleiste für Kamerawechsel, Rasteransicht, Snapshots, Aufnahmen und Einstellungen.
+
+![HomeCam Monitor V2: Einzelkamera mit Bedienleiste](docs/screenshots/v2-single-camera.png)
+
+### Vierer-Raster
+
+Bis zu vier Kameras gleichzeitig im Blick. Nicht belegte Felder zeigen auf Wunsch das HomeCam-Logo.
+
+![HomeCam Monitor V2: Vierer-Raster mit drei Kameras und einem freien Feld](docs/screenshots/v2-four-camera-grid.png)
+
 ## V2.0.0 – Grundlage der finalen Anwendung
 
 Der Produktname der aktuellen Generation lautet **HomeCam Monitor V2**, einheitlich für GitHub und die geplante Microsoft-Store-Ausgabe. **2.0.0** bezeichnet die Versionsnummer des hier veröffentlichten GitHub-Releases. **HomeCam Monitor V1** bleibt als separate ältere Ausgabe erhalten.
@@ -73,7 +85,7 @@ Der V2.0.0-Installer beendet die Anwendung im gewählten Zielordner, übernimmt 
 
 ![Finaler V2.0.0-Installer](docs/screenshots/v2-2.0.0-setup.png)
 
-Die Screenshots zeigen die Anwendung mit erfundenen Kameradaten. Die Vorschau der lokalen Analyse ist synthetisch. Öffentliche V2-Installer setzen die dauerhafte Bereitstellung der geprüften Quellenpakete voraus; bestehende V1-Downloads bleiben unverändert.
+Die Einstellungs-Screenshots zeigen die Anwendung mit erfundenen Kameradaten. Die Vorschau der lokalen Analyse ist synthetisch. Die Bilder der Einzelkamera und des Vierer-Rasters wurden vom Nutzer für die Produktbeschreibung bereitgestellt. Öffentliche V2-Installer setzen die dauerhafte Bereitstellung der geprüften Quellenpakete voraus; bestehende V1-Downloads bleiben unverändert.
 
 ## V1.0.0 bleibt verfügbar
 
