@@ -12,11 +12,11 @@ HomeCam Monitor V2 ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Win
 
 **English:** Free Windows IP camera viewer and RTSP camera monitor with a four-camera view, snapshots, video recording, pre-recording and optional Home Assistant motion/person sensor integration. Home Assistant is not required to view camera streams.
 
-## Aktuell: Version 2.0.12.0
+## Aktuell: Version 2.0.16.0
 
-**HomeCam Monitor V2 – 2.0.12.0** verwendet dieselbe Versionsnummer in der App, auf GitHub und im Microsoft-Store-Paket. Das Update korrigiert die Standardpfade bei Neuinstallation, verbessert die Logo-/Iconvorschau und enthält die deutsche/englische Oberfläche sowie die bisherigen Store-Korrekturen.
+**HomeCam Monitor V2 – 2.0.16.0** enthält drei direkt aus der EXE auswählbare Windows-Symbole: Standard, Weiß transparent und Schwarz transparent. Die Logo-/Iconbedienung wurde aus den App-Einstellungen entfernt. Veraltete Store-Pfade für den Reolink-Verbindungsdienst werden auf die aktuell gestartete Installation umgestellt.
 
-[Release und Downloads 2.0.12.0](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.12.0) · [Änderungen und Upgrade](docs/release-v2.0.12.0.md) · [Microsoft Store](https://apps.microsoft.com/detail/9P6668481MGG)
+[Release und Downloads 2.0.16.0](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.16.0) · [Änderungen und Upgrade](docs/release-v2.0.16.0.md) · [Microsoft Store](https://apps.microsoft.com/detail/9P6668481MGG)
 
 Die Store-Freigabe erfolgt durch Microsoft. Beide Ausgaben werden aus derselben Versionsangabe in `Directory.Build.props` gebaut. Gespeicherte Kameraeinstellungen und selbst gewählte Speicherpfade bleiben erhalten.
 

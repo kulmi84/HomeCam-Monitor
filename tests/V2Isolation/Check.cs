@@ -22,6 +22,7 @@ internal static partial class Check
             Console.WriteLine(frameMode == "frame" ? "frame=1" : "frame=0"); return;
         }
         Application.EnableVisualStyles();
+        if (args.Contains("--helper-paths")) { TestReolinkHelperPaths(); return; }
         if (args.Contains("--logo-variants")) { TestLogoVariants(); return; }
         if (args.Length == 1 && args[0] == "--localization") { TestLocalization(); return; }
 #if RELEASE_V2
@@ -962,7 +963,12 @@ internal static partial class Check
                 try { await client.ConnectAsync(System.Net.IPAddress.Loopback, rtspPort); connected = true; break; }
                 catch (System.Net.Sockets.SocketException) { await Task.Delay(100); }
             }
-            if (!connected) throw new Exception("The real Neolink RTSP endpoint did not start.");
+            if (!connected)
+            {
+                if (!process.HasExited) process.Kill(true);
+                await process.WaitForExitAsync();
+                throw new Exception("The real Neolink RTSP endpoint did not start. Synthetic test diagnostics: " + await errors);
+            }
             Console.WriteLine("Real Neolink 0.6.2 accepts the generated config and starts RTSP with its private GStreamer runtime.");
         }
         finally

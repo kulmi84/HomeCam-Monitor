@@ -31,6 +31,11 @@ try {
     $entries = @{}
     # OPC uses escaped part names, e.g. libstdc%2B%2B-6.dll.
     foreach ($entry in $zip.Entries) { $entries[[Uri]::UnescapeDataString($entry.FullName.Replace('\', '/'))] = $entry }
+    if ([version]$PackageVersion -ge [version]'2.0.14.0') {
+        foreach ($name in @('HomeCam-Standard.ico', 'HomeCam-Weiss-transparent.ico', 'HomeCam-Schwarz-transparent.ico', 'Icons-anpassen.txt')) {
+            if (-not $entries[$name]) { throw "Windows icon file missing next to executable: $name" }
+        }
+    }
     foreach ($item in $expected) {
         $entry = $entries[$item.path]
         if (-not $entry) { throw "Missing packaged file: $($item.path)" }
@@ -60,6 +65,9 @@ try {
             }
         }
     }
+    if ([version]$PackageVersion -ge [version]'2.0.16.0') {
+        & (Join-Path $root 'tests/ExeIconResources.ps1') -Executable (Join-Path $versionCheck 'HomeCamMonitor-V2-Beta.exe')
+    }
     if ($manifest.Package.Identity.Name -ne $identity.IdentityName -or
         $manifest.Package.Identity.Publisher -ne $identity.Publisher -or
         $manifest.Package.Properties.PublisherDisplayName -ne $identity.PublisherDisplayName -or
@@ -70,7 +78,7 @@ try {
         $shortcut = @($manifest.Package.Applications.Application.Extensions.Extension | Where-Object Category -eq 'windows.shortcut')
         if ($shortcut.Count -ne 1 -or $shortcut[0].Executable -ne 'HomeCamMonitor-V2-Beta.exe' -or
             $shortcut[0].Shortcut.File -ne '$(Desktop)\HomeCam Monitor V2.lnk' -or
-            $shortcut[0].Shortcut.Icon -ne 'StoreAssets\HomeCamMonitor.ico') { throw 'Desktop shortcut declaration incorrect' }
+            $shortcut[0].Shortcut.Icon -ne $(if ([version]$PackageVersion -ge [version]'2.0.16.0') { 'HomeCamMonitor-V2-Beta.exe' } else { 'StoreAssets\HomeCamMonitor.ico' })) { throw 'Desktop shortcut declaration incorrect' }
         $iconHash = (Get-FileHash -LiteralPath (Join-Path $root 'assets/HomeCamMonitor-V2-Beta.ico')).Hash.ToLowerInvariant()
         if ($expectedHashes['StoreAssets/HomeCamMonitor.ico'] -ne $iconHash) { throw 'Desktop shortcut icon differs from approved artwork' }
         if (-not $entries.ContainsKey('resources.pri')) { throw 'Windows icon resource index missing' }

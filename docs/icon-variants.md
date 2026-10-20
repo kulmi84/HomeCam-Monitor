@@ -1,3 +1,17 @@
+# EXE-Symbole ab 2.0.16.0
+
+Die EXE enthält drei Windows-Symbolgruppen in der Reihenfolge Standard, Weiß transparent, Schwarz transparent. Im Dialog „Anderes Symbol …“ lassen sie sich direkt aus `HomeCamMonitor-V2-Beta.exe` auswählen. Auch die deklarierte Store-Desktopverknüpfung verweist dafür auf die EXE. Separate ICO-Dateien bleiben zusätzlich vorhanden; die App-Einstellungen enthalten keine Logo-/Iconbedienung.
+
+Der Build ergänzt die zwei transparenten Gruppen über eine MSBuild-Aufgabe am erzeugten Windows-Apphost vor Kopieren, Paketierung und Signierung. Die ursprüngliche Standardgruppe sowie Versionsressourcen und Manifest bleiben erhalten. Wiederholte Builds überschreiben dieselben Ressourcen-IDs. `tests/ExeIconResources.ps1` prüft Windows-Aufzählung und -Extraktion aller drei Gruppen sowie die exakten Bilddaten aller 21 Größenbilder.
+
+# Windows-Icons ab 2.0.14.0
+
+Die App enthält keine Logo-/Iconanpassung mehr. Die drei vollständigen ICO-Dateien werden direkt ins Programmverzeichnis kopiert: `HomeCam-Standard.ico`, `HomeCam-Weiss-transparent.ico` und `HomeCam-Schwarz-transparent.ico`. Windows-Verknüpfungen können sie über **Eigenschaften → Verknüpfung → Anderes Symbol … → Durchsuchen …** verwenden. Die Datei `Icons-anpassen.txt` neben der EXE erklärt die Schritte.
+
+Das Fenster- und EXE-Symbol ist fest auf Standard gesetzt. Alte `LogoVariant`-/`IconVariant`-Konfigurationsfelder werden ignoriert. Es gibt keine eigene Taskleisten-ID, keinen automatischen Iconexport und keine Verknüpfungserzeugung aus der App. Der lokale Kandidat 2.0.13.0 wurde verworfen.
+
+Die folgenden Abschnitte dokumentieren frühere Versionen.
+
 # Icon-Auswahl ab Paket 2.0.6.0
 
 ## Weißer Vorschau-Rahmen 2.0.10.0

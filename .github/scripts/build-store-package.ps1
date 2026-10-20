@@ -14,6 +14,7 @@ if ($PackageVersion -notmatch '^\d+\.\d+\.\d+\.\d+$') { throw 'PackageVersion mu
 $source = (Resolve-Path -LiteralPath $PublishDirectory).Path
 if ($Publisher -notmatch '^CN=') { throw 'Use the exact Package/Identity/Publisher value from Partner Center (CN=...).' }
 $required = @('HomeCamMonitor-V2-Beta.exe', 'HomeCamMonitor-V2-Beta.runtimeconfig.json',
+    'HomeCam-Standard.ico', 'HomeCam-Weiss-transparent.ico', 'HomeCam-Schwarz-transparent.ico', 'Icons-anpassen.txt',
     'coreclr.dll', 'hostfxr.dll', 'mpv.exe', 'ffmpeg.exe', 'OpenCvSharpExtern.dll',
     'tools/neolink/neolink.exe', 'tools/gstreamer/bin/gstreamer-1.0-0.dll', 'tools/gstreamer/bin/glib-2.0-0.dll',
     'THIRD-PARTY-NOTICES.md', 'licenses')
@@ -25,6 +26,9 @@ if ($info.ProductVersion -ne $PackageVersion -or $info.FileVersion -ne $PackageV
     throw 'Final application product/file versions must match PackageVersion; do not mix V1, Beta or stale application binaries.'
 }
 if (-not $StageOnly) {
+    if ([version]$PackageVersion -ge [version]'2.0.16.0') {
+        & (Join-Path $root 'tests/ExeIconResources.ps1') -Executable (Join-Path $source 'HomeCamMonitor-V2-Beta.exe')
+    }
     $markerPath = Join-Path $source 'HomeCamMonitor.StoreBuild.json'
     if (-not (Test-Path -LiteralPath $markerPath) -or
         (Get-Content -LiteralPath $markerPath -Raw | ConvertFrom-Json).startupTaskId -ne 'HomeCamMonitorStartup') {

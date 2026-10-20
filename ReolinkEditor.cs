@@ -17,7 +17,7 @@ internal sealed class ReolinkEditor : GroupBox
     private bool loading;
     private ReolinkBridge? testBridge;
     private readonly CancellationTokenSource closed = new();
-    internal string HelperPath => helper.Text.Trim();
+    internal string HelperPath => ReolinkHelper.Resolve(helper.Text);
     internal event Action? Activated;
     internal event Action? ConnectionChanged;
     internal void UseHomeAssistant() { Store(); enabled.Checked = false; Store(); ConnectionChanged?.Invoke(); }
@@ -65,7 +65,7 @@ internal sealed class ReolinkEditor : GroupBox
         Dock = DockStyle.Top; AutoSize = true; AutoSizeMode = AutoSizeMode.GrowAndShrink; Padding = new Padding(10, 18, 10, 10);
         for (var i = 0; i < settings.Cameras.Count; i++)
             cameras.Rows[i].Tag = settings.Cameras[i].Reolink.Clone();
-        helper.Text = settings.ReolinkHelperPath;
+        helper.Text = ReolinkHelper.Resolve(settings.ReolinkHelperPath);
         stream.Items.AddRange([UiText.T("Flüssig (Substream)"), UiText.T("Hohe Auflösung (Hauptstream)")]);
         var fields = new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
         fields.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -93,6 +93,7 @@ internal sealed class ReolinkEditor : GroupBox
         fields.Controls.Add(statusRow, 1, 5);
         test.Click += async (_, _) =>
         {
+            helper.Text = HelperPath;
             Store();
             if (selected?.Tag is not ReolinkCamera config || !config.Enabled) return;
             try { config.Validate(); }
@@ -268,8 +269,7 @@ internal sealed partial class MonitorForm
     private string? reolinkConfiguration;
     private bool ConfigureReolink()
     {
-        var bundled = Path.Combine(AppContext.BaseDirectory, "tools", "neolink", "neolink.exe");
-        if (!File.Exists(settings.ReolinkHelperPath) && File.Exists(bundled)) settings.ReolinkHelperPath = bundled;
+        settings.ReolinkHelperPath = ReolinkHelper.Resolve(settings.ReolinkHelperPath);
         var signature = System.Text.Json.JsonSerializer.Serialize(new
         {
             settings.ReolinkHelperPath,

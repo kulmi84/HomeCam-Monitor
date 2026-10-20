@@ -161,6 +161,14 @@ jobs:
           path: v2-beta-downloads/
       - name: Finale V2 mit gleicher Funktionsprüfung testen
         run: dotnet run --project tests/V2Isolation/V2Isolation.csproj -c Release -p:FinalRelease=true
+      - name: Finale V2 Iconauswahl und Reolink-Pfadmigration prüfen
+        run: |
+          dotnet run --no-build --project tests/V2Isolation/V2Isolation.csproj -c Release -p:FinalRelease=true -- --logo-variants
+          if ($LASTEXITCODE -ne 0) { throw 'Removed icon settings/resource checks failed.' }
+          dotnet run --no-build --project tests/V2Isolation/V2Isolation.csproj -c Release -p:FinalRelease=true -- --helper-paths
+          if ($LASTEXITCODE -ne 0) { throw 'Reolink helper path checks failed.' }
+          dotnet run --no-build --project tests/V2Isolation/V2Isolation.csproj -c Release -p:FinalRelease=true -- --localization
+          if ($LASTEXITCODE -ne 0) { throw 'Localization checks failed.' }
       - name: Finales V2-Paket erstellen
         run: .github/scripts/build-v2-release.ps1
       - name: Finales V2-Setup und Upgrade prüfen

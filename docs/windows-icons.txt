@@ -1,0 +1,22 @@
+HomeCam Monitor V2 – Windows-Verknüpfungssymbol ändern
+
+Die Programm-EXE enthält drei auswählbare Symbole:
+  1. Weiß auf schwarzem Hintergrund (Standard)
+  2. Weiß auf transparentem Hintergrund
+  3. Schwarz auf transparentem Hintergrund
+
+Rechtsklick auf die Desktopverknüpfung → Eigenschaften → Verknüpfung
+→ Anderes Symbol … → HomeCamMonitor-V2-Beta.exe als Datei auswählen.
+Die drei Varianten erscheinen direkt in der Liste. Gewünschtes Symbol anklicken,
+mit OK bestätigen und Übernehmen wählen.
+
+Falls dort noch eine ICO-Datei eingetragen ist: Über Durchsuchen … die EXE
+im Programmverzeichnis auswählen. Die drei ICO-Dateien liegen zusätzlich daneben.
+
+Bei angehefteten Verknüpfungen: Rechtsklick auf das Taskleistensymbol,
+dann Rechtsklick auf den Programmnamen → Eigenschaften → Anderes Symbol …
+Windows kann alte Symbole zwischenspeichern; gegebenenfalls lösen und neu anheften.
+
+Die Auswahl ändert die jeweilige Windows-Verknüpfung. Die Anwendung selbst
+und das registrierte Startmenü-/Store-Paketlogo verwenden das Standardsymbol.
+In den App-Einstellungen gibt es keine Logo-/Iconanpassung.

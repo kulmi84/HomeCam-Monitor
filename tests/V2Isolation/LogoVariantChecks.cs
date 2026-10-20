@@ -1,48 +1,62 @@
 using HomeCamMonitor;
+using System.Globalization;
 using System.Text.Json;
+
 namespace V2Isolation;
 internal static partial class Check
 {
+    private static void TestReolinkHelperPaths()
+    {
+        var current = @"C:\Apps\HomeCam\tools\neolink\neolink.exe";
+        var oldStore = @"C:\Program Files\WindowsApps\MarcinKulmaczewski.HomeCamMonitor_2.0.12.0_x64__ecn324sqw90jr\tools\neolink\neolink.exe";
+        var newStore = oldStore.Replace("2.0.12.0", "2.0.15.0");
+        var custom = @"D:\CameraTools\neolink.exe";
+        foreach (var configured in new[] { "", oldStore, oldStore.ToUpperInvariant(), oldStore.Replace('\\', '/'), @"C:\Missing\neolink.exe" })
+            if (ReolinkHelper.Resolve(configured, current, path => path != @"C:\Missing\neolink.exe") != current)
+                throw new Exception("Old/missing packaged helper was retained.");
+        if (ReolinkHelper.Resolve(oldStore, newStore, _ => true) != newStore)
+            throw new Exception("Store update kept a prior package executable.");
+        if (ReolinkHelper.Resolve(custom, current, _ => true) != custom)
+            throw new Exception("An explicit external helper was discarded.");
+        foreach (var code in new[] { 0xC0000022u, 0xC0000135u })
+            if (ReolinkDiagnostics.HelperFailure(unchecked((int)code)) is not { } failure || !ReolinkDiagnostics.IsFailure(failure))
+                throw new Exception("Terminal loader failure is retried or not reported.");
+        if (ReolinkDiagnostics.HelperFailure(0) is not null) throw new Exception("Successful helper classified as failure.");
+        Console.WriteLine("PASS: existing stale WindowsApps paths migrate for Store updates and local installs; explicit helpers retained; terminal loader failures classified.");
+    }
+
     private static void TestLogoVariants()
     {
-        if (new Settings().LogoVariant != 0) throw new Exception("Default logo changed.");
+        // Old configuration fields must not restore removed appearance controls.
+        var settings = JsonSerializer.Deserialize<Settings>("{\"LogoVariant\":2,\"IconVariant\":1}")!;
+        if (JsonSerializer.Serialize(settings).Contains("Variant")) throw new Exception("Obsolete icon setting is still persisted.");
+        var originalCulture = CultureInfo.CurrentUICulture;
+        try
+        {
+            foreach (var language in new[] { "de-DE", "en-US" })
+            {
+                CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(language);
+                using var form = new SettingsForm(settings, SettingsLocation.DefaultFolder);
+                static IEnumerable<Control> All(Control c) => c.Controls.Cast<Control>().SelectMany(x => new[] { x }.Concat(All(x)));
+                if (All(form).Any(c => c.Name is "LogoVariant" or "ProgramIconVariant" or "LogoVariantPreview" or "ProgramIconOptions" or "SaveProgramIcon" or "CreateIconShortcut"))
+                    throw new Exception("Removed logo/icon controls are still present.");
+                if (All(form).Any(c => c.Text == UiText.T("Logo in leeren Kamerafeldern anzeigen")))
+                    throw new Exception("Logo option is still displayed.");
+            }
+        }
+        finally { CultureInfo.CurrentUICulture = originalCulture; }
         for (var variant = 0; variant < 3; variant++)
         {
-            var settings = JsonSerializer.Deserialize<Settings>(JsonSerializer.Serialize(new Settings { LogoVariant = variant }))!;
-            if (settings.LogoVariant != variant) throw new Exception("Logo variant did not round-trip.");
-            if (SettingsReset.Apply(settings, SettingsResetScope.Display).LogoVariant != 0) throw new Exception("Display reset did not restore default logo.");
-            using var bitmap = LogoVariants.LoadImage(variant);
+            var suffix = variant switch { 1 => "White", 2 => "Black", _ => "Default" };
+            using var resource = typeof(LogoVariants).Assembly.GetManifestResourceStream("HomeCamMonitor.Icon." + suffix)!;
+            using var bytes = new MemoryStream(); resource.CopyTo(bytes);
+            var ico = bytes.ToArray();
+            if (BitConverter.ToUInt16(ico, 2) != 1 || BitConverter.ToUInt16(ico, 4) != 7 || ico[6 + 6 * 16] != 0)
+                throw new Exception("Separate ICO resource is missing its seven sizes, including 256 pixels.");
             using var icon = LogoVariants.LoadIcon(variant);
-            var visible = 0;
-            for (var y = 0; y < bitmap.Height; y++) for (var x = 0; x < bitmap.Width; x++)
-            {
-                var pixel = bitmap.GetPixel(x, y);
-                if (pixel.A == 0) continue;
-                visible++;
-                if (variant == 1 && (pixel.R != 255 || pixel.G != 255 || pixel.B != 255)) throw new Exception("White transparent logo contains other colors.");
-                if (variant == 2 && (pixel.R != 0 || pixel.G != 0 || pixel.B != 0)) throw new Exception("Black transparent logo contains other colors.");
-            }
-            if (visible < 1000 || icon.Width != 32) throw new Exception("Logo/icon is incomplete.");
-            if (variant > 0 && bitmap.GetPixel(0,0).A != 0) throw new Exception("Transparent logo background is opaque.");
-            using var form = new SettingsForm(settings, SettingsLocation.DefaultFolder);
-            static IEnumerable<Control> All(Control c) => c.Controls.Cast<Control>().SelectMany(x => new[]{x}.Concat(All(x)));
-            var picker = All(form).OfType<ComboBox>().Single(c => c.Name == "LogoVariant");
-            if (picker.Items.Count != 3 || picker.SelectedIndex != variant) throw new Exception("Settings picker does not restore three variants.");
-            form.ShowInTaskbar = false; form.Opacity = 0; form.StartPosition = FormStartPosition.Manual; form.Location = new Point(-30000, -30000);
-            form.Show(); Application.DoEvents();
-            var appearance = All(form).Single(c => c.Name == "CameraAppearance");
-            appearance.Dock = DockStyle.None; appearance.AutoSize = false; appearance.Size = new Size(1050, 110);
-            appearance.PerformLayout();
-            using (var preview = new Bitmap(appearance.Width, appearance.Height))
-            {
-                appearance.DrawToBitmap(preview, new Rectangle(Point.Empty, preview.Size));
-                var output = Path.Combine(Environment.CurrentDirectory, "store-artifacts");
-                Directory.CreateDirectory(output);
-                preview.Save(Path.Combine(output, $"logo-settings-{variant}.png"));
-            }
-            picker.SelectedIndex = (variant + 1) % 3;
-            if (All(form).OfType<PictureBox>().Single(c => c.Name == "LogoVariantPreview").Image is null) throw new Exception("Preview is missing.");
+            if (icon.Width != 32) throw new Exception("Windows cannot load the icon resource.");
         }
-        Console.WriteLine("PASS: three embedded logo/icon variants, alpha/color checks, settings round-trip, reset and settings selection/preview.");
+        if (ApplicationBranding.WindowIcon.Width != 32) throw new Exception("Standard application icon is missing.");
+        Console.WriteLine("PASS: legacy icon fields ignored, no logo/icon customization in German/English settings, three complete Windows ICO resources.");
     }
 }
