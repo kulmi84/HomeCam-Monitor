@@ -9,9 +9,9 @@ Dieses Update vereinheitlicht die Versionsnummer in der App, dem Microsoft-Store
 
 ## Einzelkamera und Vierer-Raster
 
-![HomeCam Monitor V2: Einzelkamera mit Bedienleiste](screenshots/v2-single-camera.png)
+<img src="screenshots/v2-single-camera.png" alt="HomeCam Monitor V2: Einzelkamera mit Bedienleiste" width="50%">
 
-![HomeCam Monitor V2: Vierer-Raster mit drei Kameras und einem freien Feld](screenshots/v2-four-camera-grid.png)
+<img src="screenshots/v2-four-camera-grid.png" alt="HomeCam Monitor V2: Vierer-Raster mit drei Kameras und einem freien Feld" width="50%">
 
 ## Installation und Upgrade
 

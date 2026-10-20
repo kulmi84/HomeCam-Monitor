@@ -24,13 +24,13 @@ Die Store-Freigabe erfolgt durch Microsoft. Beide Ausgaben werden aus derselben 
 
 Ein Kamerabild im rahmenlosen Fenster mit direkt erreichbarer Bedienleiste für Kamerawechsel, Rasteransicht, Snapshots, Aufnahmen und Einstellungen.
 
-![HomeCam Monitor V2: Einzelkamera mit Bedienleiste](docs/screenshots/v2-single-camera.png)
+<img src="docs/screenshots/v2-single-camera.png" alt="HomeCam Monitor V2: Einzelkamera mit Bedienleiste" width="50%">
 
 ### Vierer-Raster
 
 Bis zu vier Kameras gleichzeitig im Blick. Nicht belegte Felder zeigen auf Wunsch das HomeCam-Logo.
 
-![HomeCam Monitor V2: Vierer-Raster mit drei Kameras und einem freien Feld](docs/screenshots/v2-four-camera-grid.png)
+<img src="docs/screenshots/v2-four-camera-grid.png" alt="HomeCam Monitor V2: Vierer-Raster mit drei Kameras und einem freien Feld" width="50%">
 
 ## V2.0.0 – Grundlage der finalen Anwendung
 
