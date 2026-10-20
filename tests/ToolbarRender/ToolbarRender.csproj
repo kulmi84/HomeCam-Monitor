@@ -15,7 +15,6 @@
     <Compile Include="../../Program.cs" />
     <Compile Include="../../UiText.cs" />
     <Compile Include="../../LogoVariants.cs" />
-    <Compile Include="../../LogoPreview.cs" />
     <Compile Include="../../ApplicationChannel.cs" />
     <Compile Include="../../SettingsScrollPanel.cs" />
     <Compile Include="../../DarkComboBox.cs" />
