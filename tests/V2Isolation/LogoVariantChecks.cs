@@ -28,8 +28,9 @@ internal static partial class Check
     private static void TestLogoVariants()
     {
         // Old configuration fields must not restore removed appearance controls.
-        var settings = JsonSerializer.Deserialize<Settings>("{\"LogoVariant\":2,\"IconVariant\":1}")!;
-        if (JsonSerializer.Serialize(settings).Contains("Variant")) throw new Exception("Obsolete icon setting is still persisted.");
+        var settings = JsonSerializer.Deserialize<Settings>("{\"LogoVariant\":2,\"IconVariant\":1,\"TaskbarIconTheme\":2}")!;
+        var saved = JsonSerializer.Serialize(settings);
+        if (saved.Contains("Variant") || saved.Contains("TaskbarIconTheme")) throw new Exception("Obsolete icon setting is still persisted.");
         var originalCulture = CultureInfo.CurrentUICulture;
         try
         {
@@ -38,7 +39,7 @@ internal static partial class Check
                 CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(language);
                 using var form = new SettingsForm(settings, SettingsLocation.DefaultFolder);
                 static IEnumerable<Control> All(Control c) => c.Controls.Cast<Control>().SelectMany(x => new[] { x }.Concat(All(x)));
-                if (All(form).Any(c => c.Name is "LogoVariant" or "ProgramIconVariant" or "LogoVariantPreview" or "ProgramIconOptions" or "SaveProgramIcon" or "CreateIconShortcut"))
+                if (All(form).Any(c => c.Name is "LogoVariant" or "ProgramIconVariant" or "LogoVariantPreview" or "ProgramIconOptions" or "SaveProgramIcon" or "CreateIconShortcut" or "TaskbarIconTheme"))
                     throw new Exception("Removed logo/icon controls are still present.");
                 if (All(form).Any(c => c.Text == UiText.T("Logo in leeren Kamerafeldern anzeigen")))
                     throw new Exception("Logo option is still displayed.");
