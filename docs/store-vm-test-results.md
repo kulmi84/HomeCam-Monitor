@@ -1,5 +1,21 @@
 # Store-Kandidat – Windows-11-VM-Tests
 
+## Automatische Taskleistensymbole 2.0.19.0 (21.10.2026)
+
+Der Nutzer bestätigt den automatischen Icon-Wechsel in der VM sowie den
+funktionierenden Start einschließlich Reolink über das Startmenü und eine daraus
+neu angeheftete Taskleistenverknüpfung. Eine vorherige Verknüpfung verursachte
+Neolink-Startfehler 0xc0000022; deren internes Ziel wurde nicht untersucht.
+Die Release-Hinweise beschreiben das Neuerstellen betroffener Verknüpfungen.
+Neolink-Binary und Paketmanifest sind gegenüber 2.0.16.0 bis auf die
+Paketversionsnummer unverändert. Der bestätigte Test gilt für das signierte
+MSIX mit SHA-256 `0cd6c726cd3fcf5b4f3ae46d3d28ba50c08a525c1783c05ee4c1c096d7da2d7f`.
+Die zugehörige unsignierte Store-Datei hat SHA-256
+`a91b116faa1fc4d313aaeb4f96d95168a27c9debb57acca3e1dcb0970a99f975`.
+Alle 5.085 Payload-Dateien sowie 30 transparente weiß/schwarze Taskleistenbilder
+und deren Registrierung in `resources.pri` wurden geprüft. Keine Wiederholung
+sämtlicher früherer Aufnahme-, Kamera- und Deinstallationstests behauptet.
+
 ## Standardpfade bei Neuinstallation 2.0.11.0 (19.10.2026)
 
 Korrigiert die Beta-Bezeichnungen der frischen finalen Installation: Bilder/Videos unter `HomeCam Monitor V2`, Einstellungen unter `%LOCALAPPDATA%\HomeCamMonitor-V2`. Vorhandene explizite Einstellungsordner, alte V2-Beta-Konfigurationen und gespeicherte Aufnahmepfade werden weiterverwendet. Kein automatisches Verschieben vorhandener Dateien. Details und Testergebnisse in `storage-defaults-v2.md`. Gezielte Prüfungen Deutsch/Englisch, unveränderte Beta-Vorgaben und Lokalisierung bestanden. Zusätzlicher Gesamtlauf durch vorhandenen Dropdown-Styling-Testfehler abgebrochen; nicht als bestanden geführt. Tatsächlicher VM-Neuinstallationstest dieses Pakets steht aus. Lokale Ablage unter `../Releases/2.0.11.0`; noch keine Store-Übermittlung von 2.0.11.0. Die zuvor eingereichte Version bleibt 2.0.10.0.

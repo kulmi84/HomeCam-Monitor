@@ -12,11 +12,11 @@ HomeCam Monitor V2 ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Win
 
 **English:** Free Windows IP camera viewer and RTSP camera monitor with a four-camera view, snapshots, video recording, pre-recording and optional Home Assistant motion/person sensor integration. Home Assistant is not required to view camera streams.
 
-## Aktuell: Version 2.0.16.0
+## Aktuell: Version 2.0.19.0
 
-**HomeCam Monitor V2 – 2.0.16.0** enthält drei direkt aus der EXE auswählbare Windows-Symbole: Standard, Weiß transparent und Schwarz transparent. Die Logo-/Iconbedienung wurde aus den App-Einstellungen entfernt. Veraltete Store-Pfade für den Reolink-Verbindungsdienst werden auf die aktuell gestartete Installation umgestellt.
+**HomeCam Monitor V2 – 2.0.19.0** verwendet in der Microsoft-Store-Ausgabe automatisch ein transparentes weißes Taskleistensymbol im dunklen und ein schwarzes im hellen Windows-Modus. Eine manuelle Symbolauswahl in den App-Einstellungen entfällt. Die lokale Ausgabe enthält weiterhin drei direkt aus der EXE auswählbare Verknüpfungssymbole. Bei Problemen mit alten Store-Verknüpfungen HomeCam über das Startmenü starten und von dort neu an die Taskleiste anheften.
 
-[Release und Downloads 2.0.16.0](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.16.0) · [Änderungen und Upgrade](docs/release-v2.0.16.0.md) · [Microsoft Store](https://apps.microsoft.com/detail/9P6668481MGG)
+[Release und Downloads 2.0.19.0](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.19.0) · [Änderungen und Upgrade](docs/release-v2.0.19.0.md) · [Microsoft Store](https://apps.microsoft.com/detail/9P6668481MGG)
 
 Die Store-Freigabe erfolgt durch Microsoft. Beide Ausgaben werden aus derselben Versionsangabe in `Directory.Build.props` gebaut. Gespeicherte Kameraeinstellungen und selbst gewählte Speicherpfade bleiben erhalten.
 

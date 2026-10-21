@@ -31,6 +31,35 @@ try {
     $entries = @{}
     # OPC uses escaped part names, e.g. libstdc%2B%2B-6.dll.
     foreach ($entry in $zip.Entries) { $entries[[Uri]::UnescapeDataString($entry.FullName.Replace('\', '/'))] = $entry }
+    if ([version]$PackageVersion -ge [version]'2.0.19.0') {
+        Add-Type -AssemblyName System.Drawing
+        foreach ($size in @(16,20,24,30,32,36,40,44,48,60,64,72,80,96,256)) {
+            foreach ($form in @('unplated','lightunplated')) {
+                $name = "StoreAssets/Square44x44Logo.targetsize-$size`_altform-$form.png"
+                if (-not $entries[$name]) { throw "Theme-aware taskbar asset missing: $name" }
+                $stream = $entries[$name].Open()
+                $image = [Drawing.Bitmap]::new($stream)
+                try {
+                    if ($image.Width -ne $size -or $image.Height -ne $size) { throw "Wrong taskbar asset size: $name" }
+                    foreach ($point in @(@(0,0),@(0,($size-1)),@(($size-1),0),@(($size-1),($size-1)))) {
+                        if ($image.GetPixel($point[0],$point[1]).A -ne 0) { throw "Taskbar icon has an opaque background: $name" }
+                    }
+                    $opaque = 0
+                    for ($y=0; $y -lt $size; $y++) {
+                        for ($x=0; $x -lt $size; $x++) {
+                            $pixel=$image.GetPixel($x,$y)
+                            if ($pixel.A -lt 200) { continue }
+                            $opaque++
+                            if ($form -eq 'unplated' -and [Math]::Min($pixel.R,[Math]::Min($pixel.G,$pixel.B)) -lt 220) { throw "Dark taskbar icon is not white: $name" }
+                            if ($form -eq 'lightunplated' -and [Math]::Max($pixel.R,[Math]::Max($pixel.G,$pixel.B)) -gt 35) { throw "Light taskbar icon is not black: $name" }
+                        }
+                    }
+                    if ($opaque -eq 0) { throw "Taskbar icon is empty: $name" }
+                } finally { $image.Dispose(); $stream.Dispose() }
+            }
+        }
+        Write-Output 'PASS: 30 transparent taskbar assets, correct sizes and white/black artwork for dark/light Windows themes.'
+    }
     if ([version]$PackageVersion -ge [version]'2.0.14.0') {
         foreach ($name in @('HomeCam-Standard.ico', 'HomeCam-Weiss-transparent.ico', 'HomeCam-Schwarz-transparent.ico', 'Icons-anpassen.txt')) {
             if (-not $entries[$name]) { throw "Windows icon file missing next to executable: $name" }

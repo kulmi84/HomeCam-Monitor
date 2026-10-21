@@ -72,11 +72,17 @@ New-Item -ItemType Directory -Path $assets | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'assets/HomeCamMonitor-V2-Beta.ico') -Destination (Join-Path $assets 'HomeCamMonitor.ico')
 $icon = [Drawing.Icon]::new((Join-Path $root 'assets/HomeCamMonitor-V2-Beta.ico'), 256, 256)
 $bitmap = $icon.ToBitmap()
+$whiteIcon = [Drawing.Icon]::new((Join-Path $root 'assets/homecam-icon-White.ico'), 256, 256)
+$blackIcon = [Drawing.Icon]::new((Join-Path $root 'assets/homecam-icon-Black.ico'), 256, 256)
+$whiteBitmap = $whiteIcon.ToBitmap()
+$blackBitmap = $blackIcon.ToBitmap()
 try {
     $storeImages = @{'StoreLogo.png' = 50; 'Square44x44Logo.png' = 44; 'Square150x150Logo.png' = 150}
-    # Unplated assets preserve our black artwork background without an extra Windows plate.
-    foreach ($size in @(16,20,24,32,40,44,48,64,96,256)) {
+    # Explorer selects these package resources for grouped/pinned Store apps.
+    # Use a transparent white mark on dark taskbars and black on light taskbars.
+    foreach ($size in @(16,20,24,30,32,36,40,44,48,60,64,72,80,96,256)) {
         $storeImages["Square44x44Logo.targetsize-$size`_altform-unplated.png"] = $size
+        $storeImages["Square44x44Logo.targetsize-$size`_altform-lightunplated.png"] = $size
         $storeImages["Square44x44Logo.targetsize-$size.png"] = $size
     }
     foreach ($asset in $storeImages.GetEnumerator()) {
@@ -85,11 +91,18 @@ try {
         try {
             $graphics.Clear([Drawing.Color]::Transparent)
             $graphics.InterpolationMode = [Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
-            $graphics.DrawImage($bitmap, 0, 0, $asset.Value, $asset.Value)
+            $artwork = if ($asset.Key -like '*_altform-lightunplated.png') { $blackBitmap }
+                elseif ($asset.Key.StartsWith('Square44x44Logo')) { $whiteBitmap }
+                else { $bitmap }
+            $graphics.DrawImage($artwork, 0, 0, $asset.Value, $asset.Value)
             $image.Save((Join-Path $assets $asset.Key), [Drawing.Imaging.ImageFormat]::Png)
         } finally { $graphics.Dispose(); $image.Dispose() }
     }
-} finally { $bitmap.Dispose(); $icon.Dispose() }
+} finally {
+    $bitmap.Dispose(); $icon.Dispose()
+    $whiteBitmap.Dispose(); $whiteIcon.Dispose()
+    $blackBitmap.Dispose(); $blackIcon.Dispose()
+}
 if (-not $StageOnly) {
     $makePri = Join-Path ([IO.Path]::GetDirectoryName((Resolve-Path $MakeAppx).Path)) 'makepri.exe'
     if (-not (Test-Path -LiteralPath $makePri)) { throw 'MakePRI is required to index qualified taskbar assets.' }

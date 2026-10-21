@@ -13,10 +13,10 @@ mit OK bestätigen und Übernehmen wählen.
 Falls dort noch eine ICO-Datei eingetragen ist: Über Durchsuchen … die EXE
 im Programmverzeichnis auswählen. Die drei ICO-Dateien liegen zusätzlich daneben.
 
-Bei angehefteten Verknüpfungen: Rechtsklick auf das Taskleistensymbol,
-dann Rechtsklick auf den Programmnamen → Eigenschaften → Anderes Symbol …
-Windows kann alte Symbole zwischenspeichern; gegebenenfalls lösen und neu anheften.
+Bei der Microsoft-Store-Ausgabe wählt Windows das Taskleistensymbol passend
+zum Windows-Modus: Weiß auf dunklem, Schwarz auf hellem Hintergrund.
+Beide Paketgrafiken sind transparent. Dafür ist keine Auswahl in der App nötig.
 
-Die Auswahl ändert die jeweilige Windows-Verknüpfung. Die Anwendung selbst
-und das registrierte Startmenü-/Store-Paketlogo verwenden das Standardsymbol.
+Die oben beschriebene manuelle Auswahl betrifft Windows-Verknüpfungen.
+Das gruppierte Taskleistensymbol der Store-Ausgabe wird vom Paket bestimmt.
 In den App-Einstellungen gibt es keine Logo-/Iconanpassung.
