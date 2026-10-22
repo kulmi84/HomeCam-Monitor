@@ -42,6 +42,15 @@ internal static class ApplicationBranding
     private static readonly Icon icon = LogoVariants.LoadIcon(0);
     internal static Icon WindowIcon => icon;
 
+    internal static void ApplyWindowIcon(Form form)
+    {
+#if STORE_PACKAGE && V2_BETA
+        _ = WindowIconTheme.Bind(form);
+#else
+        form.Icon = WindowIcon;
+#endif
+    }
+
 }
 #endif
 
@@ -446,7 +455,7 @@ internal sealed partial class MonitorForm : Form
         settings = SettingsStore.Load();
 #endif
 #if BETA
-        Icon = ApplicationBranding.WindowIcon;
+        ApplicationBranding.ApplyWindowIcon(this);
         offlinePlaceholder.SetLogoVariant(0);
         CleanupMotionStorage();
         // Windows uses the title for taskbar previews and Alt+Tab. CreateParams
@@ -1396,7 +1405,7 @@ internal sealed partial class MonitorForm : Form
             changedSettings.MotionActionsPausedUntilUtc = null;
 #endif
         var previousSettings = settings;
-        Icon = ApplicationBranding.WindowIcon;
+        ApplicationBranding.ApplyWindowIcon(this);
         offlinePlaceholder.SetLogoVariant(0);
         foreach (var slot in gridSlots) slot.Placeholder.SetLogoVariant(0);
         settings = changedSettings; settings.SelectedCamera = Math.Clamp(settings.SelectedCamera, 0, Math.Max(0, settings.Cameras.Count - 1));
@@ -4201,7 +4210,12 @@ internal sealed class SettingsForm : Form
             return control;
         }
 #if BETA
-        Icon = ApplicationBranding.WindowIcon;
+        ApplicationBranding.ApplyWindowIcon(this);
+#endif
+#if STORE_PACKAGE && V2_BETA
+        // The owned dialog uses the monitor's taskbar button. It must not keep
+        // a second member alive while that group is refreshed for a theme change.
+        ShowInTaskbar = false;
 #endif
         Result = current; Text = UiText.T("HomeCam Monitor – Einstellungen"); StartPosition = FormStartPosition.CenterParent; MinimizeBox = false;
 #if BETA

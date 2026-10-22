@@ -95,7 +95,7 @@ try {
         }
     }
     if ([version]$PackageVersion -ge [version]'2.0.16.0') {
-        & (Join-Path $root 'tests/ExeIconResources.ps1') -Executable (Join-Path $versionCheck 'HomeCamMonitor-V2-Beta.exe')
+        & (Join-Path $root 'tests/ExeIconResources.ps1') -Executable (Join-Path $versionCheck 'HomeCamMonitor-V2-Beta.exe') -StoreRelease:([version]$PackageVersion -ge [version]'2.0.20.0')
     }
     if ($manifest.Package.Identity.Name -ne $identity.IdentityName -or
         $manifest.Package.Identity.Publisher -ne $identity.Publisher -or

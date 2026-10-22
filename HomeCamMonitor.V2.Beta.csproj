@@ -11,6 +11,7 @@
     <RootNamespace>HomeCamMonitor</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>assets\HomeCamMonitor-V2-Beta.ico</ApplicationIcon>
+    <ApplicationIcon Condition="'$(StoreRelease)' == 'true'">assets\homecam-icon-White.ico</ApplicationIcon>
     <Version>2.0.0-beta.37</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>

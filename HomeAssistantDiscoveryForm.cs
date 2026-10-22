@@ -24,7 +24,7 @@ internal sealed class HomeAssistantDiscoveryForm : Form
     internal HomeAssistantDiscoveryForm(string address, string token, bool ignoreCertificate, string existingStream, bool canUpdate, bool autoSearch = true)
     {
         this.address = address; this.token = token; this.ignoreCertificate = ignoreCertificate; this.existingStream = existingStream; this.canUpdate = canUpdate;
-        Name = "HomeAssistantDiscovery"; Text = UiText.T("Home Assistant – Kameras und Sensoren"); Icon = ApplicationBranding.WindowIcon;
+        Name = "HomeAssistantDiscovery"; Text = UiText.T("Home Assistant – Kameras und Sensoren"); ApplicationBranding.ApplyWindowIcon(this);
         Size = new Size(920, 530); MinimumSize = new Size(800, 500); StartPosition = FormStartPosition.CenterParent; ShowInTaskbar = false;
         HandleCreated += (_, _) => { var dark = 1; NativeMethods.DwmSetWindowAttribute(Handle, NativeMethods.DwmWindowAttribute.UseImmersiveDarkMode, ref dark, sizeof(int)); };
         var layout = new SettingsLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(12), ColumnCount = 2 };

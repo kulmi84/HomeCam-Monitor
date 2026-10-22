@@ -27,7 +27,7 @@ if ($info.ProductVersion -ne $PackageVersion -or $info.FileVersion -ne $PackageV
 }
 if (-not $StageOnly) {
     if ([version]$PackageVersion -ge [version]'2.0.16.0') {
-        & (Join-Path $root 'tests/ExeIconResources.ps1') -Executable (Join-Path $source 'HomeCamMonitor-V2-Beta.exe')
+        & (Join-Path $root 'tests/ExeIconResources.ps1') -Executable (Join-Path $source 'HomeCamMonitor-V2-Beta.exe') -StoreRelease:([version]$PackageVersion -ge [version]'2.0.20.0')
     }
     $markerPath = Join-Path $source 'HomeCamMonitor.StoreBuild.json'
     if (-not (Test-Path -LiteralPath $markerPath) -or

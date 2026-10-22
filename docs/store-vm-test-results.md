@@ -1,5 +1,20 @@
 # Store-Kandidat – Windows-11-VM-Tests
 
+## Taskleistenlogo 2.0.25.0 (22.10.2026)
+
+Der Nutzer bestätigt mit dem exakten signierten Paket 2.0.25.0 den sichtbaren
+Wechsel zwischen schwarzem transparentem Logo auf heller und weißem Logo auf
+dunkler Windows-Taskleiste sowie die Funktion nach Windows-Neustart.
+Die pauschale frühere Bestätigung von 2.0.19.0 erwies sich nach Neustarts als
+unzureichend; 2.0.25.0 aktualisiert nun gezielt den Shell-Bildcache für eine feste
+ICO-Datei im physischen Paketdatenordner. Details in release-v2.0.25.0.md.
+5093 Paketdateien, 30 transparente Taskleistenbilder und drei EXE-Icongruppen
+geprüft. Kein vollständiger erneuter Kamera-/Aufnahme-/Deinstallationstest behauptet.
+
+Store zuerst aktualisiert: Submission 8 (1152921505702202379), Paket 2.0.25.0
+validiert, deutsche/englische Beschreibungen und Neuigkeiten sowie Prüferhinweise
+nach Neuladen bestätigt. Zur Zertifizierung übermittelt; Partner Center bestätigt
+Vorverarbeiten in Bearbeitung und automatische Veröffentlichung nach Zertifizierung.
 ## Automatische Taskleistensymbole 2.0.19.0 (21.10.2026)
 
 Der Nutzer bestätigt den automatischen Icon-Wechsel in der VM sowie den

@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$Executable)
+param([Parameter(Mandatory)][string]$Executable, [switch]$StoreRelease)
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $file = (Resolve-Path -LiteralPath $Executable).Path
@@ -32,6 +32,7 @@ $module = [HomeCamIconCheck.Native]::LoadLibraryEx($file,[IntPtr]::Zero,0x22)
 if ($module -eq [IntPtr]::Zero) { throw 'Cannot inspect EXE resources.' }
 try {
     $sources = @('Default','White','Black')
+    if ($StoreRelease) { $sources[0] = 'White' }
     for ($variant=0; $variant -lt 3; $variant++) {
         $ico = [IO.File]::ReadAllBytes((Join-Path $root "assets/homecam-icon-$($sources[$variant]).ico"))
         $group = [HomeCamIconCheck.Native]::Read($module,14,32512+$variant)

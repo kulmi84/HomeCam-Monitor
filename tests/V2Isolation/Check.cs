@@ -22,6 +22,7 @@ internal static partial class Check
             Console.WriteLine(frameMode == "frame" ? "frame=1" : "frame=0"); return;
         }
         Application.EnableVisualStyles();
+        if (args.Contains("--window-icon-theme")) { TestWindowIconTheme(); return; }
         if (args.Contains("--helper-paths")) { TestReolinkHelperPaths(); return; }
         if (args.Contains("--logo-variants")) { TestLogoVariants(); return; }
         if (args.Length == 1 && args[0] == "--localization") { TestLocalization(); return; }

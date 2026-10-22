@@ -14,6 +14,8 @@ HomeCam Monitor zeigt deine Kameras in einem kompakten Windows-Fenster oder im R
 
 Verwalte deine Kameras an einer Stelle, richte lokale Bewegungserkennung ein und speichere Videos oder Schnappschüsse in einem gewählten Aufnahmeordner. Unterstützte Bewegungs- und Personenereignisse hängen von Kamera und Verbindungsweg ab. Die lokale Bewegungserkennung klassifiziert keine Personen.
 
+Das transparente Taskleistensymbol passt sich dem hellen oder dunklen Windows-Modus an und aktualisiert sich auch beim Designwechsel im laufenden Betrieb.
+
 Die Verbindung hängt von Kamera, Netzwerk und Firewall ab. Für den UID-Weg können Dienste des Kameraherstellers erforderlich sein. Kamera-Hardware ist nicht enthalten.
 
 ## Funktionen

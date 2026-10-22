@@ -12,6 +12,8 @@ HomeCam Monitor displays your cameras in a compact Windows window or a grid with
 
 Manage your cameras in one place, configure local motion detection, and save videos or snapshots to a recording folder of your choice. Supported motion and person events depend on the camera and connection method. Local motion detection does not classify people.
 
+The transparent taskbar icon follows Windows light or dark mode and updates when you change the theme while the app is running.
+
 Connectivity depends on your camera, network and firewall. UID connections may require services provided by the camera manufacturer. Camera hardware is not included.
 
 The app follows your Windows display language: German on German-language Windows, English for other display languages. Existing camera names and settings are preserved.
@@ -31,4 +33,8 @@ network camera; RTSP; ONVIF; live view; motion detection; video recording
 
 ## Release notes
 
-German and English interface. The language follows the Windows display language. Camera names and saved connection settings remain unchanged.
+Version 2.0.25.0
+• Fixes the Store app taskbar icon: a transparent black logo in Windows light mode and a white logo in dark mode.
+• The icon updates when the Windows theme changes while the app is running; operation after a Windows restart has also been confirmed.
+• If an older pinned shortcut still shows the previous icon, unpin it, start HomeCam from the Start menu and pin the running app again.
+Existing camera settings, passwords and storage paths are preserved.
