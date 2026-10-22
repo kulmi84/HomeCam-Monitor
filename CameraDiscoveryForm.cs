@@ -34,7 +34,7 @@ internal sealed class CameraDiscoveryForm : Form
     {
         Text = UiText.T("Kameras im Netzwerk suchen"); Name = "CameraDiscovery";
         StartPosition = FormStartPosition.CenterParent; Size = new Size(1050, 820); MinimumSize = new Size(900, 720);
-        ShowInTaskbar = false; Icon = ApplicationBranding.WindowIcon;
+        ShowInTaskbar = false; ApplicationBranding.ApplyWindowIcon(this);
         var root = new SettingsLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(12) };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));

@@ -2,16 +2,20 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework Condition="'$(StoreRelease)' == 'true'">net8.0-windows10.0.19041.0</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <DefineConstants>BETA;V2_BETA</DefineConstants>
+    <DefineConstants Condition="'$(StoreRelease)' == 'true'">$(DefineConstants);STORE_PACKAGE</DefineConstants>
     <DefineConstants Condition="'$(FinalRelease)' == 'true'">$(DefineConstants);RELEASE_V2</DefineConstants>
     <Version Condition="'$(FinalRelease)' == 'true'">$(HomeCamV2Version)</Version>
     <StartupObject>V2Isolation.Check</StartupObject>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="../../assets/homecam-icon-White.ico" TargetPath="HomeCam-Weiss-transparent.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../assets/homecam-icon-Black.ico" TargetPath="HomeCam-Schwarz-transparent.ico" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="../../assets/homecam-logo-Default.png" LogicalName="HomeCamMonitor.Logo.Default" />
     <EmbeddedResource Include="../../assets/homecam-icon-Default.ico" LogicalName="HomeCamMonitor.Icon.Default" />
     <EmbeddedResource Include="../../assets/homecam-logo-White.png" LogicalName="HomeCamMonitor.Logo.White" />

@@ -12,11 +12,11 @@ HomeCam Monitor V2 ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Win
 
 **English:** Free Windows IP camera viewer and RTSP camera monitor with a four-camera view, snapshots, video recording, pre-recording and optional Home Assistant motion/person sensor integration. Home Assistant is not required to view camera streams.
 
-## Aktuell: Version 2.0.19.0
+## Aktuell: Version 2.0.25.0
 
-**HomeCam Monitor V2 – 2.0.19.0** verwendet in der Microsoft-Store-Ausgabe automatisch ein transparentes weißes Taskleistensymbol im dunklen und ein schwarzes im hellen Windows-Modus. Eine manuelle Symbolauswahl in den App-Einstellungen entfällt. Die lokale Ausgabe enthält weiterhin drei direkt aus der EXE auswählbare Verknüpfungssymbole. Bei Problemen mit alten Store-Verknüpfungen HomeCam über das Startmenü starten und von dort neu an die Taskleiste anheften.
+**HomeCam Monitor V2 – 2.0.25.0** korrigiert die automatische Aktualisierung des transparenten Taskleistensymbols beim Windows-Designwechsel. Der Wechsel und die Funktion nach Windows-Neustart sind im installierten Testpaket bestätigt. Die App verwendet in der Microsoft-Store-Ausgabe automatisch ein transparentes weißes Taskleistensymbol im dunklen und ein schwarzes im hellen Windows-Modus. Eine manuelle Symbolauswahl in den App-Einstellungen entfällt. Die lokale Ausgabe enthält weiterhin drei direkt aus der EXE auswählbare Verknüpfungssymbole. Bei Problemen mit alten Store-Verknüpfungen HomeCam über das Startmenü starten und von dort neu an die Taskleiste anheften.
 
-[Release und Downloads 2.0.19.0](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.19.0) · [Änderungen und Upgrade](docs/release-v2.0.19.0.md) · [Microsoft Store](https://apps.microsoft.com/detail/9P6668481MGG)
+[Release und Downloads 2.0.25.0](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.25.0) · [Änderungen und Upgrade](docs/release-v2.0.25.0.md) · [Microsoft Store](https://apps.microsoft.com/detail/9P6668481MGG)
 
 Die Store-Freigabe erfolgt durch Microsoft. Beide Ausgaben werden aus derselben Versionsangabe in `Directory.Build.props` gebaut. Gespeicherte Kameraeinstellungen und selbst gewählte Speicherpfade bleiben erhalten.
 

@@ -1,6 +1,6 @@
 HomeCam Monitor V2 – Windows-Verknüpfungssymbol ändern
 
-Die Programm-EXE enthält drei auswählbare Symbole:
+Die lokale Desktop-EXE enthält drei auswählbare Symbole:
   1. Weiß auf schwarzem Hintergrund (Standard)
   2. Weiß auf transparentem Hintergrund
   3. Schwarz auf transparentem Hintergrund
@@ -13,10 +13,12 @@ mit OK bestätigen und Übernehmen wählen.
 Falls dort noch eine ICO-Datei eingetragen ist: Über Durchsuchen … die EXE
 im Programmverzeichnis auswählen. Die drei ICO-Dateien liegen zusätzlich daneben.
 
-Bei der Microsoft-Store-Ausgabe wählt Windows das Taskleistensymbol passend
-zum Windows-Modus: Weiß auf dunklem, Schwarz auf hellem Hintergrund.
-Beide Paketgrafiken sind transparent. Dafür ist keine Auswahl in der App nötig.
+Bei der Microsoft-Store-Ausgabe setzt die laufende App transparente Fenster-
+und Taskleistensymbole passend zum Windows-Modus: Weiß bei dunkler, Schwarz
+bei heller Taskleiste. Der Systemmodus wird jede Sekunde geprüft. Dafür ist
+keine Auswahl in der App nötig. Die Store-EXE hat ein transparentes weißes
+Standardsymbol; zusätzlich enthält das Paket beide transparenten Farbvarianten.
 
 Die oben beschriebene manuelle Auswahl betrifft Windows-Verknüpfungen.
-Das gruppierte Taskleistensymbol der Store-Ausgabe wird vom Paket bestimmt.
+Bei geschlossener Store-App bestimmt Windows das Symbol der Anheftung.
 In den App-Einstellungen gibt es keine Logo-/Iconanpassung.
