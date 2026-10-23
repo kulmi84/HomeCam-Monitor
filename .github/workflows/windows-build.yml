@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Get the exact tested V2 media runtime
+      - name: Geprüfte V2-Wiedergabekomponenten laden
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -40,7 +40,7 @@ jobs:
               [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $media $name))
             }
           } finally { $zip.Dispose() }
-      - name: Test initial minimized playback and manual/motion restore
+      - name: Minimierten Erststart und Wiederherstellen bei Bewegung prüfen
         shell: pwsh
         run: |
           $media = Join-Path $env:RUNNER_TEMP 'next-beta-media'
@@ -62,6 +62,15 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "First minimized player launch failed: $flavor" }
             & $check --restore-player (Join-Path $media 'mpv.exe') $fixture (Join-Path $env:RUNNER_TEMP "next-beta-results/$flavor")
             if ($LASTEXITCODE -ne 0) { throw "Manual/motion restore failed: $flavor" }
+            $startupTests = Join-Path $env:RUNNER_TEMP "startup-tests-$flavor"
+            dotnet build tests/StoreStartup/StoreStartup.csproj -c Release -p:NextBeta=$next -o $startupTests
+            if ($LASTEXITCODE -ne 0) { throw "Autostart-Test konnte nicht gebaut werden: $flavor" }
+            $manifest = Get-Content packaging/store/AppxManifest.xml.template -Raw
+            if ($flavor -eq 'beta') { $manifest = $manifest.Replace('HomeCamMonitorStartup', 'HomeCamMonitorNextBetaStartup') }
+            $manifestPath = Join-Path $startupTests 'AppxManifest.xml'
+            $manifest | Set-Content -LiteralPath $manifestPath -Encoding utf8
+            & (Join-Path $startupTests 'StoreStartup.exe') --manifest $manifestPath
+            if ($LASTEXITCODE -ne 0) { throw "Autostart-Kennung oder Windows-Statusprüfung fehlerhaft: $flavor" }
           }
       - uses: actions/upload-artifact@v4
         if: always()

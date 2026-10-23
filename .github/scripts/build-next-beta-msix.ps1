@@ -53,6 +53,11 @@ $candidates = Get-ChildItem -LiteralPath (Join-Path $root 'store-artifacts') -Di
 }
 $stage = $candidates | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if (-not $stage) { throw 'Separate beta staging output not found.' }
+$startupTests = Join-Path $output 'startup-check'
+& $Dotnet build (Join-Path $root 'tests/StoreStartup/StoreStartup.csproj') -c Release -p:NextBeta=true -p:NuGetAudit=false -o $startupTests --ignore-failed-sources
+if ($LASTEXITCODE -ne 0) { throw 'Autostart-Prüfung konnte nicht gebaut werden.' }
+& (Join-Path $startupTests 'StoreStartup.exe') --manifest (Join-Path $stage.FullName 'payload/AppxManifest.xml')
+if ($LASTEXITCODE -ne 0) { throw 'Autostart-Kennung passt nicht zum Beta-Paketmanifest.' }
 Copy-Item -LiteralPath (Join-Path $stage.FullName "HomeCamMonitor-$packageVersion-x64.msix") -Destination (Join-Path $output "HomeCamMonitor-NextBeta-$packageVersion-x64.msix")
 Copy-Item -LiteralPath (Join-Path $stage.FullName 'inventory.json') -Destination $output
 @{ identity = $betaIdentity; publisher = $identity.Publisher; packageVersion = $packageVersion; productVersion = $version; stage = $stage.FullName } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'beta-package.json') -Encoding utf8

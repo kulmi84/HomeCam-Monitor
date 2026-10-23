@@ -38,6 +38,13 @@ internal static partial class Check
 
     private static void TestNextBetaPresentation()
     {
+#if STORE_PACKAGE
+#if NEXT_BETA
+        if (PackagedStartup.TaskId != "HomeCamMonitorNextBetaStartup") throw new Exception("Beta startup task identity is incorrect.");
+#else
+        if (PackagedStartup.TaskId != "HomeCamMonitorStartup") throw new Exception("Stable startup task identity changed.");
+#endif
+#endif
 #if NEXT_BETA
         if (TaskbarIconProperties.WindowGroupId == "MarcinKulmaczewski.HomeCamMonitor.ThemedTaskbar")
             throw new Exception("Beta shares the stable Store taskbar group.");
