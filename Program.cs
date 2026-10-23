@@ -99,6 +99,7 @@ internal sealed class Settings
     public bool HighlightMotionInGrid { get; set; }
     public bool MinimizeWhenInactive { get; set; }
     public bool MinimizeAfterManualRestore { get; set; }
+    public bool ManualRestoreKeepForeground { get; set; } = true;
     public int ManualRestoreSeconds { get; set; } = 10;
     public bool RestorePreviousCameraAfterMotion { get; set; } = true;
     public bool DirectHomeAssistantEnabled { get; set; }
@@ -1438,7 +1439,7 @@ internal sealed partial class MonitorForm : Form
             settingsPreparationTimer.Start();
 #endif
             suppressToolbar = false;
-            TopMost = changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop;
+            TopMost = (changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop) || (manualRestoreTimer.Enabled && (changedSettings?.ManualRestoreKeepForeground ?? settings.ManualRestoreKeepForeground));
             PositionOverlays();
             lastCursorMovement = DateTime.UtcNow;
         }
@@ -2283,7 +2284,7 @@ internal sealed partial class MonitorForm : Form
         if (closing || WindowState != FormWindowState.Normal) return;
         sentToBackground = false;
         nativeMoveOrResize = false;
-        TopMost = settings.AlwaysOnTop || motionRestoreTimer.Enabled;
+        TopMost = settings.AlwaysOnTop || motionRestoreTimer.Enabled || ManualForegroundActive;
         lastCursorPosition = Cursor.Position;
         lastCursorMovement = DateTime.UtcNow;
         if (toolbar is not null && !toolbar.IsDisposed && Bounds.Contains(Cursor.Position)) toolbar.Show(this);
@@ -2303,7 +2304,7 @@ internal sealed partial class MonitorForm : Form
                 NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
             return;
         }
-        sentToBackground = false; TopMost = settings.AlwaysOnTop;
+        sentToBackground = false; TopMost = settings.AlwaysOnTop || ManualForegroundActive;
         lastCursorMovement = DateTime.UtcNow; PositionOverlays();
     }
 #endif
@@ -4234,6 +4235,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox showEmptyFourthFieldBorder = new() { Text = UiText.T("Außenrahmen"), AutoSize = true };
     private readonly CheckBox showGridCameraNames = new() { Text = UiText.T("Kameranamen im 4er-Raster anzeigen"), AutoSize = true };
     private readonly CheckBox motionDetection = new() { Name = "DetectionEnabled", Text = UiText.T("Bewegungs- und Personenerkennung aktiv"), AutoSize = true };
+    private readonly CheckBox manualRestoreKeepForeground = new() { Text = UiText.T("Nach manuellem Öffnen im Vordergrund halten"), AutoSize = true };
     private readonly CheckBox minimizeAfterManualRestore = new() { Text = UiText.T("Nach manuellem Öffnen automatisch minimieren"), AutoSize = true };
     private readonly NumericUpDown manualRestoreSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
     private readonly CheckBox minimizeWhenInactive = new() { Text = UiText.T("Bei Inaktivität minimieren"), AutoSize = true };
@@ -4404,9 +4406,11 @@ internal sealed class SettingsForm : Form
 #endif
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
         minimizeAfterManualRestore.Checked = current.MinimizeAfterManualRestore;
+        manualRestoreKeepForeground.Checked = current.ManualRestoreKeepForeground;
         manualRestoreSeconds.Value = Math.Clamp(current.ManualRestoreSeconds, 3, 300);
-        manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked;
-        minimizeAfterManualRestore.CheckedChanged += (_, _) => manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked;
+        manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked || manualRestoreKeepForeground.Checked;
+        minimizeAfterManualRestore.CheckedChanged += (_, _) => manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked || manualRestoreKeepForeground.Checked;
+        manualRestoreKeepForeground.CheckedChanged += (_, _) => manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked || manualRestoreKeepForeground.Checked;
         restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
         indicatorSeconds.Value = Math.Clamp(current.MotionIndicatorSeconds, 1, 10);
@@ -4619,6 +4623,7 @@ internal sealed class SettingsForm : Form
         indicatorOptions.Controls.Add(highlightMotionInGrid);
         activityOptions.Controls.Add(indicatorOptions, 0, 2);
         var manualOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
+        manualOptions.Controls.Add(manualRestoreKeepForeground);
         manualOptions.Controls.Add(minimizeAfterManualRestore);
         manualOptions.Controls.Add(manualRestoreSeconds);
         manualOptions.Controls.Add(new Label { Text = UiText.T("Sekunden (pausiert bei Mauszeiger im Fenster)"), AutoSize = true });
@@ -5153,6 +5158,7 @@ internal sealed class SettingsForm : Form
                 HighlightMotionInGrid = highlightMotionInGrid.Checked,
                 MinimizeWhenInactive = minimizeWhenInactive.Checked,
                 MinimizeAfterManualRestore = minimizeAfterManualRestore.Checked,
+                ManualRestoreKeepForeground = manualRestoreKeepForeground.Checked,
                 ManualRestoreSeconds = (int)manualRestoreSeconds.Value,
                 RestorePreviousCameraAfterMotion = restorePreviousCamera.Checked,
                 DirectHomeAssistantEnabled = directHomeAssistant.Checked,

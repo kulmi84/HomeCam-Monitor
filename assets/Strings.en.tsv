@@ -452,3 +452,4 @@ GStreamer-Laufzeit fehlt [HELPER-RUNTIME]	GStreamer runtime is missing [HELPER-R
 Reolink-Verbindungsdienst: Zugriff verweigert [HELPER-ACCESS]	Reolink helper: access denied [HELPER-ACCESS]
 Nach manuellem Öffnen automatisch minimieren	Automatically minimize after opening manually
 Sekunden (pausiert bei Mauszeiger im Fenster)	seconds (paused while the pointer is inside the window)
+Nach manuellem Öffnen im Vordergrund halten	Keep on top after opening manually

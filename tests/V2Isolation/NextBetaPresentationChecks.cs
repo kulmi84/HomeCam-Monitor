@@ -85,6 +85,8 @@ internal static partial class Check
         var settings = SettingsStore.CreateForNewInstallation();
         settings.MotionRetentionDays = 0;
         settings.AlwaysOnTop = false;
+        if (!settings.ManualRestoreKeepForeground) throw new Exception("Manual foreground must default to enabled.");
+        settings.ManualRestoreKeepForeground = false;
         settings.Width = 640; settings.Height = 360;
         using var monitor = new MonitorForm(settings);
         var timer = (System.Windows.Forms.Timer)typeof(MonitorForm).GetField("manualRestoreTimer", flags)!.GetValue(monitor)!;
@@ -94,19 +96,20 @@ internal static partial class Check
         Arm();
         if (timer.Enabled) throw new Exception("Manual minimization must default to disabled.");
         settings.MinimizeAfterManualRestore = true;
+        settings.ManualRestoreKeepForeground = true;
         settings.ManualRestoreSeconds = 7;
         ShowVideoTestWindow(monitor.Handle, 6);
         ShowVideoTestWindow(monitor.Handle, 9);
         Application.DoEvents();
-        if (!timer.Enabled || timer.Interval != 7000) throw new Exception("Taskbar restore did not arm manual timeout.");
+        if (!timer.Enabled || timer.Interval != 7000 || !monitor.TopMost || (NativeMethods.GetWindowStyle(monitor.Handle, -20) & 8) == 0) throw new Exception("Taskbar restore did not arm manual timeout.");
 
         try
         {
 
             Tick(true);
-            if (!timer.Enabled || monitor.WindowState == FormWindowState.Minimized) throw new Exception("Pointer inside must postpone minimization.");
+            if (!timer.Enabled || !monitor.TopMost || monitor.WindowState == FormWindowState.Minimized) throw new Exception("Pointer inside must postpone minimization.");
             monitor.RegisterUserInteraction();
-            if (!timer.Enabled) throw new Exception("Interaction must restart the manual timeout.");
+            if (!timer.Enabled || !monitor.TopMost) throw new Exception("Interaction must retain foreground and restart the manual timeout.");
             settings.AlwaysOnTop = true;
             Tick();
             if (timer.Enabled || monitor.WindowState == FormWindowState.Minimized) throw new Exception("Always on top must prevent minimization.");
@@ -114,9 +117,27 @@ internal static partial class Check
             Arm();
 
             Tick();
-            if (monitor.WindowState != FormWindowState.Minimized || timer.Enabled) throw new Exception("Expired manual timeout must minimize.");
+            if (monitor.WindowState != FormWindowState.Minimized || timer.Enabled || monitor.TopMost) throw new Exception("Expired manual timeout must minimize.");
+            // Foreground without minimization must release the native topmost flag on expiry.
+            settings.MinimizeAfterManualRestore = false;
+            ShowVideoTestWindow(monitor.Handle, 9);
+            Application.DoEvents();
+            if (!monitor.TopMost) throw new Exception("Foreground-only option did not keep window on top.");
+            Tick();
+            if (monitor.TopMost || (NativeMethods.GetWindowStyle(monitor.Handle, -20) & 8) != 0 || monitor.WindowState == FormWindowState.Minimized)
+                throw new Exception("Foreground-only expiry must release topmost without minimizing.");
+            // Minimization also remains usable with foreground explicitly disabled.
+            settings.ManualRestoreKeepForeground = false;
+            settings.MinimizeAfterManualRestore = true;
+            ShowVideoTestWindow(monitor.Handle, 6);
+            ShowVideoTestWindow(monitor.Handle, 9);
+            Application.DoEvents();
+            if (monitor.TopMost || !timer.Enabled) throw new Exception("Disabled foreground must retain only the minimization timer.");
+            Tick();
+            if (monitor.WindowState != FormWindowState.Minimized) throw new Exception("Minimization without foreground failed.");
             var copy = System.Text.Json.JsonSerializer.Deserialize<Settings>(System.Text.Json.JsonSerializer.Serialize(settings))!;
-            if (!copy.MinimizeAfterManualRestore || copy.ManualRestoreSeconds != 7) throw new Exception("Manual timeout settings did not round-trip.");
+            if (!copy.MinimizeAfterManualRestore || copy.ManualRestoreSeconds != 7 || copy.ManualRestoreKeepForeground) throw new Exception("Manual timeout settings did not round-trip.");
+            if (!SettingsReset.Apply(settings, SettingsResetScope.Display).ManualRestoreKeepForeground) throw new Exception("Display reset must enable default foreground protection.");
             if (SettingsReset.Apply(settings, SettingsResetScope.Display).MinimizeAfterManualRestore) throw new Exception("Display reset must clear manual timeout.");
         }
         finally { ShowVideoTestWindow(monitor.Handle, 0); }

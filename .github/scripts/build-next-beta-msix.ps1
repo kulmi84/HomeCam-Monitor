@@ -1,4 +1,4 @@
-param([string]$Dotnet = 'dotnet', [string]$RuntimeTemplate = '', [string]$SdkDirectory = '', [switch]$Resume)
+param([string]$Dotnet = 'dotnet', [string]$OutputDirectory = '', [string]$RuntimeTemplate = '', [string]$SdkDirectory = '', [switch]$Resume)
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 [xml]$project = Get-Content -LiteralPath (Join-Path $root 'HomeCamMonitor.V2.Beta.csproj') -Raw
@@ -8,7 +8,7 @@ $packageVersion = [string]$betaProperties.FileVersion
 if ($version -notmatch '^2\.0\.25-beta\.\d+$' -or $packageVersion -notmatch '^2\.0\.25\.\d+$') { throw 'Explicit NextBeta versions required.' }
 $identity = Import-PowerShellDataFile (Join-Path $root 'packaging/store/identity.psd1')
 $betaIdentity = $identity.IdentityName + '.NextBeta'
-$output = Join-Path (Split-Path $root) "Beta/$version"
+$output = if ($OutputDirectory) { [IO.Path]::GetFullPath($OutputDirectory) } else { Join-Path (Split-Path $root) "Beta/$version" }
 $runtime = Join-Path $output 'runtime'
 if ((Test-Path -LiteralPath $output) -and -not $Resume) { throw "Preserve existing beta output: $output" }
 if (Test-Path -LiteralPath (Join-Path $output "HomeCamMonitor-NextBeta-$packageVersion-x64.msix")) { throw 'A built beta package already exists; increase the explicit beta version instead of overwriting it.' }
