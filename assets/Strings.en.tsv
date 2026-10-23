@@ -450,3 +450,5 @@ rtsp://Kamera-IP:554/Stream-Pfad	rtsp://camera-IP:554/stream-path
 Reolink-Verbindungsdienst: Zugriff verweigert (0xC0000022) [HELPER-ACCESS]	Reolink helper: access denied (0xC0000022) [HELPER-ACCESS]
 GStreamer-Laufzeit fehlt [HELPER-RUNTIME]	GStreamer runtime is missing [HELPER-RUNTIME]
 Reolink-Verbindungsdienst: Zugriff verweigert [HELPER-ACCESS]	Reolink helper: access denied [HELPER-ACCESS]
+Nach manuellem Öffnen automatisch minimieren	Automatically minimize after opening manually
+Sekunden (pausiert bei Mauszeiger im Fenster)	seconds (paused while the pointer is inside the window)

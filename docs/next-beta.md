@@ -6,7 +6,7 @@ V2 behält die Videoflächen während des Minimierens bei, überspringt nachlauf
 
 ## Getrennte Beta
 
-`NextBeta=true` wählt die Anwendungsversion `2.0.25-beta.5` und die Datei-/Paketversion `2.0.25.5`. Die stabile `HomeCamV2Version` bleibt unverändert. `NextBeta=true` und `FinalRelease=true` sind nicht gemeinsam zulässig.
+`NextBeta=true` wählt die Anwendungsversion `2.0.25-beta.6` und die Datei-/Paketversion `2.0.25.6`. Die stabile `HomeCamV2Version` bleibt unverändert. `NextBeta=true` und `FinalRelease=true` sind nicht gemeinsam zulässig.
 
 Die Beta hat eine eigene EXE, Einstellungen, Registrierung, Aufnahmeordner, MSIX-Identität (`MarcinKulmaczewski.HomeCamMonitor.NextBeta`), Startaufgabe und Taskleistengruppe. Sie kann neben der stabilen Store-App installiert werden. Beta-Updates behalten deren Einstellungen bei. Die stabile Symbol-/Designlogik, Paketbilder und Store-Paketskripte bleiben unverändert.
 
@@ -27,7 +27,7 @@ Für ein unsigniertes lokales MSIX werden ein entpacktes, geprüftes V2-2.0.25.0
 Die Ausgabe liegt unter `../Beta/<Anwendungsversion>/`. Vorhandene Pakete werden nicht überschrieben. Die Signierung erfolgt separat mit einem zum Manifest-Publisher passenden Zertifikat. Zertifikate und private Schlüssel gehören nicht ins Repository. Prüfung eines signierten Testpakets:
 
 ```powershell
-.github/scripts/verify-next-beta-msix.ps1 -BetaDirectory ../Beta/2.0.25-beta.5 -SdkDirectory 'C:/WindowsSDK/bin/10.0.26100.0/x64'
+.github/scripts/verify-next-beta-msix.ps1 -BetaDirectory ../Beta/2.0.25-beta.6 -SdkDirectory 'C:/WindowsSDK/bin/10.0.26100.0/x64'
 ```
 
 Die Skripte verwenden den geprüften Komponentensatz ohne veränderliche Latest-Downloads. Sie veröffentlichen nichts und führen keine Store-Einreichung durch.
@@ -43,3 +43,9 @@ Die gezielte Windows-CI lädt die festgelegte Laufzeit aus `v2.0.25.0` und kontr
 - Die Autostart-Tests prüfen Manifestkennung, unveränderte Zustände und den Schutz von Benutzer- und Richtlinienentscheidungen, ohne echte Autostarteinstellungen zu verändern.
 
 Vor der Größenkorrektur meldeten Host und Player 160 × 28 statt 640 × 360. Danach bleiben beide beim ersten und bei späteren Aufrufen bei 640 × 360. Der manuelle Nutzertest mit MSIX-Beta 4 bestätigt die Darstellungsänderung.
+
+## Automatisch minimieren nach manuellem Öffnen
+
+Beta 6 ergänzt unter „Bewegung und Aktivitätsanzeige“ die standardmäßig ausgeschaltete Option „Nach manuellem Öffnen automatisch minimieren“ mit eigener Wartezeit von 3 bis 300 Sekunden (Vorgabe: 10). Nach dem Wiederherstellen aus der Taskleiste startet die Wartezeit. Bei Mauszeiger im Fenster oder geöffneten Einstellungen wird sie erneut gestartet; Bedienung startet sie ebenfalls neu. „Immer im Vordergrund“ verhindert die automatische Minimierung. Die Bewegungssteuerung verwendet weiterhin ihre eigene Zeit und Einstellung.
+
+Der Fenstertest `--restore-layout` prüft zusätzlich die neue Option, Wiederherstellen, Mauszeigerschutz, Bedienung, Vorrang von „Immer im Vordergrund“, tatsächliches Minimieren, Speicherung und Zurücksetzen der Anzeigeeinstellungen.

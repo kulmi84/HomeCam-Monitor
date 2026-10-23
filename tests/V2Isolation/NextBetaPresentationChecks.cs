@@ -34,6 +34,7 @@ internal static partial class Check
         if (minimized != original || video.Size != original)
             throw new Exception("Minimizing resized the embedded video host; restore must preserve its render target.");
         Console.WriteLine("PASS: video host dimensions retained while minimized and restored.");
+        TestManualRestoreMinimization();
     }
 
     private static void TestNextBetaPresentation()
@@ -77,5 +78,48 @@ internal static partial class Check
             throw new Exception("Stable Store taskbar group changed.");
         Console.WriteLine("PASS: stable Store taskbar group unchanged.");
 #endif
+    }
+    private static void TestManualRestoreMinimization()
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var settings = SettingsStore.CreateForNewInstallation();
+        settings.MotionRetentionDays = 0;
+        settings.AlwaysOnTop = false;
+        settings.Width = 640; settings.Height = 360;
+        using var monitor = new MonitorForm(settings);
+        var timer = (System.Windows.Forms.Timer)typeof(MonitorForm).GetField("manualRestoreTimer", flags)!.GetValue(monitor)!;
+        void Arm() => typeof(MonitorForm).GetMethod("ArmManualRestoreTimer", flags)!.Invoke(monitor, null);
+        void Tick(bool pointerInside = false) => monitor.CheckManualRestoreTimeout(pointerInside);
+        ShowVideoTestWindow(monitor.Handle, 4);
+        Arm();
+        if (timer.Enabled) throw new Exception("Manual minimization must default to disabled.");
+        settings.MinimizeAfterManualRestore = true;
+        settings.ManualRestoreSeconds = 7;
+        ShowVideoTestWindow(monitor.Handle, 6);
+        ShowVideoTestWindow(monitor.Handle, 9);
+        Application.DoEvents();
+        if (!timer.Enabled || timer.Interval != 7000) throw new Exception("Taskbar restore did not arm manual timeout.");
+
+        try
+        {
+
+            Tick(true);
+            if (!timer.Enabled || monitor.WindowState == FormWindowState.Minimized) throw new Exception("Pointer inside must postpone minimization.");
+            monitor.RegisterUserInteraction();
+            if (!timer.Enabled) throw new Exception("Interaction must restart the manual timeout.");
+            settings.AlwaysOnTop = true;
+            Tick();
+            if (timer.Enabled || monitor.WindowState == FormWindowState.Minimized) throw new Exception("Always on top must prevent minimization.");
+            settings.AlwaysOnTop = false;
+            Arm();
+
+            Tick();
+            if (monitor.WindowState != FormWindowState.Minimized || timer.Enabled) throw new Exception("Expired manual timeout must minimize.");
+            var copy = System.Text.Json.JsonSerializer.Deserialize<Settings>(System.Text.Json.JsonSerializer.Serialize(settings))!;
+            if (!copy.MinimizeAfterManualRestore || copy.ManualRestoreSeconds != 7) throw new Exception("Manual timeout settings did not round-trip.");
+            if (SettingsReset.Apply(settings, SettingsResetScope.Display).MinimizeAfterManualRestore) throw new Exception("Display reset must clear manual timeout.");
+        }
+        finally { ShowVideoTestWindow(monitor.Handle, 0); }
+        Console.WriteLine("PASS: optional manual timeout, restore, pointer protection, interaction, always-on-top, minimization and settings persistence.");
     }
 }

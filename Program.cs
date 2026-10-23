@@ -98,6 +98,8 @@ internal sealed class Settings
     public int MotionIndicatorSeconds { get; set; } = 2;
     public bool HighlightMotionInGrid { get; set; }
     public bool MinimizeWhenInactive { get; set; }
+    public bool MinimizeAfterManualRestore { get; set; }
+    public int ManualRestoreSeconds { get; set; } = 10;
     public bool RestorePreviousCameraAfterMotion { get; set; } = true;
     public bool DirectHomeAssistantEnabled { get; set; }
     public string HomeAssistantUrl { get; set; } = "";
@@ -531,6 +533,7 @@ internal sealed partial class MonitorForm : Form
             if (WindowState == FormWindowState.Minimized)
             {
                 wasMinimized = true;
+                manualRestoreTimer.Stop();
                 return;
             }
 #endif
@@ -549,6 +552,7 @@ internal sealed partial class MonitorForm : Form
             if (wasMinimized && WindowState == FormWindowState.Normal)
             {
                 wasMinimized = false;
+                ArmManualRestoreTimer();
                 BeginInvoke(new Action(RestoreWindowAfterMinimize));
             }
 #endif
@@ -570,6 +574,7 @@ internal sealed partial class MonitorForm : Form
 #if BETA
         motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
+        manualRestoreTimer.Tick += (_, _) => CheckManualRestoreTimeout();
         motionIndicatorTimer.Interval = Math.Clamp(settings.MotionIndicatorSeconds, 1, 10) * 1000;
         motionIndicatorTimer.Tick += (_, _) => HideMotionIndicator();
         motionPauseTimer.Tick += (_, _) => ScheduleMotionPauseExpiry();
@@ -701,7 +706,7 @@ internal sealed partial class MonitorForm : Form
         windowDiagnostics?.Mark("closing");
         windowDiagnostics?.Dispose(); windowDiagnostics = null;
         videoDecorationTimer.Stop(); videoDecorationTimer.Dispose();
-        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionPauseTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
+        manualRestoreTimer.Dispose(); motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionPauseTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
 #if V2_BETA
         reolink?.Dispose(); reolink = null;
@@ -2167,6 +2172,7 @@ internal sealed partial class MonitorForm : Form
 
     internal void RegisterUserInteraction()
     {
+        if (manualRestoreTimer.Enabled) ArmManualRestoreTimer();
         if (!motionRestoreTimer.Enabled) return;
         motionRestoreTimer.Stop();
         cameraBeforeMotion = null;
@@ -4228,6 +4234,8 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox showEmptyFourthFieldBorder = new() { Text = UiText.T("Außenrahmen"), AutoSize = true };
     private readonly CheckBox showGridCameraNames = new() { Text = UiText.T("Kameranamen im 4er-Raster anzeigen"), AutoSize = true };
     private readonly CheckBox motionDetection = new() { Name = "DetectionEnabled", Text = UiText.T("Bewegungs- und Personenerkennung aktiv"), AutoSize = true };
+    private readonly CheckBox minimizeAfterManualRestore = new() { Text = UiText.T("Nach manuellem Öffnen automatisch minimieren"), AutoSize = true };
+    private readonly NumericUpDown manualRestoreSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
     private readonly CheckBox minimizeWhenInactive = new() { Text = UiText.T("Bei Inaktivität minimieren"), AutoSize = true };
     private readonly CheckBox restorePreviousCamera = new() { Text = UiText.T("Vorherige Kamera wiederherstellen"), AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
@@ -4395,6 +4403,10 @@ internal sealed class SettingsForm : Form
         motionDetection.Checked = current.MotionDetectionEnabled;
 #endif
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
+        minimizeAfterManualRestore.Checked = current.MinimizeAfterManualRestore;
+        manualRestoreSeconds.Value = Math.Clamp(current.ManualRestoreSeconds, 3, 300);
+        manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked;
+        minimizeAfterManualRestore.CheckedChanged += (_, _) => manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked;
         restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
         indicatorSeconds.Value = Math.Clamp(current.MotionIndicatorSeconds, 1, 10);
@@ -4563,7 +4575,7 @@ internal sealed class SettingsForm : Form
         generalGroup.Controls.Add(generalFields);
         table.Controls.Add(generalGroup, 0, 2);
 
-        var activityOptions = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3 });
+        var activityOptions = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 4 });
         for (var row = 0; row < activityOptions.RowCount; row++)
             activityOptions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var minimizedStart = new CheckBox { Name = "MinimizedStart", Text = UiText.T("Minimiert starten"), AutoSize = true,
@@ -4606,6 +4618,11 @@ internal sealed class SettingsForm : Form
         indicatorOptions.Controls.Add(new Label { Text = UiText.T("Sekunden"), AutoSize = true, Margin = new Padding(3, 4, 12, 0) });
         indicatorOptions.Controls.Add(highlightMotionInGrid);
         activityOptions.Controls.Add(indicatorOptions, 0, 2);
+        var manualOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
+        manualOptions.Controls.Add(minimizeAfterManualRestore);
+        manualOptions.Controls.Add(manualRestoreSeconds);
+        manualOptions.Controls.Add(new Label { Text = UiText.T("Sekunden (pausiert bei Mauszeiger im Fenster)"), AutoSize = true });
+        activityOptions.Controls.Add(manualOptions, 0, 3);
 
         var activityGroup = Batch(new GroupBox { Text = UiText.T("Bewegung und Aktivitätsanzeige"), Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
         activityGroup.Controls.Add(activityOptions);
@@ -5135,6 +5152,8 @@ internal sealed class SettingsForm : Form
                 MotionIndicatorSeconds = (int)indicatorSeconds.Value,
                 HighlightMotionInGrid = highlightMotionInGrid.Checked,
                 MinimizeWhenInactive = minimizeWhenInactive.Checked,
+                MinimizeAfterManualRestore = minimizeAfterManualRestore.Checked,
+                ManualRestoreSeconds = (int)manualRestoreSeconds.Value,
                 RestorePreviousCameraAfterMotion = restorePreviousCamera.Checked,
                 DirectHomeAssistantEnabled = directHomeAssistant.Checked,
                 HomeAssistantUrl = homeAssistantUrl.Text.Trim(),
