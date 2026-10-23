@@ -17,7 +17,8 @@ New-Item -ItemType Directory -Path $runtime -Force | Out-Null
 $previous = if ($RuntimeTemplate) { (Resolve-Path -LiteralPath $RuntimeTemplate).Path } else { Join-Path (Split-Path $root) 'Beta/2.0.25-beta.1/payload' }
 if (-not (Test-Path -LiteralPath $previous)) { throw 'Pass -RuntimeTemplate with the extracted, audited V2 2.0.25.0 runtime.' }
 if (-not $Resume) { Get-ChildItem -LiteralPath $previous | Where-Object {
-    $_.Name -notlike 'HomeCamMonitor-V2-NextBeta*' -and $_.Name -notlike 'README*'
+    $_.Name -notlike 'HomeCamMonitor-V2-NextBeta*' -and $_.Name -notlike 'HomeCamMonitor-V2-Beta*' -and $_.Name -notlike 'README*' -and
+    $_.Name -notin @('HomeCamMonitor.StoreBuild.json', 'AppxManifest.xml', 'AppxSignature.p7x', 'AppxBlockMap.xml', '[Content_Types].xml', 'resources.pri', 'StoreAssets', '.homecam-v2-installed-files', '.homecam-nextbeta-installed-files')
 } | Copy-Item -Destination $runtime -Recurse -Force }
 & $Dotnet publish (Join-Path $root 'HomeCamMonitor.V2.Beta.csproj') -c Release -r win-x64 --self-contained true -p:NextBeta=true -p:StoreRelease=true -p:NuGetAudit=false --ignore-failed-sources -o $runtime
 if ($LASTEXITCODE -ne 0) { throw 'Beta MSIX publish failed.' }
