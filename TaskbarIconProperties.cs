@@ -10,7 +10,11 @@ internal static class TaskbarIconProperties
     // A registered package AUMID makes Explorer prefer the package logo over
     // the window's themed icon, even without a pin. Use a stable window group
     // while keeping the real package AUMID exclusively for activation.
+#if NEXT_BETA
+    internal const string WindowGroupId = "MarcinKulmaczewski.HomeCamMonitor.NextBeta.ThemedTaskbar";
+#else
     internal const string WindowGroupId = "MarcinKulmaczewski.HomeCamMonitor.ThemedTaskbar";
+#endif
     private static readonly Guid propertySet = new("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3");
     internal static string? CurrentAppId()
     {

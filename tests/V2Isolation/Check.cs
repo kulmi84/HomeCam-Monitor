@@ -22,6 +22,10 @@ internal static partial class Check
             Console.WriteLine(frameMode == "frame" ? "frame=1" : "frame=0"); return;
         }
         Application.EnableVisualStyles();
+        if (args.Length == 3 && args[0] == "--initial-player") { TestInitialPlayer(args[1], args[2]); return; }
+        if (args.Length == 4 && args[0] == "--restore-player") { TestRestorePlayer(args[1], args[2], args[3]); return; }
+        if (args.Contains("--restore-layout")) { TestRestoreLayout(); return; }
+        if (args.Contains("--next-beta-presentation")) { TestNextBetaPresentation(); return; }
         if (args.Contains("--window-icon-theme")) { TestWindowIconTheme(); return; }
         if (args.Contains("--helper-paths")) { TestReolinkHelperPaths(); return; }
         if (args.Contains("--logo-variants")) { TestLogoVariants(); return; }

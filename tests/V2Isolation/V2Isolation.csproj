@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <DefineConstants>BETA;V2_BETA</DefineConstants>
+    <DefineConstants Condition="'$(NextBeta)' == 'true'">$(DefineConstants);NEXT_BETA</DefineConstants>
     <DefineConstants Condition="'$(StoreRelease)' == 'true'">$(DefineConstants);STORE_PACKAGE</DefineConstants>
     <DefineConstants Condition="'$(FinalRelease)' == 'true'">$(DefineConstants);RELEASE_V2</DefineConstants>
     <Version Condition="'$(FinalRelease)' == 'true'">$(HomeCamV2Version)</Version>
@@ -41,6 +42,8 @@
     <Compile Include="LocalizationChecks.cs" />
     <Compile Include="LogoVariantChecks.cs" />
     <Compile Include="StorageDefaultChecks.cs" />
+    <Compile Include="NextBetaPresentationChecks.cs" />
+    <Compile Include="RestorePlayerChecks.cs" />
   </ItemGroup>
   <!-- The package analyzer needs a newer Roslyn than this .NET 8 project. -->
   <Target Name="RemoveIncompatibleOpenCvAnalyzer" BeforeTargets="CoreCompile">
