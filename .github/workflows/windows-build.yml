@@ -9,6 +9,74 @@ on:
     tags: ['v*']
 
 jobs:
+  next-beta-restore:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Geprüfte V2-Wiedergabekomponenten laden
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $media = Join-Path $env:RUNNER_TEMP 'next-beta-media'
+          New-Item -ItemType Directory -Path $media | Out-Null
+          $archiveName = 'HomeCamMonitor-V2-2.0.25.0-win-x64.zip'
+          gh release download v2.0.25.0 --repo $env:GITHUB_REPOSITORY --pattern $archiveName --pattern SHA256SUMS.txt --dir $media
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned media download failed.' }
+          $line = Get-Content (Join-Path $media 'SHA256SUMS.txt') | Where-Object { $_ -match ([regex]::Escape($archiveName) + '$') }
+          if (@($line).Count -ne 1) { throw 'Published runtime checksum missing or ambiguous.' }
+          $expected = ($line -split '\s+')[0]
+          $archive = Join-Path $media $archiveName
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash -ne $expected) { throw 'Pinned runtime checksum mismatch.' }
+          $zip = [IO.Compression.ZipFile]::OpenRead($archive)
+          try {
+            foreach ($name in @('mpv.exe', 'ffmpeg.exe')) {
+              $entry = $zip.GetEntry($name)
+              if (-not $entry) { throw "Runtime missing $name" }
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $media $name))
+            }
+          } finally { $zip.Dispose() }
+      - name: Minimierten Erststart und Wiederherstellen bei Bewegung prüfen
+        shell: pwsh
+        run: |
+          $media = Join-Path $env:RUNNER_TEMP 'next-beta-media'
+          $fixture = Join-Path $env:RUNNER_TEMP 'next-beta-fixture.mp4'
+          & (Join-Path $media 'ffmpeg.exe') -nostdin -hide_banner -loglevel error -f lavfi -i 'testsrc=size=1920x1080:rate=30' -t 4 -c:v mpeg4 -pix_fmt yuv420p $fixture
+          if ($LASTEXITCODE -ne 0) { throw 'Synthetic fixture failed.' }
+          foreach ($flavor in @('beta', 'store')) {
+            $tests = Join-Path $env:RUNNER_TEMP "restore-tests-$flavor"
+            $next = ($flavor -eq 'beta').ToString().ToLowerInvariant()
+            $final = ($flavor -eq 'store').ToString().ToLowerInvariant()
+            dotnet build tests/V2Isolation/V2Isolation.csproj -c Release -p:NextBeta=$next -p:FinalRelease=$final -p:StoreRelease=true -o $tests
+            if ($LASTEXITCODE -ne 0) { throw "Test build failed: $flavor" }
+            $check = Join-Path $tests 'V2Isolation.exe'
+            foreach ($mode in @('--storage-defaults', '--window-icon-theme', '--next-beta-presentation', '--restore-layout')) {
+              & $check $mode
+              if ($LASTEXITCODE -ne 0) { throw "Check failed: $flavor $mode" }
+            }
+            & $check --initial-player (Join-Path $media 'mpv.exe') $fixture
+            if ($LASTEXITCODE -ne 0) { throw "First minimized player launch failed: $flavor" }
+            & $check --restore-player (Join-Path $media 'mpv.exe') $fixture (Join-Path $env:RUNNER_TEMP "next-beta-results/$flavor")
+            if ($LASTEXITCODE -ne 0) { throw "Manual/motion restore failed: $flavor" }
+            $startupTests = Join-Path $env:RUNNER_TEMP "startup-tests-$flavor"
+            dotnet build tests/StoreStartup/StoreStartup.csproj -c Release -p:NextBeta=$next -o $startupTests
+            if ($LASTEXITCODE -ne 0) { throw "Autostart-Test konnte nicht gebaut werden: $flavor" }
+            $manifest = Get-Content packaging/store/AppxManifest.xml.template -Raw
+            if ($flavor -eq 'beta') { $manifest = $manifest.Replace('HomeCamMonitorStartup', 'HomeCamMonitorNextBetaStartup') }
+            $manifestPath = Join-Path $startupTests 'AppxManifest.xml'
+            $manifest | Set-Content -LiteralPath $manifestPath -Encoding utf8
+            & (Join-Path $startupTests 'StoreStartup.exe') --manifest $manifestPath
+            if ($LASTEXITCODE -ne 0) { throw "Autostart-Kennung oder Windows-Statusprüfung fehlerhaft: $flavor" }
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: HomeCamMonitor-NextBeta-Restore-Checks
+          path: ${{ runner.temp }}/next-beta-results/
   build:
     runs-on: windows-latest
     steps:

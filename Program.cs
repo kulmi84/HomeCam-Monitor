@@ -98,6 +98,9 @@ internal sealed class Settings
     public int MotionIndicatorSeconds { get; set; } = 2;
     public bool HighlightMotionInGrid { get; set; }
     public bool MinimizeWhenInactive { get; set; }
+    public bool MinimizeAfterManualRestore { get; set; }
+    public bool ManualRestoreKeepForeground { get; set; } = true;
+    public int ManualRestoreSeconds { get; set; } = 10;
     public bool RestorePreviousCameraAfterMotion { get; set; } = true;
     public bool DirectHomeAssistantEnabled { get; set; }
     public string HomeAssistantUrl { get; set; } = "";
@@ -340,9 +343,26 @@ internal sealed partial class MonitorForm : Form
 #endif
 {
 #if BETA
+#if NEXT_BETA
+    internal int VideoTransitionStatus { get; private set; } = int.MinValue;
+#endif
+#if V2_BETA
+    protected override void OnLayout(LayoutEventArgs eventArgs)
+    {
+        // Windows gives a minimized popup a 160x28 client area. Docking mpv's
+        // host to it shrinks the swapchain and exposes its expansion on restore.
+        if (WindowState == FormWindowState.Minimized) return;
+        base.OnLayout(eventArgs);
+    }
+#endif
     protected override void OnHandleCreated(EventArgs eventArgs)
     {
         base.OnHandleCreated(eventArgs);
+#if NEXT_BETA
+        // The video also participates in Windows' opening/restore transition.
+        // Disable that transition before this HWND first becomes visible.
+        VideoTransitionStatus = NativeMethods.DisableVideoTransitions(Handle);
+#endif
         if (WindowState == FormWindowState.Minimized && settings.StartBehavior == "Minimized" && HasUsableCamera())
             startupTaskbarPreview ??= new TaskbarPreview(this, CaptureStartupPreviewAsync, size => offlinePlaceholder.CreatePreview(size));
         windowDiagnostics?.Dispose();
@@ -514,6 +534,7 @@ internal sealed partial class MonitorForm : Form
             if (WindowState == FormWindowState.Minimized)
             {
                 wasMinimized = true;
+                manualRestoreTimer.Stop();
                 return;
             }
 #endif
@@ -532,6 +553,7 @@ internal sealed partial class MonitorForm : Form
             if (wasMinimized && WindowState == FormWindowState.Normal)
             {
                 wasMinimized = false;
+                ArmManualRestoreTimer();
                 BeginInvoke(new Action(RestoreWindowAfterMinimize));
             }
 #endif
@@ -553,6 +575,7 @@ internal sealed partial class MonitorForm : Form
 #if BETA
         motionRestoreTimer.Interval = Math.Clamp(settings.MotionForegroundSeconds, 3, 300) * 1000;
         motionRestoreTimer.Tick += (_, _) => RestoreAfterMotion();
+        manualRestoreTimer.Tick += (_, _) => CheckManualRestoreTimeout();
         motionIndicatorTimer.Interval = Math.Clamp(settings.MotionIndicatorSeconds, 1, 10) * 1000;
         motionIndicatorTimer.Tick += (_, _) => HideMotionIndicator();
         motionPauseTimer.Tick += (_, _) => ScheduleMotionPauseExpiry();
@@ -684,7 +707,7 @@ internal sealed partial class MonitorForm : Form
         windowDiagnostics?.Mark("closing");
         windowDiagnostics?.Dispose(); windowDiagnostics = null;
         videoDecorationTimer.Stop(); videoDecorationTimer.Dispose();
-        motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionPauseTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
+        manualRestoreTimer.Dispose(); motionRestoreTimer.Stop(); motionIndicatorTimer.Stop(); motionPauseTimer.Stop(); cameraLayoutTimer.Stop(); StopMotionIntegration(); cameraContextMenu?.Dispose(); motionIndicator?.Close();
 #endif
 #if V2_BETA
         reolink?.Dispose(); reolink = null;
@@ -694,6 +717,21 @@ internal sealed partial class MonitorForm : Form
         SaveWindow(); StopPlayer(); toolbar?.Close(); dragSurface?.Close(); foreach (var grip in resizeGrips) grip.Close();
     }
 
+#if BETA
+    private Rectangle CameraViewport
+    {
+        get
+        {
+#if V2_BETA
+            // A first player may start before the minimized window has ever
+            // been restored. Its viewport must use the eventual normal size.
+            if (WindowState == FormWindowState.Minimized)
+                return new Rectangle(Point.Empty, RestoreBounds.Size);
+#endif
+            return ClientRectangle;
+        }
+    }
+#endif
     private void StartPlayer()
     {
 #if BETA
@@ -737,12 +775,19 @@ internal sealed partial class MonitorForm : Form
 #if BETA
         // Keep mpv's native placeholder behind an opaque black surface until
         // its first video frame is ready.
-        standbyVideo.Bounds = ClientRectangle;
+        standbyVideo.Bounds = CameraViewport;
         standbyVideo.BringToFront();
         video.Hide();
         standbyVideo.Refresh();
         offlinePlaceholder.Configure(camera.Name);
         offlinePlaceholder.Show();
+        offlinePlaceholder.BringToFront();
+#endif
+#if NEXT_BETA
+        // Let mpv render at the final host size while the opaque placeholder
+        // still covers it. A hidden host delays native resize/presentation.
+        video.Bounds = CameraViewport;
+        video.Show();
         offlinePlaceholder.BringToFront();
 #endif
         var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe")) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
@@ -835,7 +880,7 @@ internal sealed partial class MonitorForm : Form
         CancelSeamlessRefresh();
         // Cover and paint before stopping mpv: stopping it can block the UI
         // briefly and otherwise exposes its native window during teardown.
-        offlinePlaceholder.Bounds = ClientRectangle;
+        offlinePlaceholder.Bounds = CameraViewport;
         if (HasUsableCamera()) offlinePlaceholder.Configure(settings.Cameras[settings.SelectedCamera].Name);
         offlinePlaceholder.Show();
         offlinePlaceholder.BringToFront();
@@ -917,7 +962,7 @@ internal sealed partial class MonitorForm : Form
         var cameraIndex = settings.SelectedCamera;
         var oldSurface = video;
         var nextSurface = standbyVideo;
-        nextSurface.Bounds = ClientRectangle;
+        nextSurface.Bounds = CameraViewport;
         var newPipeName = $"HomeCamMonitor-Refresh-{Environment.ProcessId}-{Guid.NewGuid():N}";
         Process? replacement = null;
         try
@@ -1394,7 +1439,7 @@ internal sealed partial class MonitorForm : Form
             settingsPreparationTimer.Start();
 #endif
             suppressToolbar = false;
-            TopMost = changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop;
+            TopMost = (changedSettings?.AlwaysOnTop ?? settings.AlwaysOnTop) || (manualRestoreTimer.Enabled && (changedSettings?.ManualRestoreKeepForeground ?? settings.ManualRestoreKeepForeground));
             PositionOverlays();
             lastCursorMovement = DateTime.UtcNow;
         }
@@ -1683,6 +1728,9 @@ internal sealed partial class MonitorForm : Form
     private void AlignCameraSurfaces()
     {
         if (closing || IsDisposed) return;
+#if V2_BETA
+        if (WindowState == FormWindowState.Minimized) return;
+#endif
         var visibleArea = ClientRectangle;
         if (video.Bounds != visibleArea) video.Bounds = visibleArea;
         if (standbyVideo.Bounds != visibleArea) standbyVideo.Bounds = visibleArea;
@@ -1845,6 +1893,11 @@ internal sealed partial class MonitorForm : Form
             }
 #endif
             slot.ActiveSurface.CreateControl();
+#if NEXT_BETA
+            slot.ActiveSurface.Bounds = slot.Host.ClientRectangle;
+            slot.ActiveSurface.Show();
+            slot.Placeholder.BringToFront();
+#endif
             var gridPipeName = $"HomeCamMonitor-Grid-{Environment.ProcessId}-{Guid.NewGuid():N}";
             var start = new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "mpv.exe"))
             {
@@ -2120,6 +2173,7 @@ internal sealed partial class MonitorForm : Form
 
     internal void RegisterUserInteraction()
     {
+        if (manualRestoreTimer.Enabled) ArmManualRestoreTimer();
         if (!motionRestoreTimer.Enabled) return;
         motionRestoreTimer.Stop();
         cameraBeforeMotion = null;
@@ -2230,7 +2284,7 @@ internal sealed partial class MonitorForm : Form
         if (closing || WindowState != FormWindowState.Normal) return;
         sentToBackground = false;
         nativeMoveOrResize = false;
-        TopMost = settings.AlwaysOnTop || motionRestoreTimer.Enabled;
+        TopMost = settings.AlwaysOnTop || motionRestoreTimer.Enabled || ManualForegroundActive;
         lastCursorPosition = Cursor.Position;
         lastCursorMovement = DateTime.UtcNow;
         if (toolbar is not null && !toolbar.IsDisposed && Bounds.Contains(Cursor.Position)) toolbar.Show(this);
@@ -2250,7 +2304,7 @@ internal sealed partial class MonitorForm : Form
                 NativeMethods.SwpNoMove | NativeMethods.SwpNoSize | NativeMethods.SwpNoActivate);
             return;
         }
-        sentToBackground = false; TopMost = settings.AlwaysOnTop;
+        sentToBackground = false; TopMost = settings.AlwaysOnTop || ManualForegroundActive;
         lastCursorMovement = DateTime.UtcNow; PositionOverlays();
     }
 #endif
@@ -3981,6 +4035,19 @@ internal static class NativeMethods
     [DllImport("user32.dll")] private static extern bool EnumChildWindows(IntPtr parent, ChildWindowCallback callback, IntPtr parameter);
     [DllImport("user32.dll", EntryPoint = "GetWindowLongW")] internal static extern int GetWindowStyle(IntPtr window, int index);
     [DllImport("user32.dll", EntryPoint = "SetWindowLongW")] private static extern int SetWindowStyle(IntPtr window, int index, int value);
+#if NEXT_BETA
+    [DllImport("user32.dll")] private static extern IntPtr GetParent(IntPtr window);
+    [DllImport("user32.dll")] private static extern bool GetClientRect(IntPtr window, out VideoRectangle rectangle);
+    [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr window, out VideoRectangle rectangle);
+    [DllImport("user32.dll")] private static extern int MapWindowPoints(IntPtr from, IntPtr to, ref VideoRectangle rectangle, uint count);
+    [StructLayout(LayoutKind.Sequential)]
+    private struct VideoRectangle { internal int Left, Top, Right, Bottom; }
+    internal static int DisableVideoTransitions(IntPtr window)
+    {
+        var disabled = 1;
+        return DwmSetWindowAttribute(window, 3, ref disabled, sizeof(int));
+    }
+#endif
     internal static void PrepareVideoChildren(IntPtr parent)
     {
         // mpv owns these HWNDs, not WinForms. Remove native caption/border before
@@ -3988,6 +4055,18 @@ internal static class NativeMethods
         SetDiagnosticCaptionColor(parent, Color.Black);
         EnumChildWindows(parent, (window, _) =>
         {
+#if NEXT_BETA
+            DisableVideoTransitions(window);
+            // Only mpv's immediate host child fills the panel. Its nested GPU
+            // windows retain the player's own layout.
+            if (GetParent(window) == parent && GetClientRect(parent, out var host) &&
+                host.Right > 0 && host.Bottom > 0 && GetWindowRect(window, out var child))
+            {
+                MapWindowPoints(IntPtr.Zero, parent, ref child, 2);
+                if (child.Left != 0 || child.Top != 0 || child.Right != host.Right || child.Bottom != host.Bottom)
+                    SetWindowPos(window, IntPtr.Zero, 0, 0, host.Right, host.Bottom, SwpNoActivate | 0x0004);
+            }
+#endif
             const int styleIndex = -16;
             var style = GetWindowStyle(window, styleIndex);
             if ((style & 0x00C40000) != 0)
@@ -4156,6 +4235,9 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox showEmptyFourthFieldBorder = new() { Text = UiText.T("Außenrahmen"), AutoSize = true };
     private readonly CheckBox showGridCameraNames = new() { Text = UiText.T("Kameranamen im 4er-Raster anzeigen"), AutoSize = true };
     private readonly CheckBox motionDetection = new() { Name = "DetectionEnabled", Text = UiText.T("Bewegungs- und Personenerkennung aktiv"), AutoSize = true };
+    private readonly CheckBox manualRestoreKeepForeground = new() { Text = UiText.T("Nach manuellem Öffnen im Vordergrund halten"), AutoSize = true };
+    private readonly CheckBox minimizeAfterManualRestore = new() { Text = UiText.T("Nach manuellem Öffnen automatisch minimieren"), AutoSize = true };
+    private readonly NumericUpDown manualRestoreSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
     private readonly CheckBox minimizeWhenInactive = new() { Text = UiText.T("Bei Inaktivität minimieren"), AutoSize = true };
     private readonly CheckBox restorePreviousCamera = new() { Text = UiText.T("Vorherige Kamera wiederherstellen"), AutoSize = true };
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
@@ -4323,6 +4405,12 @@ internal sealed class SettingsForm : Form
         motionDetection.Checked = current.MotionDetectionEnabled;
 #endif
         minimizeWhenInactive.Checked = current.MinimizeWhenInactive;
+        minimizeAfterManualRestore.Checked = current.MinimizeAfterManualRestore;
+        manualRestoreKeepForeground.Checked = current.ManualRestoreKeepForeground;
+        manualRestoreSeconds.Value = Math.Clamp(current.ManualRestoreSeconds, 3, 300);
+        manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked || manualRestoreKeepForeground.Checked;
+        minimizeAfterManualRestore.CheckedChanged += (_, _) => manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked || manualRestoreKeepForeground.Checked;
+        manualRestoreKeepForeground.CheckedChanged += (_, _) => manualRestoreSeconds.Enabled = minimizeAfterManualRestore.Checked || manualRestoreKeepForeground.Checked;
         restorePreviousCamera.Checked = current.RestorePreviousCameraAfterMotion;
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
         indicatorSeconds.Value = Math.Clamp(current.MotionIndicatorSeconds, 1, 10);
@@ -4491,7 +4579,7 @@ internal sealed class SettingsForm : Form
         generalGroup.Controls.Add(generalFields);
         table.Controls.Add(generalGroup, 0, 2);
 
-        var activityOptions = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 3 });
+        var activityOptions = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 4 });
         for (var row = 0; row < activityOptions.RowCount; row++)
             activityOptions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var minimizedStart = new CheckBox { Name = "MinimizedStart", Text = UiText.T("Minimiert starten"), AutoSize = true,
@@ -4534,6 +4622,12 @@ internal sealed class SettingsForm : Form
         indicatorOptions.Controls.Add(new Label { Text = UiText.T("Sekunden"), AutoSize = true, Margin = new Padding(3, 4, 12, 0) });
         indicatorOptions.Controls.Add(highlightMotionInGrid);
         activityOptions.Controls.Add(indicatorOptions, 0, 2);
+        var manualOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
+        manualOptions.Controls.Add(manualRestoreKeepForeground);
+        manualOptions.Controls.Add(minimizeAfterManualRestore);
+        manualOptions.Controls.Add(manualRestoreSeconds);
+        manualOptions.Controls.Add(new Label { Text = UiText.T("Sekunden (pausiert bei Mauszeiger im Fenster)"), AutoSize = true });
+        activityOptions.Controls.Add(manualOptions, 0, 3);
 
         var activityGroup = Batch(new GroupBox { Text = UiText.T("Bewegung und Aktivitätsanzeige"), Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
         activityGroup.Controls.Add(activityOptions);
@@ -5063,6 +5157,9 @@ internal sealed class SettingsForm : Form
                 MotionIndicatorSeconds = (int)indicatorSeconds.Value,
                 HighlightMotionInGrid = highlightMotionInGrid.Checked,
                 MinimizeWhenInactive = minimizeWhenInactive.Checked,
+                MinimizeAfterManualRestore = minimizeAfterManualRestore.Checked,
+                ManualRestoreKeepForeground = manualRestoreKeepForeground.Checked,
+                ManualRestoreSeconds = (int)manualRestoreSeconds.Value,
                 RestorePreviousCameraAfterMotion = restorePreviousCamera.Checked,
                 DirectHomeAssistantEnabled = directHomeAssistant.Checked,
                 HomeAssistantUrl = homeAssistantUrl.Text.Trim(),

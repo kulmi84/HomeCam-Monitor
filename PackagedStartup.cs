@@ -5,7 +5,11 @@ namespace HomeCamMonitor;
 
 internal static class PackagedStartup
 {
+#if NEXT_BETA
+    internal const string TaskId = "HomeCamMonitorNextBetaStartup";
+#else
     internal const string TaskId = "HomeCamMonitorStartup";
+#endif
 
     internal interface ITask
     {

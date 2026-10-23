@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <DefineConstants>$(DefineConstants);STORE_PACKAGE</DefineConstants>
+    <DefineConstants Condition="'$(NextBeta)' == 'true'">$(DefineConstants);NEXT_BETA</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../PackagedStartup.cs" Link="PackagedStartup.cs" />
