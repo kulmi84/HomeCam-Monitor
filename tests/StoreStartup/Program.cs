@@ -1,5 +1,21 @@
 using HomeCamMonitor;
 using Windows.ApplicationModel;
+using System.Xml;
+
+#if NEXT_BETA
+Require(PackagedStartup.TaskId == "HomeCamMonitorNextBetaStartup", "Beta startup identity overlaps the stable app.");
+#else
+Require(PackagedStartup.TaskId == "HomeCamMonitorStartup", "Stable startup identity changed.");
+#endif
+if (args.Length == 2 && args[0] == "--manifest")
+{
+    var manifest = new XmlDocument();
+    manifest.Load(args[1]);
+    var startup = manifest.SelectNodes("//*[local-name()='StartupTask']")!;
+    Require(startup.Count == 1 && startup[0]!.Attributes!["TaskId"]!.Value == PackagedStartup.TaskId,
+        "Compiled startup identity does not match the packaged manifest.");
+    Console.WriteLine("BESTANDEN: Autostart-Kennung im Programm stimmt mit dem Paketmanifest überein.");
+}
 
 
 var disabled = new FakeTask(StartupTaskState.Disabled);

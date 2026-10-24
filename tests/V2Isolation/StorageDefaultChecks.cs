@@ -6,7 +6,13 @@ internal static partial class Check
 {
     private static void TestStorageDefaults()
     {
-#if RELEASE_V2
+#if NEXT_BETA
+        const string expectedSettings = "HomeCamMonitor-V2-NextBeta";
+        const string expectedRecordings = "HomeCam Monitor V2 Next Beta";
+        if (SettingsLocation.RegistryPath != @"Software\HomeCamMonitor-V2-NextBeta" ||
+            ApplicationChannel.StorageName != expectedSettings)
+            throw new Exception("Next Beta shares the stable settings/startup identity.");
+#elif RELEASE_V2
         const string expectedSettings = "HomeCamMonitor-V2";
         const string expectedRecordings = "HomeCam Monitor V2";
 #else

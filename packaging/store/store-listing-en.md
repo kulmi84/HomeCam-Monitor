@@ -27,14 +27,21 @@ Support: https://github.com/kulmi84/HomeCam-Monitor/issues. Privacy and confiden
 - Local motion detection, video recordings and snapshots
 - Camera and recording settings, with optional Windows startup
 
+- Movable and resizable motion picture-in-picture in fullscreen
+- Optional timed minimization and foreground duration after manual opening
+- About dialog with GitHub, help and version information
+
 ## Keywords
 
 network camera; RTSP; ONVIF; live view; motion detection; video recording
 
 ## Release notes
 
-Version 2.0.25.0
-• Fixes the Store app taskbar icon: a transparent black logo in Windows light mode and a white logo in dark mode.
-• The icon updates when the Windows theme changes while the app is running; operation after a Windows restart has also been confirmed.
-• If an older pinned shortcut still shows the previous icon, unpin it, start HomeCam from the Start menu and pin the running app again.
-Existing camera settings, passwords and storage paths are preserved.
+Version 2.1.0.0
+• New: motion picture-in-picture in fullscreen, with rounded corners.
+• Move and resize the preview through the right-click Picture-in-picture menu, even without a motion event.
+• Hovering over the preview pauses automatic hiding.
+• New options for foreground duration and automatic minimization after manual opening.
+• Improved stream sizing after minimized startup and when restoring the window.
+• About dialog with GitHub, help and version information.
+Existing camera settings, credentials and storage paths are preserved.

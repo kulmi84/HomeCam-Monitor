@@ -26,6 +26,19 @@
     <DefineConstants Condition="'$(FinalRelease)' == 'true'">$(DefineConstants);RELEASE_V2</DefineConstants>
     <DefineConstants Condition="'$(StoreRelease)' == 'true'">$(DefineConstants);STORE_PACKAGE</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(NextBeta)' == 'true'">
+    <AssemblyName>HomeCamMonitor-V2-NextBeta</AssemblyName>
+    <Version>2.0.25-beta.7</Version>
+    <AssemblyVersion>2.0.25.14</AssemblyVersion>
+    <FileVersion>2.0.25.14</FileVersion>
+    <Product>HomeCam Monitor V2 Next Beta</Product>
+    <Title>HomeCam Monitor V2 Next Beta</Title>
+    <DefineConstants>$(DefineConstants);NEXT_BETA</DefineConstants>
+    <OutputPath>bin/NextBeta/</OutputPath>
+  </PropertyGroup>
+  <Target Name="ValidateNextBeta" BeforeTargets="PrepareForBuild" Condition="'$(NextBeta)' == 'true'">
+    <Error Condition="'$(FinalRelease)' == 'true'" Text="NextBeta cannot be combined with stable release builds." />
+  </Target>
   <ItemGroup>
     <Content Include="assets/homecam-icon-Default.ico" TargetPath="HomeCam-Standard.ico" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="assets/homecam-icon-White.ico" TargetPath="HomeCam-Weiss-transparent.ico" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
@@ -56,6 +69,7 @@
   </Target>
   <Target Name="WriteStoreBuildMarker" AfterTargets="Publish" Condition="'$(StoreRelease)' == 'true'">
     <WriteLinesToFile File="$(PublishDir)HomeCamMonitor.StoreBuild.json" Lines="{ &quot;startupTaskId&quot;: &quot;HomeCamMonitorStartup&quot; }" Overwrite="true" />
+    <WriteLinesToFile Condition="'$(NextBeta)' == 'true'" File="$(PublishDir)HomeCamMonitor.StoreBuild.json" Lines="{ &quot;startupTaskId&quot;: &quot;HomeCamMonitorNextBetaStartup&quot; }" Overwrite="true" />
   </Target>
   <!-- The package analyzer needs a newer Roslyn than this .NET 8 project. -->
   <Target Name="RemoveIncompatibleOpenCvAnalyzer" BeforeTargets="CoreCompile">

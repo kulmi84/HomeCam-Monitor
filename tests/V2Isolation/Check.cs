@@ -22,6 +22,14 @@ internal static partial class Check
             Console.WriteLine(frameMode == "frame" ? "frame=1" : "frame=0"); return;
         }
         Application.EnableVisualStyles();
+        if (args.Length == 3 && args[0] == "--pip-player") { TestMotionPreviewPlayer(args[1],args[2]); return; }
+        if (args.Length == 2 && args[0] == "--pip-editor-screenshot") { CaptureMotionPreviewEditor(args[1]); return; }
+        if (args.Length == 2 && args[0] == "--about-screenshot") { CaptureAboutScreenshot(args[1]); return; }
+        if (args.Length == 3 && args[0] == "--store-screenshots") { CaptureStoreScreenshots(args[1], args[2]); return; }
+        if (args.Length == 3 && args[0] == "--initial-player") { TestInitialPlayer(args[1], args[2]); return; }
+        if (args.Length == 4 && args[0] == "--restore-player") { TestRestorePlayer(args[1], args[2], args[3]); return; }
+        if (args.Contains("--restore-layout")) { TestRestoreLayout(); return; }
+        if (args.Contains("--next-beta-presentation")) { TestNextBetaPresentation(); return; }
         if (args.Contains("--window-icon-theme")) { TestWindowIconTheme(); return; }
         if (args.Contains("--helper-paths")) { TestReolinkHelperPaths(); return; }
         if (args.Contains("--logo-variants")) { TestLogoVariants(); return; }
@@ -52,6 +60,7 @@ internal static partial class Check
         if (args.Length == 1 && args[0] == "--settings-presentation") { TestSettingsPresentation(); return; }
         if (args.Length == 1 && args[0] == "--settings-tabs") { TestCameraAvailabilityAndSources(); return; }
         if (args.Length == 1 && args[0] == "--direct") { TestDirectConnection(); return; }
+        if (args.Contains("--motion-pip")) { TestMotionPictureInPicture(); return; }
         TestStorageDefaults();
         if (args.Contains("--storage-defaults")) return;
         if (ApplicationChannel.StorageName != "HomeCamMonitor-V2-Beta" ||

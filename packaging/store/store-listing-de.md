@@ -1,4 +1,4 @@
-# HomeCam Monitor – Store-Eintrag (Entwurf)
+# HomeCam Monitor – Store-Eintrag 2.1
 
 Support: https://github.com/kulmi84/HomeCam-Monitor/issues. Kontakt für Datenschutz und vertrauliche Anliegen: support@dorisundmarcin.de
 
@@ -27,12 +27,23 @@ Die Verbindung hängt von Kamera, Netzwerk und Firewall ab. Für den UID-Weg kö
 - Kamera- und Aufnahmeeinstellungen
 - Optionaler Windows-Autostart
 
+- Bild im Bild bei Bewegung im Vollbild, frei verschiebbar und skalierbar
+- Zeitgesteuertes Minimieren und Vordergrunddauer nach manuellem Öffnen
+- Über-Dialog mit GitHub, Hilfe und Versionsinformationen
+
 ## Suchbegriffe
 
 Netzwerkkamera; Kamera Monitor; RTSP; ONVIF; Liveansicht; Bewegungserkennung; Videoaufnahme
 
-## Vor der Übernahme ins Partner Center
+## Neuigkeiten
 
-Datenschutzhinweise sind direkt im Partner Center gespeichert; hierfür ist keine eigene Webseite nötig. Kategorie: Dienstprogramme + Tools. Preis und Länder sind noch nicht festgelegt. Altersfreigabe anhand des tatsächlichen Funktionsumfangs beantworten. Screenshots ausschließlich mit Beispieldaten erstellen. Verifizierte Kameratest-Anleitung für die Zertifizierung ergänzen; keine privaten Zugangsdaten verwenden.
+Version 2.1.0.0
+• Neu: Bild im Bild bei Bewegung im Vollbild, mit abgerundeten Ecken.
+• Vorschau verschieben und über Rechtsklick → Bild im Bild → Größe ändern anpassen – auch ohne Bewegung.
+• Der Mauszeiger in der Vorschau pausiert das Ausblenden.
+• Neue Optionen für Vordergrunddauer und automatisches Minimieren nach manuellem Öffnen.
+• Verbesserte Streamdarstellung nach minimiertem Start und beim Wiederherstellen.
+• Über-Dialog mit GitHub, Hilfe und Versionsinformationen.
+Kameraeinstellungen, Zugangsdaten und Speicherpfade bleiben erhalten.
 
-Store-ID: 9P6668481MGG. Getestete Plattform: Windows 11 x64. Die niedrigere Manifest-Untergrenze ist keine bestätigte Windows-10-Testabdeckung.
+Store-ID: 9P6668481MGG. Bestehende Preise, Märkte und Datenschutzhinweise bleiben bei dieser Aktualisierung erhalten.
