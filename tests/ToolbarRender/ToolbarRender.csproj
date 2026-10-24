@@ -13,7 +13,9 @@
     <EmbeddedResource Include="../../assets/HomeCamMonitor.ico" LogicalName="HomeCamMonitor.ApplicationIcon" />
     <EmbeddedResource Include="../../assets/homecam-monitor-logo.png" LogicalName="HomeCamMonitor.OfflineLogo" />
     <Compile Include="../../Program.cs" />
+    <Compile Include="../../AboutDialog.cs" />
     <Compile Include="../../ManualRestoreMinimization.cs" />
+    <Compile Include="../../MotionPictureInPicture.cs" />
     <Compile Include="../../UiText.cs" />
     <Compile Include="../../LogoVariants.cs" />
     <Compile Include="../../ApplicationChannel.cs" />

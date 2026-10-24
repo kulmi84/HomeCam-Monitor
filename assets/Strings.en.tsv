@@ -453,3 +453,21 @@ Reolink-Verbindungsdienst: Zugriff verweigert [HELPER-ACCESS]	Reolink helper: ac
 Nach manuellem Öffnen automatisch minimieren	Automatically minimize after opening manually
 Sekunden (pausiert bei Mauszeiger im Fenster)	seconds (paused while the pointer is inside the window)
 Nach manuellem Öffnen im Vordergrund halten	Keep on top after opening manually
+Bewegung im Vollbild als Bild im Bild anzeigen	Show motion as picture in picture in fullscreen
+Bild im Bild bei Bewegung im Vollbild	Picture in picture for motion in fullscreen
+Über …	About …
+Über HomeCam Monitor	About HomeCam Monitor
+Version {0} · Build {1}	Version {0} · Build {1}
+Projekt auf GitHub	Project on GitHub
+Fehler melden / Verbesserung vorschlagen	Report a bug / suggest an improvement
+Anleitung öffnen	Open user guide
+Lizenz- und Komponentenhinweise	License and component notices
+Die Lizenzhinweise konnten nicht geöffnet werden.	The license notices could not be opened.
+Der Link konnte nicht geöffnet werden:\n{0}	The link could not be opened:\n{0}
+Link öffnen	Open link
+Entwickelt von {0}	Developed by {0}
+Bild im Bild	Picture in picture
+Größe ändern …	Resize …
+Anpassung beenden	Finish adjustment
+Ziehen zum Verschieben · Ränder zum Vergrößern	Drag to move · drag edges to resize
+Aktiviert	Enabled

@@ -28,9 +28,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(NextBeta)' == 'true'">
     <AssemblyName>HomeCamMonitor-V2-NextBeta</AssemblyName>
-    <Version>2.0.25-beta.6</Version>
-    <AssemblyVersion>2.0.25.7</AssemblyVersion>
-    <FileVersion>2.0.25.7</FileVersion>
+    <Version>2.0.25-beta.7</Version>
+    <AssemblyVersion>2.0.25.14</AssemblyVersion>
+    <FileVersion>2.0.25.14</FileVersion>
     <Product>HomeCam Monitor V2 Next Beta</Product>
     <Title>HomeCam Monitor V2 Next Beta</Title>
     <DefineConstants>$(DefineConstants);NEXT_BETA</DefineConstants>

@@ -97,6 +97,11 @@ internal sealed class Settings
     public int MotionForegroundSeconds { get; set; } = 10;
     public int MotionIndicatorSeconds { get; set; } = 2;
     public bool HighlightMotionInGrid { get; set; }
+    public bool MotionPictureInPictureEnabled { get; set; } = true;
+    public double MotionPreviewX { get; set; } = -1;
+    public double MotionPreviewY { get; set; } = -1;
+    public double MotionPreviewWidth { get; set; } = .31;
+    public double MotionPreviewHeight { get; set; } = .31;
     public bool MinimizeWhenInactive { get; set; }
     public bool MinimizeAfterManualRestore { get; set; }
     public bool ManualRestoreKeepForeground { get; set; } = true;
@@ -697,6 +702,8 @@ internal sealed partial class MonitorForm : Form
         motionIndicator?.Hide();
         foreach (var grip in resizeGrips) grip.Hide();
         Hide();
+        HideMotionPreview();
+        motionPreviewTimer.Dispose(); motionPreviewInput?.Dispose(); motionPreview?.Dispose();
         CancelSeamlessRefresh();
         StopRecordingForClose();
         foreach (var buffer in preRollBuffers.Values) buffer.Dispose();
@@ -1649,9 +1656,10 @@ internal sealed partial class MonitorForm : Form
         ApplyRoundedCorners(); PositionOverlays();
     }
 
-    internal void HandleSurfaceDoubleClick(Point _)
+    internal void HandleSurfaceDoubleClick(Point screenPoint)
     {
 #if BETA
+        if (TryOpenMotionPreview(screenPoint)) return;
         RegisterUserInteraction();
 #endif
         ToggleFullscreen();
@@ -1737,6 +1745,7 @@ internal sealed partial class MonitorForm : Form
         if (offlinePlaceholder.Bounds != visibleArea) offlinePlaceholder.Bounds = visibleArea;
         if (cameraGrid.Bounds != visibleArea) cameraGrid.Bounds = visibleArea;
         LayoutCameraGrid();
+        LayoutMotionPreview();
     }
 
     private void ScheduleCameraLayout()
@@ -2019,7 +2028,7 @@ internal sealed partial class MonitorForm : Form
         };
         menu.Opening += (_, _) =>
         {
-            RegisterUserInteraction();
+            if (!motionPreviewEditing && !IsMotionPreviewAt(Cursor.Position)) RegisterUserInteraction();
             PopulateCameraContextMenu(menu);
         };
         ConfigureContextMenuCorners(menu);
@@ -2092,7 +2101,18 @@ internal sealed partial class MonitorForm : Form
         };
         alwaysOnTop.Click += (_, _) => SetAlwaysOnTop(alwaysOnTop.Checked);
         menu.Items.Add(alwaysOnTop);
-
+        var pictureInPicture = new ToolStripMenuItem(UiText.T("Bild im Bild")) { DropDown = new HomeCamRoundedDropDownMenu() };
+        var enabledPreview = new ToolStripMenuItem(UiText.T("Aktiviert")) { Checked = settings.MotionPictureInPictureEnabled, CheckOnClick = true };
+        enabledPreview.Click += (_, _) => SetMotionPreviewEnabled(enabledPreview.Checked);
+        pictureInPicture.DropDownItems.Add(enabledPreview);
+        var resizePreview = new ToolStripMenuItem(UiText.T("Größe ändern …")) { Enabled = !gridMode };
+        resizePreview.Click += (_, _) => BeginMotionPreviewSizing();
+        pictureInPicture.DropDownItems.Add(resizePreview);
+        var finishPreview = new ToolStripMenuItem(UiText.T("Anpassung beenden")) { Enabled = motionPreviewEditing };
+        finishPreview.Click += (_, _) => FinishMotionPreviewSizing();
+        pictureInPicture.DropDownItems.Add(finishPreview);
+        ConfigureContextMenuCorners(pictureInPicture.DropDown);
+        menu.Items.Add(pictureInPicture);
 #if !V2_BETA
         var motionEnabled = new ToolStripMenuItem("Bewegungserkennung aktiv")
         {
@@ -2173,6 +2193,7 @@ internal sealed partial class MonitorForm : Form
 
     internal void RegisterUserInteraction()
     {
+        HideMotionPreview();
         if (manualRestoreTimer.Enabled) ArmManualRestoreTimer();
         if (!motionRestoreTimer.Enabled) return;
         motionRestoreTimer.Stop();
@@ -2443,6 +2464,7 @@ internal sealed partial class MonitorForm : Form
             if (!fullscreen) resizeGrips[index].BringToFront();
         }
         if (toolbar.Visible) toolbar.BringToFront();
+        if (motionPreview is { Visible: true }) { motionPreview.TopMost = TopMost; motionPreview.BringToFront(); if (motionPreviewInput is not null) { motionPreviewInput.TopMost = TopMost; motionPreviewInput.BringToFront(); } }
     }
 #if BETA
     internal static int GetToolbarSizePercent(Settings current, int windowWidth)
@@ -2741,6 +2763,12 @@ internal sealed partial class MonitorForm : Form
             camera.MotionEnabled && string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (motionCamera is not null) StartMotionCapture(motionCamera);
         if (activeSettingsDialog is not null) return;
+        if (settings.MotionPictureInPictureEnabled && fullscreen && !gridMode)
+        {
+            var previewIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
+            if (previewIndex >= 0) ShowMotionPreview(previewIndex);
+            return;
+        }
         if (settings.AlwaysOnTop) return;
         var cameraIndex = settings.Cameras.FindIndex(camera => string.Equals(camera.Name, cameraName, StringComparison.OrdinalIgnoreCase));
         if (cameraIndex < 0) { toolbar?.Flash(UiText.F("{0} fehlt", cameraName)); return; }
@@ -3653,17 +3681,26 @@ internal sealed class DragSurfaceForm : OverlayForm
         HandleCreated += (_, _) => NativeMethods.DisableOverlayDecoration(Handle);
         MouseDown += (_, eventArgs) =>
         {
-            if (eventArgs.Button == MouseButtons.Left) monitor.RegisterUserInteraction();
+            if (eventArgs.Button == MouseButtons.Left && !monitor.IsMotionPreviewAt(PointToScreen(eventArgs.Location)))
+                monitor.RegisterUserInteraction();
         };
 #endif
         MouseDown += (_, eventArgs) =>
         {
             if (eventArgs.Button != MouseButtons.Left) return;
+#if BETA
+            if (monitor.BeginMotionPreviewInteraction(PointToScreen(eventArgs.Location))) { Capture = true; dragPending = false; return; }
+#endif
             mouseDownPosition = eventArgs.Location;
             dragPending = true;
         };
         MouseMove += (_, eventArgs) =>
         {
+#if BETA
+            var pointer = PointToScreen(eventArgs.Location);
+            if (monitor.UpdateMotionPreviewInteraction(pointer)) return;
+            Cursor = monitor.MotionPreviewCursor(pointer);
+#endif
             if (!dragPending || eventArgs.Button != MouseButtons.Left) return;
             var dragSize = SystemInformation.DragSize;
             if (Math.Abs(eventArgs.X - mouseDownPosition.X) < dragSize.Width / 2 &&
@@ -3671,7 +3708,17 @@ internal sealed class DragSurfaceForm : OverlayForm
             dragPending = false;
             monitor.BeginMove();
         };
-        MouseUp += (_, _) => dragPending = false;
+        MouseUp += (_, _) =>
+        {
+#if BETA
+            monitor.EndMotionPreviewInteraction();
+            Capture = false;
+#endif
+            dragPending = false;
+        };
+#if BETA
+        MouseCaptureChanged += (_, _) => { if (!Capture) monitor.EndMotionPreviewInteraction(); };
+#endif
         MouseDoubleClick += (_, eventArgs) => monitor.HandleSurfaceDoubleClick(PointToScreen(eventArgs.Location));
     }
 }
@@ -4243,6 +4290,7 @@ internal sealed class SettingsForm : Form
     private readonly NumericUpDown motionSeconds = new() { Minimum = 3, Maximum = 300, Value = 10, Width = 60 };
     private readonly NumericUpDown indicatorSeconds = new() { Minimum = 1, Maximum = 10, Value = 2, Width = 60 };
     private readonly CheckBox highlightMotionInGrid = new() { Text = UiText.T("Bewegung im 4er-Raster hervorheben"), AutoSize = true };
+    private readonly CheckBox motionPictureInPicture = new() { Text = UiText.T("Bewegung im Vollbild als Bild im Bild anzeigen"), AutoSize = true };
     private readonly CheckBox directHomeAssistant = new() { Text = UiText.T("Direkt mit Home Assistant verbinden (empfohlen)"), AutoSize = true };
     private readonly TextBox homeAssistantUrl = new() { Width = 300 };
     private readonly TextBox homeAssistantToken = new() { Width = 300, UseSystemPasswordChar = true };
@@ -4415,6 +4463,7 @@ internal sealed class SettingsForm : Form
         motionSeconds.Value = Math.Clamp(current.MotionForegroundSeconds, 3, 300);
         indicatorSeconds.Value = Math.Clamp(current.MotionIndicatorSeconds, 1, 10);
         highlightMotionInGrid.Checked = current.HighlightMotionInGrid;
+        motionPictureInPicture.Checked = current.MotionPictureInPictureEnabled;
         directHomeAssistant.Checked = current.DirectHomeAssistantEnabled;
         homeAssistantUrl.Text = current.HomeAssistantUrl;
         homeAssistantToken.Text = current.HomeAssistantToken;
@@ -4579,7 +4628,7 @@ internal sealed class SettingsForm : Form
         generalGroup.Controls.Add(generalFields);
         table.Controls.Add(generalGroup, 0, 2);
 
-        var activityOptions = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 4 });
+        var activityOptions = Batch(new SettingsLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 5 });
         for (var row = 0; row < activityOptions.RowCount; row++)
             activityOptions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var minimizedStart = new CheckBox { Name = "MinimizedStart", Text = UiText.T("Minimiert starten"), AutoSize = true,
@@ -4628,6 +4677,9 @@ internal sealed class SettingsForm : Form
         manualOptions.Controls.Add(manualRestoreSeconds);
         manualOptions.Controls.Add(new Label { Text = UiText.T("Sekunden (pausiert bei Mauszeiger im Fenster)"), AutoSize = true });
         activityOptions.Controls.Add(manualOptions, 0, 3);
+        var pictureInPictureOptions = Batch(new SettingsFlowPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Margin = new Padding(0) });
+        pictureInPictureOptions.Controls.Add(motionPictureInPicture);
+        activityOptions.Controls.Add(pictureInPictureOptions, 0, 4);
 
         var activityGroup = Batch(new GroupBox { Text = UiText.T("Bewegung und Aktivitätsanzeige"), Dock = DockStyle.Top, AutoSize = true, Padding = new Padding(10) });
         activityGroup.Controls.Add(activityOptions);
@@ -4990,8 +5042,14 @@ internal sealed class SettingsForm : Form
         footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         footer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        footer.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true,
-            ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left, Margin = new Padding(3, 0, 3, 0) }, 0, 0);
+        var versionAndAbout = Batch(new SettingsFlowPanel { AutoSize = true, WrapContents = false,
+            Anchor = AnchorStyles.Left, Margin = Padding.Empty });
+        versionAndAbout.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true,
+            ForeColor = SystemColors.GrayText, Margin = new Padding(3, 7, 14, 0) });
+        var about = new Button { Name = "AboutButton", Text = UiText.T("Über …"), AutoSize = true, DialogResult = DialogResult.None };
+        about.Click += (_, _) => { using var dialog = new AboutDialog(); dialog.ShowDialog(this); };
+        versionAndAbout.Controls.Add(about);
+        footer.Controls.Add(versionAndAbout, 0, 0);
 #else
         table.Controls.Add(new Label { Text = $"Version {Application.ProductVersion.Split('+')[0]}", AutoSize = true, ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Left }, 0, 3);
 #endif
@@ -5156,6 +5214,7 @@ internal sealed class SettingsForm : Form
                 MotionForegroundSeconds = (int)motionSeconds.Value,
                 MotionIndicatorSeconds = (int)indicatorSeconds.Value,
                 HighlightMotionInGrid = highlightMotionInGrid.Checked,
+                MotionPictureInPictureEnabled = motionPictureInPicture.Checked,
                 MinimizeWhenInactive = minimizeWhenInactive.Checked,
                 MinimizeAfterManualRestore = minimizeAfterManualRestore.Checked,
                 ManualRestoreKeepForeground = manualRestoreKeepForeground.Checked,

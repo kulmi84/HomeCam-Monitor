@@ -12,25 +12,33 @@ HomeCam Monitor V2 ist ein kostenloser IP-Kamera-Viewer und RTSP-Player für Win
 
 **English:** Free Windows IP camera viewer and RTSP camera monitor with a four-camera view, snapshots, video recording, pre-recording and optional Home Assistant motion/person sensor integration. Home Assistant is not required to view camera streams.
 
-## Aktuell: Version 2.0.25.0
+## Aktuell: Version 2.1.0.0
 
-**HomeCam Monitor V2 – 2.0.25.0** korrigiert die automatische Aktualisierung des transparenten Taskleistensymbols beim Windows-Designwechsel. Der Wechsel und die Funktion nach Windows-Neustart sind im installierten Testpaket bestätigt. Die App verwendet in der Microsoft-Store-Ausgabe automatisch ein transparentes weißes Taskleistensymbol im dunklen und ein schwarzes im hellen Windows-Modus. Eine manuelle Symbolauswahl in den App-Einstellungen entfällt. Die lokale Ausgabe enthält weiterhin drei direkt aus der EXE auswählbare Verknüpfungssymbole. Bei Problemen mit alten Store-Verknüpfungen HomeCam über das Startmenü starten und von dort neu an die Taskleiste anheften.
+**HomeCam Monitor V2 – 2.1** ergänzt Bild im Bild bei Bewegung im Vollbild: frei verschiebbar, in der Größe anpassbar und mit abgerundeten Ecken. Der Mauszeiger in der Vorschau pausiert das Ausblenden. Über das Rechtsklickmenü lässt sich die Größe auch ohne laufendes Bewegungsereignis einstellen.
 
-[Release und Downloads 2.0.25.0](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.0.25.0) · [Änderungen und Upgrade](docs/release-v2.0.25.0.md) · [Microsoft Store](https://apps.microsoft.com/detail/9P6668481MGG)
+Das Einblenden nach minimiertem Start und beim Wiederherstellen aus der Taskleiste wurde verbessert. Neue Optionen steuern Vordergrunddauer und automatisches Minimieren nach manuellem Öffnen. Der **Über**-Dialog verlinkt GitHub, Anleitung und Fehlerberichte.
 
-Die Store-Freigabe erfolgt durch Microsoft. Beide Ausgaben werden aus derselben Versionsangabe in `Directory.Build.props` gebaut. Gespeicherte Kameraeinstellungen und selbst gewählte Speicherpfade bleiben erhalten.
+[Release und Downloads 2.1.0.0](https://github.com/kulmi84/HomeCam-Monitor/releases/tag/v2.1.0.0) · [Änderungen und Upgrade](docs/release-v2.1.0.0.md) · [Microsoft Store](https://apps.microsoft.com/detail/9P6668481MGG)
+
+Die Store-Freigabe erfolgt durch Microsoft. Gespeicherte Kameras, Zugangsdaten und Speicherpfade bleiben beim Update erhalten. Die transparenten Taskleistensymbole für helle und dunkle Windows-Designs bleiben enthalten.
 
 ### Einzelkamera
 
-Ein Kamerabild im rahmenlosen Fenster mit direkt erreichbarer Bedienleiste für Kamerawechsel, Rasteransicht, Snapshots, Aufnahmen und Einstellungen.
-
-<img src="docs/screenshots/v2-single-camera.png" alt="HomeCam Monitor V2: Einzelkamera mit Bedienleiste" width="50%">
+<img src="docs/screenshots/v2.1/01-einzelkamera.png" alt="HomeCam Monitor 2.1: Einzelkamera mit Bedienleiste" width="70%">
 
 ### Vierer-Raster
 
-Bis zu vier Kameras gleichzeitig im Blick. Nicht belegte Felder zeigen auf Wunsch das HomeCam-Logo.
+<img src="docs/screenshots/v2.1/02-vier-kameras.png" alt="HomeCam Monitor 2.1: vier Kameras gleichzeitig" width="70%">
 
-<img src="docs/screenshots/v2-four-camera-grid.png" alt="HomeCam Monitor V2: Vierer-Raster mit drei Kameras und einem freien Feld" width="50%">
+### Bild im Bild im Vollbild
+
+<img src="docs/screenshots/v2.1/03-bild-im-bild.png" alt="HomeCam Monitor 2.1: Bewegungskamera als Bild im Bild" width="70%">
+
+### Einstellungen
+
+<img src="docs/screenshots/v2.1/04-einstellungen.png" alt="HomeCam Monitor 2.1: Kamera- und Fenstereinstellungen" width="70%">
+
+Die Produktbilder zeigen aus App-Steuerelementen gerenderte Ansichten mit fiktiven Kameraszenen ohne Personen. Die älteren Bilder in der Anleitung bleiben erhalten.
 
 ## V2.0.0 – Grundlage der finalen Anwendung
 

@@ -54,12 +54,14 @@ jobs:
             dotnet build tests/V2Isolation/V2Isolation.csproj -c Release -p:NextBeta=$next -p:FinalRelease=$final -p:StoreRelease=true -o $tests
             if ($LASTEXITCODE -ne 0) { throw "Test build failed: $flavor" }
             $check = Join-Path $tests 'V2Isolation.exe'
-            foreach ($mode in @('--storage-defaults', '--window-icon-theme', '--next-beta-presentation', '--restore-layout')) {
+            foreach ($mode in @('--storage-defaults', '--window-icon-theme', '--next-beta-presentation', '--restore-layout', '--motion-pip', '--localization')) {
               & $check $mode
               if ($LASTEXITCODE -ne 0) { throw "Check failed: $flavor $mode" }
             }
             & $check --initial-player (Join-Path $media 'mpv.exe') $fixture
             if ($LASTEXITCODE -ne 0) { throw "First minimized player launch failed: $flavor" }
+            & $check --pip-player (Join-Path $media 'mpv.exe') $fixture
+            if ($LASTEXITCODE -ne 0) { throw "Bild-im-Bild-Wiedergabe fehlgeschlagen: $flavor" }
             & $check --restore-player (Join-Path $media 'mpv.exe') $fixture (Join-Path $env:RUNNER_TEMP "next-beta-results/$flavor")
             if ($LASTEXITCODE -ne 0) { throw "Manual/motion restore failed: $flavor" }
             $startupTests = Join-Path $env:RUNNER_TEMP "startup-tests-$flavor"

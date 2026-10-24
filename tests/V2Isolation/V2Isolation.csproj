@@ -39,6 +39,7 @@
     <Compile Include="HomeAssistantChecks.cs" />
     <Compile Include="LocalMotionChecks.cs" />
     <Compile Include="DocumentationScreenshots.cs" />
+    <Compile Include="StoreScreenshots.cs" />
     <Compile Include="LocalizationChecks.cs" />
     <Compile Include="LogoVariantChecks.cs" />
     <Compile Include="StorageDefaultChecks.cs" />

@@ -7,6 +7,110 @@ using System.Text.Json;
 namespace V2Isolation;
 internal static partial class Check
 {
+    private static void TestMotionPictureInPicture()
+    {
+        const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var type = typeof(MonitorForm);
+        var initial = SettingsStore.CreateForNewInstallation();
+        initial.MotionRetentionDays = 0;
+        initial.AlwaysOnTop = true;
+        initial.Cameras.Add(new CameraEntry { Name = "Main", Active = true, MotionEnabled = true });
+        initial.Cameras.Add(new CameraEntry { Name = "Motion", Active = true, MotionEnabled = true });
+        initial.SelectedCamera = 0;
+        if (!initial.MotionPictureInPictureEnabled || !JsonSerializer.Deserialize<Settings>("{}")!.MotionPictureInPictureEnabled)
+            throw new Exception("New and existing settings should enable picture in picture by default.");
+        using var monitor = new MonitorForm(initial);
+        type.GetField("fullscreen", hidden)!.SetValue(monitor, true);
+        initial.MotionPictureInPictureEnabled = false;
+        var roundTrip = JsonSerializer.Deserialize<Settings>(JsonSerializer.Serialize(initial))!;
+        if (roundTrip.MotionPictureInPictureEnabled) throw new Exception("Disabled preview setting was not preserved.");
+        type.GetMethod("HandleMotion", hidden)!.Invoke(monitor, new object[] { "Motion", false });
+        if (type.GetField("motionPreview", hidden)!.GetValue(monitor) is not null)
+            throw new Exception("Disabled picture in picture created a preview.");
+        initial.MotionPictureInPictureEnabled = true;
+        type.GetMethod("HandleMotion", hidden)!.Invoke(monitor, new object[] { "Motion", false });
+        if (initial.SelectedCamera != 0) throw new Exception("Motion replaced the fullscreen camera.");
+        var preview = (MotionPreviewWindow?)type.GetField("motionPreview", hidden)!.GetValue(monitor);
+        if (preview is null || monitor.PointToClient(preview.Location).X + preview.Width > monitor.ClientSize.Width || monitor.PointToClient(preview.Location).Y + preview.Height > monitor.ClientSize.Height)
+            throw new Exception("Fullscreen motion preview is missing or outside the window.");
+        // A second motion arrives while the owned preview window is already visible.
+        type.GetMethod("ShowMotionPreview", hidden)!.Invoke(monitor, new object[] { 1 });
+        if (!preview.Visible) throw new Exception("Repeated motion hid the preview.");
+        if (preview.Padding != Padding.Empty || preview.BackColor == Color.Red)
+            throw new Exception("Picture in picture must not retain the red preview border.");
+        void CheckRoundedPreview()
+        {
+            if (preview.CornerResult == 0 && preview.Region is not null)
+                throw new Exception("Native rounding must not use a pixelated window region.");
+            if (preview.CornerResult != 0 && (preview.Region is null || preview.Region.IsVisible(0,0)))
+                throw new Exception("Fallback rounded corners are missing.");
+        }
+        CheckRoundedPreview();
+        monitor.ClientSize = new Size(1280, 720);
+        type.GetMethod("LayoutMotionPreview", hidden)!.Invoke(monitor, null);
+        CheckRoundedPreview();
+        ShowVideoTestWindow(monitor.Handle, 4);
+        Application.DoEvents();
+        var before = preview.Bounds;
+        var center = preview.PointToScreen(new Point(preview.Width / 2, preview.Height / 2));
+        if (!monitor.BeginMotionPreviewInteraction(center)) throw new Exception("Preview drag did not start.");
+        monitor.UpdateMotionPreviewInteraction(new Point(center.X - 100, center.Y - 80));
+        monitor.EndMotionPreviewInteraction(false);
+        if (preview.Left >= before.Left || preview.Top >= before.Top) throw new Exception("Preview did not move.");
+        var moved = preview.Bounds;
+        var corner = preview.PointToScreen(new Point(preview.Width - 12, preview.Height - 12));
+        if (!monitor.BeginMotionPreviewInteraction(corner)) throw new Exception("Preview resize did not start.");
+        monitor.UpdateMotionPreviewInteraction(new Point(corner.X + 50, corner.Y + 30));
+        monitor.EndMotionPreviewInteraction(false);
+        if (preview.Width <= moved.Width || preview.Height <= moved.Height) throw new Exception("Preview did not resize.");
+        var saved = JsonSerializer.Deserialize<Settings>(JsonSerializer.Serialize(initial))!;
+        if (saved.MotionPreviewX != initial.MotionPreviewX || saved.MotionPreviewWidth != initial.MotionPreviewWidth) throw new Exception("Preview geometry did not persist.");
+        monitor.ExpireMotionPreview(true);
+        if (!preview.Visible) throw new Exception("Pointer inside must preserve preview.");
+        using var menu = (ContextMenuStrip)type.GetMethod("CreateCameraContextMenu", hidden)!.Invoke(monitor, null)!;
+        type.GetMethod("PopulateCameraContextMenu", hidden)!.Invoke(monitor, new object[] { menu });
+                var pipMenu = menu.Items.OfType<ToolStripMenuItem>().Single(item => item.Text == UiText.T("Bild im Bild"));
+        if (!pipMenu.DropDownItems.OfType<ToolStripMenuItem>().Any(item => item.Text == UiText.T("Aktiviert") && item.Checked) ||
+            !pipMenu.DropDownItems.OfType<ToolStripMenuItem>().Any(item => item.Text == UiText.T("Größe ändern …")))
+            throw new Exception("Preview submenu or resize action missing.");
+        var timer = (System.Windows.Forms.Timer)type.GetField("motionPreviewTimer", hidden)!.GetValue(monitor)!;
+        if (!timer.Enabled) throw new Exception("Preview expiry was not armed.");
+        if ((bool)type.GetMethod("TryOpenMotionPreview", hidden)!.Invoke(monitor, new object[] { new Point(-10000, -10000) })!)
+            throw new Exception("A click outside the preview was consumed.");
+        if (!(bool)type.GetField("fullscreen", hidden)!.GetValue(monitor)!)
+            throw new Exception("Preview handling exited fullscreen.");
+        monitor.ExpireMotionPreview(false);
+        if (preview.Visible) throw new Exception("Preview must expire after pointer leaves.");
+        ShowVideoTestWindow(monitor.Handle, 0);
+        if (timer.Enabled || type.GetField("motionPreviewPlayer", hidden)!.GetValue(monitor) is not null)
+            throw new Exception("Preview cleanup failed.");
+        monitor.BeginMotionPreviewSizing();
+        if (!preview.Visible || type.GetField("motionPreviewPlayer", hidden)!.GetValue(monitor) is not null)
+            throw new Exception("Resize editor must open without camera playback.");
+        monitor.ExpireMotionPreview(false);
+        if (!preview.Visible || timer.Enabled) throw new Exception("Resize editor must not expire when pointer leaves.");
+        var editorStart = preview.Size;
+        var rightEdge = preview.PointToScreen(new Point(preview.Width-8, preview.Height/2));
+        if (!monitor.BeginMotionPreviewInteraction(rightEdge)) throw new Exception("Editor edge was not interactive.");
+        monitor.UpdateMotionPreviewInteraction(new Point(rightEdge.X-60,rightEdge.Y));
+        monitor.EndMotionPreviewInteraction(false);
+        if (preview.Width >= editorStart.Width || preview.Height >= editorStart.Height)
+            throw new Exception("Editor edge drag did not resize proportionally.");
+        if (!preview.Visible || timer.Enabled) throw new Exception("Editor closed or resumed expiry after resizing.");
+        var input = (Form)type.GetField("motionPreviewInput",hidden)!.GetValue(monitor)!;
+        if (input.Bounds != preview.Bounds) throw new Exception("Preview input overlay did not follow resizing.");
+        // User adjusts, clicks outside, then motion shows the saved preview again.
+        monitor.RegisterUserInteraction();
+        if (preview.Visible) throw new Exception("Outside interaction did not finish the adjustment.");
+        type.GetMethod("ShowMotionPreview",hidden)!.Invoke(monitor,new object[]{1});
+        type.GetMethod("ShowMotionPreview",hidden)!.Invoke(monitor,new object[]{1});
+        if (!preview.Visible) throw new Exception("Motion did not reopen the adjusted preview.");
+        type.GetMethod("HideMotionPreview",hidden)!.Invoke(monitor,null);
+        input.Dispose(); preview.Dispose();
+        timer.Dispose();
+        Console.WriteLine("Fullscreen motion preserves selection, creates an inset, and cleans up playback.");
+    }
+
     private static void PumpFor(int milliseconds)
     {
         var watch = Stopwatch.StartNew();
@@ -126,4 +230,60 @@ internal static partial class Check
             ShowVideoTestWindow(monitor.Handle, 0);
         }
     }
-}
+    private static void TestMotionPreviewPlayer(string executable, string fixture)
+    {
+        File.Copy(Path.GetFullPath(executable),Path.Combine(AppContext.BaseDirectory,"mpv.exe"),true);
+        const System.Reflection.BindingFlags flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+        var settings=new Settings { MotionRetentionDays=0, Width=1280,Height=720, Cameras=[
+            new() { Name="Main",Active=true }, new() { Name="Preview",Active=true,StreamUrl=new Uri(Path.GetFullPath(fixture)).AbsoluteUri } ] };
+        using var monitor=new MonitorForm(settings);
+        typeof(MonitorForm).GetField("fullscreen",flags)!.SetValue(monitor,true);
+        ShowVideoTestWindow(monitor.Handle,4);
+        try
+        {
+            typeof(MonitorForm).GetMethod("ShowMotionPreview",flags)!.Invoke(monitor,new object[]{1});
+            var preview=(MotionPreviewWindow)typeof(MonitorForm).GetField("motionPreview",flags)!.GetValue(monitor)!;
+            var host=(Panel)typeof(MonitorForm).GetField("motionPreviewVideo",flags)!.GetValue(monitor)!;
+            var pipe=(string)typeof(MonitorForm).GetField("motionPreviewPipeName",flags)!.GetValue(monitor)!;
+            var watch=Stopwatch.StartNew(); Size dimensions;
+            do { PumpFor(100); dimensions=ReadPlayerDimensions(pipe); } while(dimensions.IsEmpty && watch.Elapsed<TimeSpan.FromSeconds(15));
+            if(dimensions!=host.ClientSize) throw new Exception($"Initial PiP target mismatch: {dimensions} versus {host.ClientSize}.");
+            var oldSize=preview.Size;
+            var edge=preview.PointToScreen(new Point(preview.Width-8,preview.Height/2));
+            if(!monitor.BeginMotionPreviewInteraction(edge))throw new Exception("Live preview resize failed to start.");
+            monitor.UpdateMotionPreviewInteraction(new Point(edge.X-80,edge.Y));
+            monitor.EndMotionPreviewInteraction(false); PumpFor(400);
+            dimensions=ReadPlayerDimensions(pipe);
+            if(preview.Width>=oldSize.Width || dimensions!=host.ClientSize)throw new Exception($"Live PiP resize did not update render target: {dimensions}, host={host.ClientSize}.");
+            typeof(MonitorForm).GetMethod("ShowMotionPreview",flags)!.Invoke(monitor,new object[]{1});
+            typeof(MonitorForm).GetMethod("ShowMotionPreview",flags)!.Invoke(monitor,new object[]{1});
+            if (!preview.Visible) throw new Exception("Repeated live motion hid the preview.");
+            monitor.BeginMotionPreviewSizing();
+            if(typeof(MonitorForm).GetField("motionPreviewPlayer",flags)!.GetValue(monitor)is not null)throw new Exception("Editor retained live player.");
+            monitor.ExpireMotionPreview(false);
+            if(!preview.Visible)throw new Exception("Editor expired without a camera stream.");
+            Console.WriteLine($"PASS: real mpv/D3D11 PiP resized from {oldSize} to {preview.Size}; render target follows host; editor is independent of playback.");
+        }
+        finally
+        {
+            typeof(MonitorForm).GetMethod("HideMotionPreview",flags)!.Invoke(monitor,null);
+            ((Form)typeof(MonitorForm).GetField("motionPreviewInput",flags)!.GetValue(monitor)!).Dispose();
+            ((Form)typeof(MonitorForm).GetField("motionPreview",flags)!.GetValue(monitor)!).Dispose();
+            ShowVideoTestWindow(monitor.Handle,0);
+        }
+    }
+
+    private static void CaptureMotionPreviewEditor(string output)
+    {
+        const System.Reflection.BindingFlags flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+        using var monitor=new MonitorForm(new Settings { Width=1920,Height=1080,MotionRetentionDays=0 });
+        typeof(MonitorForm).GetField("fullscreen",flags)!.SetValue(monitor,true);
+        ShowVideoTestWindow(monitor.Handle,4);
+        monitor.BeginMotionPreviewSizing(); Application.DoEvents();
+        var preview=(MotionPreviewWindow)typeof(MonitorForm).GetField("motionPreview",flags)!.GetValue(monitor)!;
+        using var bitmap=new Bitmap(preview.ClientSize.Width,preview.ClientSize.Height);
+        preview.DrawToBitmap(bitmap,new Rectangle(Point.Empty,bitmap.Size)); bitmap.Save(output);
+        typeof(MonitorForm).GetMethod("HideMotionPreview",flags)!.Invoke(monitor,null);
+        ((Form)typeof(MonitorForm).GetField("motionPreviewInput",flags)!.GetValue(monitor)!).Dispose(); preview.Dispose();
+        ShowVideoTestWindow(monitor.Handle,0);
+    }}
