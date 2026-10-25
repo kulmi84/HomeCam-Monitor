@@ -5,7 +5,7 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $betaProperties = $project.Project.PropertyGroup | Where-Object AssemblyName -eq 'HomeCamMonitor-V2-NextBeta'
 $version = [string]$betaProperties.Version
 $packageVersion = [string]$betaProperties.FileVersion
-if ($version -notmatch '^2\.0\.25-beta\.\d+$' -or $packageVersion -notmatch '^2\.0\.25\.\d+$') { throw 'Explicit NextBeta versions required.' }
+if ($version -notmatch '^2\.\d+\.\d+-beta\.\d+$' -or $packageVersion -notmatch '^2\.\d+\.\d+\.\d+$') { throw 'Explicit NextBeta versions required.' }
 $identity = Import-PowerShellDataFile (Join-Path $root 'packaging/store/identity.psd1')
 $betaIdentity = $identity.IdentityName + '.NextBeta'
 $output = if ($OutputDirectory) { [IO.Path]::GetFullPath($OutputDirectory) } else { Join-Path (Split-Path $root) "Beta/$version" }
